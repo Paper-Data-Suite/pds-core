@@ -25,6 +25,8 @@ Early setup and design.
 
 See [`migration_plan.md`](migration_plan.md) for the current migration direction.
 
+See [`docs/qr_payload_and_routing_contract.md`](docs/qr_payload_and_routing_contract.md) for the shared QR payload and routing contract.
+
 ## Development Setup
 
 ```powershell
