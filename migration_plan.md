@@ -1,402 +1,193 @@
-# Stepwise Migration Plan: Shared `pds-core` Responsibilities
+# Paper Data Suite Migration Plan
 
 ## Purpose
 
-This document outlines the planned migration path for shared Paper Data Suite responsibilities.
+This document tracks remaining migration and architecture work for the Paper Data Suite family of repositories.
 
-The guiding principle is:
+The current direction is:
 
 ```text
 pds-core defines shared contracts and utilities.
-pds-scoreform and pds-quillan consume those utilities.
-Module-specific scoring, tagging, reporting, PDF generation, and archival workflows stay in their own modules.
+Paper Data Suite modules consume those utilities directly.
+Forward-looking modules should use PDS1 by default.
+Legacy behavior may remain as fallback where useful, but it should not drive new architecture.
 ```
 
----
-
-## 1. `pds-core` — Design shared QR payload and routing contract
-
-**Purpose:** Establish the contract before moving code.
-
-Define:
-
-* `PDS1` QR payload grammar
-* required fields: `module`, `class`, `aid`, `sid`, `page`
-* optional fields: `doc`, `pages`, `part`, `form`, `attempt`
-* legacy `OMR1` compatibility expectations
-* safe identifier rules
-* shared folder/path conventions
-* raw scan vs routed submission distinction
-* module responsibility boundaries
-
-**Status:** Complete.
+`pds-scoreform` is the Paper Data Suite version of ScoreForm. The original standalone ScoreForm repository remains available as the stable legacy line, so `pds-scoreform` should prioritize the shared suite architecture.
 
 ---
 
-## 2. `pds-core` — Scaffold package and development tooling
+## Core Architecture Principle
 
-**Purpose:** Make `pds-core` a real installable/testable Python package.
+Paper Data Suite modules should share common infrastructure through `pds-core`:
+
+* identifier validation
+* QR payload building/parsing
+* route/path conventions
+* raw scan inbox/archive path conventions
+* normalized metadata models where useful
+
+Module-specific behavior should remain in the module that owns it.
+
+Examples:
+
+| Repo            | Owns                                                                            |
+| --------------- | ------------------------------------------------------------------------------- |
+| `pds-core`      | Shared contracts, validation, QR payload utilities, route helpers               |
+| `pds-scoreform` | OMR answer sheets, scoring, ScoreForm-specific PDFs/results                     |
+| `pds-quillan`   | Writing-response sheets, writing tags, scores, feedback, writing reports        |
+| `pds-corum`     | Student behavior tracking and intervention/modification records                 |
+| `pds-chatter`   | Class/small-group discussion tracking and scoring                               |
+| `pds-register`  | Teacher class notes and instructional filing                                    |
+| `pds-cast`      | Communications to students, parents, administrators, and other stakeholders     |
+| `pds-dashboard` | Data visualization layer; name still tentative                                  |
+| `pds-folio`     | Student portfolios                                                              |
+| `pds-reports`   | Report generation layer; name still tentative                                   |
+| `pds-sunset`    | Archival lifecycle, rollover, restoration, and material carry-forward workflows |
+
+---
+
+## Shared QR Direction
+
+New Paper Data Suite modules should use `PDS1` payloads by default.
+
+General format:
+
+```text
+PDS1|module=<module>|class=<class_id>|aid=<assignment_id>|sid=<student_id>|page=<page>
+```
+
+Examples:
+
+```text
+PDS1|module=scoreform|class=english9_p2|aid=rj_act1_quiz|sid=1001|page=1
+```
+
+```text
+PDS1|module=quillan|class=english12_p4|aid=personal_narrative|sid=1001|page=1|doc=response
+```
+
+Legacy `OMR1` may remain supported as a fallback for old ScoreForm sheets, but new `pds-scoreform` generation should default to `PDS1`.
+
+---
+
+## Remaining `pds-scoreform` Work
+
+### 1. `pds-scoreform` — Review completed migration as a whole
+
+**Purpose:** Confirm that the combined migration to `pds-core` and `PDS1` did not introduce regressions.
+
+Review:
+
+* dependency setup
+* identifier validation
+* route helper adoption
+* result path preservation
+* scan inbox route adoption
+* legacy `OMR1` fallback parsing
+* default `PDS1` generation
+* QR-aware scoring behavior
+* real PDF generation/scoring workflow
+* documentation consistency
+
+This is a good point for a skeptical Antigravity review.
+
+The review should specifically check:
+
+* no accidental result-path migration;
+* no QR parsing regression;
+* no old `OMR1` documentation presented as the default;
+* no hidden dependency on machine-specific paths;
+* no scan movement/deletion/archive behavior accidentally introduced;
+* test coverage for `PDS1` generation and parsing;
+* whether `pds-scoreform` is ready for a real classroom exam trial.
+
+---
+
+### 2. `pds-scoreform` — Prepare for classroom trial
+
+**Purpose:** Make sure `pds-scoreform` is ready for the planned real exam workflow.
+
+Confirm:
+
+* fresh class packet generation;
+* `PDS1` QR decoding;
+* scoring from scanned PDFs/images;
+* routed result output;
+* roster enrichment;
+* invalid/missing QR behavior;
+* manual recovery path if a QR code fails;
+* generated files ignored by Git;
+* no real student data committed.
+
+This should be a practical readiness pass, not a broad architecture refactor.
+
+---
+
+### 3. `pds-scoreform` — Add ruff development tooling
+
+**Purpose:** Bring ScoreForm’s linting closer to `pds-core` and `pds-quillan`.
 
 Add:
 
-* package structure
-* `pyproject.toml`
-* `pytest`
-* `ruff`
-* `mypy`
-* README setup instructions
-* initial docs folder
-* CI later if desired
+* `ruff` development dependency
+* `ruff` configuration in `pyproject.toml`
+* documented lint command
+* optional update to test scripts
 
-**Depends on:** Step 1 design.
-
-**Status:** Complete.
+Start with linting only. Avoid large automatic rewrites unless reviewed carefully.
 
 ---
 
-## 3. `pds-core` — Implement shared identifier validation
+### 4. `pds-scoreform` — Add mypy development tooling cautiously
 
-**Purpose:** Move safe ID/path assumptions into one shared module.
+**Purpose:** Begin type-checking ScoreForm without forcing a disruptive strict migration.
 
-Implement validation for:
+Add:
 
-* `module`
-* `class_id`
-* `assignment_id`
-* `student_id`
-* safe filesystem/path-bearing identifiers
+* `mypy` development dependency
+* initial `mypy` configuration
+* documented type-check command
 
-Reject:
-
-* empty values
-* spaces
-* path separators
-* `..`
-* absolute paths
-* unsafe punctuation
-* QR delimiters such as `|` and `=`
-
-**Used by:** `pds-scoreform`, `pds-quillan`.
-
-**Status:** Complete.
+Use a cautious configuration at first. ScoreForm is older and more operationally complex than `pds-core`, so strict typing can be introduced gradually.
 
 ---
 
-## 4. `pds-core` — Implement QR payload data model
+### 5. `pds-scoreform` — Decide whether to remove `OMR1` fallback later
 
-**Purpose:** Create a shared internal representation for parsed QR data.
-
-Implement something like:
-
-```text
-QrPayload
-```
-
-Fields:
-
-* `schema`
-* `module`
-* `class_id`
-* `assignment_id`
-* `student_id`
-* `page`
-* optional metadata dict
-
-Include tests.
-
-**Depends on:** Step 3 identifier validation.
-
-**Status:** Complete.
-
----
-
-## 5. `pds-core` — Implement `PDS1` QR payload builder/parser
-
-**Purpose:** Let new modules create and parse shared QR payloads.
-
-Implement:
-
-* build `PDS1|module=...|class=...|aid=...|sid=...|page=...`
-* parse `PDS1`
-* validate required fields
-* reject malformed payloads
-* preserve optional fields
-
-**Used by:** future Quillan response sheets and later ScoreForm migration.
-
-**Status:** Complete.
-
----
-
-## 6. `pds-core` — Implement legacy `OMR1` parser
-
-**Purpose:** Preserve current ScoreForm compatibility.
-
-Implement parsing for:
-
-```text
-OMR1|class=<class_id>|aid=<assignment_id>|sid=<student_id>
-```
-
-Map internally to shared payload shape:
-
-```text
-schema = OMR1
-module = scoreform
-class_id = ...
-assignment_id = ...
-student_id = ...
-page = 1
-metadata = {}
-```
-
-**Important:** This should not force ScoreForm to stop producing `OMR1` yet.
-
-**Status:** Complete.
-
----
-
-## 7. `pds-core` — Implement shared route resolution helpers
-
-**Purpose:** Centralize folder construction.
-
-Implement safe path helpers for:
-
-```text
-classes/
-classes/<class_id>/
-classes/<class_id>/roster.csv
-classes/<class_id>/assignments/
-classes/<class_id>/assignments/<assignment_id>/
-classes/<class_id>/assignments/<assignment_id>/assignment.json
-classes/<class_id>/assignments/<assignment_id>/templates/
-classes/<class_id>/assignments/<assignment_id>/scans/
-classes/<class_id>/assignments/<assignment_id>/submissions/
-classes/<class_id>/assignments/<assignment_id>/submissions/<student_id>/
-classes/<class_id>/assignments/<assignment_id>/results/
-classes/<class_id>/assignments/<assignment_id>/debug/
-```
-
-No module-specific scoring or tagging logic.
-
-Helpers should:
-
-* accept `root: str | Path`
-* return `Path` objects
-* validate `class_id`, `assignment_id`, and `student_id`
-* construct paths only
-* not create directories
-
-**Status:** Complete.
-
----
-
-## 8. `pds-core` — Implement scan inbox/archive conventions
-
-**Purpose:** Give all modules one shared convention for raw scan intake and conservative scan archive locations.
-
-Define helpers for:
-
-```text
-scans_inbox/
-scans_archive/
-scans_archive/<YYYY-MM-DD>/
-```
-
-Keep behavior conservative:
-
-* do not delete originals
-* do not move files
-* do not rename files
-* do not create directories
-* do not define retention policy
-* do not define restore workflows
-* do not define audit metadata yet
-
-This step is about shared path conventions only.
-
-Higher-level archiving behavior belongs in a future module such as `pds-sunset`.
-
-**Status:** Complete.
-
----
-
-## Deferred `pds-core` Follow-up Issues
-
-These are useful but not required before beginning low-risk `pds-scoreform` migration.
-
-### Deferred A. `pds-core` — Define raw scan archive file naming and metadata contract
-
-**Purpose:** Define how raw scanned files should eventually be preserved, named, and audited after intake.
-
-Possible future topics:
-
-* source filename preservation
-* filename collision handling
-* scanner/source metadata
-* timestamps
-* checksums
-* audit JSON sidecars
-* original scan provenance
-* relationship between archived raw scans and routed submissions
-
-This should remain a contract/design issue unless implementation becomes necessary.
-
-**Do not include yet:**
-
-* deletion policy
-* retention policy
-* restore workflows
-* school-year rollover workflows
-* reusable-material carry-forward
-* full archival lifecycle behavior
-
-Those belong more naturally in `pds-sunset`.
-
-**Recommended milestone:** Backlog or later `v0.3.0 — Scan Lifecycle Contracts`.
-
----
-
-## 9. `pds-scoreform` — Add `pds-core` as a dependency
-
-**Purpose:** Prepare ScoreForm to consume shared logic.
-
-Update:
-
-* dependency config
-* imports
-* local setup docs
-* tests/install instructions
-
-For private/local development, this may temporarily use a local path dependency or editable install until packaging is settled.
-
-**Depends on:** completed `pds-core` QR/routing foundation.
-
----
-
-## 10. `pds-scoreform` — Replace internal identifier/path validation with `pds-core`
-
-**Purpose:** First low-risk extraction.
-
-Replace duplicated local checks with shared helpers for:
-
-* class IDs
-* assignment IDs
-* student IDs
-* safe paths
-* class/assignment folder resolution
-
-Do **not** change QR payload format yet.
-
----
-
-## 11. `pds-scoreform` — Use `pds-core` legacy `OMR1` parser
-
-**Purpose:** Move QR parsing responsibility out of ScoreForm while preserving behavior.
-
-Replace ScoreForm’s local `OMR1` parsing with:
-
-```text
-pds-core parses OMR1 -> ScoreForm receives normalized payload
-```
-
-Expected behavior should remain unchanged.
-
-Current ScoreForm sheets should still score.
-
----
-
-## 12. `pds-scoreform` — Use `pds-core` route helpers for result paths
-
-**Purpose:** Centralize route resolution.
-
-Move result-path construction toward shared helpers.
-
-Preserve current output compatibility unless intentionally changed:
-
-```text
-classes/<class_id>/assignments/<assignment_id>/results.csv
-```
-
-If changing to:
-
-```text
-classes/<class_id>/assignments/<assignment_id>/results/results.csv
-```
-
-make that a separate explicit migration issue.
-
----
-
-## 13. `pds-scoreform` — Use `pds-core` scan inbox/archive helpers
-
-**Purpose:** Align ScoreForm raw scan handling with shared Paper Data Suite scan conventions.
-
-Use `pds-core` helpers for:
-
-```text
-scans_inbox/
-scans_archive/
-scans_archive/<YYYY-MM-DD>/
-```
-
-Keep behavior conservative:
-
-* do not delete raw scans by default
-* do not rename raw scans as part of this step
-* do not introduce retention policy
-* do not introduce archive metadata yet
-
-This should be a path-convention adoption step only.
-
----
-
-## 14. `pds-scoreform` — Add optional `PDS1` QR payload generation
-
-**Purpose:** Begin migration without breaking old packets.
-
-Add option/configuration for generating future shared payloads:
-
-```text
-PDS1|module=scoreform|class=...|aid=...|sid=...|page=1
-```
-
-Keep default as `OMR1` until enough testing confirms compatibility.
-
----
-
-## 15. `pds-scoreform` — Decide ScoreForm QR default migration
-
-**Purpose:** Make a deliberate compatibility decision.
+**Purpose:** Decide whether legacy QR fallback should remain permanently.
 
 Options:
 
-* keep `OMR1` default indefinitely
-* switch new templates to `PDS1`
-* support both with a config flag
-* support both parser formats permanently
+* keep `OMR1` fallback indefinitely;
+* remove `OMR1` fallback after all generated examples/tests use `PDS1`;
+* keep parser fallback but remove most `OMR1` documentation;
+* provide a small legacy-note section only.
 
-This should happen only after `pds-core` parsing and routing are tested.
+This does not need to be decided immediately.
 
 ---
 
-## 16. `pds-quillan` — Add `pds-core` as a dependency
+## Remaining `pds-quillan` Work
 
-**Purpose:** Prepare Quillan for shared IDs, QR payloads, and routing.
+### 1. `pds-quillan` — Add `pds-core` as a dependency
+
+**Purpose:** Prepare Quillan for shared IDs, QR payloads, scan routes, and folder conventions.
 
 Update:
 
-* dependency config
+* dependency configuration
 * setup docs
 * development instructions
+* import smoke test if appropriate
 
-No paper workflow implementation yet.
+Use the same sibling-repo local development model as `pds-scoreform` until packaging is settled.
 
 ---
 
-## 17. `pds-quillan` — Align assignment path conventions with `pds-core`
+### 2. `pds-quillan` — Align assignment path conventions with `pds-core`
 
-**Purpose:** Ensure Quillan’s storage model will support scan routing later.
+**Purpose:** Ensure Quillan’s storage model supports future paper-based workflows.
 
 Use shared route helpers for:
 
@@ -404,7 +195,7 @@ Use shared route helpers for:
 classes/<class_id>/assignments/<assignment_id>/
 ```
 
-Keep existing Quillan data model intact:
+Keep the existing Quillan data model intact:
 
 * assignment configs
 * standards profiles
@@ -417,7 +208,7 @@ Keep existing Quillan data model intact:
 
 ---
 
-## 18. `pds-quillan` — Use `pds-core` scan inbox/archive helpers
+### 3. `pds-quillan` — Use `pds-core` scan inbox/archive helpers
 
 **Purpose:** Align Quillan’s future paper workflow with shared raw scan conventions.
 
@@ -433,7 +224,7 @@ This should not implement writing-response routing yet.
 
 ---
 
-## 19. `pds-quillan` — Design printable writing-response template contract
+### 4. `pds-quillan` — Design printable writing-response template contract
 
 **Purpose:** Define Quillan’s paper workflow before implementation.
 
@@ -446,12 +237,14 @@ Document:
 * class packet structure
 * individual student PDFs
 * scan routing expectations
+* how assignment requirements appear on the page
+* how student identity/class/assignment metadata appears on the page
 
 No implementation yet.
 
 ---
 
-## 20. `pds-quillan` — Use `pds-core` to build Quillan QR payloads
+### 5. `pds-quillan` — Use `pds-core` to build Quillan QR payloads
 
 **Purpose:** First Quillan use of shared QR logic.
 
@@ -465,7 +258,7 @@ This can be tested without generating PDFs yet.
 
 ---
 
-## 21. `pds-quillan` — Implement printable writing-response PDF generation
+### 6. `pds-quillan` — Implement printable writing-response PDF generation
 
 **Purpose:** Add the first Quillan paper-output feature.
 
@@ -479,26 +272,197 @@ templates/individual/<student_id>_<last>_<first>.pdf
 Each page should include:
 
 * header
-* class/assignment/student metadata
+* class metadata
+* assignment metadata
+* student metadata
 * QR payload
 * page number
 * lined writing area
 
 ---
 
-## 22. `pds-quillan` — Implement scan routing design spike
+### 7. `pds-quillan` — Implement scan routing design spike
 
 **Purpose:** Prototype routing scanned writing pages without full OCR/tagging.
 
-Use `pds-core` parser/router to route pages into:
+Use `pds-core` QR parsing and route helpers to route pages into:
 
 ```text
 classes/<class_id>/assignments/<assignment_id>/submissions/<student_id>/
 ```
 
-Preserve raw scan metadata conceptually, but do not define the final raw scan archive file naming or metadata contract in this step.
+Preserve the concept of raw scan provenance, but do not define the final raw scan archive file naming or metadata contract in this step.
 
 Do not implement handwriting OCR yet.
+
+---
+
+## Future Shared Module Work
+
+### `pds-corum`
+
+**Purpose:** Track student behavior patterns, interventions, modifications, and outcomes.
+
+Possible responsibilities:
+
+* behavior event logging
+* intervention tracking
+* modification plans
+* follow-up notes
+* pattern summaries
+* exportable behavior reports
+
+Likely shared dependencies:
+
+* `pds-core` identifiers
+* class/student routing
+* report output conventions
+* possible integration with `pds-dashboard` and `pds-reports`
+
+---
+
+### `pds-chatter`
+
+**Purpose:** Track and score class discussions, seminars, small-group work, and participation.
+
+Possible responsibilities:
+
+* discussion event logging
+* participation evidence
+* rubric-aligned discussion scoring
+* group-level summaries
+* student-level participation records
+* teacher notes during live discussion
+
+Likely shared dependencies:
+
+* class/student identifiers
+* assignment/session identifiers
+* route helpers
+* reporting layer
+* portfolio layer
+
+---
+
+### `pds-register`
+
+**Purpose:** File and retrieve teacher class notes, instructional records, and related artifacts.
+
+Possible responsibilities:
+
+* daily class notes
+* instructional logs
+* lesson reflections
+* unit notes
+* links between notes and classes/assignments
+* searchable teacher records
+
+Likely shared dependencies:
+
+* class IDs
+* assignment IDs
+* route helpers
+* archival conventions
+* dashboard/report integrations
+
+---
+
+### `pds-cast`
+
+**Purpose:** Support communications to students, parents, administrators, and other stakeholders.
+
+Possible responsibilities:
+
+* message templates
+* class announcements
+* parent contact logs
+* administrator updates
+* generated communication records
+* exportable communication histories
+
+Likely shared dependencies:
+
+* class/student identifiers
+* contact/recipient conventions
+* reporting layer
+* archive layer
+
+---
+
+### `pds-dashboard`
+
+**Purpose:** Provide a data visualization layer across Paper Data Suite modules.
+
+Name is tentative.
+
+Possible responsibilities:
+
+* class-level visual summaries
+* student-level trend displays
+* assignment performance views
+* behavior/participation/writing/scoring dashboards
+* cross-module data aggregation
+
+This module should consume outputs from other modules rather than own their data models.
+
+Possible alternate names:
+
+* `pds-lens`
+* `pds-atlas`
+* `pds-observatory`
+* `pds-compass`
+* `pds-vista`
+
+---
+
+### `pds-folio`
+
+**Purpose:** Maintain student portfolios across assignments, writing samples, scoring artifacts, feedback, and selected evidence.
+
+Possible responsibilities:
+
+* student artifact collections
+* writing portfolios
+* scoring history
+* selected teacher feedback
+* student-facing or teacher-facing portfolio exports
+* cross-module evidence aggregation
+
+Likely shared dependencies:
+
+* class/student identifiers
+* assignment identifiers
+* route helpers
+* reports layer
+* archive layer
+
+---
+
+### `pds-reports`
+
+**Purpose:** Generate formal reports from Paper Data Suite module data.
+
+Name is tentative.
+
+Possible responsibilities:
+
+* printable reports
+* CSV/JSON summaries
+* student reports
+* class reports
+* standards reports
+* parent/admin-facing reports
+* end-of-marking-period exports
+
+This should probably consume module outputs rather than directly own scoring/tagging logic.
+
+Possible alternate names:
+
+* `pds-dispatch`
+* `pds-brief`
+* `pds-ledger`
+* `pds-summary`
+* `pds-press`
 
 ---
 
@@ -542,56 +506,44 @@ Student-specific artifacts should generally not be carried forward as reusable m
 
 ---
 
-## Recommended Order
+## Deferred `pds-core` Follow-up Issues
 
-Do not start by modifying ScoreForm until the `pds-core` foundation is complete.
+### Define raw scan archive file naming and metadata contract
 
-Order should be:
+**Purpose:** Define how raw scanned files should eventually be preserved, named, and audited after intake.
+
+Possible future topics:
+
+* source filename preservation
+* filename collision handling
+* scanner/source metadata
+* timestamps
+* checksums
+* audit JSON sidecars
+* original scan provenance
+* relationship between archived raw scans and routed submissions
+
+This should remain a contract/design issue unless implementation becomes necessary.
+
+Do not include yet:
+
+* deletion policy
+* retention policy
+* restore workflows
+* school-year rollover workflows
+* reusable-material carry-forward
+* full archival lifecycle behavior
+
+Those belong more naturally in `pds-sunset`.
+
+Recommended milestone:
 
 ```text
-pds-core design
-pds-core package scaffold
-pds-core identifier validation
-pds-core QR payload model
-pds-core PDS1 parser/builder
-pds-core OMR1 parser
-pds-core route helpers
-pds-core scan inbox/archive helpers
-pds-scoreform dependency + low-risk migration
-pds-quillan dependency + future paper workflow
-pds-sunset archival lifecycle work later
+Backlog
 ```
 
----
+or:
 
-## Practical First Issues
-
-The first `pds-core` foundation issues are:
-
-1. **`pds-core`** — Design shared QR payload and routing contract
-2. **`pds-core`** — Scaffold pds-core Python package and development tooling
-3. **`pds-core`** — Implement shared identifier validation
-4. **`pds-core`** — Implement shared QR payload model
-5. **`pds-core`** — Implement PDS1 QR payload parser and builder
-6. **`pds-core`** — Implement legacy OMR1 parser for ScoreForm compatibility
-7. **`pds-core`** — Implement shared route resolution helpers
-8. **`pds-core`** — Implement scan inbox/archive conventions
-
-After those are complete, begin the `pds-scoreform` migration with a low-risk dependency/setup issue.
-
----
-
-## Current Milestone Completion Criteria
-
-The initial `pds-core` QR/routing foundation milestone is complete when the following are implemented and tested:
-
-* shared QR/routing contract documentation
-* package scaffold and tooling
-* identifier validation
-* `QrPayload` data model
-* `PDS1` parser/builder
-* legacy `OMR1` parser
-* class/assignment route helpers
-* scan inbox/archive route helpers
-
-Once these are merged, the next recommended milestone is the first `pds-scoreform` migration milestone.
+```text
+v0.3.0 — Scan Lifecycle Contracts
+```
