@@ -157,6 +157,22 @@ def save_workspace_root(path: str | Path) -> Path:
     return workspace_root
 
 
+def clear_saved_workspace_root() -> bool:
+    """Clear the saved workspace-root configuration."""
+    config_path = get_workspace_config_path()
+
+    try:
+        config_path.unlink()
+    except FileNotFoundError:
+        return False
+    except OSError as exc:
+        raise WorkspaceRootError(
+            f"Could not clear workspace config: {config_path}"
+        ) from exc
+
+    return True
+
+
 def resolve_workspace_root(
     explicit_root: str | Path | None = None,
 ) -> Path:

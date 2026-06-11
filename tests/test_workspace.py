@@ -13,6 +13,7 @@ from pds_core import workspace
 from pds_core.workspace import (
     WorkspaceConfig,
     WorkspaceRootError,
+    clear_saved_workspace_root,
     ensure_workspace_root,
     get_default_workspace_root,
     get_workspace_config_path,
@@ -167,6 +168,106 @@ def test_save_workspace_root_creates_parent_and_valid_json(
         + "\n"
     )
     assert list(config_path.parent.glob(".config.json.*.tmp")) == []
+
+
+def test_clear_existing_saved_workspace_root_returns_true(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(tmp_path / "workspace")
+
+    assert clear_saved_workspace_root() is True
+    assert not config_path.exists()
+
+
+def test_clear_missing_saved_workspace_root_returns_false(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+
+    assert clear_saved_workspace_root() is False
+
+
+def test_clear_saved_workspace_root_preserves_workspace_data(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config" / "config.json"
+    workspace_root = tmp_path / "workspace"
+    metadata_path = workspace_root / ".pds" / "workspace.json"
+    metadata_path.parent.mkdir(parents=True)
+    metadata_path.write_text("metadata", encoding="utf-8")
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(workspace_root)
+
+    assert clear_saved_workspace_root() is True
+    assert workspace_root.is_dir()
+    assert metadata_path.read_text(encoding="utf-8") == "metadata"
+
+
+def test_clear_saved_workspace_root_preserves_environment_resolution(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    environment_root = tmp_path / "environment"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(tmp_path / "saved")
+    monkeypatch.setenv("PDS_WORKSPACE_ROOT", str(environment_root))
+
+    clear_saved_workspace_root()
+
+    assert os.environ["PDS_WORKSPACE_ROOT"] == str(environment_root)
+    assert resolve_workspace_root() == environment_root.resolve()
+
+
+def test_clear_saved_workspace_root_restores_default_resolution(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(tmp_path / "saved")
+
+    clear_saved_workspace_root()
+
+    assert resolve_workspace_root() == (tmp_path / "Paper Data Suite").resolve()
+
+
+def test_clear_saved_workspace_root_does_not_affect_explicit_override(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    explicit_root = tmp_path / "explicit"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(tmp_path / "saved")
+
+    clear_saved_workspace_root()
+
+    assert resolve_workspace_root(explicit_root) == explicit_root.resolve()
+
+
+def test_clear_saved_workspace_root_wraps_removal_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    config_path.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+
+    def fail_to_unlink(path: Path, missing_ok: bool = False) -> None:
+        del path, missing_ok
+        raise PermissionError("access denied")
+
+    monkeypatch.setattr(Path, "unlink", fail_to_unlink)
+
+    with pytest.raises(WorkspaceRootError, match="Could not clear workspace config"):
+        clear_saved_workspace_root()
 
 
 def test_invalid_json_raises_workspace_root_error(
