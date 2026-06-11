@@ -79,6 +79,10 @@ configuration. `ensure_workspace_root()` can create and validate a workspace,
 including a small `.pds/workspace.json` marker; it does not create
 module-specific data folders.
 
+Use `clear_saved_workspace_root()` to forget the saved workspace preference and
+fall back to the environment variable or default root. Clearing the setting
+does not delete the workspace folder, `.pds/` metadata, or user data.
+
 ## Development Setup
 
 ```powershell
