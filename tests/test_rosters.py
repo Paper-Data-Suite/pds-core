@@ -12,12 +12,15 @@ from pds_core.rosters import (
     Roster,
     RosterReadError,
     RosterValidationError,
+    RosterWriteError,
+    StudentRecord,
     create_roster,
     load_roster,
     student_display_name,
     student_lookup,
     student_sort_name,
     validate_roster_rows,
+    write_roster,
 )
 
 
@@ -217,6 +220,144 @@ def test_load_roster_rejects_missing_file(tmp_path: Path) -> None:
         load_roster(path)
 
     assert raised.value.path == path
+
+
+def test_write_roster_writes_valid_minimal_csv(tmp_path: Path) -> None:
+    roster = create_roster("english9_p2", [roster_row()])
+    path = tmp_path / "roster.csv"
+
+    write_roster(path, roster)
+
+    assert path.read_text(encoding="utf-8").splitlines()[0] == (
+        "class_id,student_id,last_name,first_name,period"
+    )
+    loaded = load_roster(path)
+    assert loaded.class_id == roster.class_id
+    assert loaded.columns == roster.columns
+    assert loaded.students == roster.students
+
+
+def test_write_roster_round_trips_optional_and_blank_fields(tmp_path: Path) -> None:
+    roster = create_roster(
+        "english9_p2",
+        [
+            roster_row(preferred_name="Janie", email="jane@example.test"),
+            roster_row(
+                student_id="1002",
+                first_name="Marcus",
+                last_name="Smith",
+                preferred_name="",
+                email="",
+            ),
+        ],
+    )
+    path = tmp_path / "roster.csv"
+
+    write_roster(path, roster)
+
+    loaded = load_roster(path)
+    assert loaded.columns == roster.columns
+    assert dict(loaded.students[0].extra_fields) == {
+        "preferred_name": "Janie",
+        "email": "jane@example.test",
+    }
+    assert dict(loaded.students[1].extra_fields) == {
+        "preferred_name": "",
+        "email": "",
+    }
+
+
+def test_write_roster_preserves_leading_zero_student_ids(tmp_path: Path) -> None:
+    roster = create_roster(
+        "english9_p2", [roster_row(student_id="0012", first_name="Jane")]
+    )
+    path = tmp_path / "roster.csv"
+
+    write_roster(path, roster)
+
+    assert load_roster(path).students[0].student_id == "0012"
+
+
+def test_write_roster_refuses_existing_file_by_default(tmp_path: Path) -> None:
+    roster = create_roster("english9_p2", [roster_row()])
+    path = tmp_path / "roster.csv"
+    write_roster(path, roster)
+
+    with pytest.raises(RosterWriteError) as raised:
+        write_roster(path, roster)
+
+    assert raised.value.path == path
+
+
+def test_write_roster_overwrites_existing_file_when_requested(
+    tmp_path: Path,
+) -> None:
+    first_roster = create_roster("english9_p2", [roster_row()])
+    second_roster = create_roster(
+        "english9_p2",
+        [roster_row(student_id="2002", first_name="Marcus", last_name="Smith")],
+    )
+    path = tmp_path / "roster.csv"
+    write_roster(path, first_roster)
+
+    write_roster(path, second_roster, overwrite=True)
+
+    loaded = load_roster(path)
+    assert [student.student_id for student in loaded.students] == ["2002"]
+
+
+def test_write_roster_rejects_missing_parent_directory(tmp_path: Path) -> None:
+    roster = create_roster("english9_p2", [roster_row()])
+    path = tmp_path / "missing" / "roster.csv"
+
+    with pytest.raises(RosterWriteError) as raised:
+        write_roster(path, roster)
+
+    assert raised.value.path == path
+
+
+def test_write_roster_rejects_parent_path_that_is_not_directory(
+    tmp_path: Path,
+) -> None:
+    roster = create_roster("english9_p2", [roster_row()])
+    parent = tmp_path / "not-a-directory"
+    parent.write_text("content", encoding="utf-8")
+
+    with pytest.raises(RosterWriteError):
+        write_roster(parent / "roster.csv", roster)
+
+
+def test_write_roster_uses_roster_column_order(tmp_path: Path) -> None:
+    columns = ("period", "student_id", "class_id", "first_name", "last_name")
+    roster = validate_roster_rows(columns, [roster_row()])
+    path = tmp_path / "roster.csv"
+
+    write_roster(path, roster)
+
+    assert path.read_text(encoding="utf-8").splitlines()[0] == ",".join(columns)
+
+
+def test_write_roster_omits_optional_fields_not_in_columns(tmp_path: Path) -> None:
+    student = StudentRecord(
+        class_id="english9_p2",
+        student_id="1001",
+        last_name="Doe",
+        first_name="Jane",
+        period="2",
+        extra_fields={"email": "jane@example.test"},
+    )
+    roster = Roster(
+        class_id="english9_p2",
+        students=(student,),
+        columns=ROSTER_REQUIRED_COLUMNS,
+    )
+    path = tmp_path / "roster.csv"
+
+    write_roster(path, roster)
+
+    content = path.read_text(encoding="utf-8")
+    assert "email" not in content
+    assert "jane@example.test" not in content
 
 
 def test_valid_minimal_roster() -> None:
