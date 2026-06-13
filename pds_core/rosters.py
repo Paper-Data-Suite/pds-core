@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
@@ -62,6 +63,16 @@ class RosterIssue:
 
 class RosterError(Exception):
     """Base exception for shared roster operations."""
+
+
+class RosterReadError(RosterError):
+    """Raised when a roster CSV cannot be read."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(f"Could not read roster CSV {self.path}: {message}")
 
 
 class RosterValidationError(RosterError):
@@ -325,6 +336,50 @@ def validate_roster_rows(
         columns=normalized_columns,
         source_path=source_path,
     )
+
+
+def load_roster(path: str | Path) -> Roster:
+    """Load and validate a roster from a UTF-8 CSV file."""
+    source_path = Path(path)
+
+    try:
+        with source_path.open(encoding="utf-8-sig", newline="") as roster_file:
+            reader = csv.DictReader(roster_file, restval="", strict=True)
+            columns = reader.fieldnames
+            if columns is None:
+                raise RosterValidationError(
+                    (
+                        RosterIssue(
+                            code="missing_header",
+                            message="Roster CSV is missing a header row.",
+                            row_number=1,
+                        ),
+                    )
+                )
+
+            rows: list[Mapping[str, str]] = []
+            malformed_issues: list[RosterIssue] = []
+            for row in reader:
+                extra_values = row.pop(None, None)
+                if extra_values is not None:
+                    malformed_issues.append(
+                        RosterIssue(
+                            code="malformed_row",
+                            message="Roster CSV row has more values than headers.",
+                            row_number=reader.line_num,
+                            value=repr(extra_values),
+                        )
+                    )
+                rows.append(row)
+    except RosterValidationError:
+        raise
+    except (OSError, UnicodeError, csv.Error) as error:
+        raise RosterReadError(source_path, str(error)) from error
+
+    if malformed_issues:
+        raise RosterValidationError(malformed_issues)
+
+    return validate_roster_rows(columns, rows, source_path=source_path)
 
 
 def _infer_roster_columns(

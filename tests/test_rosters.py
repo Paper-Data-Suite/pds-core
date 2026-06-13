@@ -9,8 +9,11 @@ import pytest
 
 from pds_core.rosters import (
     ROSTER_REQUIRED_COLUMNS,
+    Roster,
+    RosterReadError,
     RosterValidationError,
     create_roster,
+    load_roster,
     student_display_name,
     student_lookup,
     student_sort_name,
@@ -35,6 +38,185 @@ def issue_for(
 ) -> tuple[int | None, str | None, str | None]:
     issue = next(issue for issue in error.issues if issue.code == code)
     return issue.row_number, issue.column, issue.value
+
+
+def write_roster_csv(path: Path, content: str, *, encoding: str = "utf-8") -> None:
+    path.write_text(content, encoding=encoding, newline="")
+
+
+def test_load_roster_accepts_valid_csv_and_sets_source_path(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        "class_id,student_id,last_name,first_name,period\n"
+        "english9_p2,1001,Doe,Jane,2\n"
+        "english9_p2,1002,Smith,Marcus,2\n",
+    )
+
+    roster = load_roster(path)
+
+    assert isinstance(roster, Roster)
+    assert roster.class_id == "english9_p2"
+    assert roster.source_path == path
+    assert [student.student_id for student in roster.students] == ["1001", "1002"]
+
+
+def test_load_roster_preserves_optional_columns(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        "class_id,student_id,last_name,first_name,period,preferred_name,email\n"
+        "english9_p2,1001,Doe,Jane,2, Janie , jane@example.test \n"
+        "english9_p2,1002,Smith,Marcus,2,,\n",
+    )
+
+    roster = load_roster(path)
+
+    assert roster.columns == (*ROSTER_REQUIRED_COLUMNS, "preferred_name", "email")
+    assert dict(roster.students[0].extra_fields) == {
+        "preferred_name": "Janie",
+        "email": "jane@example.test",
+    }
+    assert dict(roster.students[1].extra_fields) == {
+        "preferred_name": "",
+        "email": "",
+    }
+
+
+def test_load_roster_preserves_leading_zero_student_ids(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        "class_id,student_id,last_name,first_name,period\n"
+        "english9_p2,0012,Doe,Jane,2\n",
+    )
+
+    roster = load_roster(path)
+
+    assert roster.students[0].student_id == "0012"
+
+
+def test_load_roster_accepts_utf8_bom(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        "\ufeffclass_id,student_id,last_name,first_name,period\n"
+        "english9_p2,1001,Doe,Jane,2\n",
+        encoding="utf-8",
+    )
+
+    roster = load_roster(path)
+
+    assert roster.columns[0] == "class_id"
+
+
+def test_load_roster_rejects_empty_file(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(path, "")
+
+    with pytest.raises(RosterValidationError) as raised:
+        load_roster(path)
+
+    assert issue_for(raised.value, "missing_header") == (1, None, None)
+
+
+@pytest.mark.parametrize(
+    ("header", "row", "code", "column"),
+    [
+        (
+            "class_id,student_id,last_name,first_name",
+            "english9_p2,1001,Doe,Jane",
+            "missing_required_column",
+            "period",
+        ),
+        (
+            "class_id,student_id,last_name,first_name,period,student_id",
+            "english9_p2,1001,Doe,Jane,2",
+            "duplicate_header",
+            "student_id",
+        ),
+        (
+            "class_id,student_id,last_name,first_name,period, ",
+            "english9_p2,1001,Doe,Jane,2",
+            "blank_header",
+            None,
+        ),
+    ],
+)
+def test_load_roster_rejects_invalid_headers(
+    tmp_path: Path, header: str, row: str, code: str, column: str | None
+) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(path, f"{header}\n{row}\n")
+
+    with pytest.raises(RosterValidationError) as raised:
+        load_roster(path)
+
+    row_number, issue_column, _ = issue_for(raised.value, code)
+    assert row_number == 1
+    assert issue_column == column
+
+
+def test_load_roster_rejects_header_only_file(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(path, "class_id,student_id,last_name,first_name,period\n")
+
+    with pytest.raises(RosterValidationError) as raised:
+        load_roster(path)
+
+    assert [issue.code for issue in raised.value.issues] == ["empty_roster"]
+
+
+@pytest.mark.parametrize(
+    ("row", "code"),
+    [
+        ("english9_p2,1001,Doe,,2", "blank_required_value"),
+        ("bad class,1001,Doe,Jane,2", "invalid_class_id"),
+        ("english9_p2,bad.id,Doe,Jane,2", "invalid_student_id"),
+        (
+            "english9_p2,1001,Doe,Jane,2\nenglish9_p3,1002,Smith,Marcus,2",
+            "inconsistent_class_id",
+        ),
+        (
+            "english9_p2,1001,Doe,Jane,2\nenglish9_p2,1001,Smith,Marcus,2",
+            "duplicate_student_id",
+        ),
+    ],
+)
+def test_load_roster_rejects_invalid_rows(tmp_path: Path, row: str, code: str) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        f"class_id,student_id,last_name,first_name,period\n{row}\n",
+    )
+
+    with pytest.raises(RosterValidationError) as raised:
+        load_roster(path)
+
+    assert any(issue.code == code for issue in raised.value.issues)
+
+
+def test_load_roster_rejects_rows_with_extra_cells(tmp_path: Path) -> None:
+    path = tmp_path / "roster.csv"
+    write_roster_csv(
+        path,
+        "class_id,student_id,last_name,first_name,period\n"
+        "english9_p2,1001,Doe,Jane,2,EXTRA\n",
+    )
+
+    with pytest.raises(RosterValidationError) as raised:
+        load_roster(path)
+
+    assert issue_for(raised.value, "malformed_row") == (2, None, "['EXTRA']")
+
+
+def test_load_roster_rejects_missing_file(tmp_path: Path) -> None:
+    path = tmp_path / "missing.csv"
+
+    with pytest.raises(RosterReadError) as raised:
+        load_roster(path)
+
+    assert raised.value.path == path
 
 
 def test_valid_minimal_roster() -> None:
