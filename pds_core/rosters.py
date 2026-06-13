@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import csv
+import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
@@ -73,6 +75,16 @@ class RosterReadError(RosterError):
     def __init__(self, path: str | Path, message: str) -> None:
         self.path = Path(path)
         super().__init__(f"Could not read roster CSV {self.path}: {message}")
+
+
+class RosterWriteError(RosterError):
+    """Raised when a roster CSV cannot be written."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(f"Could not write roster CSV {self.path}: {message}")
 
 
 class RosterValidationError(RosterError):
@@ -380,6 +392,110 @@ def load_roster(path: str | Path) -> Roster:
         raise RosterValidationError(malformed_issues)
 
     return validate_roster_rows(columns, rows, source_path=source_path)
+
+
+def _student_to_csv_row(
+    student: StudentRecord, columns: Sequence[str]
+) -> dict[str, str]:
+    required_values = {
+        "class_id": student.class_id,
+        "student_id": student.student_id,
+        "last_name": student.last_name,
+        "first_name": student.first_name,
+        "period": student.period,
+    }
+    return {
+        column: (
+            required_values[column]
+            if column in required_values
+            else student.extra_fields.get(column, "")
+        )
+        for column in columns
+    }
+
+
+def _check_writable_roster(path: Path, roster: Roster) -> None:
+    missing_columns = [
+        column for column in ROSTER_REQUIRED_COLUMNS if column not in roster.columns
+    ]
+    if missing_columns:
+        missing = ", ".join(repr(column) for column in missing_columns)
+        raise RosterWriteError(path, f"required columns are missing: {missing}")
+
+    required_fields = (
+        "class_id",
+        "student_id",
+        "last_name",
+        "first_name",
+        "period",
+    )
+    for row_number, student in enumerate(roster.students, start=2):
+        if student.class_id != roster.class_id:
+            raise RosterWriteError(
+                path,
+                f"student row {row_number} has class_id {student.class_id!r}, "
+                f"expected {roster.class_id!r}",
+            )
+        for field in required_fields:
+            if not isinstance(getattr(student, field), str):
+                raise RosterWriteError(
+                    path,
+                    f"student row {row_number} field {field!r} must be a string",
+                )
+
+
+def write_roster(
+    path: str | Path,
+    roster: Roster,
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Atomically write a validated roster to a UTF-8 CSV file."""
+    target_path = Path(path)
+    target_dir = target_path.parent
+
+    if not target_dir.exists():
+        raise RosterWriteError(target_path, "parent directory does not exist")
+    if not target_dir.is_dir():
+        raise RosterWriteError(target_path, "parent path is not a directory")
+    if target_path.exists() and not overwrite:
+        raise RosterWriteError(target_path, "target file already exists")
+
+    _check_writable_roster(target_path, roster)
+
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=target_dir,
+            prefix=f".{target_path.name}.",
+            suffix=".tmp",
+        ) as roster_file:
+            temp_path = Path(roster_file.name)
+            writer = csv.DictWriter(roster_file, fieldnames=roster.columns)
+            writer.writeheader()
+            for student in roster.students:
+                writer.writerow(_student_to_csv_row(student, roster.columns))
+            roster_file.flush()
+            os.fsync(roster_file.fileno())
+
+        os.replace(temp_path, target_path)
+        temp_path = None
+    except (OSError, UnicodeError, csv.Error, TypeError, ValueError) as error:
+        cleanup_error: OSError | None = None
+        if temp_path is not None:
+            try:
+                temp_path.unlink(missing_ok=True)
+            except OSError as caught_cleanup_error:
+                cleanup_error = caught_cleanup_error
+
+        message = str(error)
+        if cleanup_error is not None:
+            message = f"{message}; temporary file cleanup failed: {cleanup_error}"
+        raise RosterWriteError(target_path, message) from error
 
 
 def _infer_roster_columns(
