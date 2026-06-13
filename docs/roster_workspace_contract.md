@@ -246,6 +246,11 @@ Existing route helpers are pure path constructors. Calling a route helper does
 not create a directory or imply that every part of the returned route already
 exists.
 
+PDS Core owns the canonical class and assignment folder paths. Assignment
+folder helpers are schema-neutral: modules may place their own metadata and
+artifacts inside an assignment folder, but PDS Core does not define, load, or
+validate module-specific assignment contents.
+
 Directory creation belongs in explicit setup helpers. Class setup should:
 
 * validate `class_id`;
@@ -264,30 +269,39 @@ Class setup must not:
 
 Roster creation is a separate, explicit operation.
 
-## Proposed Class Workspace APIs
+## Class Folder APIs
 
-A likely future module is:
+A current shared module is:
 
 ```python
 pds_core.classes
 ```
 
-Likely public pieces are:
+Public pieces include:
 
 ```python
-ClassWorkspace
+ClassFolder
 
-ensure_class_workspace(root, class_id) -> ClassWorkspace
+class_folder(root, class_id) -> ClassFolder
+ensure_class_folder(root, class_id) -> ClassFolder
 load_class_roster(root, class_id) -> Roster
-list_class_workspaces(root) -> tuple[ClassWorkspace, ...]
+write_class_roster(root, roster, *, overwrite=False) -> Path
+list_class_folders(
+    root,
+    *,
+    require_roster=False,
+    load_rosters=False,
+) -> tuple[ClassFolder, ...]
 ```
 
-`ClassWorkspace` should provide the validated class ID and useful canonical
-paths, such as the class directory, roster path, and assignments directory.
+`ClassFolder` provides the validated class ID and useful canonical paths,
+including the class directory and roster path. When requested through
+`list_class_folders(..., load_rosters=True)`, it may also carry loaded roster
+data.
 
-Class listing should define deterministic handling of entries that are not
-valid class workspaces. It should not silently reinterpret invalid directory
-names as identifiers.
+Class folder listing handles invalid entries deterministically. Invalid folder
+names are skipped rather than reinterpreted. When roster loading is requested,
+invalid or mismatched rosters are also skipped.
 
 ## CLI and Menu Wrappers
 
