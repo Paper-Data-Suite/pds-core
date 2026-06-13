@@ -27,6 +27,8 @@ See [`migration_plan.md`](migration_plan.md) for the current migration direction
 
 See [`docs/qr_payload_and_routing_contract.md`](docs/qr_payload_and_routing_contract.md) for the shared QR payload and routing contract.
 
+See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for the shared roster and workspace contract.
+
 ## Workspace Root
 
 The PDS workspace root is the top-level folder where Paper Data Suite modules
