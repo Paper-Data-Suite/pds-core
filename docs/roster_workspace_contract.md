@@ -213,15 +213,17 @@ The existing low-level functions in `pds_core.workspace` should remain
 available. Possible convenience APIs for consistent module behavior are:
 
 ```python
-WorkspaceResolution
+WorkspaceStatus
 
-inspect_workspace_root(explicit_root=None) -> WorkspaceResolution
+inspect_workspace_root(explicit_root=None) -> WorkspaceStatus
 configure_workspace_root(path, *, create=True) -> Path
-reset_workspace_root() -> WorkspaceResolution
+reset_workspace_root() -> WorkspaceStatus
 ```
 
-`WorkspaceResolution` should expose enough information for wrappers to report
-the resolved root, resolution source, configuration path, and default root.
+`WorkspaceStatus` exposes the resolved root, stable resolution source,
+configuration path, default root, and basic non-mutating filesystem status.
+This lets module wrappers report workspace state without duplicating resolution
+logic or changing saved configuration.
 
 ## Workspace and Class Layout
 

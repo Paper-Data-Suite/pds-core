@@ -13,10 +13,12 @@ from pds_core import workspace
 from pds_core.workspace import (
     WorkspaceConfig,
     WorkspaceRootError,
+    WorkspaceStatus,
     clear_saved_workspace_root,
     ensure_workspace_root,
     get_default_workspace_root,
     get_workspace_config_path,
+    inspect_workspace_root,
     load_workspace_config,
     resolve_workspace_root,
     save_workspace_root,
@@ -391,6 +393,136 @@ def test_explicit_override_does_not_save_config(
     assert resolve_workspace_root(tmp_path / "explicit") == (
         tmp_path / "explicit"
     ).resolve()
+
+
+def test_inspect_workspace_root_uses_explicit_root_first(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    explicit_root = tmp_path / "explicit"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(tmp_path / "saved")
+    config_before = config_path.read_text(encoding="utf-8")
+    monkeypatch.setenv("PDS_WORKSPACE_ROOT", str(tmp_path / "environment"))
+
+    status = inspect_workspace_root(explicit_root)
+
+    assert status.root == explicit_root.resolve()
+    assert status.source == "explicit"
+    assert config_path.read_text(encoding="utf-8") == config_before
+
+
+def test_inspect_workspace_root_uses_environment_root(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    environment_root = tmp_path / "environment"
+    monkeypatch.setenv("PDS_WORKSPACE_ROOT", str(environment_root))
+
+    status = inspect_workspace_root()
+
+    assert status.root == environment_root.resolve()
+    assert status.source == "environment"
+
+
+def test_inspect_workspace_root_uses_saved_config(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    saved_root = tmp_path / "saved"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+    save_workspace_root(saved_root)
+
+    status = inspect_workspace_root()
+
+    assert status.root == saved_root.resolve()
+    assert status.source == "saved_config"
+
+
+def test_inspect_workspace_root_uses_default_root(tmp_path: Path) -> None:
+    status = inspect_workspace_root()
+
+    assert status.root == (tmp_path / "Paper Data Suite").resolve()
+    assert status.source == "default"
+
+
+def test_inspect_workspace_root_reports_existing_directory_status(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "workspace"
+    root.mkdir()
+
+    status = inspect_workspace_root(root)
+
+    assert status.exists is True
+    assert status.is_dir is True
+    assert status.is_writable is os.access(root, os.W_OK)
+
+
+def test_inspect_workspace_root_reports_missing_root_status(tmp_path: Path) -> None:
+    root = tmp_path / "missing" / "workspace"
+
+    status = inspect_workspace_root(root)
+
+    assert status.exists is False
+    assert status.is_dir is False
+    assert status.is_writable is os.access(tmp_path, os.W_OK)
+    assert not root.exists()
+
+
+def test_inspect_workspace_root_reports_file_status(tmp_path: Path) -> None:
+    root = tmp_path / "workspace-file"
+    root.write_text("content", encoding="utf-8")
+
+    status = inspect_workspace_root(root)
+
+    assert status.exists is True
+    assert status.is_dir is False
+    assert status.is_writable is False
+
+
+def test_inspect_workspace_root_reports_not_writable_when_check_fails(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "workspace"
+    root.mkdir()
+
+    def fail_access(path: str | bytes | os.PathLike[str], mode: int) -> bool:
+        del path, mode
+        raise OSError("access check failed")
+
+    monkeypatch.setattr(os, "access", fail_access)
+
+    assert inspect_workspace_root(root).is_writable is False
+
+
+def test_inspect_workspace_root_reports_config_and_default_paths(
+    tmp_path: Path,
+) -> None:
+    status = inspect_workspace_root(tmp_path / "workspace")
+
+    assert isinstance(status, WorkspaceStatus)
+    assert isinstance(status.config_path, Path)
+    assert isinstance(status.default_root, Path)
+    assert status.config_path == get_workspace_config_path()
+    assert status.default_root == get_default_workspace_root()
+
+
+def test_inspect_workspace_root_does_not_create_or_save(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_path = tmp_path / "config.json"
+    root = tmp_path / "missing" / "workspace"
+    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config_path)
+
+    inspect_workspace_root(root)
+
+    assert not root.exists()
+    assert not config_path.exists()
 
 
 def test_ensure_workspace_root_creates_directory_and_marker(

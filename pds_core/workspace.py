@@ -17,11 +17,24 @@ class WorkspaceRootError(Exception):
     """Raised when workspace configuration or validation fails."""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class WorkspaceConfig:
     """User-level Paper Data Suite workspace configuration."""
 
     workspace_root: Path | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class WorkspaceStatus:
+    """Resolved workspace root and its non-mutating filesystem status."""
+
+    root: Path
+    source: str
+    exists: bool
+    is_dir: bool
+    is_writable: bool
+    config_path: Path
+    default_root: Path
 
 
 def _normalize_path(path: str | Path, *, description: str) -> Path:
@@ -173,22 +186,75 @@ def clear_saved_workspace_root() -> bool:
     return True
 
 
+def _resolve_workspace_root_with_source(
+    explicit_root: str | Path | None = None,
+) -> tuple[Path, str]:
+    if explicit_root is not None:
+        return _normalize_workspace_root(explicit_root), "explicit"
+
+    environment_root = os.environ.get(WORKSPACE_ROOT_ENV_VAR)
+    if environment_root is not None:
+        return _normalize_workspace_root(environment_root), "environment"
+
+    saved_root = load_workspace_config().workspace_root
+    if saved_root is not None:
+        return saved_root, "saved_config"
+
+    return get_default_workspace_root(), "default"
+
+
+def _is_workspace_root_writable(root: Path, *, exists: bool, is_dir: bool) -> bool:
+    try:
+        if exists:
+            return is_dir and os.access(root, os.W_OK)
+
+        candidate = root.parent
+        while not candidate.exists():
+            parent = candidate.parent
+            if parent == candidate:
+                return False
+            candidate = parent
+        return candidate.is_dir() and os.access(candidate, os.W_OK)
+    except OSError:
+        return False
+
+
 def resolve_workspace_root(
     explicit_root: str | Path | None = None,
 ) -> Path:
     """Resolve the workspace root without creating it or changing config."""
-    if explicit_root is not None:
-        return _normalize_workspace_root(explicit_root)
+    root, _source = _resolve_workspace_root_with_source(explicit_root)
+    return root
 
-    environment_root = os.environ.get(WORKSPACE_ROOT_ENV_VAR)
-    if environment_root is not None:
-        return _normalize_workspace_root(environment_root)
 
-    saved_root = load_workspace_config().workspace_root
-    if saved_root is not None:
-        return saved_root
+def inspect_workspace_root(
+    explicit_root: str | Path | None = None,
+) -> WorkspaceStatus:
+    """Inspect the resolved workspace root without changing the filesystem."""
+    root, source = _resolve_workspace_root_with_source(explicit_root)
+    config_path = get_workspace_config_path()
+    default_root = get_default_workspace_root()
 
-    return get_default_workspace_root()
+    try:
+        exists = root.exists()
+        is_dir = root.is_dir() if exists else False
+    except OSError:
+        exists = False
+        is_dir = False
+
+    return WorkspaceStatus(
+        root=root,
+        source=source,
+        exists=exists,
+        is_dir=is_dir,
+        is_writable=_is_workspace_root_writable(
+            root,
+            exists=exists,
+            is_dir=is_dir,
+        ),
+        config_path=config_path,
+        default_root=default_root,
+    )
 
 
 def ensure_workspace_root(
