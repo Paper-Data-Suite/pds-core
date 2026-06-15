@@ -15,10 +15,10 @@ Modules own module-specific standards behavior and interpretation.
 This document began as a design contract. Focused implementation issues have
 since added shared standards models, JSON-compatible conversion helpers,
 explicit-path JSON file helpers, the canonical workspace library path, and a
-shared in-memory usage event model. Usage-event serialization and storage,
-usage ledgers, CLI commands, migrations, module adapters, and automated
-educational judgment remain future work unless explicitly added by later
-issues.
+shared in-memory usage event model with JSON-compatible dictionary conversion.
+Usage-event storage, usage ledgers, CLI commands, migrations, module adapters,
+and automated educational judgment remain future work unless explicitly added
+by later issues.
 
 ## Design Principles
 
@@ -572,8 +572,9 @@ Illustrative shape:
 ```
 
 `StandardUsageEvent` now provides this shared shape in memory, with `used_at`
-represented as a timezone-aware `datetime`. Dictionary conversion, JSON
-serialization, and storage remain future work.
+represented as a timezone-aware `datetime`. It converts to and from a
+JSON-compatible dictionary with `used_at` represented as an ISO datetime
+string. JSON file serialization and storage remain future work.
 
 A usage event:
 
@@ -819,7 +820,8 @@ into package code.
 4. Add read-only loading and structured validation for the shared library.
 5. Add explicit, atomic writing for definitions and profiles.
 6. Define and implement the usage-event model and canonical usage vocabulary.
-   (Implemented in memory; serialization and storage remain future work.)
+   (Implemented in memory with dictionary conversion; storage remains future
+   work.)
 7. Add class/year-scoped usage storage and read-only summary generation.
 8. Add non-destructive school-year scope selection or rollover behavior.
 9. Add a ScoreForm compatibility adapter that preserves question-level
