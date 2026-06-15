@@ -435,6 +435,21 @@ _STANDARDS_PROFILE_KEYS = _STANDARDS_PROFILE_REQUIRED_KEYS | {
 }
 _STANDARDS_LIBRARY_REQUIRED_KEYS = frozenset({"standards"})
 _STANDARDS_LIBRARY_KEYS = _STANDARDS_LIBRARY_REQUIRED_KEYS | {"profiles"}
+_STANDARD_USAGE_EVENT_REQUIRED_KEYS = frozenset(
+    {
+        "event_id",
+        "standard_id",
+        "school_year",
+        "class_id",
+        "module",
+        "usage_type",
+        "used_at",
+    }
+)
+_STANDARD_USAGE_EVENT_KEYS = _STANDARD_USAGE_EVENT_REQUIRED_KEYS | {
+    "assignment_id",
+    "metadata",
+}
 
 
 def standard_definition_to_dict(
@@ -586,6 +601,58 @@ def standards_library_from_dict(
     return StandardsLibrary(
         standards=tuple(standards),
         profiles=tuple(profiles),
+    )
+
+
+def standard_usage_event_to_dict(
+    event: StandardUsageEvent,
+) -> dict[str, object]:
+    """Serialize a standards usage event to a JSON-compatible dictionary."""
+    validate_standard_usage_event(event)
+    return {
+        "event_id": event.event_id,
+        "standard_id": event.standard_id,
+        "school_year": event.school_year,
+        "class_id": event.class_id,
+        "module": event.module,
+        "usage_type": event.usage_type,
+        "used_at": event.used_at.isoformat(),
+        "assignment_id": event.assignment_id,
+        "metadata": dict(event.metadata),
+    }
+
+
+def standard_usage_event_from_dict(
+    data: Mapping[str, object],
+) -> StandardUsageEvent:
+    """Deserialize and validate a standards usage event dictionary."""
+    values = _validated_mapping(
+        data,
+        "standard usage event",
+        _STANDARD_USAGE_EVENT_REQUIRED_KEYS,
+        _STANDARD_USAGE_EVENT_KEYS,
+    )
+
+    used_at_value = values["used_at"]
+    if not isinstance(used_at_value, str):
+        raise StandardsValidationError("used_at must be an ISO datetime string.")
+    try:
+        used_at = datetime.fromisoformat(used_at_value)
+    except ValueError as error:
+        raise StandardsValidationError(
+            "used_at must be a valid ISO datetime string."
+        ) from error
+
+    return StandardUsageEvent(
+        event_id=values["event_id"],  # type: ignore[arg-type]
+        standard_id=values["standard_id"],  # type: ignore[arg-type]
+        school_year=values["school_year"],  # type: ignore[arg-type]
+        class_id=values["class_id"],  # type: ignore[arg-type]
+        module=values["module"],  # type: ignore[arg-type]
+        usage_type=values["usage_type"],  # type: ignore[arg-type]
+        used_at=used_at,
+        assignment_id=values.get("assignment_id"),  # type: ignore[arg-type]
+        metadata=values.get("metadata", {}),  # type: ignore[arg-type]
     )
 
 
