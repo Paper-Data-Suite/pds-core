@@ -12,10 +12,12 @@ pds-core owns the shared standards library and standards usage ledger.
 Modules own module-specific standards behavior and interpretation.
 ```
 
-This is a design contract only. It does not add standards models, storage
-helpers, validators, commands, migrations, or runtime behavior. The example
-records and paths below are illustrative and may be refined through focused
-implementation issues.
+This document began as a design contract. Focused implementation issues have
+since added shared standards models, JSON-compatible conversion helpers,
+explicit-path JSON file helpers, and the canonical workspace library path.
+Usage events, usage ledgers, CLI commands, migrations, module adapters, and
+automated educational judgment remain future work unless explicitly added by
+later issues.
 
 ## Design Principles
 
@@ -216,7 +218,16 @@ versioning. Extraction is not justified by the current design alone.
 Standards should be stored under the resolved Paper Data Suite workspace, not
 inside an installed package or source checkout.
 
-A possible logical layout is:
+The canonical shared standards library location is:
+
+```text
+<PDS workspace root>/standards/library.json
+```
+
+The `standards/` directory is suite-level shared metadata. The library is not
+class-specific, school-year-specific, assignment-specific, or module-specific.
+
+A possible future logical layout for additional standards data is:
 
 ```text
 <PDS workspace root>/
@@ -230,10 +241,8 @@ A possible logical layout is:
           events.jsonl
 ```
 
-This layout is directional, not a final file-format commitment. Implementation
-must decide whether definitions use one collection file, multiple files, or a
-small local database, and whether usage events use JSON Lines or another
-append-friendly representation.
+Only `standards/library.json` is a current storage commitment. The profile and
+usage paths are directional future work, not final file-format commitments.
 
 The durable library and reusable profiles must be separate from the
 school-year usage ledger. Shared usage data should not be embedded only in
@@ -712,12 +721,7 @@ contract.
 
 This issue does not implement:
 
-* standards dataclasses or model classes;
-* standards JSON loaders;
-* standards JSON writers;
-* standards validators;
 * standards CLI commands;
-* storage helpers;
 * usage event storage;
 * usage summary generation;
 * yearly reset commands;

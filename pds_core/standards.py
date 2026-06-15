@@ -495,6 +495,23 @@ def standards_library_from_dict(
     )
 
 
+def standards_dir(workspace_root: str | Path) -> Path:
+    """Return the canonical standards directory for a workspace."""
+    return Path(workspace_root) / "standards"
+
+
+def standards_library_path(workspace_root: str | Path) -> Path:
+    """Return the canonical shared standards library JSON path."""
+    return standards_dir(workspace_root) / "library.json"
+
+
+def ensure_standards_dir(workspace_root: str | Path) -> Path:
+    """Create and return the canonical standards directory."""
+    directory = standards_dir(workspace_root)
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
 def load_standards_library(path: str | Path) -> StandardsLibrary:
     """Load, deserialize, and validate a UTF-8 standards library JSON file."""
     source_path = Path(path)
@@ -581,3 +598,24 @@ def write_standards_library(
         if cleanup_error is not None:
             message = f"{message}; temporary file cleanup failed: {cleanup_error}"
         raise StandardsWriteError(target_path, message) from error
+
+
+def load_workspace_standards_library(
+    workspace_root: str | Path,
+) -> StandardsLibrary:
+    """Load the canonical shared standards library for a workspace."""
+    return load_standards_library(standards_library_path(workspace_root))
+
+
+def write_workspace_standards_library(
+    workspace_root: str | Path,
+    library: StandardsLibrary,
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Write the canonical shared standards library for a workspace."""
+    write_standards_library(
+        standards_library_path(workspace_root),
+        library,
+        overwrite=overwrite,
+    )
