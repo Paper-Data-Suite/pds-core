@@ -132,6 +132,26 @@ def _optional_text(value: object, field_name: str) -> str | None:
     return _required_text(value, field_name)
 
 
+def _validate_school_year(value: object) -> str:
+    match = _SCHOOL_YEAR_PATTERN.fullmatch(
+        _required_text(value, "school_year")
+    )
+    if match is None or int(match["end"]) != int(match["start"]) + 1:
+        raise StandardsValidationError(
+            "school_year must use consecutive years in YYYY-YYYY format."
+        )
+    return match.group(0)
+
+
+def _validate_usage_class_id(value: object) -> str:
+    if not isinstance(value, str):
+        raise StandardsValidationError("class_id must be a string.")
+    try:
+        return validate_identifier(value, "class_id")
+    except IdentifierValidationError as error:
+        raise StandardsValidationError(str(error)) from error
+
+
 def _text_tuple(value: object, field_name: str) -> tuple[str, ...]:
     if isinstance(value, (str, bytes)):
         raise StandardsValidationError(
@@ -354,18 +374,22 @@ def _normalize_standard_usage_event(event: StandardUsageEvent) -> None:
             _required_text(getattr(event, field_name), field_name),
         )
 
-    match = _SCHOOL_YEAR_PATTERN.fullmatch(
-        _required_text(event.school_year, "school_year")
+    object.__setattr__(
+        event,
+        "school_year",
+        _validate_school_year(event.school_year),
     )
-    if match is None or int(match["end"]) != int(match["start"]) + 1:
-        raise StandardsValidationError(
-            "school_year must use consecutive years in YYYY-YYYY format."
-        )
-    object.__setattr__(event, "school_year", match.group(0))
 
     for field_name in ("class_id", "assignment_id"):
         value = getattr(event, field_name)
         if value is None and field_name == "assignment_id":
+            continue
+        if field_name == "class_id":
+            object.__setattr__(
+                event,
+                field_name,
+                _validate_usage_class_id(value),
+            )
             continue
         try:
             normalized = validate_identifier(value, field_name)
@@ -691,9 +715,64 @@ def standards_library_path(workspace_root: str | Path) -> Path:
     return standards_dir(workspace_root) / "library.json"
 
 
+def standards_usage_dir(workspace_root: str | Path) -> Path:
+    """Return the canonical standards usage directory for a workspace."""
+    return standards_dir(workspace_root) / "usage"
+
+
+def standards_usage_school_year_dir(
+    workspace_root: str | Path,
+    school_year: str,
+) -> Path:
+    """Return the canonical standards usage directory for a school year."""
+    return standards_usage_dir(workspace_root) / _validate_school_year(
+        school_year
+    )
+
+
+def standards_usage_class_dir(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+) -> Path:
+    """Return the canonical standards usage directory for one class/year."""
+    return standards_usage_school_year_dir(
+        workspace_root,
+        school_year,
+    ) / _validate_usage_class_id(class_id)
+
+
+def standards_usage_events_path(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+) -> Path:
+    """Return the canonical standards usage events JSONL path."""
+    return standards_usage_class_dir(
+        workspace_root,
+        school_year,
+        class_id,
+    ) / "events.jsonl"
+
+
 def ensure_standards_dir(workspace_root: str | Path) -> Path:
     """Create and return the canonical standards directory."""
     directory = standards_dir(workspace_root)
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
+def ensure_standards_usage_class_dir(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+) -> Path:
+    """Create and return the canonical standards usage class directory."""
+    directory = standards_usage_class_dir(
+        workspace_root,
+        school_year,
+        class_id,
+    )
     directory.mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -953,5 +1032,89 @@ def write_workspace_standards_library(
     write_standards_library(
         standards_library_path(workspace_root),
         library,
+        overwrite=overwrite,
+    )
+
+
+def load_workspace_standard_usage_events(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+) -> tuple[StandardUsageEvent, ...]:
+    """Load canonical standards usage events for one class/year."""
+    path = standards_usage_events_path(
+        workspace_root,
+        school_year,
+        class_id,
+    )
+    if not path.exists():
+        return ()
+    return load_standard_usage_events(path)
+
+
+def append_workspace_standard_usage_event(
+    workspace_root: str | Path,
+    event: StandardUsageEvent,
+) -> None:
+    """Append one event to its canonical workspace usage ledger."""
+    fallback_path = standards_usage_dir(workspace_root) / "events.jsonl"
+    try:
+        validated_event = validate_standard_usage_event(event)
+    except StandardsValidationError as error:
+        raise StandardsUsageWriteError(
+            fallback_path,
+            f"invalid standards usage event data: {error}",
+        ) from error
+
+    append_standard_usage_event(
+        standards_usage_events_path(
+            workspace_root,
+            validated_event.school_year,
+            validated_event.class_id,
+        ),
+        validated_event,
+    )
+
+
+def write_workspace_standard_usage_events(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+    events: Iterable[StandardUsageEvent],
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Write canonical workspace standards usage events for one class/year."""
+    validated_school_year = _validate_school_year(school_year)
+    validated_class_id = _validate_usage_class_id(class_id)
+    target_path = standards_usage_events_path(
+        workspace_root,
+        validated_school_year,
+        validated_class_id,
+    )
+
+    try:
+        materialized_events = tuple(events)
+        for index, event in enumerate(materialized_events):
+            validate_standard_usage_event(event)
+            if event.school_year != validated_school_year:
+                raise StandardsValidationError(
+                    f"events[{index}].school_year must match "
+                    f"target school_year {validated_school_year!r}."
+                )
+            if event.class_id != validated_class_id:
+                raise StandardsValidationError(
+                    f"events[{index}].class_id must match "
+                    f"target class_id {validated_class_id!r}."
+                )
+    except (StandardsValidationError, TypeError) as error:
+        raise StandardsUsageWriteError(
+            target_path,
+            f"invalid standards usage event data: {error}",
+        ) from error
+
+    write_standard_usage_events(
+        target_path,
+        materialized_events,
         overwrite=overwrite,
     )
