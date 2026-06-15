@@ -15,10 +15,10 @@ Modules own module-specific standards behavior and interpretation.
 This document began as a design contract. Focused implementation issues have
 since added shared standards models, JSON-compatible conversion helpers,
 explicit-path JSON file helpers, the canonical workspace library path, and a
-shared in-memory usage event model with JSON-compatible dictionary conversion.
-Usage-event storage, usage ledgers, CLI commands, migrations, module adapters,
-and automated educational judgment remain future work unless explicitly added
-by later issues.
+shared in-memory usage event model with JSON-compatible dictionary conversion
+and explicit-path JSON Lines file helpers. Workspace usage-ledger paths, usage
+summaries, CLI commands, migrations, module adapters, and automated educational
+judgment remain future work unless explicitly added by later issues.
 
 ## Design Principles
 
@@ -574,7 +574,9 @@ Illustrative shape:
 `StandardUsageEvent` now provides this shared shape in memory, with `used_at`
 represented as a timezone-aware `datetime`. It converts to and from a
 JSON-compatible dictionary with `used_at` represented as an ISO datetime
-string. JSON file serialization and storage remain future work.
+string. Explicit-path helpers load, append, and atomically write UTF-8 JSON
+Lines files with one usage event object per nonblank line. Canonical workspace
+usage-ledger paths and partitioning remain future work.
 
 A usage event:
 
@@ -727,7 +729,7 @@ contract.
 This issue does not implement:
 
 * standards CLI commands;
-* usage event storage;
+* workspace usage-ledger paths and partitioning;
 * usage summary generation;
 * yearly reset commands;
 * ScoreForm standards migration;
@@ -820,8 +822,8 @@ into package code.
 4. Add read-only loading and structured validation for the shared library.
 5. Add explicit, atomic writing for definitions and profiles.
 6. Define and implement the usage-event model and canonical usage vocabulary.
-   (Implemented in memory with dictionary conversion; storage remains future
-   work.)
+   (Implemented in memory with dictionary conversion and explicit-path JSON
+   Lines file helpers; workspace ledger paths remain future work.)
 7. Add class/year-scoped usage storage and read-only summary generation.
 8. Add non-destructive school-year scope selection or rollover behavior.
 9. Add a ScoreForm compatibility adapter that preserves question-level
