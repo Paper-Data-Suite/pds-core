@@ -6,6 +6,7 @@ import json
 import os
 import re
 import tempfile
+from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -238,6 +239,31 @@ class StandardUsageEvent:
         _normalize_standard_usage_event(self)
 
 
+@dataclass(frozen=True, slots=True)
+class StandardUsageCounts:
+    """Usage counts for one standard."""
+
+    standard_id: str
+    total: int
+    by_usage_type: Mapping[str, int]
+    by_module: Mapping[str, int]
+    by_assignment_id: Mapping[str | None, int]
+
+    def __post_init__(self) -> None:
+        _normalize_standard_usage_counts(self)
+
+
+@dataclass(frozen=True, slots=True)
+class StandardsUsageSummary:
+    """Read-only summary of standards usage events."""
+
+    total_events: int
+    by_standard_id: Mapping[str, StandardUsageCounts]
+
+    def __post_init__(self) -> None:
+        _normalize_standards_usage_summary(self)
+
+
 def _normalize_standard_definition(definition: StandardDefinition) -> None:
     for field_name in (
         "standard_id",
@@ -459,6 +485,168 @@ def validate_standard_usage_event(
         )
     _normalize_standard_usage_event(event)
     return event
+
+
+def _validate_nonnegative_int(value: object, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise StandardsValidationError(f"{field_name} must be an integer.")
+    if value < 0:
+        raise StandardsValidationError(f"{field_name} must not be negative.")
+    return value
+
+
+def _assignment_id_sort_key(value: str | None) -> tuple[bool, str]:
+    return (value is not None, "" if value is None else value)
+
+
+def _readonly_text_count_mapping(
+    value: object,
+    field_name: str,
+) -> Mapping[str, int]:
+    if not isinstance(value, Mapping):
+        raise StandardsValidationError(f"{field_name} must be a mapping.")
+
+    entries: dict[str, int] = {}
+    for key, count in value.items():
+        normalized_key = _required_text(key, f"{field_name} key")
+        entries[normalized_key] = _validate_nonnegative_int(
+            count,
+            f"{field_name}[{normalized_key!r}]",
+        )
+    return MappingProxyType({key: entries[key] for key in sorted(entries)})
+
+
+def _readonly_assignment_count_mapping(
+    value: object,
+    field_name: str,
+) -> Mapping[str | None, int]:
+    if not isinstance(value, Mapping):
+        raise StandardsValidationError(f"{field_name} must be a mapping.")
+
+    entries: dict[str | None, int] = {}
+    for key, count in value.items():
+        if key is None:
+            normalized_key = None
+            key_name = "None"
+        else:
+            normalized_key = _required_text(key, f"{field_name} key")
+            key_name = repr(normalized_key)
+        entries[normalized_key] = _validate_nonnegative_int(
+            count,
+            f"{field_name}[{key_name}]",
+        )
+    return MappingProxyType(
+        {
+            key: entries[key]
+            for key in sorted(entries, key=_assignment_id_sort_key)
+        }
+    )
+
+
+def _normalize_standard_usage_counts(counts: StandardUsageCounts) -> None:
+    object.__setattr__(
+        counts,
+        "standard_id",
+        _required_text(counts.standard_id, "standard_id"),
+    )
+    object.__setattr__(
+        counts,
+        "total",
+        _validate_nonnegative_int(counts.total, "total"),
+    )
+    object.__setattr__(
+        counts,
+        "by_usage_type",
+        _readonly_text_count_mapping(counts.by_usage_type, "by_usage_type"),
+    )
+    object.__setattr__(
+        counts,
+        "by_module",
+        _readonly_text_count_mapping(counts.by_module, "by_module"),
+    )
+    object.__setattr__(
+        counts,
+        "by_assignment_id",
+        _readonly_assignment_count_mapping(
+            counts.by_assignment_id,
+            "by_assignment_id",
+        ),
+    )
+
+
+def _readonly_standard_usage_counts_mapping(
+    value: object,
+) -> Mapping[str, StandardUsageCounts]:
+    if not isinstance(value, Mapping):
+        raise StandardsValidationError("by_standard_id must be a mapping.")
+
+    entries: dict[str, StandardUsageCounts] = {}
+    for key, counts in value.items():
+        normalized_key = _required_text(key, "by_standard_id key")
+        if not isinstance(counts, StandardUsageCounts):
+            raise StandardsValidationError(
+                "by_standard_id values must be StandardUsageCounts."
+            )
+        entries[normalized_key] = counts
+    return MappingProxyType({key: entries[key] for key in sorted(entries)})
+
+
+def _normalize_standards_usage_summary(
+    summary: StandardsUsageSummary,
+) -> None:
+    object.__setattr__(
+        summary,
+        "total_events",
+        _validate_nonnegative_int(summary.total_events, "total_events"),
+    )
+    object.__setattr__(
+        summary,
+        "by_standard_id",
+        _readonly_standard_usage_counts_mapping(summary.by_standard_id),
+    )
+
+
+def summarize_standard_usage_events(
+    events: Iterable[StandardUsageEvent],
+) -> StandardsUsageSummary:
+    """Summarize standards usage events without educational judgment."""
+    total_events = 0
+    totals_by_standard_id: Counter[str] = Counter()
+    usage_type_counts: dict[str, Counter[str]] = {}
+    module_counts: dict[str, Counter[str]] = {}
+    assignment_id_counts: dict[str, Counter[str | None]] = {}
+
+    for event in events:
+        validated_event = validate_standard_usage_event(event)
+        standard_id = validated_event.standard_id
+
+        total_events += 1
+        totals_by_standard_id[standard_id] += 1
+        usage_type_counts.setdefault(standard_id, Counter())[
+            validated_event.usage_type
+        ] += 1
+        module_counts.setdefault(standard_id, Counter())[
+            validated_event.module
+        ] += 1
+        assignment_id_counts.setdefault(standard_id, Counter())[
+            validated_event.assignment_id
+        ] += 1
+
+    return StandardsUsageSummary(
+        total_events=total_events,
+        by_standard_id=MappingProxyType(
+            {
+                standard_id: StandardUsageCounts(
+                    standard_id=standard_id,
+                    total=totals_by_standard_id[standard_id],
+                    by_usage_type=usage_type_counts[standard_id],
+                    by_module=module_counts[standard_id],
+                    by_assignment_id=assignment_id_counts[standard_id],
+                )
+                for standard_id in sorted(totals_by_standard_id)
+            }
+        ),
+    )
 
 
 _STANDARD_DEFINITION_REQUIRED_KEYS = frozenset(
@@ -1050,6 +1238,21 @@ def load_workspace_standard_usage_events(
     if not path.exists():
         return ()
     return load_standard_usage_events(path)
+
+
+def summarize_workspace_standard_usage_events(
+    workspace_root: str | Path,
+    school_year: str,
+    class_id: str,
+) -> StandardsUsageSummary:
+    """Load and summarize canonical workspace usage events for one class/year."""
+    return summarize_standard_usage_events(
+        load_workspace_standard_usage_events(
+            workspace_root,
+            school_year,
+            class_id,
+        )
+    )
 
 
 def append_workspace_standard_usage_event(
