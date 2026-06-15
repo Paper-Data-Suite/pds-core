@@ -101,3 +101,9 @@ Run the complete validation sequence with:
 ```
 
 This runs pytest, Ruff, mypy, and `git diff --check`.
+
+## Project Policies
+
+- See [`CHANGELOG.md`](CHANGELOG.md) for development history.
+- See [`SECURITY.md`](SECURITY.md) for security and student-data guidance.
+- PDS Core is available under the [MIT License](LICENSE).
