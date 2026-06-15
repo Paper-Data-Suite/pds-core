@@ -4,11 +4,24 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
-from typing import TypeVar, cast
+from types import MappingProxyType
+from typing import Final, TypeVar, cast
+
+from pds_core.identifiers import IdentifierValidationError, validate_identifier
+
+
+STANDARD_USAGE_TYPES: Final[frozenset[str]] = frozenset(
+    {"taught", "practiced", "assessed", "reviewed"}
+)
+_SCHOOL_YEAR_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r"^(?P<start>\d{4})-(?P<end>\d{4})$"
+)
 
 
 class StandardsValidationError(ValueError):
@@ -162,6 +175,24 @@ class StandardsLibrary:
         _normalize_standards_library(self)
 
 
+@dataclass(frozen=True, slots=True)
+class StandardUsageEvent:
+    """One module-neutral record of teacher-controlled standards usage."""
+
+    event_id: str
+    standard_id: str
+    school_year: str
+    class_id: str
+    module: str
+    usage_type: str
+    used_at: datetime
+    assignment_id: str | None = None
+    metadata: Mapping[str, object] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        _normalize_standard_usage_event(self)
+
+
 def _normalize_standard_definition(definition: StandardDefinition) -> None:
     for field_name in (
         "standard_id",
@@ -290,6 +321,57 @@ def _normalize_standards_library(library: StandardsLibrary) -> None:
             )
 
 
+def _normalize_standard_usage_event(event: StandardUsageEvent) -> None:
+    for field_name in ("event_id", "standard_id", "module", "usage_type"):
+        object.__setattr__(
+            event,
+            field_name,
+            _required_text(getattr(event, field_name), field_name),
+        )
+
+    match = _SCHOOL_YEAR_PATTERN.fullmatch(
+        _required_text(event.school_year, "school_year")
+    )
+    if match is None or int(match["end"]) != int(match["start"]) + 1:
+        raise StandardsValidationError(
+            "school_year must use consecutive years in YYYY-YYYY format."
+        )
+    object.__setattr__(event, "school_year", match.group(0))
+
+    for field_name in ("class_id", "assignment_id"):
+        value = getattr(event, field_name)
+        if value is None and field_name == "assignment_id":
+            continue
+        try:
+            normalized = validate_identifier(value, field_name)
+        except IdentifierValidationError as error:
+            raise StandardsValidationError(str(error)) from error
+        object.__setattr__(event, field_name, normalized)
+
+    if event.usage_type not in STANDARD_USAGE_TYPES:
+        allowed = ", ".join(sorted(STANDARD_USAGE_TYPES))
+        raise StandardsValidationError(
+            f"usage_type must be one of: {allowed}."
+        )
+
+    if not isinstance(event.used_at, datetime):
+        raise StandardsValidationError("used_at must be a datetime.")
+    if event.used_at.tzinfo is None or event.used_at.utcoffset() is None:
+        raise StandardsValidationError(
+            "used_at must be timezone-aware."
+        )
+
+    if not isinstance(event.metadata, Mapping):
+        raise StandardsValidationError("metadata must be a mapping.")
+    if any(not isinstance(key, str) for key in event.metadata):
+        raise StandardsValidationError("metadata keys must be strings.")
+    object.__setattr__(
+        event,
+        "metadata",
+        MappingProxyType(dict(event.metadata)),
+    )
+
+
 def validate_standard_definition(
     definition: StandardDefinition,
 ) -> StandardDefinition:
@@ -316,6 +398,18 @@ def validate_standards_library(library: StandardsLibrary) -> StandardsLibrary:
         raise StandardsValidationError("library must be a StandardsLibrary.")
     _normalize_standards_library(library)
     return library
+
+
+def validate_standard_usage_event(
+    event: StandardUsageEvent,
+) -> StandardUsageEvent:
+    """Validate and return a shared standards usage event."""
+    if not isinstance(event, StandardUsageEvent):
+        raise StandardsValidationError(
+            "event must be a StandardUsageEvent."
+        )
+    _normalize_standard_usage_event(event)
+    return event
 
 
 _STANDARD_DEFINITION_REQUIRED_KEYS = frozenset(

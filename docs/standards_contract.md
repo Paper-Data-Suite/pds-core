@@ -14,10 +14,11 @@ Modules own module-specific standards behavior and interpretation.
 
 This document began as a design contract. Focused implementation issues have
 since added shared standards models, JSON-compatible conversion helpers,
-explicit-path JSON file helpers, and the canonical workspace library path.
-Usage events, usage ledgers, CLI commands, migrations, module adapters, and
-automated educational judgment remain future work unless explicitly added by
-later issues.
+explicit-path JSON file helpers, the canonical workspace library path, and a
+shared in-memory usage event model. Usage-event serialization and storage,
+usage ledgers, CLI commands, migrations, module adapters, and automated
+educational judgment remain future work unless explicitly added by later
+issues.
 
 ## Design Principles
 
@@ -570,7 +571,9 @@ Illustrative shape:
 }
 ```
 
-This is illustrative, not a final implemented schema.
+`StandardUsageEvent` now provides this shared shape in memory, with `used_at`
+represented as a timezone-aware `datetime`. Dictionary conversion, JSON
+serialization, and storage remain future work.
 
 A usage event:
 
@@ -649,9 +652,10 @@ This allows a teacher to:
 * distinguish module and assignment contexts;
 * summarize usage without deleting source events.
 
-`assignment_id` should be required for assignment-backed events. A future
-contract may allow non-assignment instructional events, but it must represent
-their context explicitly rather than inventing a fake assignment.
+`assignment_id` is optional in the shared in-memory model so non-assignment
+instructional use does not require a fake assignment identity. Modules remain
+responsible for supplying assignment context when an event is assignment
+backed.
 
 Usage summaries should be derived views, not the only stored record. A count
 must remain explainable in terms of its underlying events.
@@ -743,7 +747,7 @@ roster behavior, or package runtime behavior.
 
 ## Acceptance Criteria
 
-This contract is complete for the current design issue when:
+This contract remains useful as the standards subsystem evolves when:
 
 * it explains why standards belong initially in `pds-core`;
 * it preserves module-specific assignment identity and behavior;
@@ -759,26 +763,19 @@ This contract is complete for the current design issue when:
 * it preserves Quillan ownership of writing-specific standards metadata;
 * it defines conservative shared usage types and non-destructive yearly reset
   semantics;
-* it remains documentation-only.
+* it distinguishes implemented shared layers from future work.
 
 ## Report Back
 
-Completion reporting for this design issue should include:
+Future standards implementation issues should report:
 
 * files changed;
-* standards contract sections added or updated;
-* existing ScoreForm and Quillan behavior documented;
-* proposed core/module boundary;
-* proposed storage direction;
-* proposed standard code and identifier strategy;
-* proposed menu navigation and grouping strategy;
-* proposed usage-type strategy;
-* proposed migration sequence;
-* whether any code files changed;
+* standards contract sections updated, if any;
+* implemented shared layer;
 * validation commands and results;
-* confirmation that no standards implementation was added;
+* confirmation that unrelated module behavior was not changed;
 * confirmation that no sibling repositories were modified;
-* open design questions that should be resolved before implementation.
+* remaining open design questions.
 
 ## Open Design Questions
 
@@ -822,6 +819,7 @@ into package code.
 4. Add read-only loading and structured validation for the shared library.
 5. Add explicit, atomic writing for definitions and profiles.
 6. Define and implement the usage-event model and canonical usage vocabulary.
+   (Implemented in memory; serialization and storage remain future work.)
 7. Add class/year-scoped usage storage and read-only summary generation.
 8. Add non-destructive school-year scope selection or rollover behavior.
 9. Add a ScoreForm compatibility adapter that preserves question-level
