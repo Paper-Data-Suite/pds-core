@@ -17,9 +17,10 @@ since added shared standards models, JSON-compatible conversion helpers,
 explicit-path JSON file helpers, the canonical workspace library path, and a
 shared in-memory usage event model with JSON-compatible dictionary conversion
 and explicit-path JSON Lines file helpers. Canonical workspace usage-ledger
-paths and convenience helpers are also implemented. Usage summaries, CLI
-commands, migrations, module adapters, and automated educational judgment
-remain future work unless explicitly added by later issues.
+paths and convenience helpers are also implemented, along with read-only
+usage summary helpers. CLI commands, migrations, module adapters, and
+automated educational judgment remain future work unless explicitly added by
+later issues.
 
 ## Design Principles
 
@@ -581,6 +582,11 @@ Lines files with one usage event object per nonblank line. Workspace helpers
 construct, create, load, append, and atomically write the canonical
 class/year-scoped usage ledger path.
 
+Usage summaries are derived views over recorded usage events. They may count
+events by standard, usage type, module, and assignment context. They do not
+represent mastery, grades, scores, proficiency, feedback, or automatic
+educational judgment.
+
 A usage event:
 
 * references a durable standard definition;
@@ -732,7 +738,6 @@ contract.
 This issue does not implement:
 
 * standards CLI commands;
-* usage summary generation;
 * yearly reset commands;
 * ScoreForm standards migration;
 * Quillan standards migration;
@@ -827,6 +832,7 @@ into package code.
    (Implemented in memory with dictionary conversion and explicit-path JSON
    Lines file helpers and canonical workspace ledger helpers.)
 7. Add read-only usage summary generation.
+   (Implemented as derived, read-only counts over recorded usage events.)
 8. Add non-destructive school-year scope selection or rollover behavior.
 9. Add a ScoreForm compatibility adapter that preserves question-level
    alignment and assignment behavior.
