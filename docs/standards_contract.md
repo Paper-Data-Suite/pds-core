@@ -16,9 +16,10 @@ This document began as a design contract. Focused implementation issues have
 since added shared standards models, JSON-compatible conversion helpers,
 explicit-path JSON file helpers, the canonical workspace library path, and a
 shared in-memory usage event model with JSON-compatible dictionary conversion
-and explicit-path JSON Lines file helpers. Workspace usage-ledger paths, usage
-summaries, CLI commands, migrations, module adapters, and automated educational
-judgment remain future work unless explicitly added by later issues.
+and explicit-path JSON Lines file helpers. Canonical workspace usage-ledger
+paths and convenience helpers are also implemented. Usage summaries, CLI
+commands, migrations, module adapters, and automated educational judgment
+remain future work unless explicitly added by later issues.
 
 ## Design Principles
 
@@ -228,22 +229,23 @@ The canonical shared standards library location is:
 The `standards/` directory is suite-level shared metadata. The library is not
 class-specific, school-year-specific, assignment-specific, or module-specific.
 
-A possible future logical layout for additional standards data is:
+The current implemented standards storage commitments are:
 
 ```text
 <PDS workspace root>/
   standards/
     library.json
-    profiles/
-      <profile_id>.json
     usage/
       <school_year>/
         <class_id>/
           events.jsonl
 ```
 
-Only `standards/library.json` is a current storage commitment. The profile and
-usage paths are directional future work, not final file-format commitments.
+`standards/library.json` and
+`standards/usage/<school_year>/<class_id>/events.jsonl` are current storage
+commitments. A future profile path such as
+`standards/profiles/<profile_id>.json` remains directional future work, not a
+final file-format commitment.
 
 The durable library and reusable profiles must be separate from the
 school-year usage ledger. Shared usage data should not be embedded only in
@@ -575,8 +577,9 @@ Illustrative shape:
 represented as a timezone-aware `datetime`. It converts to and from a
 JSON-compatible dictionary with `used_at` represented as an ISO datetime
 string. Explicit-path helpers load, append, and atomically write UTF-8 JSON
-Lines files with one usage event object per nonblank line. Canonical workspace
-usage-ledger paths and partitioning remain future work.
+Lines files with one usage event object per nonblank line. Workspace helpers
+construct, create, load, append, and atomically write the canonical
+class/year-scoped usage ledger path.
 
 A usage event:
 
@@ -729,7 +732,6 @@ contract.
 This issue does not implement:
 
 * standards CLI commands;
-* workspace usage-ledger paths and partitioning;
 * usage summary generation;
 * yearly reset commands;
 * ScoreForm standards migration;
@@ -823,8 +825,8 @@ into package code.
 5. Add explicit, atomic writing for definitions and profiles.
 6. Define and implement the usage-event model and canonical usage vocabulary.
    (Implemented in memory with dictionary conversion and explicit-path JSON
-   Lines file helpers; workspace ledger paths remain future work.)
-7. Add class/year-scoped usage storage and read-only summary generation.
+   Lines file helpers and canonical workspace ledger helpers.)
+7. Add read-only usage summary generation.
 8. Add non-destructive school-year scope selection or rollover behavior.
 9. Add a ScoreForm compatibility adapter that preserves question-level
    alignment and assignment behavior.
