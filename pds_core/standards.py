@@ -2,13 +2,41 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import json
+import os
+import tempfile
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
+from pathlib import Path
 from typing import TypeVar, cast
 
 
 class StandardsValidationError(ValueError):
     """Raised when shared standards metadata is invalid."""
+
+
+class StandardsReadError(OSError):
+    """Raised when a standards library JSON file cannot be read."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(
+            f"Could not read standards library JSON {self.path}: {message}"
+        )
+
+
+class StandardsWriteError(OSError):
+    """Raised when a standards library JSON file cannot be written."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(
+            f"Could not write standards library JSON {self.path}: {message}"
+        )
 
 
 def _validated_mapping(
@@ -465,3 +493,91 @@ def standards_library_from_dict(
         standards=tuple(standards),
         profiles=tuple(profiles),
     )
+
+
+def load_standards_library(path: str | Path) -> StandardsLibrary:
+    """Load, deserialize, and validate a UTF-8 standards library JSON file."""
+    source_path = Path(path)
+
+    try:
+        with source_path.open(encoding="utf-8") as standards_file:
+            data = json.load(standards_file)
+    except json.JSONDecodeError as error:
+        raise StandardsReadError(
+            source_path,
+            f"invalid JSON: {error}",
+        ) from error
+    except (OSError, UnicodeError) as error:
+        raise StandardsReadError(source_path, str(error)) from error
+
+    if not isinstance(data, Mapping):
+        raise StandardsReadError(
+            source_path,
+            "top-level JSON value must be a mapping",
+        )
+
+    try:
+        return standards_library_from_dict(cast(Mapping[str, object], data))
+    except (StandardsValidationError, KeyError, TypeError) as error:
+        raise StandardsReadError(
+            source_path,
+            f"invalid standards library data: {error}",
+        ) from error
+
+
+def write_standards_library(
+    path: str | Path,
+    library: StandardsLibrary,
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Atomically write a standards library to a UTF-8 JSON file."""
+    target_path = Path(path)
+
+    try:
+        data = standards_library_to_dict(library)
+        content = json.dumps(data, indent=2, sort_keys=True) + "\n"
+    except (StandardsValidationError, TypeError, ValueError) as error:
+        raise StandardsWriteError(
+            target_path,
+            f"invalid standards library data: {error}",
+        ) from error
+
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise StandardsWriteError(target_path, str(error)) from error
+
+    if target_path.exists() and not overwrite:
+        raise StandardsWriteError(target_path, "target file already exists")
+
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=target_path.parent,
+            prefix=f".{target_path.name}.",
+            suffix=".tmp",
+        ) as standards_file:
+            temp_path = Path(standards_file.name)
+            standards_file.write(content)
+            standards_file.flush()
+            os.fsync(standards_file.fileno())
+
+        os.replace(temp_path, target_path)
+        temp_path = None
+    except (OSError, UnicodeError) as error:
+        cleanup_error: OSError | None = None
+        if temp_path is not None:
+            try:
+                temp_path.unlink(missing_ok=True)
+            except OSError as caught_cleanup_error:
+                cleanup_error = caught_cleanup_error
+
+        message = str(error)
+        if cleanup_error is not None:
+            message = f"{message}; temporary file cleanup failed: {cleanup_error}"
+        raise StandardsWriteError(target_path, message) from error
