@@ -52,6 +52,31 @@ class StandardsWriteError(OSError):
         )
 
 
+class StandardsUsageReadError(OSError):
+    """Raised when a standards usage events JSONL file cannot be read."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(
+            f"Could not read standards usage events JSONL {self.path}: {message}"
+        )
+
+
+class StandardsUsageWriteError(OSError):
+    """Raised when a standards usage events JSONL file cannot be written."""
+
+    path: Path
+
+    def __init__(self, path: str | Path, message: str) -> None:
+        self.path = Path(path)
+        super().__init__(
+            f"Could not write standards usage events JSONL {self.path}: "
+            f"{message}"
+        )
+
+
 def _validated_mapping(
     value: object,
     model_name: str,
@@ -759,6 +784,156 @@ def write_standards_library(
         if cleanup_error is not None:
             message = f"{message}; temporary file cleanup failed: {cleanup_error}"
         raise StandardsWriteError(target_path, message) from error
+
+
+def load_standard_usage_events(
+    path: str | Path,
+) -> tuple[StandardUsageEvent, ...]:
+    """Load standards usage events from a UTF-8 JSONL file."""
+    source_path = Path(path)
+    events: list[StandardUsageEvent] = []
+
+    try:
+        with source_path.open(encoding="utf-8") as usage_file:
+            for line_number, line in enumerate(usage_file, start=1):
+                if not line.strip():
+                    continue
+
+                try:
+                    data = json.loads(line)
+                except json.JSONDecodeError as error:
+                    raise StandardsUsageReadError(
+                        source_path,
+                        f"line {line_number}: invalid JSON: {error}",
+                    ) from error
+
+                if not isinstance(data, Mapping):
+                    raise StandardsUsageReadError(
+                        source_path,
+                        f"line {line_number}: "
+                        "top-level JSON value must be a mapping",
+                    )
+
+                try:
+                    event = standard_usage_event_from_dict(
+                        cast(Mapping[str, object], data)
+                    )
+                except (
+                    StandardsValidationError,
+                    KeyError,
+                    TypeError,
+                ) as error:
+                    raise StandardsUsageReadError(
+                        source_path,
+                        f"line {line_number}: "
+                        f"invalid standards usage event data: {error}",
+                    ) from error
+                events.append(event)
+    except StandardsUsageReadError:
+        raise
+    except (OSError, UnicodeError) as error:
+        raise StandardsUsageReadError(source_path, str(error)) from error
+
+    return tuple(events)
+
+
+def _serialize_standard_usage_event(event: StandardUsageEvent) -> str:
+    return json.dumps(
+        standard_usage_event_to_dict(event),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def append_standard_usage_event(
+    path: str | Path,
+    event: StandardUsageEvent,
+) -> None:
+    """Append one standards usage event to a UTF-8 JSONL file."""
+    target_path = Path(path)
+
+    try:
+        line = _serialize_standard_usage_event(event)
+    except (StandardsValidationError, TypeError, ValueError) as error:
+        raise StandardsUsageWriteError(
+            target_path,
+            f"invalid standards usage event data: {error}",
+        ) from error
+
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        encoded_line = line.encode("utf-8")
+        with target_path.open("ab+") as usage_file:
+            usage_file.seek(0, os.SEEK_END)
+            separator = b""
+            if usage_file.tell() > 0:
+                usage_file.seek(-1, os.SEEK_END)
+                if usage_file.read(1) not in (b"\n", b"\r"):
+                    separator = b"\n"
+            usage_file.write(separator + encoded_line + b"\n")
+    except (OSError, UnicodeError) as error:
+        raise StandardsUsageWriteError(target_path, str(error)) from error
+
+
+def write_standard_usage_events(
+    path: str | Path,
+    events: Iterable[StandardUsageEvent],
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Atomically write standards usage events to a UTF-8 JSONL file."""
+    target_path = Path(path)
+
+    try:
+        lines = [_serialize_standard_usage_event(event) for event in events]
+        content = "".join(f"{line}\n" for line in lines)
+    except (StandardsValidationError, TypeError, ValueError) as error:
+        raise StandardsUsageWriteError(
+            target_path,
+            f"invalid standards usage event data: {error}",
+        ) from error
+
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise StandardsUsageWriteError(target_path, str(error)) from error
+
+    if target_path.exists() and not overwrite:
+        raise StandardsUsageWriteError(
+            target_path,
+            "target file already exists",
+        )
+
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=target_path.parent,
+            prefix=f".{target_path.name}.",
+            suffix=".tmp",
+        ) as usage_file:
+            temp_path = Path(usage_file.name)
+            usage_file.write(content)
+            usage_file.flush()
+            os.fsync(usage_file.fileno())
+
+        os.replace(temp_path, target_path)
+        temp_path = None
+    except (OSError, UnicodeError) as error:
+        cleanup_error: OSError | None = None
+        if temp_path is not None:
+            try:
+                temp_path.unlink(missing_ok=True)
+            except OSError as caught_cleanup_error:
+                cleanup_error = caught_cleanup_error
+
+        message = str(error)
+        if cleanup_error is not None:
+            message = f"{message}; temporary file cleanup failed: {cleanup_error}"
+        raise StandardsUsageWriteError(target_path, message) from error
 
 
 def load_workspace_standards_library(
