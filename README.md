@@ -92,3 +92,12 @@ py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
+```
+
+Run the complete validation sequence with:
+
+```powershell
+.\run_tests.ps1
+```
+
+This runs pytest, Ruff, mypy, and `git diff --check`.
