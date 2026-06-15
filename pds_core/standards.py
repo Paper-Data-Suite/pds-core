@@ -3,12 +3,51 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from typing import TypeVar, cast
 
 
 class StandardsValidationError(ValueError):
     """Raised when shared standards metadata is invalid."""
+
+
+def _validated_mapping(
+    value: object,
+    model_name: str,
+    required_keys: frozenset[str],
+    allowed_keys: frozenset[str],
+) -> Mapping[str, object]:
+    if not isinstance(value, Mapping):
+        raise StandardsValidationError(f"{model_name} data must be a mapping.")
+
+    non_string_keys = [key for key in value if not isinstance(key, str)]
+    if non_string_keys:
+        raise StandardsValidationError(
+            f"{model_name} data keys must be strings."
+        )
+
+    data = cast(Mapping[str, object], value)
+    unknown_keys = sorted(data.keys() - allowed_keys)
+    if unknown_keys:
+        unknown = ", ".join(unknown_keys)
+        raise StandardsValidationError(
+            f"{model_name} data contains unknown key(s): {unknown}."
+        )
+
+    missing_keys = sorted(required_keys - data.keys())
+    if missing_keys:
+        missing = ", ".join(missing_keys)
+        raise StandardsValidationError(
+            f"{model_name} data is missing required key(s): {missing}."
+        )
+
+    return data
+
+
+def _json_array(value: object, field_name: str) -> tuple[object, ...]:
+    if not isinstance(value, (list, tuple)):
+        raise StandardsValidationError(f"{field_name} must be a list or tuple.")
+    return tuple(value)
 
 
 def _required_text(value: object, field_name: str) -> str:
@@ -249,3 +288,180 @@ def validate_standards_library(library: StandardsLibrary) -> StandardsLibrary:
         raise StandardsValidationError("library must be a StandardsLibrary.")
     _normalize_standards_library(library)
     return library
+
+
+_STANDARD_DEFINITION_REQUIRED_KEYS = frozenset(
+    {"standard_id", "code", "source", "short_name", "description"}
+)
+_STANDARD_DEFINITION_KEYS = _STANDARD_DEFINITION_REQUIRED_KEYS | {
+    "subject",
+    "course",
+    "grade_band",
+    "domain",
+    "category_path",
+    "tags",
+    "active",
+    "available_modules",
+}
+_STANDARDS_PROFILE_REQUIRED_KEYS = frozenset({"profile_id", "standards"})
+_STANDARDS_PROFILE_KEYS = _STANDARDS_PROFILE_REQUIRED_KEYS | {
+    "subject",
+    "course",
+    "source",
+    "title",
+    "description",
+}
+_STANDARDS_LIBRARY_REQUIRED_KEYS = frozenset({"standards"})
+_STANDARDS_LIBRARY_KEYS = _STANDARDS_LIBRARY_REQUIRED_KEYS | {"profiles"}
+
+
+def standard_definition_to_dict(
+    definition: StandardDefinition,
+) -> dict[str, object]:
+    """Serialize a standard definition to a JSON-compatible dictionary."""
+    validate_standard_definition(definition)
+    return {
+        "standard_id": definition.standard_id,
+        "code": definition.code,
+        "source": definition.source,
+        "short_name": definition.short_name,
+        "description": definition.description,
+        "subject": definition.subject,
+        "course": definition.course,
+        "grade_band": definition.grade_band,
+        "domain": definition.domain,
+        "category_path": list(definition.category_path),
+        "tags": list(definition.tags),
+        "active": definition.active,
+        "available_modules": list(definition.available_modules),
+    }
+
+
+def standard_definition_from_dict(
+    data: Mapping[str, object],
+) -> StandardDefinition:
+    """Deserialize and validate a standard definition dictionary."""
+    values = _validated_mapping(
+        data,
+        "standard definition",
+        _STANDARD_DEFINITION_REQUIRED_KEYS,
+        _STANDARD_DEFINITION_KEYS,
+    )
+    return StandardDefinition(
+        standard_id=values["standard_id"],  # type: ignore[arg-type]
+        code=values["code"],  # type: ignore[arg-type]
+        source=values["source"],  # type: ignore[arg-type]
+        short_name=values["short_name"],  # type: ignore[arg-type]
+        description=values["description"],  # type: ignore[arg-type]
+        subject=values.get("subject"),  # type: ignore[arg-type]
+        course=values.get("course"),  # type: ignore[arg-type]
+        grade_band=values.get("grade_band"),  # type: ignore[arg-type]
+        domain=values.get("domain"),  # type: ignore[arg-type]
+        category_path=_json_array(
+            values.get("category_path", []),
+            "category_path",
+        ),  # type: ignore[arg-type]
+        tags=_json_array(values.get("tags", []), "tags"),  # type: ignore[arg-type]
+        active=values.get("active", True),  # type: ignore[arg-type]
+        available_modules=_json_array(
+            values.get("available_modules", []),
+            "available_modules",
+        ),  # type: ignore[arg-type]
+    )
+
+
+def standards_profile_to_dict(profile: StandardsProfile) -> dict[str, object]:
+    """Serialize a standards profile to a JSON-compatible dictionary."""
+    validate_standards_profile(profile)
+    return {
+        "profile_id": profile.profile_id,
+        "standards": list(profile.standards),
+        "subject": profile.subject,
+        "course": profile.course,
+        "source": profile.source,
+        "title": profile.title,
+        "description": profile.description,
+    }
+
+
+def standards_profile_from_dict(
+    data: Mapping[str, object],
+) -> StandardsProfile:
+    """Deserialize and validate a standards profile dictionary."""
+    values = _validated_mapping(
+        data,
+        "standards profile",
+        _STANDARDS_PROFILE_REQUIRED_KEYS,
+        _STANDARDS_PROFILE_KEYS,
+    )
+    return StandardsProfile(
+        profile_id=values["profile_id"],  # type: ignore[arg-type]
+        standards=_json_array(
+            values["standards"],
+            "standards",
+        ),  # type: ignore[arg-type]
+        subject=values.get("subject"),  # type: ignore[arg-type]
+        course=values.get("course"),  # type: ignore[arg-type]
+        source=values.get("source"),  # type: ignore[arg-type]
+        title=values.get("title"),  # type: ignore[arg-type]
+        description=values.get("description"),  # type: ignore[arg-type]
+    )
+
+
+def standards_library_to_dict(library: StandardsLibrary) -> dict[str, object]:
+    """Serialize a standards library to a JSON-compatible dictionary."""
+    validate_standards_library(library)
+    return {
+        "standards": [
+            standard_definition_to_dict(definition)
+            for definition in library.standards
+        ],
+        "profiles": [
+            standards_profile_to_dict(profile) for profile in library.profiles
+        ],
+    }
+
+
+def standards_library_from_dict(
+    data: Mapping[str, object],
+) -> StandardsLibrary:
+    """Deserialize and validate a standards library dictionary."""
+    values = _validated_mapping(
+        data,
+        "standards library",
+        _STANDARDS_LIBRARY_REQUIRED_KEYS,
+        _STANDARDS_LIBRARY_KEYS,
+    )
+
+    standards = []
+    for index, entry in enumerate(
+        _json_array(values["standards"], "standards")
+    ):
+        try:
+            standards.append(
+                standard_definition_from_dict(
+                    cast(Mapping[str, object], entry)
+                )
+            )
+        except StandardsValidationError as error:
+            raise StandardsValidationError(
+                f"standards[{index}]: {error}"
+            ) from error
+
+    profiles = []
+    for index, entry in enumerate(
+        _json_array(values.get("profiles", []), "profiles")
+    ):
+        try:
+            profiles.append(
+                standards_profile_from_dict(cast(Mapping[str, object], entry))
+            )
+        except StandardsValidationError as error:
+            raise StandardsValidationError(
+                f"profiles[{index}]: {error}"
+            ) from error
+
+    return StandardsLibrary(
+        standards=tuple(standards),
+        profiles=tuple(profiles),
+    )
