@@ -23,7 +23,9 @@ usage summary helpers. PDS Core also owns shared active school-year workspace
 state so modules can use one selected school year when recording usage events.
 The workspace standards library convenience loader returns an empty library
 when `<PDS workspace root>/standards/library.json` is missing, and that missing
-load does not create files or directories.
+load does not create files or directories. PDS Core also provides read-only
+standards browsing and filtering helpers over existing in-memory
+`StandardsLibrary` objects.
 CLI commands, migrations, module adapters, and
 automated educational judgment remain future work unless explicitly added by
 later issues.
@@ -480,6 +482,20 @@ The shared library should make it possible for modules to filter or browse
 standards efficiently without each module inventing a separate standards
 taxonomy.
 
+Implemented browsing helpers operate only on an existing in-memory
+`StandardsLibrary`. They can find a standard by `standard_id`, filter
+standards by subject, source, domain, active status, available module, and
+category-path prefix, and list available subjects, sources, domains, and
+category paths. They preserve library order for filtered standards and return
+deterministically sorted tuples for list views.
+
+These helpers are side-effect free. They do not read files, write files,
+create directories, create standards, edit standards, delete standards, import
+standards, migrate data, inspect workspace state, or record standards usage.
+Modules may use them to build teacher-facing standards selection workflows,
+but modules still own their own UI, CLI, assignment schemas, selection flows,
+assignment attachment behavior, and standards interpretation.
+
 ## Shared Concept: Standards Profile
 
 A standards profile is a reusable grouping of shared standard definitions.
@@ -506,6 +522,12 @@ consistent across profiles and modules.
 Profiles may provide useful grouping metadata, but they must not become
 assignment schemas. Modules decide how a profile is selected, filtered, and
 used in an assignment workflow.
+
+Implemented profile browsing helpers operate on `StandardsLibrary.profiles`.
+They can find a profile by `profile_id` and filter profiles by subject,
+course, and source while preserving the profile order stored in the library.
+They do not add active status, module availability, assignment behavior, or
+usage recording to profiles.
 
 Profile versioning, ordering, local overrides, and behavior when a referenced
 standard becomes inactive must be resolved before implementation.
@@ -896,12 +918,15 @@ into package code.
 * explicit-path standards usage JSON Lines helpers;
 * canonical workspace standards usage ledger helpers;
 * read-only usage summaries derived from recorded usage events;
-* active school-year workspace state.
+* active school-year workspace state;
+* read-only in-memory standards browsing and filtering helpers.
 
 These shared layers keep durable definitions and profiles separate from
-year/class-scoped usage events. They do not add module UI, standards browsing,
-standards selection, assignment attachment workflows, automatic usage
-recording, scoring, grading, mastery judgment, or feedback generation.
+year/class-scoped usage events. They do not add module UI, standards selection,
+assignment attachment workflows, automatic usage recording, scoring, grading,
+mastery judgment, or feedback generation. The browsing helpers are read-only
+library views and do not create, edit, delete, import, migrate, or record
+usage.
 
 ## Future Implementation Sequence
 
