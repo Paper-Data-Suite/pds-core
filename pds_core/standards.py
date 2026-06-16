@@ -1207,7 +1207,10 @@ def load_workspace_standards_library(
     workspace_root: str | Path,
 ) -> StandardsLibrary:
     """Load the canonical shared standards library for a workspace."""
-    return load_standards_library(standards_library_path(workspace_root))
+    path = standards_library_path(workspace_root)
+    if not path.exists():
+        return StandardsLibrary(standards=(), profiles=())
+    return load_standards_library(path)
 
 
 def write_workspace_standards_library(

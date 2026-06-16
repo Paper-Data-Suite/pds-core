@@ -8,7 +8,8 @@ library and standards-usage tracking.
 The central architecture decision is:
 
 ```text
-pds-core owns the shared standards library and standards usage ledger.
+pds-core owns shared standards library workspace-storage behavior and the
+standards usage ledger file contracts.
 Modules own module-specific standards behavior and interpretation.
 ```
 
@@ -20,6 +21,9 @@ and explicit-path JSON Lines file helpers. Canonical workspace usage-ledger
 paths and convenience helpers are also implemented, along with read-only
 usage summary helpers. PDS Core also owns shared active school-year workspace
 state so modules can use one selected school year when recording usage events.
+The workspace standards library convenience loader returns an empty library
+when `<PDS workspace root>/standards/library.json` is missing, and that missing
+load does not create files or directories.
 CLI commands, migrations, module adapters, and
 automated educational judgment remain future work unless explicitly added by
 later issues.
@@ -200,6 +204,9 @@ The roster and workspace contracts remain relevant because usage records refer
 to shared class and assignment identifiers. See
 [`roster_workspace_contract.md`](roster_workspace_contract.md).
 
+Module-facing standards selection, editing, browsing, creation, import, and
+attachment workflows remain future work for focused module or suite issues.
+
 ## Why Standards Begin in `pds-core`
 
 Standards should begin in `pds-core` because:
@@ -236,8 +243,6 @@ The current implemented standards storage commitments are:
 
 ```text
 <PDS workspace root>/
-  settings/
-    school_year.json
   standards/
     library.json
     usage/
@@ -245,6 +250,18 @@ The current implemented standards storage commitments are:
         <class_id>/
           events.jsonl
 ```
+
+The shared library file at `standards/library.json` stores durable reusable
+standard definitions and reusable standards profiles. Loading a missing
+workspace standards library returns an empty `StandardsLibrary` and does not
+create `standards/`, `library.json`, usage ledgers, settings, class folders,
+assignment folders, reports, rosters, or module-specific folders. Writing the
+workspace standards library creates only the `standards/` parent directory and
+`standards/library.json`.
+
+Usage events remain separate from definitions and profiles. Creating or
+writing the standards library does not create standards usage ledgers and does
+not record usage.
 
 `settings/school_year.json` stores the suite-level active school-year state
 owned by `pds-core`. It records the currently opened school year, when it was
@@ -863,36 +880,49 @@ The following questions should be resolved before implementation:
 These are implementation prerequisites, not permission to broaden this issue
 into package code.
 
+## Implemented Shared Layers
+
+`pds-core` now provides these shared standards layers:
+
+* shared standard definition and standards profile models;
+* standards library dictionary conversion and structured validation;
+* explicit-path standards library JSON loading and atomic writing;
+* canonical workspace standards library path;
+* workspace standards library loading that returns an empty library when
+  `standards/library.json` is missing, without creating files;
+* workspace standards library writing through the canonical
+  `standards/library.json` path;
+* standards usage event model and dictionary conversion;
+* explicit-path standards usage JSON Lines helpers;
+* canonical workspace standards usage ledger helpers;
+* read-only usage summaries derived from recorded usage events;
+* active school-year workspace state.
+
+These shared layers keep durable definitions and profiles separate from
+year/class-scoped usage events. They do not add module UI, standards browsing,
+standards selection, assignment attachment workflows, automatic usage
+recording, scoring, grading, mastery judgment, or feedback generation.
+
 ## Future Implementation Sequence
 
-1. Review and accept this contract.
-2. Resolve the open identity, storage, versioning, availability, and event
-   correction questions.
-3. Define versioned, module-neutral standard-definition and profile schemas in
-   `pds-core`.
-4. Add read-only loading and structured validation for the shared library.
-5. Add explicit, atomic writing for definitions and profiles.
-6. Define and implement the usage-event model and canonical usage vocabulary.
-   (Implemented in memory with dictionary conversion and explicit-path JSON
-   Lines file helpers and canonical workspace ledger helpers.)
-7. Add read-only usage summary generation.
-   (Implemented as derived, read-only counts over recorded usage events.)
-8. Add non-destructive school-year scope selection or rollover behavior.
-   (Active school-year open/read/close workspace state is implemented in
-   `pds-core`; module CLI/menu workflows remain future work.)
-9. Add a ScoreForm compatibility adapter that preserves question-level
-   alignment and assignment behavior.
-10. Migrate ScoreForm standard references incrementally without changing
-    scoring or exports.
-11. Add a Quillan compatibility adapter that preserves profiles, assignment
-    configuration, tags, comments, and review behavior.
-12. Consider namespaced module-extension storage only after both module
-    migrations demonstrate a shared need.
-13. Consider package extraction only if independent standards versioning
-    becomes operationally useful.
+1. Resolve remaining identity, versioning, availability, and event-correction
+   questions before adding migration behavior.
+2. Add ScoreForm compatibility and standards-selection workflows while
+   preserving ScoreForm assignment schemas, scoring, exports, and
+   question-level alignment behavior.
+3. Migrate ScoreForm standard references incrementally only through explicit,
+   teacher-visible migration or adapter work.
+4. Add Quillan compatibility and adapter work while preserving Quillan-owned
+   profiles, assignment configuration, tags, comments, review behavior,
+   scoring, feedback, subskills, hotwords, and metadata.
+5. Consider namespaced module-extension storage only after both module
+   integrations prove a shared need.
+6. Consider package extraction only if independent standards versioning
+   becomes operationally useful.
 
-Each implementation phase should be a focused follow-up issue with tests,
-migration safeguards, and no unrelated module redesign.
+Each future implementation phase should be a focused follow-up issue with
+tests, migration safeguards, and no unrelated module redesign. ScoreForm and
+Quillan must continue to avoid depending on each other.
 
 ## Summary
 

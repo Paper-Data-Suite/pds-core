@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ import pytest
 from pds_core.standards import (
     StandardDefinition,
     StandardsLibrary,
+    StandardsProfile,
     StandardsReadError,
     StandardsWriteError,
     ensure_standards_dir,
@@ -32,8 +34,17 @@ def make_library(
                 source="NJSLS-ELA",
                 short_name="Close Reading Evidence",
                 description="Cite strong and thorough textual evidence.",
+                domain="Reading Literature",
+                tags=("close_reading", "textual_evidence"),
             ),
-        )
+        ),
+        profiles=(
+            StandardsProfile(
+                profile_id="english_12_njsls",
+                standards=(standard_id,),
+                title="English 12 NJSLS",
+            ),
+        ),
     )
 
 
@@ -59,6 +70,7 @@ def test_standards_path_helpers_do_not_create_directories(
     standards_library_path(tmp_path)
 
     assert not (tmp_path / "standards").exists()
+    assert not (tmp_path / "standards" / "library.json").exists()
 
 
 def test_ensure_standards_dir_creates_only_directory(tmp_path: Path) -> None:
@@ -75,6 +87,23 @@ def test_write_workspace_standards_library_writes_canonical_library_file(
     write_workspace_standards_library(tmp_path, make_library())
 
     assert (tmp_path / "standards" / "library.json").is_file()
+    assert not (tmp_path / "standards" / "usage").exists()
+    assert not (tmp_path / "settings").exists()
+    assert not (tmp_path / "classes").exists()
+    assert not (tmp_path / "assignments").exists()
+    assert not (tmp_path / "rosters").exists()
+    assert not (tmp_path / "reports").exists()
+    assert not (tmp_path / "pds-scoreform").exists()
+    assert not (tmp_path / "pds-quillan").exists()
+
+
+def test_load_workspace_standards_library_returns_empty_library_when_missing(
+    tmp_path: Path,
+) -> None:
+    library = load_workspace_standards_library(tmp_path)
+
+    assert library == StandardsLibrary(standards=(), profiles=())
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_load_workspace_standards_library_reads_canonical_library_file(
@@ -84,6 +113,23 @@ def test_load_workspace_standards_library_reads_canonical_library_file(
     write_workspace_standards_library(tmp_path, library)
 
     assert load_workspace_standards_library(tmp_path) == library
+
+
+def test_workspace_standards_library_round_trip_preserves_profiles(
+    tmp_path: Path,
+) -> None:
+    library = make_library()
+
+    write_workspace_standards_library(tmp_path, library)
+
+    loaded = load_workspace_standards_library(tmp_path)
+    assert loaded == library
+    assert loaded.standards[0].domain == "Reading Literature"
+    assert loaded.standards[0].tags == (
+        "close_reading",
+        "textual_evidence",
+    )
+    assert loaded.profiles == library.profiles
 
 
 def test_write_workspace_standards_library_preserves_overwrite_behavior(
@@ -107,7 +153,24 @@ def test_write_workspace_standards_library_preserves_overwrite_behavior(
 def test_load_workspace_standards_library_propagates_read_error(
     tmp_path: Path,
 ) -> None:
+    path = tmp_path / "standards" / "library.json"
+    path.parent.mkdir()
+    path.write_text(
+        json.dumps(
+            {
+                "standards": [],
+                "profiles": [
+                    {
+                        "profile_id": "english_12_njsls",
+                        "standards": ["unknown:standard"],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
     with pytest.raises(StandardsReadError) as raised:
         load_workspace_standards_library(tmp_path)
 
-    assert raised.value.path == tmp_path / "standards" / "library.json"
+    assert raised.value.path == path
