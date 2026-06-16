@@ -12,6 +12,9 @@ state.
 
 ### Added
 
+- Added pure in-memory roster mutation helpers for adding, replacing,
+  upserting, and removing student records while returning new validated
+  `Roster` instances.
 - Added pure in-memory standards library mutation helpers for adding,
   replacing, and upserting standard definitions and standards profiles while
   returning new validated `StandardsLibrary` instances.
