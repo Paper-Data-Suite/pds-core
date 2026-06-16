@@ -475,6 +475,174 @@ def validate_standards_library(library: StandardsLibrary) -> StandardsLibrary:
     return library
 
 
+def add_standard_definition(
+    library: StandardsLibrary,
+    definition: StandardDefinition,
+) -> StandardsLibrary:
+    """Return a new library with definition added."""
+    validated_library = validate_standards_library(library)
+    validated_definition = validate_standard_definition(definition)
+
+    if any(
+        existing.standard_id == validated_definition.standard_id
+        for existing in validated_library.standards
+    ):
+        raise StandardsValidationError(
+            "add_standard_definition cannot add duplicate "
+            f"standard_id {validated_definition.standard_id!r}."
+        )
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=validated_library.standards + (validated_definition,),
+            profiles=validated_library.profiles,
+        )
+    )
+
+
+def replace_standard_definition(
+    library: StandardsLibrary,
+    definition: StandardDefinition,
+) -> StandardsLibrary:
+    """Return a new library with an existing definition replaced."""
+    validated_library = validate_standards_library(library)
+    validated_definition = validate_standard_definition(definition)
+
+    replaced = False
+    standards: list[StandardDefinition] = []
+    for existing in validated_library.standards:
+        if existing.standard_id == validated_definition.standard_id:
+            standards.append(validated_definition)
+            replaced = True
+        else:
+            standards.append(existing)
+
+    if not replaced:
+        raise StandardsValidationError(
+            "replace_standard_definition cannot replace missing "
+            f"standard_id {validated_definition.standard_id!r}."
+        )
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=tuple(standards),
+            profiles=validated_library.profiles,
+        )
+    )
+
+
+def upsert_standard_definition(
+    library: StandardsLibrary,
+    definition: StandardDefinition,
+) -> StandardsLibrary:
+    """Return a new library with definition added or replaced."""
+    validated_library = validate_standards_library(library)
+    validated_definition = validate_standard_definition(definition)
+
+    standards: list[StandardDefinition] = []
+    replaced = False
+    for existing in validated_library.standards:
+        if existing.standard_id == validated_definition.standard_id:
+            standards.append(validated_definition)
+            replaced = True
+        else:
+            standards.append(existing)
+
+    if not replaced:
+        standards.append(validated_definition)
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=tuple(standards),
+            profiles=validated_library.profiles,
+        )
+    )
+
+
+def add_standards_profile(
+    library: StandardsLibrary,
+    profile: StandardsProfile,
+) -> StandardsLibrary:
+    """Return a new library with profile added."""
+    validated_library = validate_standards_library(library)
+    validated_profile = validate_standards_profile(profile)
+
+    if any(
+        existing.profile_id == validated_profile.profile_id
+        for existing in validated_library.profiles
+    ):
+        raise StandardsValidationError(
+            "add_standards_profile cannot add duplicate "
+            f"profile_id {validated_profile.profile_id!r}."
+        )
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=validated_library.standards,
+            profiles=validated_library.profiles + (validated_profile,),
+        )
+    )
+
+
+def replace_standards_profile(
+    library: StandardsLibrary,
+    profile: StandardsProfile,
+) -> StandardsLibrary:
+    """Return a new library with an existing profile replaced."""
+    validated_library = validate_standards_library(library)
+    validated_profile = validate_standards_profile(profile)
+
+    replaced = False
+    profiles: list[StandardsProfile] = []
+    for existing in validated_library.profiles:
+        if existing.profile_id == validated_profile.profile_id:
+            profiles.append(validated_profile)
+            replaced = True
+        else:
+            profiles.append(existing)
+
+    if not replaced:
+        raise StandardsValidationError(
+            "replace_standards_profile cannot replace missing "
+            f"profile_id {validated_profile.profile_id!r}."
+        )
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=validated_library.standards,
+            profiles=tuple(profiles),
+        )
+    )
+
+
+def upsert_standards_profile(
+    library: StandardsLibrary,
+    profile: StandardsProfile,
+) -> StandardsLibrary:
+    """Return a new library with profile added or replaced."""
+    validated_library = validate_standards_library(library)
+    validated_profile = validate_standards_profile(profile)
+
+    profiles: list[StandardsProfile] = []
+    replaced = False
+    for existing in validated_library.profiles:
+        if existing.profile_id == validated_profile.profile_id:
+            profiles.append(validated_profile)
+            replaced = True
+        else:
+            profiles.append(existing)
+
+    if not replaced:
+        profiles.append(validated_profile)
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=validated_library.standards,
+            profiles=tuple(profiles),
+        )
+    )
+
+
 def _optional_filter_text(value: str | None, field_name: str) -> str | None:
     if value is None:
         return None

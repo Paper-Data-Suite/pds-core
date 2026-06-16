@@ -12,6 +12,9 @@ state.
 
 ### Added
 
+- Added pure in-memory standards library mutation helpers for adding,
+  replacing, and upserting standard definitions and standards profiles while
+  returning new validated `StandardsLibrary` instances.
 - Added read-only in-memory standards library browsing helpers for finding and
   filtering standard definitions and standards profiles, plus deterministic
   subject, source, domain, and category-path listing helpers.

@@ -496,6 +496,19 @@ Modules may use them to build teacher-facing standards selection workflows,
 but modules still own their own UI, CLI, assignment schemas, selection flows,
 assignment attachment behavior, and standards interpretation.
 
+Implemented mutation helpers also operate only on an existing in-memory
+`StandardsLibrary`. They can add, replace, or upsert a
+`StandardDefinition`, and add, replace, or upsert a `StandardsProfile`. Each
+helper returns a new `StandardsLibrary`, preserves predictable ordering,
+validates the requested input, and validates the resulting library. These
+helpers do not read files, write files, create directories, inspect workspace
+state, record standards usage, add module UI, or alter assignment behavior.
+
+Delete and remove helpers are intentionally out of scope until profile
+references, historical usage events, inactive standards, auditability, and
+migration policy are resolved. A standard can be retired without deleting it
+by replacing its definition with `active` set to `false`.
+
 ## Shared Concept: Standards Profile
 
 A standards profile is a reusable grouping of shared standard definitions.
@@ -919,7 +932,9 @@ into package code.
 * canonical workspace standards usage ledger helpers;
 * read-only usage summaries derived from recorded usage events;
 * active school-year workspace state;
-* read-only in-memory standards browsing and filtering helpers.
+* read-only in-memory standards browsing and filtering helpers;
+* pure in-memory standards library mutation helpers for adding, replacing,
+  and upserting standard definitions and standards profiles.
 
 These shared layers keep durable definitions and profiles separate from
 year/class-scoped usage events. They do not add module UI, standards selection,
@@ -927,6 +942,13 @@ assignment attachment workflows, automatic usage recording, scoring, grading,
 mastery judgment, or feedback generation. The browsing helpers are read-only
 library views and do not create, edit, delete, import, migrate, or record
 usage.
+
+The mutation helpers return new `StandardsLibrary` instances and validate the
+resulting libraries. They do not read files, write files, create directories,
+inspect workspace state, record standards usage, or implement module
+selection/editing workflows. They also do not add delete or remove behavior;
+standards that should no longer be used can be retired by replacing the
+definition with `active=false`.
 
 ## Future Implementation Sequence
 
