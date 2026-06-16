@@ -13,6 +13,10 @@ state.
 ### Added
 
 - Added shared active school-year workspace state helpers.
+- Added shared standards library workspace-storage behavior where the canonical
+  `standards/library.json` path is side-effect free to resolve, missing
+  workspace libraries load as empty libraries without creating files, and
+  workspace writes create only the standards library file and parent directory.
 - Added root-level `CHANGELOG.md`.
 - Added root-level `LICENSE`.
 - Added root-level `SECURITY.md`.
