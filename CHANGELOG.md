@@ -12,6 +12,9 @@ state.
 
 ### Added
 
+- Added read-only in-memory standards library browsing helpers for finding and
+  filtering standard definitions and standards profiles, plus deterministic
+  subject, source, domain, and category-path listing helpers.
 - Added shared active school-year workspace state helpers.
 - Added shared standards library workspace-storage behavior where the canonical
   `standards/library.json` path is side-effect free to resolve, missing

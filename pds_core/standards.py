@@ -475,6 +475,249 @@ def validate_standards_library(library: StandardsLibrary) -> StandardsLibrary:
     return library
 
 
+def _optional_filter_text(value: str | None, field_name: str) -> str | None:
+    if value is None:
+        return None
+    return _required_text(value, field_name)
+
+
+def _optional_category_path_prefix(
+    value: tuple[str, ...] | list[str] | None,
+) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if isinstance(value, (str, bytes)):
+        raise StandardsValidationError(
+            "category_path_prefix must be a tuple or list of strings."
+        )
+    if not isinstance(value, (tuple, list)):
+        raise StandardsValidationError(
+            "category_path_prefix must be a tuple or list of strings."
+        )
+    if not value:
+        return ()
+    return _text_tuple(value, "category_path_prefix")
+
+
+def _optional_active_filter(value: bool | None) -> bool | None:
+    if value is None or isinstance(value, bool):
+        return value
+    raise StandardsValidationError("active must be a boolean or None.")
+
+
+def _require_standards_library(library: StandardsLibrary) -> StandardsLibrary:
+    if not isinstance(library, StandardsLibrary):
+        raise StandardsValidationError("library must be a StandardsLibrary.")
+    return library
+
+
+def find_standard_definition(
+    library: StandardsLibrary,
+    standard_id: str,
+) -> StandardDefinition | None:
+    """Return the standard definition with standard_id, or None."""
+    validated_library = _require_standards_library(library)
+    normalized_standard_id = _required_text(standard_id, "standard_id")
+
+    for definition in validated_library.standards:
+        if definition.standard_id == normalized_standard_id:
+            return definition
+    return None
+
+
+def filter_standard_definitions(
+    library: StandardsLibrary,
+    *,
+    subject: str | None = None,
+    source: str | None = None,
+    domain: str | None = None,
+    active: bool | None = None,
+    available_module: str | None = None,
+    category_path_prefix: tuple[str, ...] | list[str] | None = None,
+) -> tuple[StandardDefinition, ...]:
+    """Return standards matching all supplied filters."""
+    validated_library = _require_standards_library(library)
+    normalized_subject = _optional_filter_text(subject, "subject")
+    normalized_source = _optional_filter_text(source, "source")
+    normalized_domain = _optional_filter_text(domain, "domain")
+    normalized_active = _optional_active_filter(active)
+    normalized_available_module = _optional_filter_text(
+        available_module,
+        "available_module",
+    )
+    normalized_category_path_prefix = _optional_category_path_prefix(
+        category_path_prefix
+    )
+
+    matches: list[StandardDefinition] = []
+    for definition in validated_library.standards:
+        if (
+            normalized_subject is not None
+            and definition.subject != normalized_subject
+        ):
+            continue
+        if (
+            normalized_source is not None
+            and definition.source != normalized_source
+        ):
+            continue
+        if (
+            normalized_domain is not None
+            and definition.domain != normalized_domain
+        ):
+            continue
+        if normalized_active is not None and definition.active is not normalized_active:
+            continue
+        if (
+            normalized_available_module is not None
+            and normalized_available_module not in definition.available_modules
+        ):
+            continue
+        if normalized_category_path_prefix and not definition.category_path[
+            : len(normalized_category_path_prefix)
+        ] == normalized_category_path_prefix:
+            continue
+        matches.append(definition)
+    return tuple(matches)
+
+
+def list_standard_subjects(
+    library: StandardsLibrary,
+    *,
+    active: bool | None = None,
+    available_module: str | None = None,
+) -> tuple[str, ...]:
+    """Return sorted unique non-empty subjects from matching standards."""
+    return tuple(
+        sorted(
+            {
+                definition.subject
+                for definition in filter_standard_definitions(
+                    library,
+                    active=active,
+                    available_module=available_module,
+                )
+                if definition.subject is not None
+            }
+        )
+    )
+
+
+def list_standard_sources(
+    library: StandardsLibrary,
+    *,
+    active: bool | None = None,
+    available_module: str | None = None,
+) -> tuple[str, ...]:
+    """Return sorted unique sources from matching standards."""
+    return tuple(
+        sorted(
+            {
+                definition.source
+                for definition in filter_standard_definitions(
+                    library,
+                    active=active,
+                    available_module=available_module,
+                )
+                if definition.source
+            }
+        )
+    )
+
+
+def list_standard_domains(
+    library: StandardsLibrary,
+    *,
+    subject: str | None = None,
+    source: str | None = None,
+    active: bool | None = None,
+    available_module: str | None = None,
+) -> tuple[str, ...]:
+    """Return sorted unique non-empty domains from matching standards."""
+    return tuple(
+        sorted(
+            {
+                definition.domain
+                for definition in filter_standard_definitions(
+                    library,
+                    subject=subject,
+                    source=source,
+                    active=active,
+                    available_module=available_module,
+                )
+                if definition.domain is not None
+            }
+        )
+    )
+
+
+def list_standard_category_paths(
+    library: StandardsLibrary,
+    *,
+    subject: str | None = None,
+    source: str | None = None,
+    domain: str | None = None,
+    active: bool | None = None,
+    available_module: str | None = None,
+) -> tuple[tuple[str, ...], ...]:
+    """Return sorted unique non-empty category paths from matching standards."""
+    return tuple(
+        sorted(
+            {
+                definition.category_path
+                for definition in filter_standard_definitions(
+                    library,
+                    subject=subject,
+                    source=source,
+                    domain=domain,
+                    active=active,
+                    available_module=available_module,
+                )
+                if definition.category_path
+            }
+        )
+    )
+
+
+def find_standards_profile(
+    library: StandardsLibrary,
+    profile_id: str,
+) -> StandardsProfile | None:
+    """Return the standards profile with profile_id, or None."""
+    validated_library = _require_standards_library(library)
+    normalized_profile_id = _required_text(profile_id, "profile_id")
+
+    for profile in validated_library.profiles:
+        if profile.profile_id == normalized_profile_id:
+            return profile
+    return None
+
+
+def filter_standards_profiles(
+    library: StandardsLibrary,
+    *,
+    subject: str | None = None,
+    course: str | None = None,
+    source: str | None = None,
+) -> tuple[StandardsProfile, ...]:
+    """Return profiles matching all supplied filters."""
+    validated_library = _require_standards_library(library)
+    normalized_subject = _optional_filter_text(subject, "subject")
+    normalized_course = _optional_filter_text(course, "course")
+    normalized_source = _optional_filter_text(source, "source")
+
+    matches: list[StandardsProfile] = []
+    for profile in validated_library.profiles:
+        if normalized_subject is not None and profile.subject != normalized_subject:
+            continue
+        if normalized_course is not None and profile.course != normalized_course:
+            continue
+        if normalized_source is not None and profile.source != normalized_source:
+            continue
+        matches.append(profile)
+    return tuple(matches)
+
+
 def validate_standard_usage_event(
     event: StandardUsageEvent,
 ) -> StandardUsageEvent:
