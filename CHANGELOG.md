@@ -12,6 +12,7 @@ state.
 
 ### Added
 
+- Added shared active school-year workspace state helpers.
 - Added root-level `CHANGELOG.md`.
 - Added root-level `LICENSE`.
 - Added root-level `SECURITY.md`.

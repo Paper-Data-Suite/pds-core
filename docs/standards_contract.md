@@ -18,7 +18,9 @@ explicit-path JSON file helpers, the canonical workspace library path, and a
 shared in-memory usage event model with JSON-compatible dictionary conversion
 and explicit-path JSON Lines file helpers. Canonical workspace usage-ledger
 paths and convenience helpers are also implemented, along with read-only
-usage summary helpers. CLI commands, migrations, module adapters, and
+usage summary helpers. PDS Core also owns shared active school-year workspace
+state so modules can use one selected school year when recording usage events.
+CLI commands, migrations, module adapters, and
 automated educational judgment remain future work unless explicitly added by
 later issues.
 
@@ -234,6 +236,8 @@ The current implemented standards storage commitments are:
 
 ```text
 <PDS workspace root>/
+  settings/
+    school_year.json
   standards/
     library.json
     usage/
@@ -241,6 +245,12 @@ The current implemented standards storage commitments are:
         <class_id>/
           events.jsonl
 ```
+
+`settings/school_year.json` stores the suite-level active school-year state
+owned by `pds-core`. It records the currently opened school year, when it was
+opened, and an optional close timestamp. A closed state preserves the last
+school year for auditability while making the active school year unavailable
+to callers.
 
 `standards/library.json` and
 `standards/usage/<school_year>/<class_id>/events.jsonl` are current storage
@@ -675,6 +685,40 @@ must remain explainable in terms of its underlying events.
 The `school_year` format should be canonical, likely `YYYY-YYYY`, and validated
 independently from general route identifiers.
 
+## Active School-Year Workspace State
+
+`pds-core` owns active school-year workspace state at:
+
+```text
+<PDS workspace root>/settings/school_year.json
+```
+
+Modules should use this shared state when they need the current school year for
+standards usage events, rather than repeatedly asking teachers to enter the
+same value across workflows. Teachers should only need to open or close a
+school year once through future module or suite tooling.
+
+The state file uses this shape:
+
+```json
+{
+  "active_school_year": "2026-2027",
+  "opened_at": "2026-08-28T09:00:00-04:00",
+  "closed_at": null
+}
+```
+
+Closing a school year sets `closed_at` and preserves `active_school_year` for
+auditability. A closed state does not provide an active school year to callers.
+
+Opening or closing a school year must not delete, archive, migrate, summarize,
+report, or move data. It must not create standards usage ledgers, class
+folders, assignment folders, rosters, reports, or module-specific files.
+
+ScoreForm and Quillan CLI/menu workflows for opening, closing, selecting, or
+displaying the active school year remain future module work. This contract
+does not claim those commands already exist.
+
 ## Yearly Reset Semantics
 
 A yearly reset means beginning a new school-year usage scope. It does not mean
@@ -834,6 +878,8 @@ into package code.
 7. Add read-only usage summary generation.
    (Implemented as derived, read-only counts over recorded usage events.)
 8. Add non-destructive school-year scope selection or rollover behavior.
+   (Active school-year open/read/close workspace state is implemented in
+   `pds-core`; module CLI/menu workflows remain future work.)
 9. Add a ScoreForm compatibility adapter that preserves question-level
    alignment and assignment behavior.
 10. Migrate ScoreForm standard references incrementally without changing
