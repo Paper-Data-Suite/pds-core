@@ -123,6 +123,10 @@ validate_roster_rows(...)
 create_roster(class_id, students, ...) -> Roster
 write_roster(path, roster, *, overwrite=False) -> Path
 write_class_roster(root, roster, *, overwrite=False) -> Path
+add_student_record(roster, student) -> Roster
+replace_student_record(roster, student) -> Roster
+upsert_student_record(roster, student) -> Roster
+remove_student_record(roster, student_id) -> Roster
 student_display_name(student, ...)
 student_sort_name(student, ...)
 student_lookup(roster) -> Mapping[str, StudentRecord]
@@ -135,6 +139,15 @@ coercing identifier-like values to numbers.
 
 Writing should be atomic where practical. Writers must not overwrite an
 existing roster unless the caller explicitly sets `overwrite=True`.
+
+In-memory roster mutation helpers return new validated `Roster` instances.
+They preserve the roster source path and column order, require edited students
+to match the roster `class_id`, and do not introduce optional columns
+implicitly. These helpers do not read or write files, create directories,
+alter assignments, delete generated materials, or rewrite historical results.
+Removing a student means removing that student from the active roster object
+only. ScoreForm and Quillan still own their own UI, menu, and workflow
+wrappers.
 
 These APIs should work equally well in tests, command-line wrappers, and future
 menu wrappers.

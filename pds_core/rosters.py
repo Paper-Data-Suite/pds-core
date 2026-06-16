@@ -535,6 +535,250 @@ def create_roster(
     return validate_roster_rows(roster_columns, rows, source_path=source_path)
 
 
+def _roster_validation_error(
+    code: str,
+    message: str,
+    *,
+    row_number: int | None = None,
+    column: str | None = None,
+    value: str | None = None,
+) -> RosterValidationError:
+    return RosterValidationError(
+        (
+            RosterIssue(
+                code=code,
+                message=message,
+                row_number=row_number,
+                column=column,
+                value=value,
+            ),
+        )
+    )
+
+
+def _unsupported_extra_fields(
+    student: StudentRecord,
+    columns: Sequence[str],
+) -> tuple[str, ...]:
+    return tuple(field for field in student.extra_fields if field not in columns)
+
+
+def _validate_roster_instance(roster: Roster) -> Roster:
+    if not isinstance(roster, Roster):
+        raise _roster_validation_error(
+            "invalid_roster",
+            "roster must be a Roster.",
+        )
+
+    issues: list[RosterIssue] = []
+    for row_number, student in enumerate(roster.students, start=2):
+        if not isinstance(student, StudentRecord):
+            issues.append(
+                RosterIssue(
+                    code="invalid_student_record",
+                    message="roster.students must contain only StudentRecord values.",
+                    row_number=row_number,
+                    value=repr(student),
+                )
+            )
+            continue
+
+        unsupported_fields = _unsupported_extra_fields(student, roster.columns)
+        for field in unsupported_fields:
+            issues.append(
+                RosterIssue(
+                    code="unsupported_extra_field",
+                    message=(
+                        f"student_id {student.student_id!r} contains unsupported "
+                        f"extra field {field!r}."
+                    ),
+                    row_number=row_number,
+                    column=field,
+                    value=student.student_id,
+                )
+            )
+
+    if issues:
+        raise RosterValidationError(issues)
+
+    validated = validate_roster_rows(
+        roster.columns,
+        [_student_to_csv_row(student, roster.columns) for student in roster.students],
+        source_path=roster.source_path,
+    )
+    if validated.class_id != roster.class_id:
+        raise _roster_validation_error(
+            "inconsistent_roster_class_id",
+            (
+                f"roster class_id {roster.class_id!r} does not match student "
+                f"class_id {validated.class_id!r}."
+            ),
+            column="class_id",
+            value=roster.class_id,
+        )
+    return validated
+
+
+def _validate_mutation_student(roster: Roster, student: StudentRecord) -> StudentRecord:
+    if not isinstance(student, StudentRecord):
+        raise _roster_validation_error(
+            "invalid_student_record",
+            "student must be a StudentRecord.",
+        )
+
+    if student.class_id != roster.class_id:
+        raise _roster_validation_error(
+            "mismatched_class_id",
+            (
+                f"student_id {student.student_id!r} has class_id "
+                f"{student.class_id!r}, expected {roster.class_id!r}."
+            ),
+            column="class_id",
+            value=student.class_id,
+        )
+
+    unsupported_fields = _unsupported_extra_fields(student, roster.columns)
+    if unsupported_fields:
+        fields = ", ".join(repr(field) for field in unsupported_fields)
+        raise _roster_validation_error(
+            "unsupported_extra_field",
+            (
+                f"student_id {student.student_id!r} contains unsupported "
+                f"extra field(s): {fields}."
+            ),
+            value=student.student_id,
+        )
+
+    return student
+
+
+def _validated_roster_with_students(
+    roster: Roster,
+    students: Sequence[StudentRecord],
+) -> Roster:
+    return validate_roster_rows(
+        roster.columns,
+        [_student_to_csv_row(student, roster.columns) for student in students],
+        source_path=roster.source_path,
+    )
+
+
+def add_student_record(
+    roster: Roster,
+    student: StudentRecord,
+) -> Roster:
+    """Return a new roster with student appended."""
+    validated_roster = _validate_roster_instance(roster)
+    validated_student = _validate_mutation_student(validated_roster, student)
+
+    if any(
+        existing.student_id == validated_student.student_id
+        for existing in validated_roster.students
+    ):
+        raise _roster_validation_error(
+            "duplicate_student_id",
+            (
+                "add_student_record cannot add duplicate student_id "
+                f"{validated_student.student_id!r}."
+            ),
+            column="student_id",
+            value=validated_student.student_id,
+        )
+
+    return _validated_roster_with_students(
+        validated_roster,
+        (*validated_roster.students, validated_student),
+    )
+
+
+def replace_student_record(
+    roster: Roster,
+    student: StudentRecord,
+) -> Roster:
+    """Return a new roster with an existing student replaced by student_id."""
+    validated_roster = _validate_roster_instance(roster)
+    validated_student = _validate_mutation_student(validated_roster, student)
+
+    replaced = False
+    students: list[StudentRecord] = []
+    for existing in validated_roster.students:
+        if existing.student_id == validated_student.student_id:
+            students.append(validated_student)
+            replaced = True
+        else:
+            students.append(existing)
+
+    if not replaced:
+        raise _roster_validation_error(
+            "missing_student_id",
+            (
+                "replace_student_record cannot replace missing student_id "
+                f"{validated_student.student_id!r}."
+            ),
+            column="student_id",
+            value=validated_student.student_id,
+        )
+
+    return _validated_roster_with_students(validated_roster, students)
+
+
+def upsert_student_record(
+    roster: Roster,
+    student: StudentRecord,
+) -> Roster:
+    """Return a new roster with student added or replaced by student_id."""
+    validated_roster = _validate_roster_instance(roster)
+    validated_student = _validate_mutation_student(validated_roster, student)
+
+    replaced = False
+    students: list[StudentRecord] = []
+    for existing in validated_roster.students:
+        if existing.student_id == validated_student.student_id:
+            students.append(validated_student)
+            replaced = True
+        else:
+            students.append(existing)
+
+    if not replaced:
+        students.append(validated_student)
+
+    return _validated_roster_with_students(validated_roster, students)
+
+
+def remove_student_record(
+    roster: Roster,
+    student_id: str,
+) -> Roster:
+    """Return a new roster without the student_id."""
+    validated_roster = _validate_roster_instance(roster)
+
+    students = [
+        student
+        for student in validated_roster.students
+        if student.student_id != student_id
+    ]
+    if len(students) == len(validated_roster.students):
+        raise _roster_validation_error(
+            "missing_student_id",
+            f"remove_student_record cannot remove missing student_id {student_id!r}.",
+            column="student_id",
+            value=student_id,
+        )
+
+    if not students:
+        raise _roster_validation_error(
+            "empty_roster",
+            (
+                "remove_student_record cannot remove the final student from "
+                "a roster."
+            ),
+            column="student_id",
+            value=student_id,
+        )
+
+    return _validated_roster_with_students(validated_roster, students)
+
+
 def student_display_name(student: StudentRecord) -> str:
     """Return a student's teacher-facing display name."""
     preferred_name = student.extra_fields.get("preferred_name", "").strip()
