@@ -24,7 +24,7 @@ Paper Data Suite modules should share common infrastructure through `pds-core`:
 * identifier validation
 * QR payload building/parsing
 * route/path conventions
-* raw scan inbox/archive path conventions
+* active scan intake, source retention, and routing review conventions
 * normalized metadata models where useful
 
 Module-specific behavior should remain in the module that owns it.
@@ -98,7 +98,8 @@ The review should specifically check:
 * no QR parsing regression;
 * no old `OMR1` documentation presented as the default;
 * no hidden dependency on machine-specific paths;
-* no scan movement/deletion/archive behavior accidentally introduced;
+* no scan movement, deletion, or inactive-data archival behavior accidentally
+  introduced;
 * test coverage for `PDS1` generation and parsing;
 * whether `pds-scoreform` is ready for a real classroom exam trial.
 
@@ -208,19 +209,28 @@ Keep the existing Quillan data model intact:
 
 ---
 
-### 3. `pds-quillan` — Use `pds-core` scan inbox/archive helpers
+### 3. `pds-quillan` — Adopt the active scan intake contract
 
-**Purpose:** Align Quillan’s future paper workflow with shared raw scan conventions.
+**Purpose:** Align Quillan’s future paper workflow with the shared active scan
+intake, source retention, and routing review contract.
 
-Use `pds-core` helpers for:
+Preserve the teacher-facing intake location:
 
 ```text
 scans_inbox/
-scans_archive/
-scans_archive/<YYYY-MM-DD>/
 ```
 
-This should not implement writing-response routing yet.
+Plan future implementation around:
+
+```text
+scans/source/<YYYY-MM-DD>/
+scans/review/
+```
+
+The existing `scans_archive_*` helpers remain unchanged but are legacy and
+incorrectly named for active source retention. New active-source helpers have
+not yet been implemented. This step should not implement writing-response
+routing.
 
 ---
 
@@ -291,7 +301,9 @@ Use `pds-core` QR parsing and route helpers to route pages into:
 classes/<class_id>/assignments/<assignment_id>/submissions/<student_id>/
 ```
 
-Preserve the concept of raw scan provenance, but do not define the final raw scan archive file naming or metadata contract in this step.
+Follow the active scan contract for retained source naming, copy-first
+retention, routing review, failure metadata, and provenance. Do not redesign
+that shared contract in this module step.
 
 Do not implement handwriting OCR yet.
 
@@ -385,7 +397,7 @@ Likely shared dependencies:
 * class/student identifiers
 * contact/recipient conventions
 * reporting layer
-* archive layer
+* inactive historical preservation layer
 
 ---
 
@@ -434,7 +446,7 @@ Likely shared dependencies:
 * assignment identifiers
 * route helpers
 * reports layer
-* archive layer
+* inactive historical preservation layer
 
 ---
 
@@ -508,22 +520,22 @@ Student-specific artifacts should generally not be carried forward as reusable m
 
 ## Deferred `pds-core` Follow-up Issues
 
-### Define raw scan archive file naming and metadata contract
+### Implement active source scan and routing review helpers
 
-**Purpose:** Define how raw scanned files should eventually be preserved, named, and audited after intake.
+**Purpose:** Implement the active scan contract defined in
+`docs/active_scan_contract.md` after the helper API is reviewed.
 
-Possible future topics:
+Possible future work:
 
-* source filename preservation
-* filename collision handling
-* scanner/source metadata
-* timestamps
-* checksums
-* audit JSON sidecars
-* original scan provenance
-* relationship between archived raw scans and routed submissions
+* active source and date-bucket route helpers
+* routing review route helpers
+* retained source filename construction
+* no-overwrite collision handling
+* routing failure metadata paths, validation, and writing
+* provenance between retained sources and routed evidence
 
-This should remain a contract/design issue unless implementation becomes necessary.
+Do not change or deprecate the existing `scans_archive_*` helpers without a
+separate compatibility plan.
 
 Do not include yet:
 

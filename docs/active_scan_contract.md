@@ -1,0 +1,322 @@
+# Active Scan Intake, Retention, and Routing Review Contract
+
+## Status and Scope
+
+This document defines the shared Paper Data Suite contract for active scan
+intake, retained source scans, routed evidence, routing review, failure
+metadata, and provenance.
+
+It is a contract definition only. The active source-scan helpers, copying,
+routing, metadata validation, and module workflows described here are future
+implementation work.
+
+## Terminology
+
+`scans_inbox/` is the existing teacher-facing scan intake/drop location. It
+remains supported for compatibility.
+
+An **active retained source scan** is the copy of a readable selected input
+that Paper Data Suite preserves before module-specific parsing, scoring,
+routing, or evidence generation. It represents one intake event and retains
+its own identity even when its content matches a previously retained scan.
+
+The **source scan store** is the canonical location for active retained source
+scans: `scans/source/YYYY-MM-DD/`. The date bucket is the PDS intake date in
+UTC.
+
+**Routed scan evidence** is a copied or derived artifact associated with a
+known class, assignment, or student. Assignment-level `scans/` and student
+submission folders may contain routed evidence, but they are not the
+canonical retained source location.
+
+**Routing review** is the process and workspace area used to inspect failures,
+ambiguities, conflicts, and unrouted scans or pages. Canonical routing failure
+records live under `scans/review/`.
+
+**Failure metadata** is one structured JSON record for one failure occurrence.
+It records what failed, where it failed, validated identity information when
+available, and provenance back to the retained source.
+
+**Inactive historical preservation** covers closed or historical classes,
+assignments, marking periods, school years, and related lifecycle policy.
+Those workflows belong to `pds-sunset`, not active scan routing.
+
+> Do not use "archive" for active source scans or current-year routing
+> artifacts. Archiving is reserved for inactive historical preservation
+> handled by `pds-sunset`.
+
+## Shared Workspace Paths
+
+The preferred shared active scan layout is:
+
+```text
+<PDS workspace root>/
+  scans_inbox/
+  scans/
+    source/
+      YYYY-MM-DD/
+    review/
+  classes/
+    <class_id>/
+      assignments/
+        <assignment_id>/
+          scans/
+          submissions/
+            <student_id>/
+```
+
+The locations have these roles:
+
+* `scans_inbox/` is the teacher-facing intake/drop location and is preserved
+  for compatibility.
+* `scans/source/YYYY-MM-DD/` is the active retained source scan store,
+  date-bucketed by PDS intake UTC date.
+* `scans/review/` contains canonical routing review records and may contain
+  optional problem artifacts.
+* `classes/<class_id>/assignments/<assignment_id>/scans/` contains routed scan
+  evidence. It is not canonical source retention.
+* `classes/<class_id>/assignments/<assignment_id>/submissions/<student_id>/`
+  is the module-specific location for routed student evidence or a routed
+  submission.
+
+## Retained Source Scan Naming
+
+The recommended collision-resistant filename pattern is:
+
+```text
+<UTC timestamp>__<sanitized-original-stem>__<short-sha256>.<ext>
+```
+
+For example:
+
+```text
+20260619T184512123456Z__scanner_export__a1b2c3d4e5f6.pdf
+```
+
+The naming rules are:
+
+* The timestamp uses UTC and includes subsecond precision.
+* The date bucket uses the PDS intake UTC date.
+* The original filename stem is sanitized for safe use as one filename
+  component.
+* The original extension is preserved when it is safe.
+* Metadata stores the full SHA-256 digest.
+* The retained filename uses a short SHA-256 prefix.
+* The module name is not part of the retained filename because routing may be
+  unknown or the source may contain mixed modules.
+* Repeated intake events must not silently overwrite each other.
+* Matching hashes indicate possible duplicate content. They do not
+  automatically authorize discarding an intake event.
+
+The future implementation must define the exact stem sanitization rules,
+safe-extension policy, digest-prefix length, and collision fallback while
+preserving these semantics.
+
+## Copy, Retention, and Provenance Semantics
+
+All Paper Data Suite modules handling active scans must:
+
+1. Leave the teacher's original external file untouched.
+2. Copy every readable selected source scan into the active source scan store
+   before module-specific parsing, scoring, routing, or evidence generation.
+3. Process the retained source scan, or maintain explicit provenance back to
+   it when a workflow cannot process that copy directly.
+4. Copy or derive routed evidence into assignment or student locations.
+5. Not silently overwrite retained sources, review records, or routed
+   evidence.
+6. Preserve provenance from routed evidence back to the retained source scan.
+7. Treat module-specific result attempts separately from source scan identity.
+
+Source scan identity describes the retained intake event. A retry, scoring
+attempt, routing attempt, or report export does not create a new source scan
+identity unless a new source intake event occurred.
+
+## Routing Failure Metadata
+
+Store one JSON record per failure occurrence. The shared base shape is:
+
+```json
+{
+  "schema_version": "1",
+  "failure_id": "failure_...",
+  "scope": "page",
+  "stage": "routing",
+  "created_at": "2026-06-19T18:45:12.123456Z",
+  "failure_category": "assignment_unknown",
+  "failure_message": "No matching workspace assignment was found.",
+  "module": "quillan",
+  "source_scan_id": "scan_...",
+  "source_filename": "scanner export.pdf",
+  "source_sha256": "...",
+  "retained_source_path": "scans/source/2026-06-19/...",
+  "review_copy_path": null,
+  "source_page_number": 2,
+  "detected_payload": "PDS1|...",
+  "payload_page_number": 1,
+  "class_id": "english12_p4",
+  "assignment_id": "personal_narrative",
+  "student_id": "1001",
+  "module_details": {}
+}
+```
+
+These fields are required and must be non-null:
+
+```text
+schema_version
+failure_id
+scope
+stage
+created_at
+failure_category
+failure_message
+source_filename
+module_details
+```
+
+These fields are required but may be null:
+
+```text
+module
+source_scan_id
+source_sha256
+retained_source_path
+review_copy_path
+source_page_number
+detected_payload
+payload_page_number
+class_id
+assignment_id
+student_id
+```
+
+Additional rules:
+
+* Paths must be relative to the PDS workspace root.
+* Identity fields must come from validated data, not guesses.
+* Use `scope="scan"` for whole-file or batch-level failures.
+* Use `scope="page"` for page-specific failures.
+* One source scan may produce multiple failure records when multiple pages
+  fail.
+* Modules may add module-specific structured fields under `module_details`.
+* Canonical failure records live in `scans/review/`.
+* Do not duplicate failure JSON beside a retained source scan unless a later
+  implementation ticket explicitly adopts a source-manifest design.
+
+This contract does not yet prescribe the exact review-record filename, ID
+generation algorithm, allowed processing stages, or JSON serialization
+details.
+
+### Shared failure categories
+
+Future shared validation should recognize these module-neutral categories:
+
+```text
+source_missing
+source_unreadable
+source_type_unsupported
+source_retention_failed
+payload_missing
+payload_unreadable
+payload_invalid
+payload_schema_unsupported
+module_unsupported
+identifier_invalid
+class_unknown
+assignment_unknown
+student_unknown
+route_mismatch
+route_ambiguous
+page_conflict
+processing_error
+evidence_write_failed
+```
+
+Module-specific categories remain module-owned. For example:
+
+* ScoreForm scoring failures are ScoreForm-specific.
+* ScoreForm result export failures are ScoreForm-specific.
+* Quillan submission completeness failures are Quillan-specific.
+* OCR-related failures are module-specific unless a later shared OCR contract
+  is defined.
+
+## Relationship to Existing Scan Route Helpers
+
+`pds_core.scan_routes` currently provides:
+
+```python
+scans_inbox_dir(...)
+scans_archive_dir(...)
+scans_archive_date_dir(...)
+```
+
+The `scans_archive_*` helpers are legacy and incorrectly named for active
+source scan retention. Their behavior is unchanged by this contract, and they
+must not be interpreted as the preferred active scan layout.
+
+A separate implementation and deprecation ticket should supersede them with
+active source-scan and routing-review helpers. Candidate responsibilities may
+eventually be represented by helpers such as:
+
+```python
+scans_source_dir(...)
+scans_source_date_dir(...)
+routing_review_dir(...)
+build_retained_source_filename(...)
+retained_source_scan_path(...)
+routing_failure_metadata_path(...)
+validate_routing_failure_metadata(...)
+write_routing_failure_metadata(...)
+```
+
+These names are illustrative, not final API commitments. None of these helpers
+is implemented by this contract.
+
+## Ownership Boundaries
+
+### `pds-core`
+
+`pds-core` owns the shared contract for:
+
+* active source scan store paths;
+* routing review paths;
+* retained source naming;
+* base failure metadata;
+* shared failure categories;
+* copy-first, no-overwrite, and provenance semantics;
+* future shared helpers and validators.
+
+### Paper Data Suite modules
+
+Modules own:
+
+* QR extraction;
+* scan splitting;
+* payload interpretation beyond the shared `PDS1` model;
+* scoring;
+* routed evidence generation;
+* routed submission assembly;
+* teacher review UX;
+* module-specific failure details;
+* module-specific result and report formats.
+
+### `pds-sunset`
+
+`pds-sunset` owns:
+
+* inactive historical preservation;
+* end-of-year and closed-cycle archival workflows;
+* inactive-data lifecycle rules.
+
+## Backward Compatibility
+
+This contract preserves the following behavior:
+
+* `scans_inbox/` remains supported as the teacher-facing intake location.
+* Existing `scans_archive_*` helper behavior is unchanged.
+* Existing ScoreForm behavior is unchanged.
+* Existing Quillan behavior is unchanged.
+* Assignment-level `scans/` remains a valid routed-evidence location.
+
+No route helpers, validators, copying behavior, routing behavior, or
+deprecations are implemented here.
