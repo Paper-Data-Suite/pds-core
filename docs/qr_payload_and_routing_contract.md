@@ -60,7 +60,7 @@ Planned responsibilities:
 * safe path construction;
 * route resolution from parsed QR metadata;
 * scan inbox conventions;
-* scan archive conventions;
+* active source scan and routing review conventions;
 * shared class/assignment/student path conventions;
 * project-root/home-directory configuration;
 * module-neutral route result objects.
@@ -726,7 +726,10 @@ A raw scan file may contain:
 * rescans;
 * missing pages.
 
-Raw scans belong in a scan inbox or archive and should not be treated as equivalent to a clean student submission.
+Raw scans enter through the scan inbox and should not be treated as equivalent
+to a clean student submission. The canonical active retained copy belongs in
+the shared source scan store defined by
+[`active_scan_contract.md`](active_scan_contract.md).
 
 Recommended scan inbox:
 
@@ -734,19 +737,22 @@ Recommended scan inbox:
 scans_inbox/
 ```
 
-Possible future archive location:
+Preferred active retained source location:
 
 ```text
-scans_archive/
+scans/source/YYYY-MM-DD/
 ```
 
-Possible module/date archive convention:
+Canonical routing review location:
 
 ```text
-scans_archive/<module>/<date>/
+scans/review/
 ```
 
-Raw scans should generally be preserved unchanged unless the user explicitly chooses otherwise.
+The retained filename does not include a module because a source may be
+unrouted or mixed. Active source scans use copy-first, no-overwrite, and
+provenance semantics. "Archive" is reserved for inactive historical
+preservation handled by `pds-sunset`.
 
 ### Routed submissions
 
@@ -823,7 +829,7 @@ This example is not a required implementation target for the first `pds-core` is
 * resolving safe assignment routes;
 * resolving safe student submission routes;
 * resolving scan inbox paths;
-* resolving scan archive paths;
+* resolving active source scan and routing review paths;
 * preventing path traversal;
 * supporting project-root/home-directory configuration.
 

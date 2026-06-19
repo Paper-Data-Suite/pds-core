@@ -9,7 +9,7 @@ Planned responsibilities include:
 - legacy ScoreForm `OMR1` compatibility;
 - shared Paper Data Suite `PDS1` QR contracts;
 - safe route/path construction;
-- scan inbox/archive conventions;
+- active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
 
 PDS Core is intended to be used by:
@@ -28,6 +28,10 @@ See [`migration_plan.md`](migration_plan.md) for the current migration direction
 See [`docs/qr_payload_and_routing_contract.md`](docs/qr_payload_and_routing_contract.md) for the shared QR payload and routing contract.
 
 See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for the shared roster and workspace contract.
+
+See [`docs/active_scan_contract.md`](docs/active_scan_contract.md) for the
+defined active scan intake, retained source, routing review, failure metadata,
+and provenance contract. Its future helper APIs are not yet implemented.
 
 ## Workspace Root
 

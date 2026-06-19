@@ -12,6 +12,9 @@ state.
 
 ### Added
 
+- Defined the active scan intake, retained source scan, routing review, failure
+  metadata, and provenance contract without changing existing scan route
+  helpers or module behavior.
 - Added pure in-memory roster mutation helpers for adding, replacing,
   upserting, and removing student records while returning new validated
   `Roster` instances.
@@ -38,7 +41,7 @@ PDS Core already includes shared infrastructure for:
 - safe route and path helpers;
 - PDS1 QR payload construction and parsing;
 - legacy OMR1 compatibility where needed by downstream modules;
-- scan inbox and archive route helpers;
+- legacy scan inbox and `scans_archive_*` route helpers;
 - workspace-root resolution and status inspection;
 - roster models, validation, CSV loading, and CSV writing;
 - class folder helpers;
