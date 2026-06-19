@@ -12,6 +12,12 @@ state.
 
 ### Added
 
+- Added shared active scan root, retained source, date-bucket, routing review,
+  retained filename, and retained source path helpers without directory
+  creation or scan copying.
+- Added shared routing failure categories, a frozen failure metadata model,
+  strict validation and dictionary conversion, canonical review JSON paths,
+  and exclusive UTF-8 JSON writing.
 - Defined the active scan intake, retained source scan, routing review, failure
   metadata, and provenance contract without changing existing scan route
   helpers or module behavior.

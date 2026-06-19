@@ -31,7 +31,10 @@ See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for
 
 See [`docs/active_scan_contract.md`](docs/active_scan_contract.md) for the
 defined active scan intake, retained source, routing review, failure metadata,
-and provenance contract. Its future helper APIs are not yet implemented.
+and provenance contract. Shared route/path, retained filename, failure metadata
+validation, and exclusive metadata writing helpers are implemented. Source
+scan copying, routing, QR extraction, and module adoption remain future work;
+legacy `scans_archive_*` behavior is preserved.
 
 ## Workspace Root
 

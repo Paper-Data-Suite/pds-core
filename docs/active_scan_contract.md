@@ -6,9 +6,10 @@ This document defines the shared Paper Data Suite contract for active scan
 intake, retained source scans, routed evidence, routing review, failure
 metadata, and provenance.
 
-It is a contract definition only. The active source-scan helpers, copying,
-routing, metadata validation, and module workflows described here are future
-implementation work.
+The shared route, retained-filename, failure metadata validation, and safe
+failure metadata writing helpers are implemented in `pds-core`. Source scan
+copying, scan routing, QR extraction, and module workflow adoption remain
+future implementation work.
 
 ## Terminology
 
@@ -108,9 +109,20 @@ The naming rules are:
 * Matching hashes indicate possible duplicate content. They do not
   automatically authorize discarding an intake event.
 
-The future implementation must define the exact stem sanitization rules,
-safe-extension policy, digest-prefix length, and collision fallback while
-preserving these semantics.
+The shared filename helper uses these exact rules:
+
+* `intake_timestamp` must be timezone-aware and is converted to UTC.
+* The timestamp is formatted as `YYYYMMDDTHHMMSSffffffZ`.
+* The full caller-supplied SHA-256 value must contain exactly 64 hexadecimal
+  characters; the filename uses its first 12 characters lowercased.
+* Path-like original filenames are rejected.
+* Runs outside ASCII letters, numbers, `_`, and `-` in the original stem are
+  replaced with `_`, leading and trailing `_` are removed, and an empty result
+  becomes `scan`.
+* Supported extensions are `.pdf`, `.png`, `.jpg`, `.jpeg`, `.tif`, and
+  `.tiff`; they are lowercased. Extensionless and unsupported filenames are
+  rejected.
+* The helper builds a name only. It does not check collisions or copy files.
 
 ## Copy, Retention, and Provenance Semantics
 
@@ -203,13 +215,15 @@ Additional rules:
 * Do not duplicate failure JSON beside a retained source scan unless a later
   implementation ticket explicitly adopts a source-manifest design.
 
-This contract does not yet prescribe the exact review-record filename, ID
-generation algorithm, allowed processing stages, or JSON serialization
-details.
+The shared helper layer stores canonical records as
+`scans/review/<failure_id>.json`. Failure IDs and stages use the shared safe
+identifier format. Writers use stable, indented UTF-8 JSON with a final
+newline and exclusive file creation. Failure ID generation remains the
+caller's responsibility.
 
 ### Shared failure categories
 
-Future shared validation should recognize these module-neutral categories:
+Shared validation recognizes these module-neutral categories:
 
 ```text
 source_missing
@@ -254,11 +268,10 @@ The `scans_archive_*` helpers are legacy and incorrectly named for active
 source scan retention. Their behavior is unchanged by this contract, and they
 must not be interpreted as the preferred active scan layout.
 
-A separate implementation and deprecation ticket should supersede them with
-active source-scan and routing-review helpers. Candidate responsibilities may
-eventually be represented by helpers such as:
+The preferred active source-scan and routing-review helper layer now provides:
 
 ```python
+scans_root_dir(...)
 scans_source_dir(...)
 scans_source_date_dir(...)
 routing_review_dir(...)
@@ -269,8 +282,8 @@ validate_routing_failure_metadata(...)
 write_routing_failure_metadata(...)
 ```
 
-These names are illustrative, not final API commitments. None of these helpers
-is implemented by this contract.
+The legacy helpers remain available with unchanged paths and exceptions. The
+new helpers do not migrate consuming modules and do not copy or route scans.
 
 ## Ownership Boundaries
 
@@ -284,7 +297,7 @@ is implemented by this contract.
 * base failure metadata;
 * shared failure categories;
 * copy-first, no-overwrite, and provenance semantics;
-* future shared helpers and validators.
+* shared active-scan helpers and validators.
 
 ### Paper Data Suite modules
 
@@ -318,5 +331,7 @@ This contract preserves the following behavior:
 * Existing Quillan behavior is unchanged.
 * Assignment-level `scans/` remains a valid routed-evidence location.
 
-No route helpers, validators, copying behavior, routing behavior, or
-deprecations are implemented here.
+Active source/review path helpers, retained filename/path helpers, failure
+metadata validation, and exclusive failure metadata writing are implemented.
+No copying behavior, routing behavior, module migration, or legacy-helper
+deprecation is implemented.
