@@ -12,6 +12,8 @@ state.
 
 ### Added
 
+- Added a generic, standard-library-only helper for opening existing local
+  files and directories in the system default application.
 - Added shared active scan root, retained source, date-bucket, routing review,
   retained filename, and retained source path helpers without directory
   creation or scan copying.
