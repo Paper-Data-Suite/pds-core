@@ -9,6 +9,7 @@ Planned responsibilities include:
 - legacy ScoreForm `OMR1` compatibility;
 - shared Paper Data Suite `PDS1` QR contracts;
 - safe route/path construction;
+- generic opening of existing local files and directories in the system viewer;
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
 
@@ -18,6 +19,10 @@ PDS Core is intended to be used by:
 - `pds-quillan`
 
 Module-specific scoring, tagging, PDF layout, and reporting logic should remain in the module repositories.
+
+Module wrappers can use `pds_core.local_open.open_local_path(...)` to ask the
+operating system to open an existing local file or directory in its default
+application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
