@@ -29,6 +29,12 @@ state.
 - Added pure in-memory standards library mutation helpers for adding,
   replacing, and upserting standard definitions and standards profiles while
   returning new validated `StandardsLibrary` instances.
+- Added a module-neutral standards profile selection validator for checking
+  assignment focus-standard IDs against shared standards profiles.
+- Documented the shared standards integration contract, including PDS Core as
+  the standards source of truth, module storage of `standard_id` references,
+  module-specific extension boundaries, usage-event expectations, and future
+  Codex-assisted ingestion as validation-and-review-gated draft generation.
 - Added read-only in-memory standards library browsing helpers for finding and
   filtering standard definitions and standards profiles, plus deterministic
   subject, source, domain, and category-path listing helpers.

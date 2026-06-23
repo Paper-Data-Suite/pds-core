@@ -861,6 +861,71 @@ def find_standards_profile(
     return None
 
 
+def validate_profile_standard_selection(
+    library: StandardsLibrary,
+    *,
+    profile_id: str,
+    selected_standard_ids: Iterable[str],
+) -> tuple[str, ...]:
+    """Validate standard IDs selected from a shared standards profile."""
+    validated_library = _require_standards_library(library)
+    normalized_profile_id = _required_text(profile_id, "profile_id")
+    normalized_selected_ids = _text_tuple(
+        selected_standard_ids,
+        "selected_standard_ids",
+    )
+
+    profile = find_standards_profile(validated_library, normalized_profile_id)
+    if profile is None:
+        raise StandardsValidationError(
+            f"profile_id {normalized_profile_id!r} does not exist."
+        )
+
+    duplicates = [
+        standard_id
+        for standard_id, count in Counter(normalized_selected_ids).items()
+        if count > 1
+    ]
+    if duplicates:
+        duplicate_list = ", ".join(repr(standard_id) for standard_id in duplicates)
+        raise StandardsValidationError(
+            "selected_standard_ids must not contain duplicate standard IDs: "
+            f"{duplicate_list}."
+        )
+
+    known_standard_ids = {
+        definition.standard_id for definition in validated_library.standards
+    }
+    unknown_ids = [
+        standard_id
+        for standard_id in normalized_selected_ids
+        if standard_id not in known_standard_ids
+    ]
+    if unknown_ids:
+        unknown = ", ".join(repr(standard_id) for standard_id in unknown_ids)
+        raise StandardsValidationError(
+            "selected_standard_ids references unknown standard IDs: "
+            f"{unknown}."
+        )
+
+    profile_standard_ids = set(profile.standards)
+    outside_profile_ids = [
+        standard_id
+        for standard_id in normalized_selected_ids
+        if standard_id not in profile_standard_ids
+    ]
+    if outside_profile_ids:
+        outside_profile = ", ".join(
+            repr(standard_id) for standard_id in outside_profile_ids
+        )
+        raise StandardsValidationError(
+            "selected_standard_ids must belong to profile "
+            f"{normalized_profile_id!r}: {outside_profile}."
+        )
+
+    return normalized_selected_ids
+
+
 def filter_standards_profiles(
     library: StandardsLibrary,
     *,
