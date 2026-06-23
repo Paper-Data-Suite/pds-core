@@ -41,6 +41,13 @@ validation, and exclusive metadata writing helpers are implemented. Source
 scan copying, routing, QR extraction, and module adoption remain future work;
 legacy `scans_archive_*` behavior is preserved.
 
+See [`docs/standards_contract.md`](docs/standards_contract.md) for the shared
+standards contract. PDS Core owns durable standard definitions, reusable
+standards profiles, workspace standards storage, browsing/filtering helpers,
+and module-neutral standards usage events; modules should store shared
+`standard_id` references and keep module-specific feedback or alignment
+behavior in module-owned data.
+
 ## Workspace Root
 
 The PDS workspace root is the top-level folder where Paper Data Suite modules

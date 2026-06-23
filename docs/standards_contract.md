@@ -13,6 +13,39 @@ standards usage ledger file contracts.
 Modules own module-specific standards behavior and interpretation.
 ```
 
+For module integration, this means `pds-core` is the canonical source of truth
+for Paper Data Suite standards definitions, reusable standards profiles,
+workspace standards storage, module-neutral browsing/filtering helpers, and
+module-neutral standards usage events. ScoreForm, Quillan, and future modules
+must not create independent standards universes that teachers have to maintain
+separately.
+
+Machine-readable module data should store shared `standard_id` values, not
+display `code` values. User-facing module screens and reports may show
+`code`, `short_name`, `description`, domain, grade band, source, and other
+descriptive metadata from the shared library. `code` is not durable enough to
+serve as the internal key because codes may be reformatted, duplicated across
+sources, or reused across jurisdictions.
+
+A module assignment that uses shared standards should follow this pattern:
+
+```json
+{
+  "standards_profile_id": "nj_ela_2023_11_12",
+  "focus_standards": [
+    "nj_ela_2023_rl_cr_11_12_1",
+    "nj_ela_2023_w_aw_11_12_1"
+  ]
+}
+```
+
+The selected `standards_profile_id` must exist in the workspace standards
+library. When `focus_standards` is present, each entry should be a known
+`standard_id`; when an assignment supplies both fields, the focus standards
+should normally be a subset of the selected profile. PDS Core provides a
+module-neutral `validate_profile_standard_selection(...)` helper for that
+profile-plus-focus validation.
+
 This document began as a design contract. Focused implementation issues have
 since added shared standards models, JSON-compatible conversion helpers,
 explicit-path JSON file helpers, the canonical workspace library path, and a
@@ -532,6 +565,11 @@ Profiles should contain references to shared definitions rather than duplicate
 full standard records. This allows one corrected definition to remain
 consistent across profiles and modules.
 
+Modules may reference a shared profile by `profile_id` and may select a
+smaller set of focus standards from that profile for a specific assignment or
+workflow. The profile remains reusable shared library data; the assignment's
+focus list remains module-owned assignment data.
+
 Profiles may provide useful grouping metadata, but they must not become
 assignment schemas. Modules decide how a profile is selected, filtered, and
 used in an assignment workflow.
@@ -541,6 +579,13 @@ They can find a profile by `profile_id` and filter profiles by subject,
 course, and source while preserving the profile order stored in the library.
 They do not add active status, module availability, assignment behavior, or
 usage recording to profiles.
+
+The implemented `validate_profile_standard_selection(...)` helper checks that
+a profile exists, selected standard IDs exist in the library, selected IDs
+belong to the selected profile, and selected IDs are not duplicated. It trims
+and returns the selected IDs as a tuple. It does not read or write workspace
+files, change assignment schemas, create standards, record usage, or decide
+which standards a teacher should choose.
 
 Profile versioning, ordering, local overrides, and behavior when a referenced
 standard becomes inactive must be resolved before implementation.
@@ -612,6 +657,26 @@ Quillan comments, polarity, severity defaults, feedback templates, subskills,
 and hotwords remain Quillan-owned unless a later issue deliberately defines a
 migration and namespaced extension contract.
 
+The following do not belong directly on `StandardDefinition`:
+
+* Quillan feedback comments or default comment banks;
+* Quillan hotwords, severity defaults, subskills, or feedback templates;
+* ScoreForm question templates or distractor guidance;
+* AI-generated feedback language;
+* grading, scoring, mastery, or proficiency rules.
+
+Module-specific extension data should be keyed by shared `standard_id` in
+module-owned storage or a later namespaced extension contract. A possible
+future workspace layout is:
+
+```text
+<workspace root>/standards/library.json
+<workspace root>/standards/extensions/quillan/...
+<workspace root>/standards/extensions/scoreform/...
+```
+
+That extension storage layout is not implemented by this contract.
+
 ## Shared Concept: Usage Event
 
 A usage event is separate from a standard definition. It records that a
@@ -662,6 +727,13 @@ Assignment alignment and usage are related but distinct. The presence of a
 standard in a ScoreForm question map or Quillan focus list must not silently
 create historical usage during migration. Any backfill should require an
 explicit migration policy and teacher-visible confirmation.
+
+Module-level workflows should eventually record standards activity through
+`StandardUsageEvent` when a teacher-controlled action uses a standard. Examples
+include a ScoreForm question assessing a standard, a Quillan review tag or
+comment referencing a standard, a teacher selecting a focus standard for an
+assignment, or a standards-aligned export/report summarizing use. Wiring those
+events belongs in module implementation tickets, not this core contract issue.
 
 Implementation must define correction behavior. Prefer preserving an audit
 trail through replacement, superseding, or voiding rather than silently
@@ -829,17 +901,69 @@ report unresolved codes and duplicate identities. Those requirements belong
 to later implementation issues; no migration adapter is added by this
 contract.
 
+## Future Codex-Assisted Standards Ingestion
+
+Future assisted ingestion should produce draft standards-library data, not
+change the core standards model or mix module-specific feedback behavior into
+`StandardDefinition`.
+
+The intended high-level flow is:
+
+1. A teacher or developer places official source documents in a standards
+   source area.
+2. Codex or another assisted workflow parses the official document.
+3. The generated output becomes a draft `StandardsLibrary` JSON file.
+4. PDS Core validation checks that generated library against the shared
+   standards contract.
+5. Human review and curation are required before treating the library as
+   official or curated.
+6. Module-specific starter packs, such as Quillan comment banks or ScoreForm
+   alignment hints, may be generated separately and keyed by `standard_id`.
+
+Generated standards data is untrusted until it has been validated and
+human-reviewed. PDS Core validates and stores the shared standards contract;
+Codex may help draft library data and module starter packs, but it does not
+make those drafts authoritative.
+
+A possible future source workspace is:
+
+```text
+standards_sources/
+  nj/
+    ela/
+      2023/
+        source/
+          njsls_ela_2023.pdf
+        generated/
+          library.generated.json
+        curated/
+          library.json
+        notes.md
+```
+
+If standards data later needs independent lifecycle management, a separate
+`Paper-Data-Suite/pds-standards` repository can be reconsidered. This issue
+does not create that repository, add standards-source trees, add official
+standards documents, implement OCR, or implement an ingestion pipeline.
+
 ## Explicit Non-Goals
 
 This issue does not implement:
 
 * standards CLI commands;
+* standards import or export CLI commands;
 * yearly reset commands;
 * ScoreForm standards migration;
 * Quillan standards migration;
 * migration adapters;
 * standards UI or menu workflows;
 * automatic standards import from state websites;
+* standards ingestion from PDFs;
+* OCR or AI parsing logic;
+* real state standards libraries or official standards PDFs;
+* generated standards libraries, except tiny synthetic test fixtures when
+  needed;
+* a separate `pds-standards` repository;
 * AI standards tagging;
 * AI grading;
 * automatic evaluation of whether a standard was met or missed;
