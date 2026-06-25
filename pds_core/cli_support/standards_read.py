@@ -7,11 +7,11 @@ from typing import TextIO
 
 from pds_core.cli_support.context import StandardFilters
 from pds_core.cli_support.formatting import (
-    compact_profile_row,
-    compact_standard_row,
     display,
     format_tuple,
     print_values,
+    readable_profile_block,
+    readable_standard_block,
 )
 from pds_core.standards import (
     StandardDefinition,
@@ -128,8 +128,10 @@ def handle_standards_list(
     if not definitions:
         print("No standards found.", file=stdout)
         return 0
-    for definition in definitions:
-        print(compact_standard_row(definition), file=stdout)
+    for index, definition in enumerate(definitions, start=1):
+        for line in readable_standard_block(definition, index=index):
+            print(line, file=stdout)
+        print("", file=stdout)
     return 0
 
 
@@ -144,32 +146,39 @@ def handle_standards_show(
         print(f"Standard not found: {args.standard_id}", file=stderr)
         return 1
 
-    fields = (
-        ("standard_id", definition.standard_id),
-        ("code", definition.code),
-        ("short_name", definition.short_name),
-        ("description", definition.description),
-        ("source", definition.source),
-        ("subject", definition.subject),
-        ("course", definition.course),
-        ("grade_band", definition.grade_band),
-        ("domain", definition.domain),
-        ("category_path", format_tuple(definition.category_path, " / ")),
-        ("tags", format_tuple(definition.tags, ", ")),
-        ("active", str(definition.active).lower()),
-        ("available_modules", format_tuple(definition.available_modules, ", ")),
+    print("Standard", file=stdout)
+    print("", file=stdout)
+    print(f"Code: {definition.code}", file=stdout)
+    print(f"ID: {definition.standard_id}", file=stdout)
+    print(f"Title: {definition.short_name}", file=stdout)
+    print("Description:", file=stdout)
+    print(definition.description, file=stdout)
+    print("", file=stdout)
+    print(f"Source: {definition.source}", file=stdout)
+    print(f"Subject: {display(definition.subject)}", file=stdout)
+    print(f"Course: {display(definition.course)}", file=stdout)
+    print(f"Grade band: {display(definition.grade_band)}", file=stdout)
+    print(f"Domain: {display(definition.domain)}", file=stdout)
+    print(
+        f"Category: {display(format_tuple(definition.category_path, ' / '))}",
+        file=stdout,
     )
-    for label, value in fields:
-        print(f"{label}: {display(value)}", file=stdout)
+    print(f"Tags: {display(format_tuple(definition.tags, ', '))}", file=stdout)
+    print(f"Status: {'Active' if definition.active else 'Inactive'}", file=stdout)
+    print(
+        "Available modules: "
+        f"{display(format_tuple(definition.available_modules, ', '))}",
+        file=stdout,
+    )
 
     child_standards = child_standard_definitions(library, definition)
     if child_standards:
-        print("subparts:", file=stdout)
+        print("", file=stdout)
+        print("Subparts:", file=stdout)
         for child in child_standards:
-            print(
-                f"{child.code}. {child.short_name} - {child.description}",
-                file=stdout,
-            )
+            print(f"{child.code} - {child.short_name}", file=stdout)
+            print(f"   ID: {child.standard_id}", file=stdout)
+            print(f"   {child.description}", file=stdout)
     return 0
 
 
@@ -188,8 +197,10 @@ def handle_standards_search(
     if not definitions:
         print("No standards found.", file=stdout)
         return 0
-    for definition in definitions:
-        print(compact_standard_row(definition), file=stdout)
+    for index, definition in enumerate(definitions, start=1):
+        for line in readable_standard_block(definition, index=index):
+            print(line, file=stdout)
+        print("", file=stdout)
     return 0
 
 
@@ -289,8 +300,10 @@ def handle_standards_profiles(
         print("No standards profiles found.", file=stdout)
         return 0
 
-    for profile in profiles:
-        print(compact_profile_row(profile), file=stdout)
+    for index, profile in enumerate(profiles, start=1):
+        for line in readable_profile_block(profile, index=index):
+            print(line, file=stdout)
+        print("", file=stdout)
     return 0
 
 

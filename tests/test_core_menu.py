@@ -40,7 +40,8 @@ def test_core_menu_opens_and_exits_via_back(
     code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\n")
 
     assert code == 0
-    assert "Paper Data Suite Core" in out
+    assert "PDS Core\n\nMain Menu" in out
+    assert "Paper Data Suite Core" not in out
     assert "1. Standards Management" in out
     assert "2. Back / Exit" in out
     assert "Back." in out
@@ -65,7 +66,7 @@ def test_core_menu_handles_invalid_blank_and_eof_without_traceback(
     code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "")
 
     assert code == 0
-    assert "Paper Data Suite Core" in out
+    assert "PDS Core\n\nMain Menu" in out
     assert "Back." in out
     assert "Traceback" not in err
     assert err == ""
@@ -77,14 +78,17 @@ def test_core_menu_delegates_to_existing_standards_menu(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n12\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n2\n")
 
     assert code == 0
-    assert "Paper Data Suite Core" in out
-    assert "Standards Management" in out
-    assert "4. Add standard" in out
-    assert "7. Create Standard Profile" in out
-    assert "12. Back" in out
+    assert "PDS Core\n\nMain Menu" in out
+    assert "Paper Data Suite Core" not in out
+    assert "Standards Library" in out
+    assert "1. Standards" in out
+    assert "2. Profiles" in out
+    assert "3. Import / Export" in out
+    assert "4. Validate library" in out
+    assert "5. Back" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -99,13 +103,13 @@ def test_core_menu_clears_before_display_and_after_standards_return(
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
 
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n12\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n2\n")
 
     assert code == 0
     assert err == ""
-    assert out.count("[clear]\nPaper Data Suite Core") == 2
-    assert "[clear]\nStandards Management" in out
-    assert out.rindex("[clear]\nPaper Data Suite Core") > out.index("Back.")
+    assert out.count("[clear]\nPDS Core\n\nMain Menu") == 2
+    assert "[clear]\nPDS Core\n\nStandards Library" in out
+    assert out.rindex("[clear]\nPDS Core\n\nMain Menu") > out.index("Back.")
     assert list(tmp_path.iterdir()) == []
 
 
@@ -114,7 +118,7 @@ def test_core_workspace_override_reaches_standards_validation_without_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n11\n\n12\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n4\n\n5\n2\n")
 
     assert code == 0
     assert "using empty library" in out
@@ -130,15 +134,16 @@ def test_direct_standards_menu_route_still_works(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr("sys.stdin", io.StringIO("12\n"))
+    monkeypatch.setattr("sys.stdin", io.StringIO("5\n"))
 
     code = pds_core_main(["--workspace", str(tmp_path), "standards", "menu"])
     captured = capsys.readouterr()
 
     assert code == 0
-    assert "Standards Management" in captured.out
-    assert "4. Add standard" in captured.out
-    assert "7. Create Standard Profile" in captured.out
-    assert "12. Back" in captured.out
+    assert "Standards Library" in captured.out
+    assert "1. Standards" in captured.out
+    assert "2. Profiles" in captured.out
+    assert "3. Import / Export" in captured.out
+    assert "5. Back" in captured.out
     assert captured.err == ""
     assert list(tmp_path.iterdir()) == []

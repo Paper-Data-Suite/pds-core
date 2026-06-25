@@ -131,16 +131,18 @@ class CoreMenu:
 
     def _print_menu(self) -> None:
         screen.clear_screen(self.stdout)
-        print("Paper Data Suite Core", file=self.stdout)
+        screen.print_app_header(self.stdout)
+        print("Main Menu", file=self.stdout)
         print("", file=self.stdout)
         print("1. Standards Management", file=self.stdout)
         print("2. Back / Exit", file=self.stdout)
+        print("", file=self.stdout)
 
     def _prompt(self, prompt: str) -> str | None:
-        print(prompt, end="", file=self.stdout)
+        print(prompt, end="", file=self.stdout, flush=True)
         line = self.stdin.readline()
+        print("", file=self.stdout)
         if line == "":
-            print("", file=self.stdout)
             return None
         return line.rstrip("\r\n").strip()
 

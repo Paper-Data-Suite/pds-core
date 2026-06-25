@@ -7,7 +7,7 @@ from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from typing import TextIO
 
-from pds_core.cli_support.formatting import display
+from pds_core.cli_support.formatting import display, readable_standard_block
 from pds_core.cli_support.standards_io import (
     load_standards_profile,
     write_standards_profile,
@@ -198,30 +198,28 @@ def handle_profile_show(
         print(f"Standards profile not found: {args.profile_id}", file=stderr)
         return 1
 
-    fields = (
-        ("profile_id", profile.profile_id),
-        ("title", profile.title),
-        ("description", profile.description),
-        ("subject", profile.subject),
-        ("course", profile.course),
-        ("source", profile.source),
-    )
-    for label, value in fields:
-        print(f"{label}: {display(value)}", file=stdout)
+    print("Profile", file=stdout)
+    print("", file=stdout)
+    print(f"Title: {display(profile.title)}", file=stdout)
+    print(f"ID: {profile.profile_id}", file=stdout)
+    print(f"Description: {display(profile.description)}", file=stdout)
+    print(f"Subject: {display(profile.subject)}", file=stdout)
+    print(f"Course: {display(profile.course)}", file=stdout)
+    print(f"Source: {display(profile.source)}", file=stdout)
 
-    print("standards:", file=stdout)
+    print("", file=stdout)
+    print("Standards:", file=stdout)
     had_unresolved = False
-    for standard_id in profile.standards:
+    for index, standard_id in enumerate(profile.standards, start=1):
         definition = find_standard_definition(library, standard_id)
         if definition is None:
-            print(f"  {standard_id} | unresolved | unresolved", file=stdout)
+            print(f"{index}. unresolved", file=stdout)
+            print(f"   ID: {standard_id}", file=stdout)
             had_unresolved = True
         else:
-            print(
-                f"  {definition.standard_id} | {definition.code} | "
-                f"{definition.short_name}",
-                file=stdout,
-            )
+            for line in readable_standard_block(definition, index=index):
+                print(line, file=stdout)
+        print("", file=stdout)
     return 1 if had_unresolved else 0
 
 
