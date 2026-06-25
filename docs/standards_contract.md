@@ -5,6 +5,11 @@
 This document defines the shared Paper Data Suite contract for a standards
 library and standards-usage tracking.
 
+For the practical module integration guide covering `pds-quillan`,
+`pds-scoreform`, future modules, durable ID storage, teacher-facing display,
+and missing/deprecated standards behavior, see
+[`module_standards_integration.md`](module_standards_integration.md).
+
 The central architecture decision is:
 
 ```text
@@ -1303,6 +1308,10 @@ create independent standards libraries. Modules should not silently record
 standards usage merely because an assignment alignment exists. Standards
 usage events are explicit teacher-controlled or module-controlled records,
 not automatic grading judgments.
+
+See [`module_standards_integration.md`](module_standards_integration.md) for
+the concrete Quillan assignment-config expectations, ScoreForm question-level
+alignment expectations, validation behavior, and future-module checklist.
 
 ### Missing Workflow Inventory
 
