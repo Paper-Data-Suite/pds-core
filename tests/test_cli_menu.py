@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import argparse
 import io
 import json
 from pathlib import Path
+from typing import TextIO, cast
 
 import pytest
 
 from pds_core.cli import main
+from pds_core.cli_support.menu import StandardsMenu
 from pds_core.cli_support import screen
 from pds_core.standards import (
     StandardsLibrary,
@@ -35,6 +38,12 @@ def run_menu(
 
 def library_file(tmp_path: Path) -> Path:
     return tmp_path / "standards" / "library.json"
+
+
+def assert_durable_standard_id_guidance(out: str) -> None:
+    assert "Use the full durable standard_id, not only the display code." in out
+    assert "Correct example: njsls-ela:L.KL.11-12.2" in out
+    assert "Not enough: L.KL.11-12.2" in out
 
 
 def test_menu_opens_and_exits_via_back(
@@ -115,7 +124,8 @@ def test_menu_browse_search_and_view_standards(
     assert "Search checks IDs, display codes, names" in out
     assert "Example: language or RL.CR.11-12.1" in out
     assert "Enter Durable Standard ID." in out
-    assert "Use Browse or Search first if you do not know the ID." in out
+    assert "Use Browse Standards or Search Standards first if you need to copy IDs." in out
+    assert_durable_standard_id_guidance(out)
     assert "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1" in out
     assert "njsls-ela:RI.CR.11-12.1 | RI.CR.11-12.1" in out
     assert "standard_id: njsls-ela:RL.CR.11-12.1" in out
@@ -210,6 +220,8 @@ def test_menu_create_profile_with_standards_and_cancellation(
     assert "Enter Course." in out
     assert "Enter Source." in out
     assert "Enter Standard IDs for this profile." in out
+    assert "Separate multiple IDs with commas." in out
+    assert_durable_standard_id_guidance(out)
     assert "Review Standard Profile" in out
     assert "Type YES to create this standard profile." in out
     assert "Required: durable profile_id." not in out
@@ -232,10 +244,10 @@ def test_menu_create_profile_with_standards_and_cancellation(
 @pytest.mark.parametrize(
     ("standards", "expected_error"),
     [
-        ("missing:standard", "unknown standard IDs"),
+        ("missing:standard", "Some standards were not found"),
         (
             "njsls-ela:RL.CR.11-12.1, njsls-ela:RL.CR.11-12.1",
-            "duplicate standard IDs",
+            "Some standard IDs were entered more than once",
         ),
     ],
 )
@@ -272,8 +284,135 @@ def test_menu_create_profile_rejects_invalid_membership_without_writing(
 
     assert code == 0
     assert "Created standards profile bad_profile." not in out
-    assert expected_error in err
+    assert expected_error in out
+    assert "Enter Standard IDs again, or leave blank to create an empty profile." in out
+    assert_durable_standard_id_guidance(out)
+    assert err == ""
     assert library_file(tmp_path).read_text(encoding="utf-8") == before
+
+
+def test_menu_create_profile_retries_invalid_standard_ids_without_metadata_restart(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
+    write_workspace_standards_library(tmp_path, base_library)
+    inputs = "\n".join(
+        (
+            "6",
+            "english_12_language_standards",
+            "English 12 Language Standards",
+            "Language standards for English 12.",
+            "English Language Arts",
+            "English 12",
+            "NJSLS-ELA",
+            "RL.CR.11-12.1",
+            "njsls-ela:RL.CR.11-12.1",
+            "YES",
+            "",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert out.count("Enter Durable Profile ID.") == 1
+    assert out.count("Enter Profile Title.") == 1
+    assert out.count("Enter Standard IDs for this profile.") == 2
+    assert "Some standards were not found:" in out
+    assert "RL.CR.11-12.1" in out
+    assert "Review Standard Profile" in out
+    assert "Title: English 12 Language Standards" in out
+    assert "Created standards profile english_12_language_standards." in out
+    assert err == ""
+    library = load_standards_library(library_file(tmp_path))
+    profile = library.profiles[0]
+    assert profile.profile_id == "english_12_language_standards"
+    assert profile.title == "English 12 Language Standards"
+    assert profile.description == "Language standards for English 12."
+    assert profile.standards == ("njsls-ela:RL.CR.11-12.1",)
+
+
+def test_menu_create_profile_retries_invalid_standard_ids_then_accepts_blank(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
+    write_workspace_standards_library(tmp_path, base_library)
+    inputs = "\n".join(
+        (
+            "6",
+            "empty_language_profile",
+            "Empty Language Profile",
+            "",
+            "",
+            "",
+            "",
+            "RL.CR.11-12.1",
+            "",
+            "YES",
+            "",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert "Some standards were not found:" in out
+    assert "Review Standard Profile" in out
+    assert "Standards: 0" in out
+    assert "Created standards profile empty_language_profile." in out
+    assert err == ""
+    library = load_standards_library(library_file(tmp_path))
+    assert library.profiles[0].standards == ()
+
+
+def test_menu_standard_id_prompt_normalizes_common_dash_input(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
+    write_workspace_standards_library(tmp_path, base_library)
+    inputs = "\n".join(
+        (
+            "6",
+            "dash_profile",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "njsls-ela:RL.CR.11\u201312.1",
+            "YES",
+            "",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert "Created standards profile dash_profile." in out
+    assert err == ""
+    library = load_standards_library(library_file(tmp_path))
+    assert library.profiles[0].standards == ("njsls-ela:RL.CR.11-12.1",)
 
 
 def test_menu_create_profile_rejects_duplicate_profile_id_without_writing(
@@ -355,6 +494,8 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
     assert "Replace Profile Standards" in out
     assert "This will replace only the profile's standards list." in out
     assert "Profile metadata will be preserved." in out
+    assert "Separate multiple IDs with commas." in out
+    assert_durable_standard_id_guidance(out)
     assert "Added standard njsls-ela:RL.CR.11-12.1 to profile english_12_local." in out
     assert (
         "Removed standard local-writing:evidence_explanation from profile "
@@ -401,6 +542,40 @@ def test_menu_membership_failures_do_not_write(
     assert code == 0
     assert expected_error in err
     assert library_file(tmp_path).read_text(encoding="utf-8") == before
+
+
+def test_menu_prompt_flushes_before_reading() -> None:
+    events: list[str] = []
+
+    class RecordingStdout(io.StringIO):
+        def write(self, text: str) -> int:
+            events.append(f"write:{text}")
+            return super().write(text)
+
+        def flush(self) -> None:
+            events.append("flush")
+            super().flush()
+
+    class RecordingStdin:
+        def __init__(self, text: str) -> None:
+            self._stdin = io.StringIO(text)
+
+        def readline(self) -> str:
+            events.append("readline")
+            return self._stdin.readline()
+
+    stdout = RecordingStdout()
+    stdin = cast(TextIO, RecordingStdin("value\n"))
+    menu = StandardsMenu(
+        argparse.Namespace(workspace_root=Path(".")),
+        StandardsLibrary(standards=()),
+        stdin,
+        stdout,
+        io.StringIO(),
+    )
+
+    assert menu._prompt("> ") == "value"
+    assert events.index("flush") < events.index("readline")
 
 
 def test_menu_export_library_and_profile_refuse_overwrite_unless_confirmed(

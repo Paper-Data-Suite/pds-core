@@ -45,6 +45,21 @@ from pds_core.standards import (
     validate_standards_library,
 )
 
+STANDARD_ID_GUIDANCE: tuple[str, ...] = (
+    "Use the full durable standard_id, not only the display code.",
+    "Correct example: njsls-ela:L.KL.11-12.2",
+    "Not enough: L.KL.11-12.2",
+)
+
+STANDARD_ID_COPY_GUIDANCE = "Use Browse Standards or Search Standards first if you need to copy IDs."
+
+DASH_TRANSLATION = str.maketrans(
+    {
+        "\u2013": "-",
+        "\u2014": "-",
+    }
+)
+
 
 def handle_standards_menu(
     args: argparse.Namespace,
@@ -161,15 +176,15 @@ class StandardsMenu:
             "View Standard",
             (
                 "Enter Durable Standard ID.",
-                "Use the permanent standard_id, not just the display code.",
-                "Example: njsls-ela:RL.CR.11-12.1",
-                "Use Browse or Search first if you do not know the ID.",
+                *STANDARD_ID_GUIDANCE,
+                STANDARD_ID_COPY_GUIDANCE,
                 "Leave blank to cancel.",
             ),
             clear=True,
         )
         if standard_id is None:
             return
+        standard_id = normalize_standard_id_entry(standard_id)
         command_args = argparse.Namespace(standard_id=standard_id)
         handle_standards_show(command_args, self.library, self.stdout, self.stderr)
 
@@ -219,21 +234,25 @@ class StandardsMenu:
         if profile_id is None:
             return
         metadata = self._profile_metadata()
-        standards = self._standard_ids_prompt()
-        if standards is None:
-            return
+        while True:
+            standards = self._standard_ids_prompt()
+            if standards is None:
+                return
+            if not self._print_standard_membership_errors(standards):
+                continue
 
-        command_args = argparse.Namespace(
-            profile_id=profile_id,
-            standards=list(standards),
-            **metadata,
-        )
-        try:
-            profile = standards_profile_from_args(profile_id, command_args)
-            updated_library = add_standards_profile(self.library, profile)
-        except StandardsValidationError as error:
-            print(f"Error: {error}", file=self.stderr)
-            return
+            command_args = argparse.Namespace(
+                profile_id=profile_id,
+                standards=list(standards),
+                **metadata,
+            )
+            try:
+                profile = standards_profile_from_args(profile_id, command_args)
+                updated_library = add_standards_profile(self.library, profile)
+            except StandardsValidationError as error:
+                print(f"Error: {error}", file=self.stderr)
+                return
+            break
 
         self._print_standard_profile_review(profile)
         if not self._guided_confirm(
@@ -304,7 +323,8 @@ class StandardsMenu:
             (
                 "Enter Durable Standard ID to Add.",
                 "The standard must already exist in the standards library.",
-                "Example: njsls-ela:L.KL.11-12.2",
+                *STANDARD_ID_GUIDANCE,
+                STANDARD_ID_COPY_GUIDANCE,
                 "Leave blank to cancel.",
             ),
         )
@@ -347,12 +367,14 @@ class StandardsMenu:
             (
                 "Enter Durable Standard ID to Remove.",
                 "The standard must already belong to this profile.",
-                "Example: njsls-ela:L.KL.11-12.2",
+                *STANDARD_ID_GUIDANCE,
+                STANDARD_ID_COPY_GUIDANCE,
                 "Leave blank to cancel.",
             ),
         )
         if standard_id is None:
             return
+        standard_id = normalize_standard_id_entry(standard_id)
         if standard_id not in profile.standards:
             print(
                 "Error: profile does not contain standard "
@@ -390,8 +412,9 @@ class StandardsMenu:
         standards = self._standard_ids_prompt(
             (
                 "Enter New Standard IDs.",
-                "Use durable standard_id values separated by commas.",
-                "Example: njsls-ela:L.KL.11-12.2, njsls-ela:L.VL.11-12.3",
+                *STANDARD_ID_GUIDANCE,
+                "Separate multiple IDs with commas.",
+                STANDARD_ID_COPY_GUIDANCE,
                 "Leave blank for no standards.",
             )
         )
@@ -853,8 +876,9 @@ class StandardsMenu:
         self,
         lines: tuple[str, ...] = (
             "Enter Standard IDs for this profile.",
-            "Use durable standard_id values separated by commas.",
-            "Example: njsls-ela:L.KL.11-12.2, njsls-ela:L.VL.11-12.3",
+            *STANDARD_ID_GUIDANCE,
+            "Separate multiple IDs with commas.",
+            STANDARD_ID_COPY_GUIDANCE,
             "Leave blank to create an empty profile.",
         ),
     ) -> tuple[str, ...] | None:
@@ -867,7 +891,47 @@ class StandardsMenu:
             return None
         if not raw:
             return ()
-        return tuple(part.strip() for part in raw.split(",") if part.strip())
+        return tuple(
+            normalize_standard_id_entry(part)
+            for part in raw.split(",")
+            if part.strip()
+        )
+
+    def _print_standard_membership_errors(self, standards: tuple[str, ...]) -> bool:
+        duplicates = tuple(
+            standard_id
+            for index, standard_id in enumerate(standards)
+            if standard_id in standards[:index]
+        )
+        unknown = tuple(
+            standard_id
+            for standard_id in standards
+            if find_standard_definition(self.library, standard_id) is None
+        )
+        if not duplicates and not unknown:
+            return True
+
+        if unknown:
+            print("Some standards were not found:", file=self.stdout)
+            print("", file=self.stdout)
+            for standard_id in unknown:
+                print(standard_id, file=self.stdout)
+            print("", file=self.stdout)
+        if duplicates:
+            print("Some standard IDs were entered more than once:", file=self.stdout)
+            print("", file=self.stdout)
+            for standard_id in duplicates:
+                print(standard_id, file=self.stdout)
+            print("", file=self.stdout)
+
+        print(STANDARD_ID_GUIDANCE[0], file=self.stdout)
+        print(STANDARD_ID_GUIDANCE[1], file=self.stdout)
+        print("", file=self.stdout)
+        print(
+            "Enter Standard IDs again, or leave blank to create an empty profile.",
+            file=self.stdout,
+        )
+        return False
 
     def _prompt_existing_profile(
         self,
@@ -907,6 +971,7 @@ class StandardsMenu:
         standard_id = self._required_guided_prompt(title, lines, clear=clear)
         if standard_id is None:
             return None
+        standard_id = normalize_standard_id_entry(standard_id)
         definition = find_standard_definition(self.library, standard_id)
         if definition is None:
             print(f"Error: standard not found: {standard_id}", file=self.stderr)
@@ -1071,7 +1136,7 @@ class StandardsMenu:
         print(f"Standards: {len(profile.standards)}", file=self.stdout)
 
     def _prompt(self, prompt: str) -> str | None:
-        print(prompt, end="", file=self.stdout)
+        print(prompt, end="", file=self.stdout, flush=True)
         line = self.stdin.readline()
         if line == "":
             print("", file=self.stdout)
@@ -1094,3 +1159,8 @@ class StandardsMenu:
 
     def _has_profiles(self) -> bool:
         return bool(self.library.profiles)
+
+
+def normalize_standard_id_entry(value: str) -> str:
+    """Normalize common user-entered punctuation in standard IDs."""
+    return value.strip().translate(DASH_TRANSLATION)
