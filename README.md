@@ -98,6 +98,40 @@ Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
 not be unique.
 
+## Module Standards Selection API
+
+Downstream modules can use `pds_core.standards_selection` to browse and
+validate standards without knowing the workspace storage path or standards JSON
+shape. The helpers load missing workspace libraries as empty, read-only
+libraries and do not create files or folders.
+
+Modules should store only durable `standard_id` and `profile_id` values.
+Returned labels, standard `code` values, profile titles, and sources are for
+teacher display only and should not be stored as durable references.
+
+```python
+from pds_core.standards_selection import (
+    list_profiles_for_selection,
+    list_standards_for_profile_selection,
+    load_standards_for_selection,
+    resolve_profile_standard_selection,
+)
+
+library = load_standards_for_selection(workspace_root)
+profiles = list_profiles_for_selection(library, course="English 12")
+standards = list_standards_for_profile_selection(library, "english_12_njsls")
+selected = resolve_profile_standard_selection(
+    library,
+    profile_id="english_12_njsls",
+    selected_standard_ids=["njsls-ela:RL.CR.11-12.1"],
+)
+```
+
+The selection API is module-neutral and does not import ScoreForm or Quillan.
+It validates profile-member selections with the shared standards backend and
+raises `StandardsValidationError` for missing IDs, duplicates, unknown
+standards, or standards outside the selected profile.
+
 `pds-core standards menu` opens a plain-text teacher-facing management menu for
 the shared workspace standards library. It distinguishes durable
 `standard_id`/`profile_id` values from display fields, confirms before writing,
