@@ -53,7 +53,7 @@ menu, import/export, mutation, and module-facing API work.
 ## Standards CLI
 
 PDS Core exposes `pds-core standards` commands for inspecting, validating,
-importing, and exporting the active workspace standards library:
+importing, exporting, and mutating the active workspace standards library:
 
 ```powershell
 pds-core --workspace "C:\Path\To\Paper Data Suite" standards list
@@ -69,27 +69,50 @@ pds-core standards validate
 pds-core standards validate-file ".\standards-library.json"
 pds-core standards export ".\standards-library.json"
 pds-core standards import ".\standards-library.json" --replace
+pds-core standards add --standard-id local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use evidence from a text."
+pds-core standards replace local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use stronger textual evidence."
+pds-core standards upsert local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use evidence from a text."
+pds-core standards retire local-reading:close_reading
+pds-core standards reactivate local-reading:close_reading
 pds-core standards profile export english_12_njsls ".\english-12-profile.json"
 pds-core standards profile import ".\english-12-profile.json" --add
 ```
 
 The CLI loads `<workspace>/standards/library.json` using the normal workspace
 resolution rules, or the non-mutating `--workspace` override for one command.
-If the library file is missing, commands treat it as an empty library and do
-not create `standards/`, usage folders, workspace metadata, or module folders.
+If the library file is missing, read-only commands treat it as an empty library
+and do not create `standards/`, usage folders, workspace metadata, or module
+folders.
+Mutation commands write only the canonical
+`<workspace>/standards/library.json`; they may create the `standards/`
+directory and library file, but do not create usage ledgers or module-specific
+folders.
 
 Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
 not be unique.
+
+Individual standard mutation commands require `code`, `source`, `short-name`,
+and `description`. `add` also requires `--standard-id`; `replace` and `upsert`
+take the durable ID as the positional `standard_id`. Optional metadata includes
+`--subject`, `--course`, `--grade-band`, `--domain`, `--category-path`, `--tag`,
+`--available-module`, `--active`, and `--inactive`. Category paths use `/`, for
+example `--category-path "English Language Arts/Reading Literature/Close
+Reading"`. Repeat `--tag` or `--available-module` for multiple values.
+
+`replace` is full-record replacement, so omitted optional fields are cleared.
+`upsert` adds or replaces as appropriate. `retire` is non-destructive: it marks
+the standard inactive and leaves the record in the library, so historical data
+and profile references remain valid. `reactivate` marks a retired standard
+active again. There is no destructive standard deletion command in v0.4.0.
 
 Import and export commands are deliberately conservative. Imports validate the
 entire external JSON file before writing anything. Full-library import requires
 `--replace`; replacing an existing workspace `standards/library.json` also
 requires `--overwrite`. Profile import supports `--add`, which fails rather
 than silently replacing an existing `profile_id`. Exports refuse to overwrite
-target files unless `--overwrite` is supplied. Merge/upsert import, interactive
-menus, mutation commands for individual standards, and module-facing selection
-commands remain future work.
+target files unless `--overwrite` is supplied. Merge/upsert import,
+interactive menus, and module-facing selection commands remain future work.
 
 ## Workspace Root
 
