@@ -50,6 +50,33 @@ behavior in module-owned data. The same contract also includes the v0.4.0
 standards management surface audit for the planned `pds-core` CLI, teacher
 menu, import/export, mutation, and module-facing API work.
 
+## Standards CLI
+
+PDS Core exposes a read-only `pds-core` command for inspecting the active
+workspace standards library:
+
+```powershell
+pds-core --workspace "C:\Path\To\Paper Data Suite" standards list
+pds-core standards show njsls-ela:RL.CR.11-12.1
+pds-core standards search evidence --all
+pds-core standards subjects
+pds-core standards sources
+pds-core standards domains
+pds-core standards categories
+pds-core standards profiles
+pds-core standards profile show english_12_njsls
+```
+
+The CLI loads `<workspace>/standards/library.json` using the normal workspace
+resolution rules, or the non-mutating `--workspace` override for one command.
+If the library file is missing, commands treat it as an empty library and do
+not create `standards/`, usage folders, workspace metadata, or module folders.
+
+Use `standard_id` and `profile_id` for durable Paper Data Suite references.
+Teacher-facing `code`, profile titles, and sources are display fields and may
+not be unique. These commands are browse-only; mutation, import, export,
+interactive menus, and module-facing selection commands remain future work.
+
 ## Workspace Root
 
 The PDS workspace root is the top-level folder where Paper Data Suite modules
