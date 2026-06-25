@@ -303,10 +303,6 @@ def _normalize_standards_profile(profile: StandardsProfile) -> None:
         _required_text(profile.profile_id, "profile_id"),
     )
     standards = _text_tuple(profile.standards, "standards")
-    if not standards:
-        raise StandardsValidationError(
-            "standards must contain at least one standard ID."
-        )
     if len(standards) != len(set(standards)):
         raise StandardsValidationError(
             "standards must not contain duplicate standard IDs."
