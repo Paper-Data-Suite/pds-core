@@ -52,6 +52,17 @@ menu, import/export, mutation, and module-facing API work.
 
 ## Standards CLI
 
+Teachers can type the module shortcut to open the current pds-core menu:
+
+```powershell
+core
+```
+
+The `core` shortcut opens a plain-text Paper Data Suite Core menu. Standards
+Management is currently available from that menu. The existing `pds-core`
+command remains the full CLI namespace for direct commands and scripts, and
+`pds-core standards menu` remains available as the direct standards route.
+
 PDS Core exposes `pds-core standards` commands for inspecting, validating,
 importing, exporting, and mutating the active workspace standards library:
 

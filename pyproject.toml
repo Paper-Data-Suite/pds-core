@@ -12,6 +12,7 @@ dependencies = []
 
 [project.scripts]
 pds-core = "pds_core.cli:main"
+core = "pds_core.core_menu:main"
 
 [project.optional-dependencies]
 dev = [
