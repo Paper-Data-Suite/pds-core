@@ -46,7 +46,9 @@ standards contract. PDS Core owns durable standard definitions, reusable
 standards profiles, workspace standards storage, browsing/filtering helpers,
 and module-neutral standards usage events; modules should store shared
 `standard_id` references and keep module-specific feedback or alignment
-behavior in module-owned data.
+behavior in module-owned data. The same contract also includes the v0.4.0
+standards management surface audit for the planned `pds-core` CLI, teacher
+menu, import/export, mutation, and module-facing API work.
 
 ## Workspace Root
 

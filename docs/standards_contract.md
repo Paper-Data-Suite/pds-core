@@ -946,13 +946,396 @@ If standards data later needs independent lifecycle management, a separate
 does not create that repository, add standards-source trees, add official
 standards documents, implement OCR, or implement an ingestion pipeline.
 
+## v0.4.0 Standards Management Surface Audit
+
+This section defines the standards management surface that later v0.4.0
+implementation tickets should use. It is a design and contract inventory, not
+an implementation of the CLI, teacher menu, import/export commands, mutation
+commands, or module adapters.
+
+### Existing Backend Inventory
+
+Current `pds-core` standards backend capabilities are:
+
+* model objects: implemented now through `StandardDefinition`,
+  `StandardsProfile`, `StandardsLibrary`, `StandardUsageEvent`,
+  `StandardUsageCounts`, and `StandardsUsageSummary`;
+* validation helpers: implemented now for standard definitions, profiles,
+  libraries, profile selections, usage events, usage counts, summaries,
+  school years, and usage class IDs;
+* JSON/dict conversion helpers: implemented now for standard definitions,
+  standards profiles, full standards libraries, and usage events;
+* explicit-path storage helpers: implemented now for UTF-8 deterministic
+  standards library JSON loading and atomic writing, plus JSON Lines usage
+  event loading, appending, and atomic writing;
+* canonical workspace storage helpers: implemented now for
+  `<PDS workspace root>/standards/library.json` and
+  `<PDS workspace root>/standards/usage/<school_year>/<class_id>/events.jsonl`;
+* usage ledger helpers: implemented now for explicit paths and canonical
+  workspace paths, including append and overwrite-protected write behavior;
+* usage summary helpers: implemented now as read-only derived counts by
+  standard, usage type, module, and optional assignment ID;
+* browsing/filtering helpers: implemented now for standards by ID, subject,
+  source, domain, active status, available module, category path prefix, and
+  for profiles by ID, subject, course, and source;
+* profile-selection validation: implemented now by
+  `validate_profile_standard_selection(...)`;
+* in-memory mutation helpers: implemented now for add, replace, and upsert of
+  `StandardDefinition` and `StandardsProfile`.
+
+The following behavior exists but needs clearer user-facing documentation in
+later tickets: display formatting, text search behavior, import modes,
+overwrite confirmations, retire/reactivate workflows, profile editing
+workflows, and readable CLI/menu validation messages.
+
+The following behavior does not exist yet and belongs in later implementation
+tickets: the `pds-core` console script, standards CLI commands, teacher-facing
+interactive menu workflows, full library and profile import/export commands,
+workspace-persisted mutation commands, module-facing selection APIs, smoke
+tests for the full management workflow, and teacher-facing workflow
+documentation.
+
+The following behavior remains out of scope for v0.4.0: destructive standard
+deletion, destructive profile deletion without profile lifecycle metadata,
+ScoreForm or Quillan coupling, migrations from legacy module data, AI grading,
+automatic standards judgment, automatic feedback generation, and
+mastery/proficiency calculation.
+
+### Canonical Storage Paths
+
+The canonical shared standards library path is:
+
+```text
+<PDS workspace root>/standards/library.json
+```
+
+The canonical standards usage ledger pattern is:
+
+```text
+<PDS workspace root>/standards/usage/<school_year>/<class_id>/events.jsonl
+```
+
+Current missing-library behavior is implemented as follows:
+
+* loading a missing workspace standards library returns an empty
+  `StandardsLibrary`;
+* loading a missing library does not create files or directories;
+* writing the workspace standards library creates only the necessary
+  standards library path;
+* usage ledgers are separate from standards definitions and profiles.
+
+### Data Ownership Boundaries for Management
+
+`pds-core` owns durable standard identity, shared standard definitions,
+reusable standards profiles, module availability metadata, shared storage
+locations and file contracts, module-neutral browsing/filtering,
+module-neutral selection validation, module-neutral import/export validation
+rules, usage-event identity and common fields, and usage-ledger file
+contracts.
+
+ScoreForm owns answer keys, choices, question counts, assignment JSON shape,
+OMR scoring, question-level standards alignment behavior, and ScoreForm
+result exports.
+
+Quillan owns writing assignment configuration, tagging modes, focus standards
+behavior within writing workflows, teacher tags, teacher comments, teacher
+notes, teacher-entered or teacher-confirmed scores, feedback records, writing
+reports, and Quillan-specific interpretation of comments, hotwords, subskills,
+polarity, severity defaults, feedback templates, and review metadata.
+
+Quillan-specific standards-adjacent metadata must not be generalized into
+`pds-core` merely because it is standards-related. The dependency direction
+remains:
+
+```text
+pds-scoreform -> pds-core
+pds-quillan   -> pds-core
+```
+
+ScoreForm and Quillan must not depend on each other.
+
+### Standard Definition Shape for Management
+
+The current `StandardDefinition` fields are:
+
+* `standard_id`: durable internal Paper Data Suite identifier;
+* `code`: teacher-facing/display-facing code, often official notation;
+* `source`: issuing authority, local collection, or provenance;
+* `short_name`: compact teacher-facing label;
+* `description`: full teacher-facing description;
+* `subject`: optional subject filter/display field;
+* `course`: optional course filter/display field;
+* `grade_band`: optional grade-band display field;
+* `domain`: optional domain or source-defined grouping;
+* `category_path`: ordered grouping path for navigation;
+* `tags`: optional lightweight filter/search metadata;
+* `active`: active versus retired/inactive status;
+* `available_modules`: module availability/filtering metadata.
+
+Machine-readable module data should store `standard_id`, not `code`.
+`standard_id` is the durable internal key; `code` is not durable enough to
+serve as the internal key because it may be reformatted, duplicated across
+sources, or reused across jurisdictions. `active=false` means retired or
+inactive, not deleted. Retired standards remain loadable, showable,
+exportable, and valid historical references.
+
+### Standards Profile Shape for Management
+
+The current `StandardsProfile` fields are:
+
+* `profile_id`: durable profile identifier;
+* `standards`: ordered tuple of referenced `standard_id` values;
+* `subject`: optional subject filter/display field;
+* `course`: optional course filter/display field;
+* `source`: optional source filter/display field;
+* `title`: optional teacher-facing title;
+* `description`: optional teacher-facing description.
+
+Profiles are reusable groupings of shared `standard_id` values. Profile
+entries must reference known standards, and profile standard lists must not
+contain duplicates. Profiles do not replace module assignment schemas.
+Modules may reference profiles and selected/focus standards, but the module
+continues to own the assignment data shape and workflow behavior. Destructive
+profile deletion is not part of the v0.4.0 management surface.
+
+### Durable ID Expectations
+
+The v0.4.0 management surface should follow these identity rules:
+
+* module data should store `standard_id`, not `code`;
+* `standard_id` should be stable once used;
+* `standard_id` should not be changed as part of ordinary display-code
+  cleanup;
+* official code formatting changes should be handled by updating
+  `code`/display metadata, not by creating incompatible IDs unless a
+  deliberate migration is planned;
+* teacher-created or local standards should have a clear local namespace or
+  provenance convention;
+* duplicate `standard_id` values are invalid;
+* duplicate display `code` values may be possible across sources,
+  jurisdictions, or local collections and must not be treated as globally
+  durable.
+
+Exact ID-generation syntax and namespace rules are still an open design
+question. Later implementation tickets must settle that deliberately rather
+than inventing incompatible behavior command by command.
+
+### Teacher-Facing Display Fields
+
+List and search views should use compact rows that include enough information
+for fast selection: `code`, `short_name`, `subject`, `course`, `grade_band`,
+`source`, `domain`, `active`, and a visible way to reveal `standard_id`.
+Detail views should include `standard_id`, `code`, `short_name`,
+`description`, `subject`, `course`, `grade_band`, `source`, `domain`,
+`category_path`, `tags`, `active`, and `available_modules`.
+
+Teacher-facing displays should prefer `code` and `short_name` for readability
+while preserving access to `standard_id` for durable references, support
+cases, imports, and exact command use. Retired/inactive standards should be
+visibly marked in compact rows and detail views.
+
+### Browsing and Filtering Needs
+
+Implemented browsing/filtering needs include:
+
+* find standard by `standard_id`;
+* filter standards by subject;
+* filter standards by source;
+* filter standards by domain;
+* filter standards by active/inactive status;
+* filter standards by available module;
+* filter standards by category path prefix;
+* list available subjects;
+* list available sources;
+* list available domains;
+* list available category paths;
+* find profile by `profile_id`;
+* filter profiles by subject;
+* filter profiles by course;
+* filter profiles by source.
+
+Text search over standard code, short name, description, tags, profile title,
+and profile description remains future work. Later CLI/menu tickets should
+define whether search is case-insensitive substring matching, token matching,
+ranked search, or another explicit behavior.
+
+### Import/Export Expectations
+
+Later import/export commands should follow these rules:
+
+* import must validate before writing;
+* invalid imports must not partially write data;
+* writes should be atomic where practical;
+* export should produce deterministic UTF-8 JSON;
+* import/export should preserve durable IDs;
+* import/export should preserve inactive standards;
+* import/export should preserve profiles;
+* import behavior must distinguish replace, merge, and upsert behavior
+  explicitly;
+* no command should silently overwrite existing library data without an
+  explicit flag or confirmation;
+* profile import/export should be defined separately from full library
+  import/export if both are planned.
+
+The current backend already provides deterministic JSON serialization,
+validation, and atomic explicit-path writes for a full `StandardsLibrary`.
+It does not yet provide user-facing import/export commands, merge semantics,
+profile-only file formats, confirmations, or dry-run reporting.
+
+### Mutation Safety Rules
+
+v0.4.0 supports adding, replacing, upserting, retiring, and reactivating
+standard definitions. It does not support destructive deletion of standard
+definitions. Retire/reactivate should be implemented by replacing or
+upserting the definition with `active=false` or `active=true`.
+
+For standards profiles, v0.4.0 supports adding, replacing, and upserting a
+profile. It supports adding standard IDs to a profile and removing standard
+IDs from a profile by replacing or upserting the complete profile. It does
+not support destructive profile deletion unless a later lifecycle model is
+deliberately added.
+
+Destructive deletion is avoided because standards and profiles may be
+referenced by ScoreForm assignments, Quillan assignments or review records,
+future usage ledgers, exports, and historical teacher-controlled data.
+Deletion risks orphaning those records. Retired standards should remain valid
+historical references.
+
+### CLI Command Plan
+
+The accepted v0.4.0 command root is:
+
+```text
+pds-core
+```
+
+The package configuration does not currently expose a `pds-core` console
+script. Adding that console script belongs in the later CLI implementation
+ticket.
+
+The proposed standards command structure is:
+
+```text
+pds-core standards list
+pds-core standards show <standard_id>
+pds-core standards search <query>
+pds-core standards subjects
+pds-core standards sources
+pds-core standards domains
+pds-core standards categories
+pds-core standards validate
+pds-core standards validate-file <path>
+pds-core standards import <path>
+pds-core standards export <path>
+pds-core standards add ...
+pds-core standards replace ...
+pds-core standards upsert ...
+pds-core standards retire <standard_id>
+pds-core standards reactivate <standard_id>
+```
+
+The proposed profiles command structure is:
+
+```text
+pds-core standards profiles list
+pds-core standards profiles show <profile_id>
+pds-core standards profiles validate <profile_id>
+pds-core standards profiles import <path>
+pds-core standards profiles export <profile_id> <path>
+pds-core standards profiles add ...
+pds-core standards profiles replace ...
+pds-core standards profiles upsert ...
+pds-core standards profiles add-standard <profile_id> <standard_id>
+pds-core standards profiles remove-standard <profile_id> <standard_id>
+```
+
+These commands are a plan only. This issue does not implement them.
+
+### Teacher-Facing Menu Workflow Plan
+
+A later teacher-facing menu should expose a standards management menu similar
+to:
+
+```text
+Standards Library Management
+1. Browse standards
+2. Search standards
+3. View standard details
+4. Browse standards profiles
+5. View profile details
+6. Create standards profile
+7. Edit standards profile standards
+8. Import standards library/profile
+9. Export standards library/profile
+10. Validate standards library
+11. Return to previous menu
+```
+
+Menu behavior should be conservative:
+
+* invalid input should not corrupt data;
+* destructive behavior should be avoided;
+* retire/reactivate should require clear confirmation;
+* imports should validate before write;
+* overwrite/replace behavior should require explicit confirmation;
+* menu workflows should reuse the same backend services as CLI workflows;
+* menu workflows should not implement separate standards logic.
+
+This is a workflow plan only. This issue does not implement the menu.
+
+### Module-Facing API Plan
+
+Later module-facing APIs for ScoreForm, Quillan, and future modules should
+expose module-neutral helpers such as:
+
+* load active workspace standards library;
+* list/select standards for a module;
+* list/select profiles for a module;
+* find/format standard display labels;
+* find/format profile display labels;
+* validate selected profile and selected standard IDs;
+* return readable validation errors suitable for CLI/menu use.
+
+Module-facing tests in `pds-core` must avoid importing ScoreForm or Quillan.
+Modules should store durable `standard_id` values, may display teacher-facing
+`code`, `short_name`, and description from the shared library, and should not
+create independent standards libraries. Modules should not silently record
+standards usage merely because an assignment alignment exists. Standards
+usage events are explicit teacher-controlled or module-controlled records,
+not automatic grading judgments.
+
+### Missing Workflow Inventory
+
+The current status of v0.4.0 management workflows is:
+
+* `pds-core` console script: future work;
+* standards list/show/search CLI commands: future work;
+* subject/source/domain/category browsing CLI commands: future work;
+* standards validate CLI commands: future work;
+* standards import/export CLI commands: future work;
+* standards mutation CLI commands: future work;
+* standards profile management CLI commands: future work;
+* teacher-facing standards management menu: future work;
+* module-facing selection API: future work;
+* smoke tests for full management workflow: future work;
+* documentation for teacher-facing workflows: future work.
+
+The backend helpers those workflows can build on are implemented for models,
+validation, serialization, explicit-path storage, canonical workspace storage,
+usage ledgers, usage summaries, browsing/filtering, profile-selection
+validation, and in-memory add/replace/upsert mutation.
+
 ## Explicit Non-Goals
 
 This issue does not implement:
 
 * standards CLI commands;
 * standards import or export CLI commands;
+* standards mutation commands;
+* profile management commands;
 * yearly reset commands;
+* teacher-facing interactive standards menus;
+* module-facing standards selection APIs;
 * ScoreForm standards migration;
 * Quillan standards migration;
 * migration adapters;
@@ -969,7 +1352,9 @@ This issue does not implement:
 * automatic evaluation of whether a standard was met or missed;
 * automatic standards judgment;
 * automatic feedback generation;
-* automatic scoring.
+* automatic scoring;
+* destructive standard deletion;
+* destructive profile deletion.
 
 This contract also does not change assignment schemas, scoring behavior,
 writing review behavior, result exports, workspace behavior, route behavior,
