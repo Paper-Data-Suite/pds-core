@@ -46,6 +46,8 @@ def test_menu_opens_and_exits_via_back(
 
     assert code == 0
     assert "Standards Management" in out
+    assert "6. Create Standard Profile" in out
+    assert "6. Create profile" not in out
     assert "11. Back" in out
     assert "Back." in out
     assert err == ""
@@ -105,6 +107,13 @@ def test_menu_browse_search_and_view_standards(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Browse Standards" in out
+    assert "Filter prompts are optional. Press Enter to skip a filter." in out
+    assert "Use active-only for normal teacher use." in out
+    assert "Search checks standard IDs, display codes, names" in out
+    assert "Enter a word, phrase, display code, or standard_id." in out
+    assert "Enter the durable standard_id, not the display code." in out
+    assert "Use Browse standards or Search standards first" in out
     assert "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1" in out
     assert "njsls-ela:RI.CR.11-12.1 | RI.CR.11-12.1" in out
     assert "standard_id: njsls-ela:RL.CR.11-12.1" in out
@@ -138,6 +147,12 @@ def test_menu_browse_and_view_profiles(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Browse Profiles" in out
+    assert "A standards profile is a reusable group of standards" in out
+    assert "Filter prompts are optional. Press Enter to skip a filter." in out
+    assert "View Profile" in out
+    assert "Enter the durable profile_id." in out
+    assert "Use Browse profiles first if you do not know the ID." in out
     assert "english_12_njsls | English 12 NJSLS" in out
     assert "profile_id: english_12_njsls" in out
     assert "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1" in out
@@ -149,7 +164,10 @@ def test_menu_create_profile_with_standards_and_cancellation(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    base_library = StandardsLibrary(standards=make_cli_library().standards, profiles=())
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
     write_workspace_standards_library(tmp_path, base_library)
     inputs = "\n".join(
         (
@@ -181,6 +199,14 @@ def test_menu_create_profile_with_standards_and_cancellation(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Create Standard Profile" in out
+    assert "A standards profile is a reusable group of standards" in out
+    assert "This does not create new standard definitions." in out
+    assert "Required: durable profile_id." in out
+    assert "Optional: title, description, subject, course, source" in out
+    assert "Enter standard_id values separated by commas" in out
+    assert "Nothing is written until you review the summary and type YES." in out
+    assert "Create Profile" not in out
     assert "Cancelled." in out
     assert "Created standards profile english_12_new." in out
     assert err == ""
@@ -212,7 +238,10 @@ def test_menu_create_profile_rejects_invalid_membership_without_writing(
     standards: str,
     expected_error: str,
 ) -> None:
-    base_library = StandardsLibrary(standards=make_cli_library().standards, profiles=())
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
     write_workspace_standards_library(tmp_path, base_library)
     before = library_file(tmp_path).read_text(encoding="utf-8")
     inputs = "\n".join(
@@ -303,8 +332,24 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert (
+        "This changes which existing standards belong to an existing standards "
+        "profile."
+    ) in out
+    assert "It does not create, edit, or delete standard definitions." in out
+    assert "It does not delete profiles." in out
+    assert "Add Standard to Profile" in out
+    assert "You will enter an existing profile_id and an existing standard_id." in out
+    assert "The standard will be added to that profile only." in out
+    assert "Remove Standard from Profile" in out
+    assert "This removes a standard from a profile only." in out
+    assert "It does not delete the standard definition." in out
+    assert "Replace Profile Standards" in out
+    assert "This replaces only the list of standards in a profile." in out
+    assert (
+        "It preserves the profile title, description, subject, course, and source."
+    ) in out
     assert "Added standard njsls-ela:RL.CR.11-12.1 to profile english_12_local." in out
-    assert "This removes the standard from the profile only." in out
     assert (
         "Removed standard local-writing:evidence_explanation from profile "
         "english_12_local."
@@ -394,6 +439,14 @@ def test_menu_export_library_and_profile_refuse_overwrite_unless_confirmed(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Export writes standards data to JSON files." in out
+    assert "Existing files are not overwritten unless you confirm." in out
+    assert "Export Full Standards Library" in out
+    assert "This writes the active standards library to a JSON file." in out
+    assert "Existing files are refused unless you confirm overwrite." in out
+    assert "Export Standards Profile" in out
+    assert "This writes one standards profile to a standalone JSON file." in out
+    assert "You will need the durable profile_id." in out
     assert out.count("Cancelled.") == 2
     assert err == ""
     assert load_standards_library(library_export) == make_cli_library()
@@ -440,6 +493,12 @@ def test_menu_import_full_library_requires_confirmation_and_validates(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Import reads standards data from JSON files." in out
+    assert "Files are validated before writing." in out
+    assert "Replacement requires confirmation." in out
+    assert "Import Full Standards Library" in out
+    assert "This replaces the active workspace standards library" in out
+    assert "Existing workspace data is not overwritten unless you confirm." in out
     assert "invalid JSON" in err
     assert "Cancelled." in out
     assert before != library_file(tmp_path).read_text(encoding="utf-8")
@@ -453,7 +512,10 @@ def test_menu_import_profile_add_and_replace(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    base_library = StandardsLibrary(standards=make_cli_library().standards, profiles=())
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
     write_workspace_standards_library(tmp_path, base_library)
     add_path = tmp_path / "add-profile.json"
     add_path.write_text(
@@ -492,6 +554,10 @@ def test_menu_import_profile_add_and_replace(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
     assert code == 0
+    assert "Import Standards Profile" in out
+    assert "This imports one standalone profile JSON file." in out
+    assert "Add mode fails if the profile_id already exists." in out
+    assert "Replace mode requires confirmation." in out
     assert f"Added standards profile english_12_njsls from {add_path}." in out
     assert f"Replaced standards profile english_12_njsls from {replace_path}." in out
     assert err == ""
@@ -507,17 +573,61 @@ def test_menu_validate_missing_library_does_not_create_artifacts(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, "10\n\n11\n")
 
     assert code == 0
+    assert "Validate Standards Library" in out
+    assert "This checks the active workspace standards library." in out
+    assert "A missing library is valid and treated as empty." in out
+    assert "This does not write files." in out
     assert "using empty library" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
 
+def test_opening_and_cancelling_guidance_workflows_does_not_create_artifacts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    inputs = "\n".join(
+        (
+            "6",
+            "",
+            "",
+            "8",
+            "1",
+            "",
+            "",
+            "3",
+            "9",
+            "1",
+            "",
+            "",
+            "3",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert "Create Standard Profile" in out
+    assert "Import Full Standards Library" in out
+    assert "Export Full Standards Library" in out
+    assert "Cancelled." in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
+    assert not library_file(tmp_path).exists()
+    assert not (tmp_path / "standards" / "usage").exists()
+    assert not (tmp_path / "ScoreForm").exists()
+    assert not (tmp_path / "Quillan").exists()
+
+
 @pytest.mark.parametrize(
-    ("choice", "forbidden_prompt"),
+    ("choice", "forbidden_prompt", "forbidden_guidance"),
     [
-        ("1", "Status filter"),
-        ("2", "Enter search text"),
-        ("3", "Enter durable standard_id"),
+        ("1", "Status filter", "Browse Standards"),
+        ("2", "Enter search text", "Search Standards"),
+        ("3", "Enter durable standard_id", "View Standard"),
     ],
 )
 def test_empty_standards_actions_return_before_irrelevant_prompts(
@@ -526,12 +636,14 @@ def test_empty_standards_actions_return_before_irrelevant_prompts(
     capsys: pytest.CaptureFixture[str],
     choice: str,
     forbidden_prompt: str,
+    forbidden_guidance: str,
 ) -> None:
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, f"{choice}\n\n11\n")
 
     assert code == 0
     assert "No standards found." in out
     assert forbidden_prompt not in out
+    assert forbidden_guidance not in out
     assert "Press Enter to continue..." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -541,10 +653,10 @@ def test_empty_standards_actions_return_before_irrelevant_prompts(
 
 
 @pytest.mark.parametrize(
-    ("choice", "forbidden_prompt"),
+    ("choice", "forbidden_prompt", "forbidden_guidance"),
     [
-        ("4", "Optional source filter"),
-        ("5", "Enter durable profile_id"),
+        ("4", "Optional source filter", "Browse Profiles"),
+        ("5", "Enter durable profile_id", "View Profile"),
     ],
 )
 def test_empty_profile_actions_return_before_irrelevant_prompts(
@@ -553,12 +665,14 @@ def test_empty_profile_actions_return_before_irrelevant_prompts(
     capsys: pytest.CaptureFixture[str],
     choice: str,
     forbidden_prompt: str,
+    forbidden_guidance: str,
 ) -> None:
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, f"{choice}\n\n11\n")
 
     assert code == 0
     assert "No standards profiles found." in out
     assert forbidden_prompt not in out
+    assert forbidden_guidance not in out
     assert "Press Enter to continue..." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -576,6 +690,21 @@ def test_empty_profile_edit_does_not_enter_submenu(
     assert "Edit Profile Standards" not in out
     assert "Press Enter to continue..." in out
     assert err == ""
+
+
+def test_empty_export_profile_returns_before_profile_id_prompt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "9\n2\n\n3\n11\n")
+
+    assert code == 0
+    assert "Export Standards Profile" not in out
+    assert "No standards profiles found." in out
+    assert "Enter durable profile_id" not in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_standards_menu_and_nested_menus_clear_before_display(
