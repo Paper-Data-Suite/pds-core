@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from pds_core.cli import main
+from pds_core.cli_support import screen
 from pds_core.standards import (
     StandardsLibrary,
     StandardsProfile,
@@ -79,6 +80,7 @@ def test_menu_browse_search_and_view_standards(
             "",
             "",
             "",
+            "",
             "2",
             "informational",
             "3",
@@ -88,10 +90,13 @@ def test_menu_browse_search_and_view_standards(
             "",
             "",
             "",
+            "",
             "3",
             "njsls-ela:RL.CR.11-12.1",
+            "",
             "3",
             "missing:standard",
+            "",
             "11",
             "",
         )
@@ -118,10 +123,13 @@ def test_menu_browse_and_view_profiles(
             "",
             "",
             "",
+            "",
             "5",
             "english_12_njsls",
+            "",
             "5",
             "missing_profile",
+            "",
             "11",
             "",
         )
@@ -154,6 +162,7 @@ def test_menu_create_profile_with_standards_and_cancellation(
             "",
             "",
             "no",
+            "",
             "6",
             "english_12_new",
             "English 12 New",
@@ -163,6 +172,7 @@ def test_menu_create_profile_with_standards_and_cancellation(
             "NJSLS-ELA",
             "njsls-ela:RI.CR.11-12.1, njsls-ela:RL.CR.11-12.1",
             "YES",
+            "",
             "11",
             "",
         )
@@ -215,6 +225,7 @@ def test_menu_create_profile_rejects_invalid_membership_without_writing(
             "",
             "",
             standards,
+            "",
             "11",
             "",
         )
@@ -239,6 +250,7 @@ def test_menu_create_profile_rejects_duplicate_profile_id_without_writing(
         (
             "6",
             "english_12_njsls",
+            "",
             "",
             "",
             "",
@@ -271,14 +283,17 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
             "english_12_local",
             "njsls-ela:RL.CR.11-12.1",
             "YES",
+            "",
             "2",
             "english_12_local",
             "local-writing:evidence_explanation",
             "YES",
+            "",
             "3",
             "english_12_njsls",
             "local-writing:evidence_explanation",
             "YES",
+            "",
             "4",
             "11",
             "",
@@ -326,7 +341,9 @@ def test_menu_membership_failures_do_not_write(
 ) -> None:
     write_workspace_standards_library(tmp_path, make_cli_library())
     before = library_file(tmp_path).read_text(encoding="utf-8")
-    inputs = "\n".join(("7", submenu_choice, profile_id, standard_id, "4", "11", ""))
+    inputs = "\n".join(
+        ("7", submenu_choice, profile_id, standard_id, "", "4", "11", "")
+    )
 
     code, _out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
@@ -351,19 +368,23 @@ def test_menu_export_library_and_profile_refuse_overwrite_unless_confirmed(
             "1",
             str(library_export),
             "no",
+            "",
             "1",
             str(library_export),
             "YES",
             "YES",
+            "",
             "2",
             "english_12_njsls",
             str(profile_export),
             "no",
+            "",
             "2",
             "english_12_njsls",
             str(profile_export),
             "YES",
             "YES",
+            "",
             "3",
             "11",
             "",
@@ -400,13 +421,16 @@ def test_menu_import_full_library_requires_confirmation_and_validates(
             "8",
             "1",
             str(invalid_path),
+            "",
             "1",
             str(source_path),
             "no",
+            "",
             "1",
             str(source_path),
             "YES",
             "YES",
+            "",
             "3",
             "11",
             "",
@@ -453,10 +477,12 @@ def test_menu_import_profile_add_and_replace(
             str(add_path),
             "1",
             "YES",
+            "",
             "2",
             str(replace_path),
             "2",
             "YES",
+            "",
             "3",
             "11",
             "",
@@ -478,12 +504,133 @@ def test_menu_validate_missing_library_does_not_create_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "10\n11\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "10\n\n11\n")
 
     assert code == 0
     assert "using empty library" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    ("choice", "forbidden_prompt"),
+    [
+        ("1", "Status filter"),
+        ("2", "Enter search text"),
+        ("3", "Enter durable standard_id"),
+    ],
+)
+def test_empty_standards_actions_return_before_irrelevant_prompts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    choice: str,
+    forbidden_prompt: str,
+) -> None:
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, f"{choice}\n\n11\n")
+
+    assert code == 0
+    assert "No standards found." in out
+    assert forbidden_prompt not in out
+    assert "Press Enter to continue..." in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
+    assert not (tmp_path / "standards" / "usage").exists()
+    assert not (tmp_path / "ScoreForm").exists()
+    assert not (tmp_path / "Quillan").exists()
+
+
+@pytest.mark.parametrize(
+    ("choice", "forbidden_prompt"),
+    [
+        ("4", "Optional source filter"),
+        ("5", "Enter durable profile_id"),
+    ],
+)
+def test_empty_profile_actions_return_before_irrelevant_prompts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    choice: str,
+    forbidden_prompt: str,
+) -> None:
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, f"{choice}\n\n11\n")
+
+    assert code == 0
+    assert "No standards profiles found." in out
+    assert forbidden_prompt not in out
+    assert "Press Enter to continue..." in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_empty_profile_edit_does_not_enter_submenu(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "7\n\n11\n")
+
+    assert code == 0
+    assert "No standards profiles found." in out
+    assert "Edit Profile Standards" not in out
+    assert "Press Enter to continue..." in out
+    assert err == ""
+
+
+def test_standards_menu_and_nested_menus_clear_before_display(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+
+    code, out, err = run_menu(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "7\n4\n8\n3\n9\n3\n11\n",
+    )
+
+    assert code == 0
+    assert err == ""
+    assert "[clear]\nStandards Management" in out
+    assert "[clear]\nEdit Profile Standards" in out
+    assert "[clear]\nImport Standards Data" in out
+    assert "[clear]\nExport Standards Data" in out
+    assert out.count("[clear]") >= 4
+
+
+def test_results_pause_before_returning_to_clean_menu(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+
+    code, out, err = run_menu(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "\n".join(("1", "3", "", "", "", "", "", "", "", "11", "")),
+    )
+
+    assert code == 0
+    assert err == ""
+    result_index = out.index("njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1")
+    pause_index = out.index("Press Enter to continue...")
+    next_menu_index = out.index("[clear]\nStandards Management", pause_index)
+    assert result_index < pause_index < next_menu_index
 
 
 def test_menu_invalid_existing_library_reports_handled_error(

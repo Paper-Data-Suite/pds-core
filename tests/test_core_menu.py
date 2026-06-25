@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from pds_core.cli import main as pds_core_main
+from pds_core.cli_support import screen
 from pds_core.core_menu import main
 
 
@@ -86,12 +87,32 @@ def test_core_menu_delegates_to_existing_standards_menu(
     assert list(tmp_path.iterdir()) == []
 
 
+def test_core_menu_clears_before_display_and_after_standards_return(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n11\n2\n")
+
+    assert code == 0
+    assert err == ""
+    assert out.count("[clear]\nPaper Data Suite Core") == 2
+    assert "[clear]\nStandards Management" in out
+    assert out.rindex("[clear]\nPaper Data Suite Core") > out.index("Back.")
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_core_workspace_override_reaches_standards_validation_without_artifacts(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n10\n11\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n10\n\n11\n2\n")
 
     assert code == 0
     assert "using empty library" in out

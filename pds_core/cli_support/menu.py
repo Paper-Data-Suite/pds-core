@@ -9,6 +9,7 @@ from pathlib import Path
 from collections.abc import Callable
 from typing import TextIO
 
+from pds_core.cli_support import screen
 from pds_core.cli_support.profiles import (
     handle_profile_export,
     handle_profile_import,
@@ -76,16 +77,16 @@ class StandardsMenu:
 
     def run(self) -> int:
         actions = {
-            "1": self.browse_standards,
-            "2": self.search_standards,
-            "3": self.view_standard,
-            "4": self.browse_profiles,
-            "5": self.view_profile,
-            "6": self.create_profile,
-            "7": self.edit_profile_standards,
-            "8": self.import_standards_data,
-            "9": self.export_standards_data,
-            "10": self.validate_standards_library,
+            "1": (self.browse_standards, True),
+            "2": (self.search_standards, True),
+            "3": (self.view_standard, True),
+            "4": (self.browse_profiles, True),
+            "5": (self.view_profile, True),
+            "6": (self.create_profile, True),
+            "7": (self.edit_profile_standards, False),
+            "8": (self.import_standards_data, False),
+            "9": (self.export_standards_data, False),
+            "10": (self.validate_standards_library, True),
         }
         while True:
             self._print_menu(
@@ -112,15 +113,24 @@ class StandardsMenu:
             if action is None:
                 print("Invalid menu choice. Please try again.", file=self.stdout)
                 continue
-            action()
+            action_func, pause_after = action
+            action_func()
+            if pause_after:
+                self._pause()
 
     def browse_standards(self) -> None:
+        if not self._has_standards():
+            print("No standards found.", file=self.stdout)
+            return
         filters = self._standard_filter_args()
         if filters is None:
             return
         handle_standards_list(filters, self.library, self.stdout, self.stderr)
 
     def search_standards(self) -> None:
+        if not self._has_standards():
+            print("No standards found.", file=self.stdout)
+            return
         query = self._required_prompt("Enter search text: ")
         if query is None:
             return
@@ -131,6 +141,9 @@ class StandardsMenu:
         handle_standards_search(filters, self.library, self.stdout, self.stderr)
 
     def view_standard(self) -> None:
+        if not self._has_standards():
+            print("No standards found.", file=self.stdout)
+            return
         standard_id = self._required_prompt(
             "Enter durable standard_id, not display code: "
         )
@@ -140,12 +153,18 @@ class StandardsMenu:
         handle_standards_show(command_args, self.library, self.stdout, self.stderr)
 
     def browse_profiles(self) -> None:
+        if not self._has_profiles():
+            print("No standards profiles found.", file=self.stdout)
+            return
         filters = self._profile_filter_args()
         if filters is None:
             return
         handle_standards_profiles(filters, self.library, self.stdout, self.stderr)
 
     def view_profile(self) -> None:
+        if not self._has_profiles():
+            print("No standards profiles found.", file=self.stdout)
+            return
         profile_id = self._required_prompt("Enter durable profile_id: ")
         if profile_id is None:
             return
@@ -182,6 +201,10 @@ class StandardsMenu:
             print(f"Created standards profile {profile.profile_id}.", file=self.stdout)
 
     def edit_profile_standards(self) -> None:
+        if not self._has_profiles():
+            print("No standards profiles found.", file=self.stdout)
+            self._pause()
+            return
         actions = {
             "1": self.add_standard_to_profile,
             "2": self.remove_standard_from_profile,
@@ -206,6 +229,7 @@ class StandardsMenu:
                 print("Invalid menu choice. Please try again.", file=self.stdout)
                 continue
             action()
+            self._pause()
 
     def add_standard_to_profile(self) -> None:
         profile = self._prompt_existing_profile()
@@ -621,9 +645,10 @@ class StandardsMenu:
                 print("Invalid menu choice. Please try again.", file=self.stdout)
                 continue
             action()
+            self._pause()
 
     def _print_menu(self, title: str, lines: tuple[str, ...]) -> None:
-        print("", file=self.stdout)
+        screen.clear_screen(self.stdout)
         print(title, file=self.stdout)
         print("", file=self.stdout)
         for line in lines:
@@ -682,3 +707,17 @@ class StandardsMenu:
 
     def _cancelled(self) -> None:
         print("Cancelled.", file=self.stdout)
+
+    def _pause(self) -> None:
+        print("", file=self.stdout)
+        print("Press Enter to continue...", end="", file=self.stdout)
+        line = self.stdin.readline()
+        if line == "":
+            print("", file=self.stdout)
+            return
+
+    def _has_standards(self) -> bool:
+        return bool(self.library.standards)
+
+    def _has_profiles(self) -> bool:
+        return bool(self.library.profiles)
