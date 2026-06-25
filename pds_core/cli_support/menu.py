@@ -10,6 +10,7 @@ from collections.abc import Callable
 from typing import TextIO
 
 from pds_core.cli_support import screen
+from pds_core.cli_support.context import StandardFilters
 from pds_core.cli_support.profiles import (
     handle_profile_export,
     handle_profile_import,
@@ -28,6 +29,7 @@ from pds_core.cli_support.standards_read import (
     handle_standards_profiles,
     handle_standards_search,
     handle_standards_show,
+    matching_standards,
     parse_category_path,
 )
 from pds_core.standards import (
@@ -37,6 +39,7 @@ from pds_core.standards import (
     StandardsReadError,
     StandardsValidationError,
     StandardsWriteError,
+    add_standard_definition,
     add_standards_profile,
     find_standard_definition,
     find_standards_profile,
@@ -59,6 +62,8 @@ DASH_TRANSLATION = str.maketrans(
         "\u2014": "-",
     }
 )
+
+_DESCRIPTION_PREVIEW_LENGTH = 120
 
 
 def handle_standards_menu(
@@ -95,13 +100,14 @@ class StandardsMenu:
             "1": (self.browse_standards, True),
             "2": (self.search_standards, True),
             "3": (self.view_standard, True),
-            "4": (self.browse_profiles, True),
-            "5": (self.view_profile, True),
-            "6": (self.create_profile, True),
-            "7": (self.edit_profile_standards, False),
-            "8": (self.import_standards_data, False),
-            "9": (self.export_standards_data, False),
-            "10": (self.validate_standards_library, True),
+            "4": (self.add_standard, True),
+            "5": (self.browse_profiles, True),
+            "6": (self.view_profile, True),
+            "7": (self.create_profile, True),
+            "8": (self.edit_profile_standards, False),
+            "9": (self.import_standards_data, False),
+            "10": (self.export_standards_data, False),
+            "11": (self.validate_standards_library, True),
         }
         while True:
             self._print_menu(
@@ -110,18 +116,19 @@ class StandardsMenu:
                     "1. Browse standards",
                     "2. Search standards",
                     "3. View standard",
-                    "4. Browse profiles",
-                    "5. View profile",
-                    "6. Create Standard Profile",
-                    "7. Edit profile standards",
-                    "8. Import standards data",
-                    "9. Export standards data",
-                    "10. Validate standards library",
-                    "11. Back",
+                    "4. Add standard",
+                    "5. Browse profiles",
+                    "6. View profile",
+                    "7. Create Standard Profile",
+                    "8. Edit profile standards",
+                    "9. Import standards data",
+                    "10. Export standards data",
+                    "11. Validate standards library",
+                    "12. Back",
                 ),
             )
             choice = self._prompt("Choose an option: ")
-            if choice is None or choice == "11":
+            if choice is None or choice == "12":
                 print("Back.", file=self.stdout)
                 return 0
             action = actions.get(choice)
@@ -188,6 +195,133 @@ class StandardsMenu:
         command_args = argparse.Namespace(standard_id=standard_id)
         handle_standards_show(command_args, self.library, self.stdout, self.stderr)
 
+    def add_standard(self) -> None:
+        standard_id = self._required_guided_prompt(
+            "Add Standard",
+            (
+                "Enter Durable Standard ID.",
+                "Use lowercase source prefix plus display code.",
+                "Example: njsls-ela:L.VI.11-12.4",
+                "Leave blank to cancel.",
+            ),
+            clear=True,
+        )
+        if standard_id is None:
+            return
+        standard_id = normalize_standard_id_entry(standard_id)
+        if not self._valid_teacher_standard_id(standard_id):
+            print(
+                "Error: standard_id must include a source prefix and display code, "
+                "for example njsls-ela:L.VI.11-12.4.",
+                file=self.stderr,
+            )
+            return
+        if find_standard_definition(self.library, standard_id) is not None:
+            print(f"Error: duplicate standard_id: {standard_id}", file=self.stderr)
+            return
+
+        code = self._required_guided_prompt(
+            None,
+            (
+                "Enter Display Code.",
+                "Example: L.VI.11-12.4",
+                "Leave blank to cancel.",
+            ),
+        )
+        if code is None:
+            return
+        short_name = self._optional_guided_prompt(
+            None,
+            (
+                "Enter Short Name.",
+                "Example: Figurative Language and Word Relationships",
+                "Leave blank to use the display code.",
+            ),
+        )
+        description = self._required_guided_prompt(
+            None,
+            (
+                "Enter Standard Description.",
+                "Paste or type the full standard statement.",
+                "Example: Demonstrate understanding of figurative language, "
+                "word relationships, and nuances in word meanings.",
+                "Leave blank to cancel.",
+            ),
+        )
+        if description is None:
+            return
+        source = self._optional_guided_prompt(
+            None,
+            (
+                "Enter Source.",
+                "Example: NJSLS-ELA 2023",
+                "Leave blank to use Unspecified.",
+            ),
+        )
+        subject = self._optional_guided_prompt(
+            None,
+            (
+                "Enter Subject.",
+                "Example: English Language Arts",
+                "Leave blank for no subject.",
+            ),
+        )
+        course = self._optional_guided_prompt(
+            None,
+            ("Enter Course.", "Example: English 12", "Leave blank for no course."),
+        )
+        domain = self._optional_guided_prompt(
+            None,
+            (
+                "Enter Domain or Category.",
+                "Example: Language",
+                "Leave blank for no domain/category.",
+            ),
+        )
+        try:
+            definition = StandardDefinition(
+                standard_id=standard_id,
+                code=code,
+                source=source or "Unspecified",
+                short_name=short_name or code,
+                description=description,
+                subject=subject,
+                course=course,
+                domain=domain,
+                category_path=(domain,) if domain else (),
+                active=True,
+            )
+        except StandardsValidationError as error:
+            print(f"Error: {error}", file=self.stderr)
+            return
+
+        subparts = self._collect_standard_subparts(definition)
+        if subparts is None:
+            return
+
+        try:
+            updated_library = add_standard_definition(self.library, definition)
+            for subpart in subparts:
+                updated_library = add_standard_definition(updated_library, subpart)
+        except StandardsValidationError as error:
+            print(f"Error: {error}", file=self.stderr)
+            return
+
+        self._print_standard_review(definition, subparts)
+        if not self._guided_confirm(
+            (
+                "Type YES to create this standard.",
+                "Anything else cancels.",
+            )
+        ):
+            self._cancelled()
+            return
+        if self._write_library(updated_library):
+            self.library = updated_library
+            print(f"Created standard {definition.standard_id}.", file=self.stdout)
+            for subpart in subparts:
+                print(f"Created standard {subpart.standard_id}.", file=self.stdout)
+
     def browse_profiles(self) -> None:
         if not self._has_profiles():
             screen.clear_screen(self.stdout)
@@ -220,6 +354,8 @@ class StandardsMenu:
         handle_profile_show(command_args, self.library, self.stdout, self.stderr)
 
     def create_profile(self) -> None:
+        if not self._has_standards() and not self._empty_standards_profile_choice():
+            return
         profile_id = self._required_guided_prompt(
             "Create Standard Profile",
             (
@@ -234,25 +370,29 @@ class StandardsMenu:
         if profile_id is None:
             return
         metadata = self._profile_metadata()
-        while True:
-            standards = self._standard_ids_prompt()
-            if standards is None:
-                return
-            if not self._print_standard_membership_errors(standards):
-                continue
-
-            command_args = argparse.Namespace(
-                profile_id=profile_id,
-                standards=list(standards),
-                **metadata,
+        standards = (
+            ()
+            if not self._has_standards()
+            else self._select_standard_ids(
+                "Select Standards for This Profile",
+                available=self._filtered_available_standards(),
+                empty_message="Leave blank for an empty profile.",
             )
-            try:
-                profile = standards_profile_from_args(profile_id, command_args)
-                updated_library = add_standards_profile(self.library, profile)
-            except StandardsValidationError as error:
-                print(f"Error: {error}", file=self.stderr)
-                return
-            break
+        )
+        if standards is None:
+            return
+
+        command_args = argparse.Namespace(
+            profile_id=profile_id,
+            standards=list(standards),
+            **metadata,
+        )
+        try:
+            profile = standards_profile_from_args(profile_id, command_args)
+            updated_library = add_standards_profile(self.library, profile)
+        except StandardsValidationError as error:
+            print(f"Error: {error}", file=self.stderr)
+            return
 
         self._print_standard_profile_review(profile)
         if not self._guided_confirm(
@@ -271,6 +411,15 @@ class StandardsMenu:
         if not self._has_profiles():
             screen.clear_screen(self.stdout)
             print("No standards profiles found.", file=self.stdout)
+            self._pause()
+            return
+        if not self._has_standards():
+            screen.clear_screen(self.stdout)
+            print("No standards exist yet.", file=self.stdout)
+            print(
+                "Create standards before editing profile membership.",
+                file=self.stdout,
+            )
             self._pause()
             return
         actions = {
@@ -318,35 +467,28 @@ class StandardsMenu:
         )
         if profile is None:
             return
-        definition = self._prompt_existing_standard(
-            None,
-            (
-                "Enter Durable Standard ID to Add.",
-                "The standard must already exist in the standards library.",
-                *STANDARD_ID_GUIDANCE,
-                STANDARD_ID_COPY_GUIDANCE,
-                "Leave blank to cancel.",
-            ),
+        available = tuple(
+            definition
+            for definition in self.library.standards
+            if definition.standard_id not in profile.standards
         )
-        if definition is None:
-            return
-        if definition.standard_id in profile.standards:
-            print(
-                "Error: profile already contains standard "
-                f"{definition.standard_id}: {profile.profile_id}",
-                file=self.stderr,
-            )
+        standards = self._select_standard_ids(
+            "Available Standards Not In This Profile",
+            available=available,
+            empty_message="Leave blank to cancel.",
+            include_filters=False,
+        )
+        if standards is None or not standards:
             return
 
         updated_profile = dataclass_replace(
             profile,
-            standards=profile.standards + (definition.standard_id,),
+            standards=profile.standards + standards,
         )
         self._replace_profile_membership(
             updated_profile,
-            f"Add standard {definition.standard_id} to profile {profile.profile_id}?",
-            f"Added standard {definition.standard_id} to profile "
-            f"{profile.profile_id}.",
+            f"Add selected standards to profile {profile.profile_id}?",
+            f"Added {len(standards)} standard(s) to profile {profile.profile_id}.",
         )
 
     def remove_standard_from_profile(self) -> None:
@@ -362,37 +504,31 @@ class StandardsMenu:
         )
         if profile is None:
             return
-        standard_id = self._required_guided_prompt(
-            None,
-            (
-                "Enter Durable Standard ID to Remove.",
-                "The standard must already belong to this profile.",
-                *STANDARD_ID_GUIDANCE,
-                STANDARD_ID_COPY_GUIDANCE,
-                "Leave blank to cancel.",
-            ),
+        current = tuple(
+            definition
+            for standard_id in profile.standards
+            for definition in (find_standard_definition(self.library, standard_id),)
+            if definition is not None
         )
-        if standard_id is None:
-            return
-        standard_id = normalize_standard_id_entry(standard_id)
-        if standard_id not in profile.standards:
-            print(
-                "Error: profile does not contain standard "
-                f"{standard_id}: {profile.profile_id}",
-                file=self.stderr,
-            )
+        standards = self._select_standard_ids(
+            "Current Standards",
+            available=current,
+            empty_message="Leave blank to cancel.",
+            include_filters=False,
+        )
+        if standards is None or not standards:
             return
 
         updated_profile = dataclass_replace(
             profile,
             standards=tuple(
-                existing for existing in profile.standards if existing != standard_id
+                existing for existing in profile.standards if existing not in standards
             ),
         )
         self._replace_profile_membership(
             updated_profile,
-            f"Remove standard {standard_id} from profile {profile.profile_id}?",
-            f"Removed standard {standard_id} from profile {profile.profile_id}.",
+            f"Remove selected standards from profile {profile.profile_id}?",
+            f"Removed {len(standards)} standard(s) from profile {profile.profile_id}.",
         )
 
     def replace_profile_standards(self) -> None:
@@ -409,14 +545,10 @@ class StandardsMenu:
         )
         if profile is None:
             return
-        standards = self._standard_ids_prompt(
-            (
-                "Enter New Standard IDs.",
-                *STANDARD_ID_GUIDANCE,
-                "Separate multiple IDs with commas.",
-                STANDARD_ID_COPY_GUIDANCE,
-                "Leave blank for no standards.",
-            )
+        standards = self._select_standard_ids(
+            "Select Replacement Standards",
+            available=self._filtered_available_standards(),
+            empty_message="Leave blank for no standards.",
         )
         if standards is None:
             return
@@ -730,6 +862,259 @@ class StandardsMenu:
             print(f"Error: {error}", file=self.stderr)
             return False
         return True
+
+    def _empty_standards_profile_choice(self) -> bool:
+        self._print_menu(
+            "Create Standard Profile",
+            (
+                "No standards exist yet.",
+                "",
+                "Profiles are collections of existing standards.",
+                "1. Add Standard",
+                "2. Create empty profile",
+                "3. Back",
+            ),
+        )
+        choice = self._prompt("> ")
+        if choice == "1":
+            self.add_standard()
+            return False
+        if choice == "2":
+            return True
+        print("Back.", file=self.stdout)
+        return False
+
+    def _filtered_available_standards(self) -> tuple[StandardDefinition, ...]:
+        filters = StandardFilters(
+            source=None,
+            subject=self._optional_guided_prompt(
+                "Filter Standards for Profile Selection",
+                (
+                    "Enter subject filter.",
+                    "Example: English Language Arts",
+                    "Leave blank for any subject.",
+                ),
+            ),
+            course=self._optional_guided_prompt(
+                None,
+                (
+                    "Enter course filter.",
+                    "Example: English 12",
+                    "Leave blank for any course.",
+                ),
+            ),
+            domain=self._optional_guided_prompt(
+                None,
+                (
+                    "Enter domain/category filter.",
+                    "Example: Language",
+                    "Leave blank for any domain/category.",
+                ),
+            ),
+            category_path_prefix=(),
+            available_module=None,
+            active=None,
+        )
+        return matching_standards(self.library, filters)
+
+    def _select_standard_ids(
+        self,
+        title: str,
+        *,
+        available: tuple[StandardDefinition, ...],
+        empty_message: str,
+        include_filters: bool = True,
+    ) -> tuple[str, ...] | None:
+        del include_filters
+        if not available:
+            print(title, file=self.stdout)
+            print("", file=self.stdout)
+            print("No matching standards found.", file=self.stdout)
+            print(empty_message, file=self.stdout)
+            raw = self._prompt("> ")
+            if raw is None:
+                self._cancelled()
+                return None
+            return ()
+
+        while True:
+            print(title, file=self.stdout)
+            print("", file=self.stdout)
+            self._print_numbered_standards(available)
+            print("Enter numbers separated by commas.", file=self.stdout)
+            print("Example: 1,2,3", file=self.stdout)
+            print(empty_message, file=self.stdout)
+            raw = self._prompt("> ")
+            if raw is None:
+                self._cancelled()
+                return None
+            if raw == "":
+                return ()
+            try:
+                indexes = self._parse_number_selection(raw, len(available))
+            except ValueError as error:
+                print(f"Invalid selection: {error}", file=self.stdout)
+                continue
+            return tuple(available[index - 1].standard_id for index in indexes)
+
+    def _parse_number_selection(self, raw: str, maximum: int) -> tuple[int, ...]:
+        selections: list[int] = []
+        for part in raw.split(","):
+            value = part.strip()
+            if not value:
+                continue
+            if not value.isdecimal():
+                raise ValueError(f"{value!r} is not a menu number.")
+            number = int(value)
+            if number < 1 or number > maximum:
+                raise ValueError(f"{number} is outside 1-{maximum}.")
+            if number not in selections:
+                selections.append(number)
+        if not selections:
+            raise ValueError("enter at least one number or leave blank.")
+        return tuple(selections)
+
+    def _print_numbered_standards(
+        self,
+        definitions: tuple[StandardDefinition, ...],
+    ) -> None:
+        for index, definition in enumerate(definitions, start=1):
+            print(
+                f"{index}. {definition.code} - {definition.short_name}",
+                file=self.stdout,
+            )
+            print(
+                f"   {self._description_preview(definition.description)}",
+                file=self.stdout,
+            )
+            metadata = " | ".join(
+                value
+                for value in (
+                    definition.source,
+                    definition.subject,
+                    definition.course,
+                    definition.domain,
+                )
+                if value
+            )
+            if metadata:
+                print(f"   {metadata}", file=self.stdout)
+            print("", file=self.stdout)
+
+    def _collect_standard_subparts(
+        self,
+        parent: StandardDefinition,
+    ) -> tuple[StandardDefinition, ...] | None:
+        if not self._guided_confirm(
+            (
+                "Add lettered subparts for this standard?",
+                "Type YES to add subparts.",
+                "Anything else skips.",
+            )
+        ):
+            return ()
+
+        subparts: list[StandardDefinition] = []
+        while True:
+            letter = self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Subpart Letter.",
+                    "Example: A",
+                    "Leave blank to stop adding subparts.",
+                ),
+            )
+            if letter is None:
+                return tuple(subparts)
+            letter = letter.strip().upper()
+            if not letter.isalpha() or len(letter) != 1:
+                print("Error: subpart letter must be one letter.", file=self.stderr)
+                continue
+            subpart_id = f"{parent.standard_id}.{letter}"
+            if find_standard_definition(self.library, subpart_id) is not None or any(
+                subpart.standard_id == subpart_id for subpart in subparts
+            ):
+                print(
+                    f"Error: duplicate subpart standard_id: {subpart_id}",
+                    file=self.stderr,
+                )
+                continue
+            short_name = self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Subpart Short Name.",
+                    "Example: Figures of Speech",
+                    f"Leave blank to use Subpart {letter}.",
+                ),
+            )
+            description = self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Subpart Description.",
+                    "Example: Interpret figures of speech in context and "
+                    "analyze their role in the text.",
+                    "Leave blank to cancel this subpart.",
+                ),
+            )
+            if description is None:
+                print("Subpart cancelled.", file=self.stdout)
+                continue
+            try:
+                subparts.append(
+                    StandardDefinition(
+                        standard_id=subpart_id,
+                        code=f"{parent.code}.{letter}",
+                        source=parent.source,
+                        short_name=short_name or f"Subpart {letter}",
+                        description=description,
+                        subject=parent.subject,
+                        course=parent.course,
+                        grade_band=parent.grade_band,
+                        domain=parent.domain,
+                        category_path=parent.category_path,
+                        tags=parent.tags,
+                        active=parent.active,
+                        available_modules=parent.available_modules,
+                    )
+                )
+            except StandardsValidationError as error:
+                print(f"Error: {error}", file=self.stderr)
+        return tuple(subparts)
+
+    def _print_standard_review(
+        self,
+        definition: StandardDefinition,
+        subparts: tuple[StandardDefinition, ...],
+    ) -> None:
+        print("Review Standard", file=self.stdout)
+        print("", file=self.stdout)
+        print(f"Standard ID: {definition.standard_id}", file=self.stdout)
+        print(f"Display Code: {definition.code}", file=self.stdout)
+        print(f"Short Name: {definition.short_name}", file=self.stdout)
+        print(f"Description: {definition.description}", file=self.stdout)
+        print(f"Source: {definition.source}", file=self.stdout)
+        print(f"Subject: {definition.subject or '-'}", file=self.stdout)
+        print(f"Course: {definition.course or '-'}", file=self.stdout)
+        print(f"Domain/Category: {definition.domain or '-'}", file=self.stdout)
+        print(f"Active: {'yes' if definition.active else 'no'}", file=self.stdout)
+        if subparts:
+            print("", file=self.stdout)
+            print("Subparts:", file=self.stdout)
+            for subpart in subparts:
+                print(
+                    f"{subpart.code} - {subpart.short_name}: "
+                    f"{subpart.description}",
+                    file=self.stdout,
+                )
+
+    def _valid_teacher_standard_id(self, standard_id: str) -> bool:
+        prefix, separator, code = standard_id.partition(":")
+        return bool(separator and prefix.strip() and code.strip())
+
+    def _description_preview(self, description: str) -> str:
+        if len(description) <= _DESCRIPTION_PREVIEW_LENGTH:
+            return description
+        return f"{description[: _DESCRIPTION_PREVIEW_LENGTH - 3].rstrip()}..."
 
     def _standard_filter_args(self) -> argparse.Namespace | None:
         active_choice = self._guided_prompt(
@@ -1109,6 +1494,7 @@ class StandardsMenu:
         print(action, file=self.stdout)
         print(f"profile_id: {profile.profile_id}", file=self.stdout)
         print(f"title: {profile.title or '-'}", file=self.stdout)
+        print(f"description: {profile.description or '-'}", file=self.stdout)
         print(f"subject: {profile.subject or '-'}", file=self.stdout)
         print(f"course: {profile.course or '-'}", file=self.stdout)
         print(f"source: {profile.source or '-'}", file=self.stdout)
@@ -1134,6 +1520,22 @@ class StandardsMenu:
         print(f"Course: {profile.course or '-'}", file=self.stdout)
         print(f"Source: {profile.source or '-'}", file=self.stdout)
         print(f"Standards: {len(profile.standards)}", file=self.stdout)
+        if profile.standards:
+            print("", file=self.stdout)
+            print("Selected Standards:", file=self.stdout)
+            for index, standard_id in enumerate(profile.standards, start=1):
+                definition = find_standard_definition(self.library, standard_id)
+                if definition is None:
+                    print(f"{index}. {standard_id} - unresolved", file=self.stdout)
+                    continue
+                print(
+                    f"{index}. {definition.code} - {definition.short_name}",
+                    file=self.stdout,
+                )
+                print(
+                    f"   {self._description_preview(definition.description)}",
+                    file=self.stdout,
+                )
 
     def _prompt(self, prompt: str) -> str | None:
         print(prompt, end="", file=self.stdout, flush=True)

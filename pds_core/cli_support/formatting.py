@@ -37,6 +37,7 @@ def compact_standard_row(definition: StandardDefinition) -> str:
             definition.standard_id,
             definition.code,
             definition.short_name,
+            definition.description,
             definition.source,
             display(definition.subject),
             display(definition.course),

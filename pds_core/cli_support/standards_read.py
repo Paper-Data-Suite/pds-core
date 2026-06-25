@@ -161,6 +161,15 @@ def handle_standards_show(
     )
     for label, value in fields:
         print(f"{label}: {display(value)}", file=stdout)
+
+    child_standards = child_standard_definitions(library, definition)
+    if child_standards:
+        print("subparts:", file=stdout)
+        for child in child_standards:
+            print(
+                f"{child.code}. {child.short_name} - {child.description}",
+                file=stdout,
+            )
     return 0
 
 
@@ -300,3 +309,24 @@ def _search_text(definition: StandardDefinition) -> str:
         " ".join(definition.tags),
     )
     return " ".join(part for part in parts if part is not None).casefold()
+
+
+def child_standard_definitions(
+    library: StandardsLibrary,
+    parent: StandardDefinition,
+) -> tuple[StandardDefinition, ...]:
+    """Return standards represented as ID/code subparts of parent."""
+    standard_prefix = f"{parent.standard_id}."
+    code_prefix = f"{parent.code}."
+    return tuple(
+        sorted(
+            (
+                definition
+                for definition in library.standards
+                if definition.standard_id.startswith(standard_prefix)
+                and definition.code.startswith(code_prefix)
+                and definition.standard_id != parent.standard_id
+            ),
+            key=lambda definition: definition.standard_id,
+        )
+    )

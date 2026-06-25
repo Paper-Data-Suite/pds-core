@@ -77,13 +77,14 @@ def test_core_menu_delegates_to_existing_standards_menu(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n11\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n12\n2\n")
 
     assert code == 0
     assert "Paper Data Suite Core" in out
     assert "Standards Management" in out
-    assert "6. Create Standard Profile" in out
-    assert "11. Back" in out
+    assert "4. Add standard" in out
+    assert "7. Create Standard Profile" in out
+    assert "12. Back" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -98,7 +99,7 @@ def test_core_menu_clears_before_display_and_after_standards_return(
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
 
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n11\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n12\n2\n")
 
     assert code == 0
     assert err == ""
@@ -113,7 +114,7 @@ def test_core_workspace_override_reaches_standards_validation_without_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n10\n\n11\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n11\n\n12\n2\n")
 
     assert code == 0
     assert "using empty library" in out
@@ -129,14 +130,15 @@ def test_direct_standards_menu_route_still_works(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr("sys.stdin", io.StringIO("11\n"))
+    monkeypatch.setattr("sys.stdin", io.StringIO("12\n"))
 
     code = pds_core_main(["--workspace", str(tmp_path), "standards", "menu"])
     captured = capsys.readouterr()
 
     assert code == 0
     assert "Standards Management" in captured.out
-    assert "6. Create Standard Profile" in captured.out
-    assert "11. Back" in captured.out
+    assert "4. Add standard" in captured.out
+    assert "7. Create Standard Profile" in captured.out
+    assert "12. Back" in captured.out
     assert captured.err == ""
     assert list(tmp_path.iterdir()) == []
