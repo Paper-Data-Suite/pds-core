@@ -9,6 +9,7 @@ import sys
 import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from typing import NoReturn, TextIO, cast
 
@@ -19,6 +20,7 @@ from pds_core.standards import (
     StandardsReadError,
     StandardsValidationError,
     StandardsWriteError,
+    add_standard_definition,
     add_standards_profile,
     filter_standard_definitions,
     filter_standards_profiles,
@@ -26,10 +28,12 @@ from pds_core.standards import (
     find_standards_profile,
     load_standards_library,
     load_workspace_standards_library,
+    replace_standard_definition,
     replace_standards_profile,
     standards_library_path,
     standards_profile_from_dict,
     standards_profile_to_dict,
+    upsert_standard_definition,
     write_standards_library,
     write_workspace_standards_library,
 )
@@ -135,12 +139,13 @@ def _build_parser() -> argparse.ArgumentParser:
     standards = subparsers.add_parser(
         "standards",
         description=(
-            "Browse, validate, import, and export the standards library. "
-            "standard_id is the durable "
-            "Paper Data Suite identifier; code is a teacher-facing display code "
-            "and may not be unique."
+            "Browse, validate, import, export, and mutate the standards "
+            "library. standard_id is the durable Paper Data Suite identifier; "
+            "code is a teacher-facing display code and may not be unique. "
+            "Retire/reactivate are non-destructive; destructive standard "
+            "deletion is not supported."
         ),
-        help="Browse, validate, import, and export the standards library.",
+        help="Browse, validate, import, export, and mutate the standards library.",
     )
     standards_subparsers = standards.add_subparsers(dest="standards_command")
 
@@ -238,6 +243,94 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     show_parser.add_argument("standard_id", help="Durable standard_id to show.")
     show_parser.set_defaults(handler=_handle_standards_show)
+
+    add_parser = standards_subparsers.add_parser(
+        "add",
+        help="Add a new standard definition.",
+        description=(
+            "Add one standard definition to the canonical workspace "
+            "standards/library.json. standard_id is the durable internal ID; "
+            "code is a display field and may not be unique. Destructive "
+            "standard deletion is not supported."
+        ),
+    )
+    _add_standard_mutation_fields(add_parser, include_standard_id=True)
+    add_parser.set_defaults(handler=_handle_standards_add)
+
+    replace_parser = standards_subparsers.add_parser(
+        "replace",
+        help="Replace an existing standard definition.",
+        description=(
+            "Replace one existing standard definition in the canonical "
+            "workspace standards/library.json. This is full-record "
+            "replacement; omitted optional fields are cleared. standard_id is "
+            "the durable internal ID; code is a display field and may not be "
+            "unique. Destructive standard deletion is not supported."
+        ),
+    )
+    replace_parser.add_argument(
+        "standard_id",
+        help="Durable standard_id to replace.",
+    )
+    _add_standard_mutation_fields(replace_parser, include_standard_id=False)
+    replace_parser.set_defaults(handler=_handle_standards_replace)
+
+    upsert_parser = standards_subparsers.add_parser(
+        "upsert",
+        help="Add or replace a standard definition.",
+        description=(
+            "Add or replace one standard definition in the canonical workspace "
+            "standards/library.json. standard_id is the durable internal ID; "
+            "code is a display field and may not be unique. Destructive "
+            "standard deletion is not supported."
+        ),
+    )
+    upsert_parser.add_argument(
+        "standard_id",
+        help="Durable standard_id to add or replace.",
+    )
+    _add_standard_mutation_fields(upsert_parser, include_standard_id=False)
+    upsert_parser.set_defaults(handler=_handle_standards_upsert)
+
+    retire_parser = standards_subparsers.add_parser(
+        "retire",
+        help="Mark an existing standard inactive without deleting it.",
+        description=(
+            "Retire one existing standard by setting active=false in the "
+            "canonical workspace standards/library.json. Retire is "
+            "non-destructive: the standard remains present and profile or "
+            "historical references remain valid. Destructive standard deletion "
+            "is not supported."
+        ),
+    )
+    retire_parser.add_argument("standard_id", help="Durable standard_id to retire.")
+    retire_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Return success even if the standard is already inactive.",
+    )
+    retire_parser.set_defaults(handler=_handle_standards_retire)
+
+    reactivate_parser = standards_subparsers.add_parser(
+        "reactivate",
+        help="Mark an existing retired standard active again.",
+        description=(
+            "Reactivate one existing standard by setting active=true in the "
+            "canonical workspace standards/library.json. Reactivate is "
+            "non-destructive and preserves profile or historical references. "
+            "Destructive standard deletion is not supported."
+        ),
+    )
+    reactivate_parser.add_argument(
+        "standard_id",
+        help="Durable standard_id to reactivate.",
+    )
+    reactivate_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Return success even if the standard is already active.",
+    )
+    reactivate_parser.set_defaults(handler=_handle_standards_reactivate)
 
     search_parser = standards_subparsers.add_parser(
         "search",
@@ -395,6 +488,66 @@ def _add_profile_filters(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--source", help="Filter profiles by exact source.")
     parser.add_argument("--subject", help="Filter profiles by exact subject.")
     parser.add_argument("--course", help="Filter profiles by exact course.")
+
+
+def _add_standard_mutation_fields(
+    parser: argparse.ArgumentParser,
+    *,
+    include_standard_id: bool,
+) -> None:
+    if include_standard_id:
+        parser.add_argument(
+            "--standard-id",
+            required=True,
+            help="Durable internal standard_id for the new standard.",
+        )
+    parser.add_argument(
+        "--code",
+        required=True,
+        help="Display code for teachers; it may not be unique.",
+    )
+    parser.add_argument("--source", required=True, help="Standards source.")
+    parser.add_argument("--short-name", required=True, help="Short display name.")
+    parser.add_argument("--description", required=True, help="Standard description.")
+    parser.add_argument("--subject", help="Optional subject.")
+    parser.add_argument("--course", help="Optional course.")
+    parser.add_argument("--grade-band", help="Optional grade band.")
+    parser.add_argument("--domain", help="Optional domain.")
+    parser.add_argument(
+        "--category-path",
+        help=(
+            "Optional category path using '/' separators, for example "
+            "'English Language Arts/Reading Literature/Close Reading'."
+        ),
+    )
+    parser.add_argument(
+        "--tag",
+        action="append",
+        dest="tags",
+        help="Optional tag. Repeat this flag for multiple tags.",
+    )
+    parser.add_argument(
+        "--available-module",
+        action="append",
+        dest="available_modules",
+        help="Optional available module. Repeat this flag for multiple modules.",
+    )
+    active_group = parser.add_mutually_exclusive_group()
+    active_group.add_argument(
+        "--active",
+        action="store_const",
+        const=True,
+        dest="active",
+        help="Write the standard as active (default).",
+    )
+    active_group.add_argument(
+        "--inactive",
+        action="store_const",
+        const=False,
+        dest="active",
+        help="Write the standard as inactive.",
+    )
+    parser.set_defaults(active=True)
 
 
 def _standard_filters(args: argparse.Namespace) -> _StandardFilters:
@@ -578,6 +731,154 @@ def _handle_standards_show(
     for label, value in fields:
         print(f"{label}: {_display(value)}", file=stdout)
     return 0
+
+
+def _handle_standards_add(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        definition = _standard_definition_from_args(args.standard_id, args)
+        updated_library = add_standard_definition(library, definition)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Added standard {definition.standard_id}.", file=stdout)
+    return 0
+
+
+def _handle_standards_replace(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        definition = _standard_definition_from_args(args.standard_id, args)
+        updated_library = replace_standard_definition(library, definition)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Replaced standard {definition.standard_id}.", file=stdout)
+    return 0
+
+
+def _handle_standards_upsert(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    existed = find_standard_definition(library, args.standard_id) is not None
+    try:
+        definition = _standard_definition_from_args(args.standard_id, args)
+        updated_library = upsert_standard_definition(library, definition)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    action = "Updated" if existed else "Added"
+    print(f"{action} standard {definition.standard_id}.", file=stdout)
+    return 0
+
+
+def _handle_standards_retire(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    return _set_standard_active(
+        args,
+        library,
+        stdout,
+        stderr,
+        active=False,
+        action="Retired",
+        already_message="standard is already inactive",
+    )
+
+
+def _handle_standards_reactivate(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    return _set_standard_active(
+        args,
+        library,
+        stdout,
+        stderr,
+        active=True,
+        action="Reactivated",
+        already_message="standard is already active",
+    )
+
+
+def _standard_definition_from_args(
+    standard_id: str,
+    args: argparse.Namespace,
+) -> StandardDefinition:
+    return StandardDefinition(
+        standard_id=standard_id,
+        code=args.code,
+        source=args.source,
+        short_name=args.short_name,
+        description=args.description,
+        subject=args.subject,
+        course=args.course,
+        grade_band=args.grade_band,
+        domain=args.domain,
+        category_path=_parse_category_path(args.category_path),
+        tags=tuple(args.tags or ()),
+        active=args.active,
+        available_modules=tuple(args.available_modules or ()),
+    )
+
+
+def _set_standard_active(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+    *,
+    active: bool,
+    action: str,
+    already_message: str,
+) -> int:
+    existing = find_standard_definition(library, args.standard_id)
+    if existing is None:
+        print(f"Error: standard not found: {args.standard_id}", file=stderr)
+        return 1
+    if existing.active is active and not args.force:
+        print(f"Error: {already_message}: {args.standard_id}", file=stderr)
+        return 1
+
+    try:
+        updated_definition = dataclass_replace(existing, active=active)
+        updated_library = replace_standard_definition(library, updated_definition)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"{action} standard {args.standard_id}.", file=stdout)
+    return 0
+
+
+def _write_workspace_mutated_library(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+) -> None:
+    write_workspace_standards_library(args.workspace_root, library, overwrite=True)
 
 
 def _handle_standards_search(
