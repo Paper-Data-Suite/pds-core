@@ -52,8 +52,8 @@ menu, import/export, mutation, and module-facing API work.
 
 ## Standards CLI
 
-PDS Core exposes a read-only `pds-core` command for inspecting the active
-workspace standards library:
+PDS Core exposes `pds-core standards` commands for inspecting, validating,
+importing, and exporting the active workspace standards library:
 
 ```powershell
 pds-core --workspace "C:\Path\To\Paper Data Suite" standards list
@@ -65,6 +65,12 @@ pds-core standards domains
 pds-core standards categories
 pds-core standards profiles
 pds-core standards profile show english_12_njsls
+pds-core standards validate
+pds-core standards validate-file ".\standards-library.json"
+pds-core standards export ".\standards-library.json"
+pds-core standards import ".\standards-library.json" --replace
+pds-core standards profile export english_12_njsls ".\english-12-profile.json"
+pds-core standards profile import ".\english-12-profile.json" --add
 ```
 
 The CLI loads `<workspace>/standards/library.json` using the normal workspace
@@ -74,8 +80,16 @@ not create `standards/`, usage folders, workspace metadata, or module folders.
 
 Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
-not be unique. These commands are browse-only; mutation, import, export,
-interactive menus, and module-facing selection commands remain future work.
+not be unique.
+
+Import and export commands are deliberately conservative. Imports validate the
+entire external JSON file before writing anything. Full-library import requires
+`--replace`; replacing an existing workspace `standards/library.json` also
+requires `--overwrite`. Profile import supports `--add`, which fails rather
+than silently replacing an existing `profile_id`. Exports refuse to overwrite
+target files unless `--overwrite` is supplied. Merge/upsert import, interactive
+menus, mutation commands for individual standards, and module-facing selection
+commands remain future work.
 
 ## Workspace Root
 
