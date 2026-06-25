@@ -1,11 +1,15 @@
-"""Command-line entry point for read-only PDS Core inspection commands."""
+"""Command-line entry point for PDS Core standards commands."""
 
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import sys
+import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import NoReturn, TextIO, cast
 
 from pds_core.standards import (
@@ -14,11 +18,20 @@ from pds_core.standards import (
     StandardsProfile,
     StandardsReadError,
     StandardsValidationError,
+    StandardsWriteError,
+    add_standards_profile,
     filter_standard_definitions,
     filter_standards_profiles,
     find_standard_definition,
     find_standards_profile,
+    load_standards_library,
     load_workspace_standards_library,
+    replace_standards_profile,
+    standards_library_path,
+    standards_profile_from_dict,
+    standards_profile_to_dict,
+    write_standards_library,
+    write_workspace_standards_library,
 )
 from pds_core.workspace import WorkspaceRootError, resolve_workspace_root
 
@@ -82,9 +95,18 @@ def _run(
                 file=stderr,
             )
             return 1
-        library = load_workspace_standards_library(workspace_root)
+        args.workspace_root = workspace_root
+        if getattr(args, "load_workspace_library", True):
+            library = load_workspace_standards_library(workspace_root)
+        else:
+            library = StandardsLibrary(standards=(), profiles=())
         return handler(args, library, stdout, stderr)
-    except (WorkspaceRootError, StandardsReadError, StandardsValidationError) as error:
+    except (
+        WorkspaceRootError,
+        StandardsReadError,
+        StandardsValidationError,
+        StandardsWriteError,
+    ) as error:
         print(f"Error: {error}", file=stderr)
         return 1
 
@@ -93,7 +115,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = _ArgumentParser(
         prog="pds-core",
         description=(
-            "Read-only Paper Data Suite core utilities. Commands load the "
+            "Paper Data Suite core utilities. Standards commands load the "
             "active workspace standards library unless --workspace is supplied; "
             "a missing standards/library.json is treated as an empty library. "
             "For standards commands, standard_id and profile_id are durable "
@@ -113,13 +135,86 @@ def _build_parser() -> argparse.ArgumentParser:
     standards = subparsers.add_parser(
         "standards",
         description=(
-            "Browse the read-only standards library. standard_id is the durable "
+            "Browse, validate, import, and export the standards library. "
+            "standard_id is the durable "
             "Paper Data Suite identifier; code is a teacher-facing display code "
             "and may not be unique."
         ),
-        help="Browse and inspect the read-only standards library.",
+        help="Browse, validate, import, and export the standards library.",
     )
     standards_subparsers = standards.add_subparsers(dest="standards_command")
+
+    validate_parser = standards_subparsers.add_parser(
+        "validate",
+        help="Validate the active workspace standards library.",
+        description=(
+            "Validate the active workspace standards library. A missing "
+            "standards/library.json is valid and is treated as an empty "
+            "library without creating workspace artifacts. standard_id and "
+            "profile_id values are durable references."
+        ),
+    )
+    validate_parser.set_defaults(handler=_handle_standards_validate)
+
+    validate_file_parser = standards_subparsers.add_parser(
+        "validate-file",
+        help="Validate an external standards library JSON file.",
+        description=(
+            "Validate an external canonical StandardsLibrary JSON file without "
+            "importing it or reading the workspace library. standard_id and "
+            "profile_id values are durable references."
+        ),
+    )
+    validate_file_parser.add_argument("path", help="Standards library JSON file.")
+    validate_file_parser.set_defaults(
+        handler=_handle_standards_validate_file,
+        load_workspace_library=False,
+    )
+
+    import_parser = standards_subparsers.add_parser(
+        "import",
+        help="Import a full standards library JSON file.",
+        description=(
+            "Import a canonical StandardsLibrary JSON file. Full-library import "
+            "requires an explicit mode such as --replace; replacing an existing "
+            "workspace library also requires --overwrite. Merge/upsert import "
+            "is future work. standard_id and profile_id values are durable "
+            "references."
+        ),
+    )
+    import_parser.add_argument("path", help="Standards library JSON file to import.")
+    import_parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Replace the workspace library with the validated import file.",
+    )
+    import_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Allow --replace to overwrite an existing workspace library.",
+    )
+    import_parser.set_defaults(
+        handler=_handle_standards_import,
+        load_workspace_library=False,
+    )
+
+    export_parser = standards_subparsers.add_parser(
+        "export",
+        help="Export the active workspace standards library.",
+        description=(
+            "Export canonical StandardsLibrary JSON with durable standard_id "
+            "and profile_id values preserved. code and title are display "
+            "fields. Existing target files are refused unless --overwrite is "
+            "supplied."
+        ),
+    )
+    export_parser.add_argument("path", help="Target standards library JSON file.")
+    export_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite the target export file if it already exists.",
+    )
+    export_parser.set_defaults(handler=_handle_standards_export)
 
     list_parser = standards_subparsers.add_parser(
         "list",
@@ -203,6 +298,54 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Durable profile_id to show.",
     )
     profile_show_parser.set_defaults(handler=_handle_profile_show)
+
+    profile_import_parser = profile_subparsers.add_parser(
+        "import",
+        help="Import one standalone standards profile JSON file.",
+        description=(
+            "Import one canonical StandardsProfile JSON file. Use --add to add "
+            "a new durable profile_id without replacing existing profiles. Use "
+            "--replace --overwrite to explicitly replace an existing profile."
+        ),
+    )
+    profile_import_parser.add_argument("path", help="Standards profile JSON file.")
+    profile_import_parser.add_argument(
+        "--add",
+        action="store_true",
+        help="Add the profile and fail if profile_id already exists.",
+    )
+    profile_import_parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Replace an existing profile with the same durable profile_id.",
+    )
+    profile_import_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Required with --replace to overwrite an existing profile.",
+    )
+    profile_import_parser.set_defaults(handler=_handle_profile_import)
+
+    profile_export_parser = profile_subparsers.add_parser(
+        "export",
+        help="Export one standalone standards profile JSON file.",
+        description=(
+            "Export one standards profile by durable profile_id. Existing target "
+            "files are refused unless --overwrite is supplied. title is a "
+            "display field."
+        ),
+    )
+    profile_export_parser.add_argument(
+        "profile_id",
+        help="Durable profile_id to export.",
+    )
+    profile_export_parser.add_argument("path", help="Target standards profile JSON file.")
+    profile_export_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite the target export file if it already exists.",
+    )
+    profile_export_parser.set_defaults(handler=_handle_profile_export)
 
     return parser
 
@@ -311,6 +454,98 @@ def _handle_standards_list(
         return 0
     for definition in definitions:
         print(_compact_standard_row(definition), file=stdout)
+    return 0
+
+
+def _handle_standards_validate(
+    args: argparse.Namespace,
+    _library: StandardsLibrary,
+    stdout: TextIO,
+    _stderr: TextIO,
+) -> int:
+    path = standards_library_path(args.workspace_root)
+    if path.exists():
+        print("Standards library is valid.", file=stdout)
+    else:
+        print(
+            "Standards library is valid. No workspace standards library exists; "
+            "using empty library.",
+            file=stdout,
+        )
+    return 0
+
+
+def _handle_standards_validate_file(
+    args: argparse.Namespace,
+    _library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        load_standards_library(args.path)
+    except StandardsReadError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+    print(f"Standards library file is valid: {args.path}", file=stdout)
+    return 0
+
+
+def _handle_standards_export(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    target_path = Path(args.path)
+    if target_path.exists() and not args.overwrite:
+        print(f"Error: target file already exists: {target_path}", file=stderr)
+        return 1
+
+    try:
+        write_standards_library(target_path, library, overwrite=args.overwrite)
+    except StandardsWriteError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Exported standards library to {target_path}.", file=stdout)
+    return 0
+
+
+def _handle_standards_import(
+    args: argparse.Namespace,
+    _library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    if not args.replace:
+        print("Error: import requires an explicit mode such as --replace.", file=stderr)
+        return 2
+
+    try:
+        imported_library = load_standards_library(args.path)
+    except StandardsReadError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    target_path = standards_library_path(args.workspace_root)
+    if target_path.exists() and not args.overwrite:
+        print(
+            f"Error: workspace standards library already exists: {target_path}",
+            file=stderr,
+        )
+        return 1
+
+    try:
+        write_workspace_standards_library(
+            args.workspace_root,
+            imported_library,
+            overwrite=args.overwrite,
+        )
+    except StandardsWriteError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Imported standards library from {args.path}.", file=stdout)
     return 0
 
 
@@ -502,6 +737,163 @@ def _handle_profile_show(
                 file=stdout,
             )
     return 1 if had_unresolved else 0
+
+
+def _handle_profile_export(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    profile = find_standards_profile(library, args.profile_id)
+    if profile is None:
+        print(f"Standards profile not found: {args.profile_id}", file=stderr)
+        return 1
+
+    target_path = Path(args.path)
+    if target_path.exists() and not args.overwrite:
+        print(f"Error: target file already exists: {target_path}", file=stderr)
+        return 1
+
+    try:
+        _write_standards_profile(target_path, profile, overwrite=args.overwrite)
+    except StandardsWriteError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(
+        f"Exported standards profile {profile.profile_id} to {target_path}.",
+        file=stdout,
+    )
+    return 0
+
+
+def _handle_profile_import(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    if args.add and args.replace:
+        print("Error: profile import modes --add and --replace conflict.", file=stderr)
+        return 2
+    if not args.add and not args.replace:
+        print(
+            "Error: profile import requires an explicit mode such as --add.",
+            file=stderr,
+        )
+        return 2
+    if args.replace and not args.overwrite:
+        print("Error: profile replace requires --overwrite.", file=stderr)
+        return 1
+
+    try:
+        profile = _load_standards_profile(args.path)
+        updated_library = (
+            add_standards_profile(library, profile)
+            if args.add
+            else replace_standards_profile(library, profile)
+        )
+    except (StandardsReadError, StandardsValidationError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    try:
+        write_workspace_standards_library(
+            args.workspace_root,
+            updated_library,
+            overwrite=True,
+        )
+    except StandardsWriteError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    action = "Added" if args.add else "Replaced"
+    print(
+        f"{action} standards profile {profile.profile_id} from {args.path}.",
+        file=stdout,
+    )
+    return 0
+
+
+def _load_standards_profile(path: str | Path) -> StandardsProfile:
+    source_path = Path(path)
+    try:
+        with source_path.open(encoding="utf-8") as profile_file:
+            data = json.load(profile_file)
+    except json.JSONDecodeError as error:
+        raise StandardsReadError(source_path, f"invalid JSON: {error}") from error
+    except (OSError, UnicodeError) as error:
+        raise StandardsReadError(source_path, str(error)) from error
+
+    if not isinstance(data, dict):
+        raise StandardsReadError(source_path, "top-level JSON value must be a mapping")
+
+    try:
+        return standards_profile_from_dict(data)
+    except (StandardsValidationError, KeyError, TypeError) as error:
+        raise StandardsReadError(
+            source_path,
+            f"invalid standards profile data: {error}",
+        ) from error
+
+
+def _write_standards_profile(
+    path: str | Path,
+    profile: StandardsProfile,
+    *,
+    overwrite: bool = False,
+) -> None:
+    target_path = Path(path)
+    try:
+        content = json.dumps(
+            standards_profile_to_dict(profile),
+            indent=2,
+            sort_keys=True,
+        ) + "\n"
+    except (StandardsValidationError, TypeError, ValueError) as error:
+        raise StandardsWriteError(
+            target_path,
+            f"invalid standards profile data: {error}",
+        ) from error
+
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise StandardsWriteError(target_path, str(error)) from error
+
+    if target_path.exists() and not overwrite:
+        raise StandardsWriteError(target_path, "target file already exists")
+
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            delete=False,
+            dir=target_path.parent,
+            prefix=f".{target_path.name}.",
+            suffix=".tmp",
+        ) as profile_file:
+            temp_path = Path(profile_file.name)
+            profile_file.write(content)
+            profile_file.flush()
+            os.fsync(profile_file.fileno())
+
+        os.replace(temp_path, target_path)
+        temp_path = None
+    except (OSError, UnicodeError) as error:
+        cleanup_error: OSError | None = None
+        if temp_path is not None:
+            try:
+                temp_path.unlink(missing_ok=True)
+            except OSError as caught_cleanup_error:
+                cleanup_error = caught_cleanup_error
+        message = str(error)
+        if cleanup_error is not None:
+            message = f"{message}; temporary file cleanup failed: {cleanup_error}"
+        raise StandardsWriteError(target_path, message) from error
 
 
 def _print_values(values: Sequence[str], empty_message: str, stdout: TextIO) -> int:
