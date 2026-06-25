@@ -120,16 +120,10 @@ class StandardsMenu:
 
     def browse_standards(self) -> None:
         if not self._has_standards():
+            screen.clear_screen(self.stdout)
             print("No standards found.", file=self.stdout)
             return
-        self._workflow_intro(
-            "Browse Standards",
-            (
-                "Filter prompts are optional. Press Enter to skip a filter.",
-                "Use active-only for normal teacher use. Choose all only if "
-                "you need inactive standards too.",
-            ),
-        )
+        self._workflow_screen("Browse Standards")
         filters = self._standard_filter_args()
         if filters is None:
             return
@@ -137,18 +131,19 @@ class StandardsMenu:
 
     def search_standards(self) -> None:
         if not self._has_standards():
+            screen.clear_screen(self.stdout)
             print("No standards found.", file=self.stdout)
             return
-        self._workflow_intro(
+        query = self._required_guided_prompt(
             "Search Standards",
             (
-                "Search checks standard IDs, display codes, names, "
-                "descriptions, and metadata.",
-                "Enter a word, phrase, display code, or standard_id.",
-                "Press Enter to cancel.",
+                "Enter search text.",
+                "Search checks IDs, display codes, names, descriptions, and metadata.",
+                "Example: language or RL.CR.11-12.1",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        query = self._required_prompt("Enter search text: ")
         if query is None:
             return
         filters = self._standard_filter_args()
@@ -159,20 +154,19 @@ class StandardsMenu:
 
     def view_standard(self) -> None:
         if not self._has_standards():
+            screen.clear_screen(self.stdout)
             print("No standards found.", file=self.stdout)
             return
-        self._workflow_intro(
+        standard_id = self._required_guided_prompt(
             "View Standard",
             (
-                "Enter the durable standard_id, not the display code.",
+                "Enter Durable Standard ID.",
+                "Use the permanent standard_id, not just the display code.",
                 "Example: njsls-ela:RL.CR.11-12.1",
-                "Use Browse standards or Search standards first if you do not "
-                "know the ID.",
-                "Press Enter to cancel.",
+                "Use Browse or Search first if you do not know the ID.",
+                "Leave blank to cancel.",
             ),
-        )
-        standard_id = self._required_prompt(
-            "Enter durable standard_id, not display code: "
+            clear=True,
         )
         if standard_id is None:
             return
@@ -181,16 +175,10 @@ class StandardsMenu:
 
     def browse_profiles(self) -> None:
         if not self._has_profiles():
+            screen.clear_screen(self.stdout)
             print("No standards profiles found.", file=self.stdout)
             return
-        self._workflow_intro(
-            "Browse Profiles",
-            (
-                "A standards profile is a reusable group of standards, such as "
-                "English 12 NJSLS.",
-                "Filter prompts are optional. Press Enter to skip a filter.",
-            ),
-        )
+        self._workflow_screen("Browse Profiles")
         filters = self._profile_filter_args()
         if filters is None:
             return
@@ -198,40 +186,36 @@ class StandardsMenu:
 
     def view_profile(self) -> None:
         if not self._has_profiles():
+            screen.clear_screen(self.stdout)
             print("No standards profiles found.", file=self.stdout)
             return
-        self._workflow_intro(
+        profile_id = self._required_guided_prompt(
             "View Profile",
             (
-                "Enter the durable profile_id.",
+                "Enter Durable Profile ID.",
                 "Example: english_12_njsls",
-                "Use Browse profiles first if you do not know the ID.",
-                "Press Enter to cancel.",
+                "Use Browse Profiles first if you do not know the ID.",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile_id = self._required_prompt("Enter durable profile_id: ")
         if profile_id is None:
             return
         command_args = argparse.Namespace(profile_id=profile_id)
         handle_profile_show(command_args, self.library, self.stdout, self.stderr)
 
     def create_profile(self) -> None:
-        self._workflow_intro(
+        profile_id = self._required_guided_prompt(
             "Create Standard Profile",
             (
-                "A standards profile is a reusable group of standards, such as "
-                "English 12 NJSLS.",
-                "This does not create new standard definitions.",
-                "Required: durable profile_id.",
-                "Optional: title, description, subject, course, source, and "
-                "standard_id membership.",
-                "Enter standard_id values separated by commas, or leave blank "
-                "for an empty profile.",
-                "Nothing is written until you review the summary and type YES.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Durable Profile ID.",
+                "This is the permanent ID for this standards collection.",
+                "Use lowercase letters, numbers, and underscores.",
+                "Example: english_12_language_standards",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile_id = self._required_prompt("Enter durable profile_id: ")
         if profile_id is None:
             return
         metadata = self._profile_metadata()
@@ -251,9 +235,12 @@ class StandardsMenu:
             print(f"Error: {error}", file=self.stderr)
             return
 
-        self._print_profile_summary("Create Standard Profile", profile)
-        if not self._confirm(
-            f"Create Standard Profile {profile.profile_id}? Type YES to continue: "
+        self._print_standard_profile_review(profile)
+        if not self._guided_confirm(
+            (
+                "Type YES to create this standard profile.",
+                "Anything else cancels.",
+            )
         ):
             self._cancelled()
             return
@@ -263,6 +250,7 @@ class StandardsMenu:
 
     def edit_profile_standards(self) -> None:
         if not self._has_profiles():
+            screen.clear_screen(self.stdout)
             print("No standards profiles found.", file=self.stdout)
             self._pause()
             return
@@ -299,19 +287,27 @@ class StandardsMenu:
             self._pause()
 
     def add_standard_to_profile(self) -> None:
-        self._workflow_intro(
+        profile = self._prompt_existing_profile(
             "Add Standard to Profile",
             (
-                "You will enter an existing profile_id and an existing standard_id.",
-                "The standard will be added to that profile only.",
-                "Nothing is written until you confirm.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Durable Profile ID.",
+                "This profile will receive the standard.",
+                "Example: english_12_language_standards",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile = self._prompt_existing_profile()
         if profile is None:
             return
-        definition = self._prompt_existing_standard()
+        definition = self._prompt_existing_standard(
+            None,
+            (
+                "Enter Durable Standard ID to Add.",
+                "The standard must already exist in the standards library.",
+                "Example: njsls-ela:L.KL.11-12.2",
+                "Leave blank to cancel.",
+            ),
+        )
         if definition is None:
             return
         if definition.standard_id in profile.standards:
@@ -334,22 +330,26 @@ class StandardsMenu:
         )
 
     def remove_standard_from_profile(self) -> None:
-        self._workflow_intro(
+        profile = self._prompt_existing_profile(
             "Remove Standard from Profile",
             (
-                "This removes a standard from a profile only.",
-                "It does not delete the standard definition.",
-                "You will enter an existing profile_id and a standard_id "
-                "currently in that profile.",
-                "Nothing is written until you confirm.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Durable Profile ID.",
+                "This only changes profile membership. It does not delete the standard.",
+                "Example: english_12_language_standards",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile = self._prompt_existing_profile()
         if profile is None:
             return
-        standard_id = self._required_prompt(
-            "Enter durable standard_id to remove from profile membership: "
+        standard_id = self._required_guided_prompt(
+            None,
+            (
+                "Enter Durable Standard ID to Remove.",
+                "The standard must already belong to this profile.",
+                "Example: njsls-ela:L.KL.11-12.2",
+                "Leave blank to cancel.",
+            ),
         )
         if standard_id is None:
             return
@@ -374,22 +374,27 @@ class StandardsMenu:
         )
 
     def replace_profile_standards(self) -> None:
-        self._workflow_intro(
+        profile = self._prompt_existing_profile(
             "Replace Profile Standards",
             (
-                "This replaces only the list of standards in a profile.",
-                "It preserves the profile title, description, subject, course, "
-                "and source.",
-                "Enter the new standard_id values separated by commas, or "
-                "leave blank for no standards.",
-                "Nothing is written until you confirm.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Durable Profile ID.",
+                "This will replace only the profile's standards list.",
+                "Profile metadata will be preserved.",
+                "Example: english_12_language_standards",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile = self._prompt_existing_profile()
         if profile is None:
             return
-        standards = self._standard_ids_prompt()
+        standards = self._standard_ids_prompt(
+            (
+                "Enter New Standard IDs.",
+                "Use durable standard_id values separated by commas.",
+                "Example: njsls-ela:L.KL.11-12.2, njsls-ela:L.VL.11-12.3",
+                "Leave blank for no standards.",
+            )
+        )
         if standards is None:
             return
         try:
@@ -400,9 +405,12 @@ class StandardsMenu:
             return
 
         self._print_profile_summary("Replace profile standards", updated_profile)
-        if not self._confirm(
-            f"Replace standards for profile {profile.profile_id}? "
-            "Type YES to continue: "
+        if not self._guided_confirm(
+            (
+                f"Replace standards for profile {profile.profile_id}?",
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
         ):
             self._cancelled()
             return
@@ -435,17 +443,16 @@ class StandardsMenu:
         )
 
     def import_full_library(self) -> None:
-        self._workflow_intro(
+        source_path = self._required_guided_prompt(
             "Import Full Standards Library",
             (
-                "This replaces the active workspace standards library with a "
-                "full library JSON file.",
-                "The file is validated before writing.",
-                "Existing workspace data is not overwritten unless you confirm.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Source JSON Path.",
+                "This should be a full standards library JSON file.",
+                r"Example: C:\Users\...\standards-library.json",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        source_path = self._required_prompt("Enter source JSON path: ")
         if source_path is None:
             return
         try:
@@ -459,8 +466,12 @@ class StandardsMenu:
             file=self.stdout,
         )
         self._print_library_summary(imported_library)
-        if not self._confirm(
-            "Import full standards library? Type YES to continue: "
+        if not self._guided_confirm(
+            (
+                "This will replace the active workspace standards library after validation.",
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
         ):
             self._cancelled()
             return
@@ -468,9 +479,12 @@ class StandardsMenu:
         target_path = standards_library_path(self.args.workspace_root)
         overwrite = False
         if target_path.exists():
-            if not self._confirm(
-                "Workspace standards library already exists. "
-                "Overwrite it? Type YES to continue: "
+            if not self._guided_confirm(
+                (
+                    "Workspace standards library already exists.",
+                    "Type YES to overwrite.",
+                    "Anything else cancels.",
+                )
             ):
                 self._cancelled()
                 return
@@ -491,20 +505,25 @@ class StandardsMenu:
             self.library = imported_library
 
     def import_profile(self) -> None:
-        self._workflow_intro(
+        source_path = self._required_guided_prompt(
             "Import Standards Profile",
             (
-                "This imports one standalone profile JSON file.",
-                "Add mode fails if the profile_id already exists.",
-                "Replace mode requires confirmation.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Source JSON Path.",
+                "This should be one standalone standards profile JSON file.",
+                r"Example: C:\Users\...\english-12-profile.json",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        source_path = self._required_prompt("Enter source JSON path: ")
         if source_path is None:
             return
-        mode = self._prompt(
-            "Import mode (1 add new profile, 2 replace existing profile, 3 cancel): "
+        mode = self._guided_prompt(
+            None,
+            (
+                "Choose Import Mode.",
+                "1 = add only, 2 = replace existing profile.",
+                "Leave blank to cancel.",
+            ),
         )
         if mode in (None, "", "3"):
             self._cancelled()
@@ -527,12 +546,14 @@ class StandardsMenu:
             return
 
         self._print_profile_summary("Import profile", profile)
-        prompt = (
-            f"Add profile {profile.profile_id}? Type YES to continue: "
-            if add
-            else f"Replace profile {profile.profile_id}? Type YES to continue: "
-        )
-        if not self._confirm(prompt):
+        action = "Add" if add else "Replace"
+        if not self._guided_confirm(
+            (
+                f"{action} profile {profile.profile_id}?",
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
+        ):
             self._cancelled()
             return
 
@@ -572,22 +593,28 @@ class StandardsMenu:
         )
 
     def export_full_library(self) -> None:
-        self._workflow_intro(
+        target_path = self._required_guided_prompt(
             "Export Full Standards Library",
             (
-                "This writes the active standards library to a JSON file.",
-                "Existing files are refused unless you confirm overwrite.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Target JSON Path.",
+                r"Example: C:\Users\...\standards-library-export.json",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        target_path = self._required_prompt("Enter target JSON path: ")
         if target_path is None:
             return
         overwrite = self._confirm_overwrite(target_path)
         if overwrite is None:
             return
         self._print_library_summary(self.library)
-        if not self._confirm("Export full standards library? Type YES to continue: "):
+        if not self._guided_confirm(
+            (
+                "Export full standards library?",
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
+        ):
             self._cancelled()
             return
         command_args = self._command_args(path=target_path, overwrite=overwrite)
@@ -595,29 +622,41 @@ class StandardsMenu:
 
     def export_profile(self) -> None:
         if not self._has_profiles():
+            screen.clear_screen(self.stdout)
             print("No standards profiles found.", file=self.stdout)
             return
-        self._workflow_intro(
+        profile = self._prompt_existing_profile(
             "Export Standards Profile",
             (
-                "This writes one standards profile to a standalone JSON file.",
-                "You will need the durable profile_id.",
-                "Existing files are refused unless you confirm overwrite.",
-                "Press Enter at a required prompt to cancel.",
+                "Enter Durable Profile ID.",
+                "Example: english_12_language_standards",
+                "Use Browse Profiles first if you do not know the ID.",
+                "Leave blank to cancel.",
             ),
+            clear=True,
         )
-        profile = self._prompt_existing_profile()
         if profile is None:
             return
-        target_path = self._required_prompt("Enter target JSON path: ")
+        target_path = self._required_guided_prompt(
+            None,
+            (
+                "Enter Target JSON Path.",
+                r"Example: C:\Users\...\english-12-language-standards.json",
+                "Leave blank to cancel.",
+            ),
+        )
         if target_path is None:
             return
         overwrite = self._confirm_overwrite(target_path)
         if overwrite is None:
             return
         self._print_profile_summary("Export profile", profile)
-        if not self._confirm(
-            f"Export profile {profile.profile_id}? Type YES to continue: "
+        if not self._guided_confirm(
+            (
+                f"Export profile {profile.profile_id}?",
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
         ):
             self._cancelled()
             return
@@ -629,13 +668,9 @@ class StandardsMenu:
         handle_profile_export(command_args, self.library, self.stdout, self.stderr)
 
     def validate_standards_library(self) -> None:
-        self._workflow_intro(
+        self._workflow_screen(
             "Validate Standards Library",
-            (
-                "This checks the active workspace standards library.",
-                "A missing library is valid and treated as empty.",
-                "This does not write files.",
-            ),
+            ("Checking the active workspace standards library.", "This does not write files."),
         )
         handle_standards_validate(self.args, self.library, self.stdout, self.stderr)
 
@@ -651,7 +686,13 @@ class StandardsMenu:
             print(f"Error: {error}", file=self.stderr)
             return
         self._print_profile_summary("Profile membership change", updated_profile)
-        if not self._confirm(f"{prompt_text} Type YES to continue: "):
+        if not self._guided_confirm(
+            (
+                prompt_text,
+                "Type YES to continue.",
+                "Anything else cancels.",
+            )
+        ):
             self._cancelled()
             return
         if self._write_library(updated_library):
@@ -668,8 +709,13 @@ class StandardsMenu:
         return True
 
     def _standard_filter_args(self) -> argparse.Namespace | None:
-        active_choice = self._prompt(
-            "Status filter (1 active only, 2 inactive only, 3 all, blank active): "
+        active_choice = self._guided_prompt(
+            None,
+            (
+                "Status Filter.",
+                "1 = active only, 2 = inactive only, 3 = all.",
+                "Leave blank for active only.",
+            ),
         )
         if active_choice is None:
             self._cancelled()
@@ -685,8 +731,14 @@ class StandardsMenu:
             print("Invalid status filter.", file=self.stdout)
             return None
 
-        category = self._optional_prompt(
-            "Optional category path using '/' separators: "
+        category = self._optional_guided_prompt(
+            None,
+            (
+                "Category Filter.",
+                "Enter a category path using / separators.",
+                "Example: Reading/Literature",
+                "Leave blank for any category.",
+            ),
         )
         try:
             parse_category_path(category)
@@ -695,12 +747,37 @@ class StandardsMenu:
             return None
 
         return argparse.Namespace(
-            source=self._optional_prompt("Optional source filter: "),
-            subject=self._optional_prompt("Optional subject filter: "),
-            course=self._optional_prompt("Optional course filter: "),
-            domain=self._optional_prompt("Optional domain filter: "),
-            available_module=self._optional_prompt(
-                "Optional available module filter: "
+            source=self._optional_guided_prompt(
+                None,
+                (
+                    "Source Filter.",
+                    "Example: NJSLS-ELA 2023",
+                    "Leave blank for any source.",
+                ),
+            ),
+            subject=self._optional_guided_prompt(
+                None,
+                (
+                    "Subject Filter.",
+                    "Example: English Language Arts",
+                    "Leave blank for any subject.",
+                ),
+            ),
+            course=self._optional_guided_prompt(
+                None,
+                ("Course Filter.", "Example: English 12", "Leave blank for any course."),
+            ),
+            domain=self._optional_guided_prompt(
+                None,
+                ("Domain Filter.", "Example: Reading", "Leave blank for any domain."),
+            ),
+            available_module=self._optional_guided_prompt(
+                None,
+                (
+                    "Available Module Filter.",
+                    "Example: core",
+                    "Leave blank for any module.",
+                ),
             ),
             category=category,
             active=active,
@@ -708,24 +785,82 @@ class StandardsMenu:
 
     def _profile_filter_args(self) -> argparse.Namespace | None:
         return argparse.Namespace(
-            source=self._optional_prompt("Optional source filter: "),
-            subject=self._optional_prompt("Optional subject filter: "),
-            course=self._optional_prompt("Optional course filter: "),
+            source=self._optional_guided_prompt(
+                None,
+                (
+                    "Profile Source Filter.",
+                    "Example: NJSLS-ELA 2023",
+                    "Leave blank for any source.",
+                ),
+            ),
+            subject=self._optional_guided_prompt(
+                None,
+                (
+                    "Profile Subject Filter.",
+                    "Example: English Language Arts",
+                    "Leave blank for any subject.",
+                ),
+            ),
+            course=self._optional_guided_prompt(
+                None,
+                (
+                    "Profile Course Filter.",
+                    "Example: English 12",
+                    "Leave blank for any course.",
+                ),
+            ),
         )
 
     def _profile_metadata(self) -> dict[str, str | None]:
         return {
-            "title": self._optional_prompt("Optional title shown to teachers: "),
-            "description": self._optional_prompt("Optional description: "),
-            "subject": self._optional_prompt("Optional subject: "),
-            "course": self._optional_prompt("Optional course: "),
-            "source": self._optional_prompt("Optional source: "),
+            "title": self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Profile Title.",
+                    "This is the teacher-facing name.",
+                    "Example: English 12 Language Standards",
+                    "Leave blank to use the profile ID as the title.",
+                ),
+            ),
+            "description": self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Profile Description.",
+                    "Briefly describe when this profile should be used.",
+                    "Example: Language standards for English 12 writing and grammar assignments.",
+                    "Leave blank for no description.",
+                ),
+            ),
+            "subject": self._optional_guided_prompt(
+                None,
+                (
+                    "Enter Subject.",
+                    "Example: English Language Arts",
+                    "Leave blank for no subject.",
+                ),
+            ),
+            "course": self._optional_guided_prompt(
+                None,
+                ("Enter Course.", "Example: English 12", "Leave blank for no course."),
+            ),
+            "source": self._optional_guided_prompt(
+                None,
+                ("Enter Source.", "Example: NJSLS-ELA 2023", "Leave blank for no source."),
+            ),
         }
 
-    def _standard_ids_prompt(self) -> tuple[str, ...] | None:
-        raw = self._prompt(
-            "Enter durable standard_id values separated by commas, or leave "
-            "blank for none: "
+    def _standard_ids_prompt(
+        self,
+        lines: tuple[str, ...] = (
+            "Enter Standard IDs for this profile.",
+            "Use durable standard_id values separated by commas.",
+            "Example: njsls-ela:L.KL.11-12.2, njsls-ela:L.VL.11-12.3",
+            "Leave blank to create an empty profile.",
+        ),
+    ) -> tuple[str, ...] | None:
+        raw = self._guided_prompt(
+            None,
+            lines,
         )
         if raw is None:
             self._cancelled()
@@ -734,8 +869,18 @@ class StandardsMenu:
             return ()
         return tuple(part.strip() for part in raw.split(",") if part.strip())
 
-    def _prompt_existing_profile(self) -> StandardsProfile | None:
-        profile_id = self._required_prompt("Enter durable profile_id: ")
+    def _prompt_existing_profile(
+        self,
+        title: str | None = None,
+        lines: tuple[str, ...] = (
+            "Enter Durable Profile ID.",
+            "Example: english_12_language_standards",
+            "Leave blank to cancel.",
+        ),
+        *,
+        clear: bool = False,
+    ) -> StandardsProfile | None:
+        profile_id = self._required_guided_prompt(title, lines, clear=clear)
         if profile_id is None:
             return None
         profile = find_standards_profile(self.library, profile_id)
@@ -747,10 +892,19 @@ class StandardsMenu:
             return None
         return profile
 
-    def _prompt_existing_standard(self) -> StandardDefinition | None:
-        standard_id = self._required_prompt(
-            "Enter durable standard_id, not display code: "
-        )
+    def _prompt_existing_standard(
+        self,
+        title: str | None = None,
+        lines: tuple[str, ...] = (
+            "Enter Durable Standard ID.",
+            "Use the permanent standard_id, not just the display code.",
+            "Example: njsls-ela:RL.CR.11-12.1",
+            "Leave blank to cancel.",
+        ),
+        *,
+        clear: bool = False,
+    ) -> StandardDefinition | None:
+        standard_id = self._required_guided_prompt(title, lines, clear=clear)
         if standard_id is None:
             return None
         definition = find_standard_definition(self.library, standard_id)
@@ -763,8 +917,12 @@ class StandardsMenu:
         path = Path(target_path)
         if not path.exists():
             return False
-        if self._confirm(
-            f"Target file already exists: {path}. Overwrite? Type YES to continue: "
+        if self._guided_confirm(
+            (
+                "Target file already exists.",
+                "Type YES to overwrite.",
+                "Anything else cancels.",
+            )
         ):
             return True
         self._cancelled()
@@ -821,13 +979,59 @@ class StandardsMenu:
         for line in lines:
             print(line, file=self.stdout)
 
-    def _workflow_intro(self, title: str, lines: tuple[str, ...]) -> None:
-        print("", file=self.stdout)
+    def _workflow_screen(self, title: str, lines: tuple[str, ...] = ()) -> None:
+        screen.clear_screen(self.stdout)
         print(title, file=self.stdout)
         print("", file=self.stdout)
         for line in lines:
             print(line, file=self.stdout)
-        print("", file=self.stdout)
+        if lines:
+            print("", file=self.stdout)
+
+    def _guided_prompt(
+        self,
+        title: str | None,
+        lines: tuple[str, ...],
+        *,
+        clear: bool = False,
+    ) -> str | None:
+        if clear:
+            screen.clear_screen(self.stdout)
+        if title is not None:
+            print(title, file=self.stdout)
+            print("", file=self.stdout)
+        for line in lines:
+            print(line, file=self.stdout)
+        return self._prompt("> ")
+
+    def _required_guided_prompt(
+        self,
+        title: str | None,
+        lines: tuple[str, ...],
+        *,
+        clear: bool = False,
+    ) -> str | None:
+        value = self._guided_prompt(title, lines, clear=clear)
+        if value is None or value == "":
+            self._cancelled()
+            return None
+        return value
+
+    def _optional_guided_prompt(
+        self,
+        title: str | None,
+        lines: tuple[str, ...],
+        *,
+        clear: bool = False,
+    ) -> str | None:
+        value = self._guided_prompt(title, lines, clear=clear)
+        if value is None or value == "":
+            return None
+        return value
+
+    def _guided_confirm(self, lines: tuple[str, ...]) -> bool:
+        value = self._guided_prompt(None, lines)
+        return value == "YES"
 
     def _print_library_summary(self, library: StandardsLibrary) -> None:
         print(
@@ -855,6 +1059,17 @@ class StandardsMenu:
                     file=self.stdout,
                 )
 
+    def _print_standard_profile_review(self, profile: StandardsProfile) -> None:
+        print("Review Standard Profile", file=self.stdout)
+        print("", file=self.stdout)
+        print(f"Profile ID: {profile.profile_id}", file=self.stdout)
+        print(f"Title: {profile.title or '-'}", file=self.stdout)
+        print(f"Description: {profile.description or '-'}", file=self.stdout)
+        print(f"Subject: {profile.subject or '-'}", file=self.stdout)
+        print(f"Course: {profile.course or '-'}", file=self.stdout)
+        print(f"Source: {profile.source or '-'}", file=self.stdout)
+        print(f"Standards: {len(profile.standards)}", file=self.stdout)
+
     def _prompt(self, prompt: str) -> str | None:
         print(prompt, end="", file=self.stdout)
         line = self.stdin.readline()
@@ -862,23 +1077,6 @@ class StandardsMenu:
             print("", file=self.stdout)
             return None
         return line.rstrip("\r\n").strip()
-
-    def _required_prompt(self, prompt: str) -> str | None:
-        value = self._prompt(prompt)
-        if value is None or value == "":
-            self._cancelled()
-            return None
-        return value
-
-    def _optional_prompt(self, prompt: str) -> str | None:
-        value = self._prompt(prompt)
-        if value is None or value == "":
-            return None
-        return value
-
-    def _confirm(self, prompt: str) -> bool:
-        value = self._prompt(prompt)
-        return value == "YES"
 
     def _cancelled(self) -> None:
         print("Cancelled.", file=self.stdout)

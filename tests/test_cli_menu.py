@@ -108,12 +108,14 @@ def test_menu_browse_search_and_view_standards(
 
     assert code == 0
     assert "Browse Standards" in out
-    assert "Filter prompts are optional. Press Enter to skip a filter." in out
-    assert "Use active-only for normal teacher use." in out
-    assert "Search checks standard IDs, display codes, names" in out
-    assert "Enter a word, phrase, display code, or standard_id." in out
-    assert "Enter the durable standard_id, not the display code." in out
-    assert "Use Browse standards or Search standards first" in out
+    assert "Status Filter." in out
+    assert "Leave blank for active only." in out
+    assert "Category Filter." in out
+    assert "Leave blank for any category." in out
+    assert "Search checks IDs, display codes, names" in out
+    assert "Example: language or RL.CR.11-12.1" in out
+    assert "Enter Durable Standard ID." in out
+    assert "Use Browse or Search first if you do not know the ID." in out
     assert "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1" in out
     assert "njsls-ela:RI.CR.11-12.1 | RI.CR.11-12.1" in out
     assert "standard_id: njsls-ela:RL.CR.11-12.1" in out
@@ -148,11 +150,11 @@ def test_menu_browse_and_view_profiles(
 
     assert code == 0
     assert "Browse Profiles" in out
-    assert "A standards profile is a reusable group of standards" in out
-    assert "Filter prompts are optional. Press Enter to skip a filter." in out
+    assert "Profile Source Filter." in out
+    assert "Leave blank for any source." in out
     assert "View Profile" in out
-    assert "Enter the durable profile_id." in out
-    assert "Use Browse profiles first if you do not know the ID." in out
+    assert "Enter Durable Profile ID." in out
+    assert "Use Browse Profiles first if you do not know the ID." in out
     assert "english_12_njsls | English 12 NJSLS" in out
     assert "profile_id: english_12_njsls" in out
     assert "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1" in out
@@ -200,12 +202,18 @@ def test_menu_create_profile_with_standards_and_cancellation(
 
     assert code == 0
     assert "Create Standard Profile" in out
-    assert "A standards profile is a reusable group of standards" in out
-    assert "This does not create new standard definitions." in out
-    assert "Required: durable profile_id." in out
-    assert "Optional: title, description, subject, course, source" in out
-    assert "Enter standard_id values separated by commas" in out
-    assert "Nothing is written until you review the summary and type YES." in out
+    assert "Enter Durable Profile ID." in out
+    assert "Example: english_12_language_standards" in out
+    assert "Enter Profile Title." in out
+    assert "Enter Profile Description." in out
+    assert "Enter Subject." in out
+    assert "Enter Course." in out
+    assert "Enter Source." in out
+    assert "Enter Standard IDs for this profile." in out
+    assert "Review Standard Profile" in out
+    assert "Type YES to create this standard profile." in out
+    assert "Required: durable profile_id." not in out
+    assert "Optional: title, description, subject, course, source" not in out
     assert "Create Profile" not in out
     assert "Cancelled." in out
     assert "Created standards profile english_12_new." in out
@@ -339,16 +347,14 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
     assert "It does not create, edit, or delete standard definitions." in out
     assert "It does not delete profiles." in out
     assert "Add Standard to Profile" in out
-    assert "You will enter an existing profile_id and an existing standard_id." in out
-    assert "The standard will be added to that profile only." in out
+    assert "This profile will receive the standard." in out
+    assert "Enter Durable Standard ID to Add." in out
     assert "Remove Standard from Profile" in out
-    assert "This removes a standard from a profile only." in out
-    assert "It does not delete the standard definition." in out
+    assert "This only changes profile membership. It does not delete the standard." in out
+    assert "Enter Durable Standard ID to Remove." in out
     assert "Replace Profile Standards" in out
-    assert "This replaces only the list of standards in a profile." in out
-    assert (
-        "It preserves the profile title, description, subject, course, and source."
-    ) in out
+    assert "This will replace only the profile's standards list." in out
+    assert "Profile metadata will be preserved." in out
     assert "Added standard njsls-ela:RL.CR.11-12.1 to profile english_12_local." in out
     assert (
         "Removed standard local-writing:evidence_explanation from profile "
@@ -442,11 +448,11 @@ def test_menu_export_library_and_profile_refuse_overwrite_unless_confirmed(
     assert "Export writes standards data to JSON files." in out
     assert "Existing files are not overwritten unless you confirm." in out
     assert "Export Full Standards Library" in out
-    assert "This writes the active standards library to a JSON file." in out
-    assert "Existing files are refused unless you confirm overwrite." in out
+    assert "Enter Target JSON Path." in out
+    assert "standards-library-export.json" in out
     assert "Export Standards Profile" in out
-    assert "This writes one standards profile to a standalone JSON file." in out
-    assert "You will need the durable profile_id." in out
+    assert "Use Browse Profiles first if you do not know the ID." in out
+    assert "english-12-language-standards.json" in out
     assert out.count("Cancelled.") == 2
     assert err == ""
     assert load_standards_library(library_export) == make_cli_library()
@@ -497,8 +503,9 @@ def test_menu_import_full_library_requires_confirmation_and_validates(
     assert "Files are validated before writing." in out
     assert "Replacement requires confirmation." in out
     assert "Import Full Standards Library" in out
-    assert "This replaces the active workspace standards library" in out
-    assert "Existing workspace data is not overwritten unless you confirm." in out
+    assert "Enter Source JSON Path." in out
+    assert "This should be a full standards library JSON file." in out
+    assert "standards-library.json" in out
     assert "invalid JSON" in err
     assert "Cancelled." in out
     assert before != library_file(tmp_path).read_text(encoding="utf-8")
@@ -555,9 +562,9 @@ def test_menu_import_profile_add_and_replace(
 
     assert code == 0
     assert "Import Standards Profile" in out
-    assert "This imports one standalone profile JSON file." in out
-    assert "Add mode fails if the profile_id already exists." in out
-    assert "Replace mode requires confirmation." in out
+    assert "This should be one standalone standards profile JSON file." in out
+    assert "Choose Import Mode." in out
+    assert "1 = add only, 2 = replace existing profile." in out
     assert f"Added standards profile english_12_njsls from {add_path}." in out
     assert f"Replaced standards profile english_12_njsls from {replace_path}." in out
     assert err == ""
@@ -574,8 +581,7 @@ def test_menu_validate_missing_library_does_not_create_artifacts(
 
     assert code == 0
     assert "Validate Standards Library" in out
-    assert "This checks the active workspace standards library." in out
-    assert "A missing library is valid and treated as empty." in out
+    assert "Checking the active workspace standards library." in out
     assert "This does not write files." in out
     assert "using empty library" in out
     assert err == ""
@@ -627,7 +633,7 @@ def test_opening_and_cancelling_guidance_workflows_does_not_create_artifacts(
     [
         ("1", "Status filter", "Browse Standards"),
         ("2", "Enter search text", "Search Standards"),
-        ("3", "Enter durable standard_id", "View Standard"),
+        ("3", "Enter Durable Standard ID", "View Standard"),
     ],
 )
 def test_empty_standards_actions_return_before_irrelevant_prompts(
@@ -655,8 +661,8 @@ def test_empty_standards_actions_return_before_irrelevant_prompts(
 @pytest.mark.parametrize(
     ("choice", "forbidden_prompt", "forbidden_guidance"),
     [
-        ("4", "Optional source filter", "Browse Profiles"),
-        ("5", "Enter durable profile_id", "View Profile"),
+        ("4", "Profile Source Filter", "Browse Profiles"),
+        ("5", "Enter Durable Profile ID", "View Profile"),
     ],
 )
 def test_empty_profile_actions_return_before_irrelevant_prompts(
@@ -702,7 +708,7 @@ def test_empty_export_profile_returns_before_profile_id_prompt(
     assert code == 0
     assert "Export Standards Profile" not in out
     assert "No standards profiles found." in out
-    assert "Enter durable profile_id" not in out
+    assert "Enter Durable Profile ID" not in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -733,6 +739,152 @@ def test_standards_menu_and_nested_menus_clear_before_display(
     assert "[clear]\nImport Standards Data" in out
     assert "[clear]\nExport Standards Data" in out
     assert out.count("[clear]") >= 4
+
+
+def test_create_profile_clears_before_first_prompt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "6\n\n\n11\n")
+
+    assert code == 0
+    assert err == ""
+    workflow_index = out.index("[clear]\nCreate Standard Profile")
+    prompt_index = out.index("Enter Durable Profile ID.", workflow_index)
+    assert workflow_index < prompt_index
+
+
+def test_browse_search_view_workflows_clear_before_prompt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+    inputs = "\n".join(
+        (
+            "1",
+            "3",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "2",
+            "",
+            "",
+            "3",
+            "",
+            "",
+            "4",
+            "",
+            "",
+            "",
+            "",
+            "5",
+            "",
+            "",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert err == ""
+    assert "[clear]\nBrowse Standards" in out
+    assert "[clear]\nSearch Standards" in out
+    assert "[clear]\nView Standard" in out
+    assert "[clear]\nBrowse Profiles" in out
+    assert "[clear]\nView Profile" in out
+
+
+def test_nested_workflow_actions_clear_before_prompt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+    inputs = "\n".join(
+        (
+            "7",
+            "1",
+            "",
+            "",
+            "2",
+            "",
+            "",
+            "3",
+            "",
+            "",
+            "4",
+            "8",
+            "1",
+            "",
+            "",
+            "2",
+            "",
+            "",
+            "3",
+            "9",
+            "1",
+            "",
+            "",
+            "2",
+            "",
+            "",
+            "3",
+            "11",
+            "",
+        )
+    )
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
+
+    assert code == 0
+    assert err == ""
+    assert "[clear]\nAdd Standard to Profile" in out
+    assert "[clear]\nRemove Standard from Profile" in out
+    assert "[clear]\nReplace Profile Standards" in out
+    assert "[clear]\nImport Full Standards Library" in out
+    assert "[clear]\nImport Standards Profile" in out
+    assert "[clear]\nExport Full Standards Library" in out
+    assert "[clear]\nExport Standards Profile" in out
+
+
+def test_validate_clears_before_validation_screen(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    def mark_clear(stdout: io.TextIOBase) -> None:
+        print("[clear]", file=stdout)
+
+    monkeypatch.setattr(screen, "clear_screen", mark_clear)
+
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "10\n\n11\n")
+
+    assert code == 0
+    assert err == ""
+    assert "[clear]\nValidate Standards Library" in out
 
 
 def test_results_pause_before_returning_to_clean_menu(
