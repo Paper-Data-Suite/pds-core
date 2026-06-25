@@ -82,6 +82,7 @@ def test_core_menu_delegates_to_existing_standards_menu(
     assert code == 0
     assert "Paper Data Suite Core" in out
     assert "Standards Management" in out
+    assert "6. Create Standard Profile" in out
     assert "11. Back" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -135,6 +136,7 @@ def test_direct_standards_menu_route_still_works(
 
     assert code == 0
     assert "Standards Management" in captured.out
+    assert "6. Create Standard Profile" in captured.out
     assert "11. Back" in captured.out
     assert captured.err == ""
     assert list(tmp_path.iterdir()) == []
