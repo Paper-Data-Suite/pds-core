@@ -10,6 +10,9 @@ authors = [
 ]
 dependencies = []
 
+[project.scripts]
+pds-core = "pds_core.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest",
