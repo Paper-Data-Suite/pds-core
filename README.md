@@ -57,6 +57,7 @@ importing, exporting, and mutating the active workspace standards library:
 
 ```powershell
 pds-core --workspace "C:\Path\To\Paper Data Suite" standards list
+pds-core standards menu
 pds-core standards show njsls-ela:RL.CR.11-12.1
 pds-core standards search evidence --all
 pds-core standards subjects
@@ -97,6 +98,11 @@ Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
 not be unique.
 
+`pds-core standards menu` opens a plain-text teacher-facing management menu for
+the shared workspace standards library. It distinguishes durable
+`standard_id`/`profile_id` values from display fields, confirms before writing,
+and does not support destructive standard or profile deletion.
+
 Profiles group standards for reuse by storing ordered durable `standard_id`
 references. `profile create` adds a new durable `profile_id`; `profile replace`
 is full-record replacement and clears omitted optional metadata and membership.
@@ -125,8 +131,8 @@ entire external JSON file before writing anything. Full-library import requires
 `--replace`; replacing an existing workspace `standards/library.json` also
 requires `--overwrite`. Profile import supports `--add`, which fails rather
 than silently replacing an existing `profile_id`. Exports refuse to overwrite
-target files unless `--overwrite` is supplied. Merge/upsert import,
-interactive menus, and module-facing selection commands remain future work.
+target files unless `--overwrite` is supplied. Merge/upsert import and
+module-facing selection commands remain future work.
 
 ## Workspace Root
 
