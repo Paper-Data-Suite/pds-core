@@ -6,6 +6,7 @@ import argparse
 from typing import Any
 
 from pds_core.cli_support.context import ArgumentParser
+from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.cli_support.profiles import (
     add_profile_metadata_arguments,
     add_profile_standard_arguments,
@@ -82,6 +83,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     _add_validate_parser(standards_subparsers)
     _add_validate_file_parser(standards_subparsers)
+    _add_menu_parser(standards_subparsers)
     _add_import_parser(standards_subparsers)
     _add_export_parser(standards_subparsers)
     _add_list_parser(standards_subparsers)
@@ -128,6 +130,23 @@ def _add_validate_file_parser(
         handler=handle_standards_validate_file,
         load_workspace_library=False,
     )
+
+
+def _add_menu_parser(
+    standards_subparsers: argparse._SubParsersAction[Any],
+) -> None:
+    menu_parser = standards_subparsers.add_parser(
+        "menu",
+        help="Open a teacher-facing interactive standards management menu.",
+        description=(
+            "Open a plain-text teacher-facing menu for browsing standards, "
+            "managing profiles, validating, importing, and exporting the "
+            "active workspace standards library. standard_id and profile_id "
+            "are durable IDs; code and title are display fields. Destructive "
+            "standard/profile deletion is not supported."
+        ),
+    )
+    menu_parser.set_defaults(handler=handle_standards_menu)
 
 
 def _add_import_parser(

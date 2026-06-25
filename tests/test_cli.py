@@ -136,6 +136,7 @@ def test_console_script_is_declared() -> None:
         ["standards", "--help"],
         ["standards", "validate", "--help"],
         ["standards", "validate-file", "--help"],
+        ["standards", "menu", "--help"],
         ["standards", "import", "--help"],
         ["standards", "export", "--help"],
         ["standards", "show", "--help"],
