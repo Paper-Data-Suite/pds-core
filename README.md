@@ -50,6 +50,10 @@ behavior in module-owned data. The same contract also includes the v0.4.0
 standards management surface audit for the planned `pds-core` CLI, teacher
 menu, import/export, mutation, and module-facing API work.
 
+See [`docs/module_standards_integration.md`](docs/module_standards_integration.md)
+for the practical integration expectations for `pds-quillan`, `pds-scoreform`,
+and future modules that consume shared `pds-core` standards management.
+
 ## Standards CLI
 
 Teachers can type the module shortcut to open the current pds-core menu:
@@ -115,6 +119,10 @@ Downstream modules can use `pds_core.standards_selection` to browse and
 validate standards without knowing the workspace storage path or standards JSON
 shape. The helpers load missing workspace libraries as empty, read-only
 libraries and do not create files or folders.
+
+For module ownership boundaries, durable ID rules, Quillan and ScoreForm
+examples, missing/deprecated standards behavior, and future-module guidance,
+see [`docs/module_standards_integration.md`](docs/module_standards_integration.md).
 
 Modules should store only durable `standard_id` and `profile_id` values.
 Returned labels, standard `code` values, profile titles, and sources are for
