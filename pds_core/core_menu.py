@@ -7,6 +7,7 @@ import sys
 from collections.abc import Sequence
 from typing import TextIO
 
+from pds_core.cli_support import screen
 from pds_core.cli_support.context import ArgumentParser
 from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.standards import (
@@ -129,7 +130,7 @@ class CoreMenu:
             print("Invalid menu choice. Please try again.", file=self.stdout)
 
     def _print_menu(self) -> None:
-        print("", file=self.stdout)
+        screen.clear_screen(self.stdout)
         print("Paper Data Suite Core", file=self.stdout)
         print("", file=self.stdout)
         print("1. Standards Management", file=self.stdout)
