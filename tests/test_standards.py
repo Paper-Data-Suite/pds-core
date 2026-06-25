@@ -168,12 +168,13 @@ def test_standards_profile_rejects_duplicate_standard_ids() -> None:
         )
 
 
-def test_standards_profile_rejects_empty_standard_references() -> None:
-    with pytest.raises(StandardsValidationError, match="at least one"):
-        StandardsProfile(
-            profile_id="english_12_njsls",
-            standards=(),
-        )
+def test_standards_profile_allows_empty_standard_references() -> None:
+    profile = StandardsProfile(
+        profile_id="english_12_njsls",
+        standards=(),
+    )
+
+    assert profile.standards == ()
 
 
 @pytest.mark.parametrize(

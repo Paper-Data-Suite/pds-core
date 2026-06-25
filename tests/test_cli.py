@@ -144,6 +144,11 @@ def test_console_script_is_declared() -> None:
         ["standards", "upsert", "--help"],
         ["standards", "retire", "--help"],
         ["standards", "reactivate", "--help"],
+        ["standards", "profile", "create", "--help"],
+        ["standards", "profile", "replace", "--help"],
+        ["standards", "profile", "add-standard", "--help"],
+        ["standards", "profile", "remove-standard", "--help"],
+        ["standards", "profile", "validate", "--help"],
         ["standards", "profile", "show", "--help"],
         ["standards", "profile", "import", "--help"],
         ["standards", "profile", "export", "--help"],
@@ -165,13 +170,31 @@ def test_help_text_exists_and_distinguishes_ids(
         assert "--replace" in captured.out or "--add" in captured.out
     if "export" in args:
         assert "--overwrite" in captured.out
-    if any(command in args for command in ("add", "replace", "upsert")):
+    if (
+        len(args) >= 3
+        and args[0] == "standards"
+        and args[1] in ("add", "replace", "upsert")
+    ):
         assert "--code" in captured.out
         assert "--description" in captured.out
     if any(command in args for command in ("retire", "reactivate")):
         normalized_help = " ".join(captured.out.split())
         assert "non-destructive" in normalized_help
         assert "deletion is not supported" in normalized_help
+    if "profile" in args and any(
+        command in args
+        for command in (
+            "create",
+            "replace",
+            "add-standard",
+            "remove-standard",
+            "validate",
+        )
+    ):
+        normalized_help = " ".join(captured.out.split())
+        assert "profile_id" in normalized_help
+        assert "standard_id" in normalized_help
+        assert "profile deletion is not supported" in normalized_help
 
 
 def test_missing_library_loads_as_empty_without_creating_directories(
@@ -1211,6 +1234,350 @@ def test_invalid_import_does_not_modify_existing_workspace_library(
     assert "invalid JSON" in err
     assert library_path.read_text(encoding="utf-8") == before
     assert not (tmp_path / "standards" / "usage").exists()
+
+
+def test_profile_create_allows_empty_profile_and_creates_only_library(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "create",
+        "--profile-id",
+        "empty_profile",
+        "--title",
+        "Empty Profile",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == "Created standards profile empty_profile.\n"
+    assert err == ""
+    library = load_standards_library(tmp_path / "standards" / "library.json")
+    assert library.profiles == (
+        StandardsProfile(
+            profile_id="empty_profile",
+            standards=(),
+            title="Empty Profile",
+        ),
+    )
+    assert not (tmp_path / "standards" / "usage").exists()
+    assert not (tmp_path / "ScoreForm").exists()
+    assert not (tmp_path / "Quillan").exists()
+
+
+def test_profile_create_preserves_standard_order_and_rejects_unsafe_inputs(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base_library = StandardsLibrary(
+        standards=make_cli_library().standards,
+        profiles=(),
+    )
+    write_workspace_standards_library(tmp_path, base_library)
+    library_path = tmp_path / "standards" / "library.json"
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "create",
+        "--profile-id",
+        "english_12_new",
+        "--title",
+        "English 12 New",
+        "--standard",
+        "njsls-ela:RI.CR.11-12.1",
+        "--standard",
+        "njsls-ela:RL.CR.11-12.1",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == "Created standards profile english_12_new.\n"
+    assert err == ""
+    created = load_standards_library(library_path)
+    assert created.profiles[0].standards == (
+        "njsls-ela:RI.CR.11-12.1",
+        "njsls-ela:RL.CR.11-12.1",
+    )
+    before = library_path.read_text(encoding="utf-8")
+
+    for command_args, expected_error in (
+        (
+            (
+                "--profile-id",
+                "english_12_new",
+                "--standard",
+                "njsls-ela:RL.CR.11-12.1",
+            ),
+            "duplicate",
+        ),
+        (
+            ("--profile-id", "unknown_profile", "--standard", "missing:standard"),
+            "unknown standard IDs",
+        ),
+        (
+            (
+                "--profile-id",
+                "duplicate_membership",
+                "--standard",
+                "njsls-ela:RL.CR.11-12.1",
+                "--standard",
+                "njsls-ela:RL.CR.11-12.1",
+            ),
+            "duplicate standard IDs",
+        ),
+        (("--profile-id", " "), "profile_id"),
+    ):
+        code, out, err = run_cli(
+            tmp_path,
+            "standards",
+            "profile",
+            "create",
+            *command_args,
+            capsys=capsys,
+        )
+
+        assert code == 1
+        assert out == ""
+        assert expected_error in err
+        assert library_path.read_text(encoding="utf-8") == before
+
+
+def test_profile_replace_clears_metadata_and_replaces_membership(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+    library_path = tmp_path / "standards" / "library.json"
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "replace",
+        "english_12_njsls",
+        "--standard",
+        "local-writing:evidence_explanation",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == "Replaced standards profile english_12_njsls.\n"
+    assert err == ""
+    replaced = load_standards_library(library_path).profiles[0]
+    assert replaced.profile_id == "english_12_njsls"
+    assert replaced.standards == ("local-writing:evidence_explanation",)
+    assert replaced.title is None
+    assert replaced.source is None
+    before = library_path.read_text(encoding="utf-8")
+
+    for command_args, expected_error in (
+        (("missing_profile",), "missing"),
+        (("english_12_njsls", "--standard", "missing:standard"), "unknown"),
+        (
+            (
+                "english_12_njsls",
+                "--standard",
+                "njsls-ela:RL.CR.11-12.1",
+                "--standard",
+                "njsls-ela:RL.CR.11-12.1",
+            ),
+            "duplicate standard IDs",
+        ),
+    ):
+        code, out, err = run_cli(
+            tmp_path,
+            "standards",
+            "profile",
+            "replace",
+            *command_args,
+            capsys=capsys,
+        )
+
+        assert code == 1
+        assert out == ""
+        assert expected_error in err
+        assert library_path.read_text(encoding="utf-8") == before
+
+
+def test_profile_add_and_remove_standard_preserve_order_and_definitions(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    library = make_cli_library()
+    write_workspace_standards_library(tmp_path, library)
+    library_path = tmp_path / "standards" / "library.json"
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "add-standard",
+        "english_12_local",
+        "njsls-ela:RL.CR.11-12.1",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == (
+        "Added standard njsls-ela:RL.CR.11-12.1 to profile english_12_local.\n"
+    )
+    assert err == ""
+    updated = load_standards_library(library_path)
+    assert updated.profiles[1].standards == (
+        "local-writing:evidence_explanation",
+        "njsls-ela:RL.CR.11-12.1",
+    )
+    before = library_path.read_text(encoding="utf-8")
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "remove-standard",
+        "english_12_local",
+        "local-writing:evidence_explanation",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == (
+        "Removed standard local-writing:evidence_explanation from profile "
+        "english_12_local.\n"
+    )
+    assert err == ""
+    updated = load_standards_library(library_path)
+    assert updated.profiles[1].standards == ("njsls-ela:RL.CR.11-12.1",)
+    assert tuple(definition.standard_id for definition in updated.standards) == (
+        tuple(definition.standard_id for definition in library.standards)
+    )
+    assert not (tmp_path / "standards" / "usage").exists()
+
+    for command_args, expected_error in (
+        (
+            (
+                "add-standard",
+                "english_12_local",
+                "njsls-ela:RL.CR.11-12.1",
+            ),
+            "already contains",
+        ),
+        (("add-standard", "missing_profile", "njsls-ela:RL.CR.11-12.1"), "not found"),
+        (
+            ("add-standard", "english_12_local", "missing:standard"),
+            "standard not found",
+        ),
+        (
+            (
+                "remove-standard",
+                "english_12_local",
+                "local-writing:evidence_explanation",
+            ),
+            "does not contain",
+        ),
+        (
+            (
+                "remove-standard",
+                "missing_profile",
+                "njsls-ela:RL.CR.11-12.1",
+            ),
+            "not found",
+        ),
+    ):
+        before_failure = library_path.read_text(encoding="utf-8")
+        code, out, err = run_cli(
+            tmp_path,
+            "standards",
+            "profile",
+            *command_args,
+            capsys=capsys,
+        )
+
+        assert code == 1
+        assert out == ""
+        assert expected_error in err
+        assert library_path.read_text(encoding="utf-8") == before_failure
+
+    assert library_path.read_text(encoding="utf-8") != before
+
+
+def test_profile_validate_does_not_write_or_create_missing_library(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+    library_path = tmp_path / "standards" / "library.json"
+    before = library_path.read_text(encoding="utf-8")
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "validate",
+        "english_12_njsls",
+        capsys=capsys,
+    )
+
+    assert code == 0
+    assert out == "Standards profile is valid: english_12_njsls\n"
+    assert err == ""
+    assert library_path.read_text(encoding="utf-8") == before
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "validate",
+        "missing_profile",
+        capsys=capsys,
+    )
+
+    assert code == 1
+    assert out == ""
+    assert "standards profile not found: missing_profile" in err
+
+    empty_workspace = tmp_path / "empty"
+    empty_workspace.mkdir()
+    code, out, err = run_cli(
+        empty_workspace,
+        "standards",
+        "profile",
+        "validate",
+        "english_12_njsls",
+        capsys=capsys,
+    )
+
+    assert code == 1
+    assert out == ""
+    assert "standards profile not found: english_12_njsls" in err
+    assert list(empty_workspace.iterdir()) == []
+
+
+def test_profile_delete_is_not_implemented(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    write_workspace_standards_library(tmp_path, make_cli_library())
+    library_path = tmp_path / "standards" / "library.json"
+    before = library_path.read_text(encoding="utf-8")
+
+    code, out, err = run_cli(
+        tmp_path,
+        "standards",
+        "profile",
+        "delete",
+        "english_12_njsls",
+        capsys=capsys,
+    )
+
+    assert code == 2
+    assert out == ""
+    assert "invalid choice: 'delete'" in err
+    assert library_path.read_text(encoding="utf-8") == before
 
 
 def test_profile_export_writes_deterministic_profile_and_refuses_overwrite(

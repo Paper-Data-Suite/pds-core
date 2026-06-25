@@ -378,6 +378,104 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     profile_subparsers = profile_parser.add_subparsers(dest="profile_command")
+
+    profile_create_parser = profile_subparsers.add_parser(
+        "create",
+        help="Create a standards profile by durable profile_id.",
+        description=(
+            "Create a standards profile. profile_id is the durable profile "
+            "identifier. title, source, subject, and course are display or "
+            "filtering fields. Repeat --standard to store ordered durable "
+            "standard_id membership references. Destructive profile deletion "
+            "is not supported in v0.4.0."
+        ),
+    )
+    profile_create_parser.add_argument(
+        "--profile-id",
+        required=True,
+        help="Durable profile_id for the new profile.",
+    )
+    _add_profile_metadata_arguments(profile_create_parser)
+    _add_profile_standard_arguments(profile_create_parser)
+    profile_create_parser.set_defaults(handler=_handle_profile_create)
+
+    profile_replace_parser = profile_subparsers.add_parser(
+        "replace",
+        help="Replace one standards profile by durable profile_id.",
+        description=(
+            "Replace a full standards profile record. The positional "
+            "profile_id is the durable identifier; omitted title, source, "
+            "subject, course, description, and --standard membership values "
+            "are cleared. Standards membership stores ordered durable "
+            "standard_id references. Destructive profile deletion is not "
+            "supported in v0.4.0."
+        ),
+    )
+    profile_replace_parser.add_argument(
+        "profile_id",
+        help="Durable profile_id to replace.",
+    )
+    _add_profile_metadata_arguments(profile_replace_parser)
+    _add_profile_standard_arguments(profile_replace_parser)
+    profile_replace_parser.set_defaults(handler=_handle_profile_replace)
+
+    profile_add_standard_parser = profile_subparsers.add_parser(
+        "add-standard",
+        help="Add one standard_id reference to a profile.",
+        description=(
+            "Add one durable standard_id reference to a standards profile. "
+            "This edits profile membership only and preserves profile "
+            "metadata. Destructive profile deletion is not supported in "
+            "v0.4.0."
+        ),
+    )
+    profile_add_standard_parser.add_argument(
+        "profile_id",
+        help="Durable profile_id whose membership will be edited.",
+    )
+    profile_add_standard_parser.add_argument(
+        "standard_id",
+        help="Durable standard_id reference to append to the profile.",
+    )
+    profile_add_standard_parser.set_defaults(handler=_handle_profile_add_standard)
+
+    profile_remove_standard_parser = profile_subparsers.add_parser(
+        "remove-standard",
+        help="Remove one standard_id reference from a profile.",
+        description=(
+            "Remove one durable standard_id reference from profile membership "
+            "only. This does not delete the standard definition. Destructive "
+            "profile deletion is not supported in v0.4.0."
+        ),
+    )
+    profile_remove_standard_parser.add_argument(
+        "profile_id",
+        help="Durable profile_id whose membership will be edited.",
+    )
+    profile_remove_standard_parser.add_argument(
+        "standard_id",
+        help="Durable standard_id reference to remove from the profile.",
+    )
+    profile_remove_standard_parser.set_defaults(
+        handler=_handle_profile_remove_standard
+    )
+
+    profile_validate_parser = profile_subparsers.add_parser(
+        "validate",
+        help="Validate one standards profile by durable profile_id.",
+        description=(
+            "Validate one standards profile against the active workspace "
+            "library without writing files. profile_id is durable and profile "
+            "membership stores durable standard_id references. Destructive "
+            "profile deletion is not supported in v0.4.0."
+        ),
+    )
+    profile_validate_parser.add_argument(
+        "profile_id",
+        help="Durable profile_id to validate.",
+    )
+    profile_validate_parser.set_defaults(handler=_handle_profile_validate)
+
     profile_show_parser = profile_subparsers.add_parser(
         "show",
         help="Show one standards profile by durable profile_id.",
@@ -488,6 +586,26 @@ def _add_profile_filters(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--source", help="Filter profiles by exact source.")
     parser.add_argument("--subject", help="Filter profiles by exact subject.")
     parser.add_argument("--course", help="Filter profiles by exact course.")
+
+
+def _add_profile_metadata_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--title", help="Display title for the profile.")
+    parser.add_argument("--description", help="Display description for the profile.")
+    parser.add_argument("--subject", help="Display/filter subject for the profile.")
+    parser.add_argument("--course", help="Display/filter course for the profile.")
+    parser.add_argument("--source", help="Display/filter source for the profile.")
+
+
+def _add_profile_standard_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--standard",
+        action="append",
+        dest="standards",
+        help=(
+            "Durable standard_id reference to include in ordered profile "
+            "membership. Repeat for multiple standards."
+        ),
+    )
 
 
 def _add_standard_mutation_fields(
@@ -1002,6 +1120,146 @@ def _handle_standards_profiles(
     return 0
 
 
+def _handle_profile_create(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        profile = _standards_profile_from_args(args.profile_id, args)
+        updated_library = add_standards_profile(library, profile)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Created standards profile {profile.profile_id}.", file=stdout)
+    return 0
+
+
+def _handle_profile_replace(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        profile = _standards_profile_from_args(args.profile_id, args)
+        updated_library = replace_standards_profile(library, profile)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Replaced standards profile {profile.profile_id}.", file=stdout)
+    return 0
+
+
+def _handle_profile_add_standard(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    profile = find_standards_profile(library, args.profile_id)
+    if profile is None:
+        print(f"Error: standards profile not found: {args.profile_id}", file=stderr)
+        return 1
+
+    definition = find_standard_definition(library, args.standard_id)
+    if definition is None:
+        print(f"Error: standard not found: {args.standard_id}", file=stderr)
+        return 1
+
+    if definition.standard_id in profile.standards:
+        print(
+            "Error: profile already contains standard "
+            f"{definition.standard_id}: {profile.profile_id}",
+            file=stderr,
+        )
+        return 1
+
+    try:
+        updated_profile = dataclass_replace(
+            profile,
+            standards=profile.standards + (definition.standard_id,),
+        )
+        updated_library = replace_standards_profile(library, updated_profile)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(
+        f"Added standard {definition.standard_id} to profile {profile.profile_id}.",
+        file=stdout,
+    )
+    return 0
+
+
+def _handle_profile_remove_standard(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    profile = find_standards_profile(library, args.profile_id)
+    if profile is None:
+        print(f"Error: standards profile not found: {args.profile_id}", file=stderr)
+        return 1
+
+    try:
+        standard_id = _normalize_standard_argument(library, args.standard_id)
+    except StandardsValidationError as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    if standard_id not in profile.standards:
+        print(
+            "Error: profile does not contain standard "
+            f"{standard_id}: {profile.profile_id}",
+            file=stderr,
+        )
+        return 1
+
+    try:
+        updated_profile = dataclass_replace(
+            profile,
+            standards=tuple(
+                existing
+                for existing in profile.standards
+                if existing != standard_id
+            ),
+        )
+        updated_library = replace_standards_profile(library, updated_profile)
+        _write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(
+        f"Removed standard {standard_id} from profile {profile.profile_id}.",
+        file=stdout,
+    )
+    return 0
+
+
+def _handle_profile_validate(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    profile = find_standards_profile(library, args.profile_id)
+    if profile is None:
+        print(f"Error: standards profile not found: {args.profile_id}", file=stderr)
+        return 1
+
+    print(f"Standards profile is valid: {profile.profile_id}", file=stdout)
+    return 0
+
+
 def _handle_profile_show(
     args: argparse.Namespace,
     library: StandardsLibrary,
@@ -1115,6 +1373,33 @@ def _handle_profile_import(
         file=stdout,
     )
     return 0
+
+
+def _standards_profile_from_args(
+    profile_id: str,
+    args: argparse.Namespace,
+) -> StandardsProfile:
+    return StandardsProfile(
+        profile_id=profile_id,
+        standards=tuple(args.standards or ()),
+        subject=args.subject,
+        course=args.course,
+        source=args.source,
+        title=args.title,
+        description=args.description,
+    )
+
+
+def _normalize_standard_argument(
+    library: StandardsLibrary,
+    standard_id: str,
+) -> str:
+    definition = find_standard_definition(library, standard_id)
+    if definition is not None:
+        return definition.standard_id
+
+    StandardsProfile(profile_id="profile", standards=(standard_id,))
+    return standard_id
 
 
 def _load_standards_profile(path: str | Path) -> StandardsProfile:

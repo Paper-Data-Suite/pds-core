@@ -64,6 +64,11 @@ pds-core standards sources
 pds-core standards domains
 pds-core standards categories
 pds-core standards profiles
+pds-core standards profile create --profile-id english_12_njsls --title "English 12 NJSLS" --standard njsls-ela:RL.CR.11-12.1
+pds-core standards profile replace english_12_njsls --title "English 12 NJSLS" --standard njsls-ela:RL.CR.11-12.1
+pds-core standards profile add-standard english_12_njsls njsls-ela:RI.CR.11-12.1
+pds-core standards profile remove-standard english_12_njsls njsls-ela:RI.CR.11-12.1
+pds-core standards profile validate english_12_njsls
 pds-core standards profile show english_12_njsls
 pds-core standards validate
 pds-core standards validate-file ".\standards-library.json"
@@ -91,6 +96,15 @@ folders.
 Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
 not be unique.
+
+Profiles group standards for reuse by storing ordered durable `standard_id`
+references. `profile create` adds a new durable `profile_id`; `profile replace`
+is full-record replacement and clears omitted optional metadata and membership.
+`profile add-standard` appends one standard reference, and `profile
+remove-standard` removes one membership reference only. It does not delete the
+standard definition. `profile validate`, `profile show`, `profile import`, and
+`profile export` remain available. Destructive profile deletion is not
+supported in v0.4.0.
 
 Individual standard mutation commands require `code`, `source`, `short-name`,
 and `description`. `add` also requires `--standard-id`; `replace` and `upsert`
