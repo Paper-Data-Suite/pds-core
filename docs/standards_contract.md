@@ -9,6 +9,9 @@ For the practical module integration guide covering `pds-quillan`,
 `pds-scoreform`, future modules, durable ID storage, teacher-facing display,
 and missing/deprecated standards behavior, see
 [`module_standards_integration.md`](module_standards_integration.md).
+For the smoke-tested standards management workflow across CLI commands,
+teacher menus, import/export, and module-facing selection APIs, see
+[`standards_management_workflow.md`](standards_management_workflow.md).
 
 The central architecture decision is:
 

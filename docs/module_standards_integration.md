@@ -16,6 +16,9 @@ The deeper shared standards contract lives in
 practical integration guide for `pds-quillan`, `pds-scoreform`, and future
 Paper Data Suite modules.
 
+For practical CLI, teacher-menu, import/export, and module-selection examples,
+see [`standards_management_workflow.md`](standards_management_workflow.md).
+
 ## Dependency Direction
 
 The intended dependency direction is:

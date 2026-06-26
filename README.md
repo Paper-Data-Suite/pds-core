@@ -54,6 +54,9 @@ See [`docs/module_standards_integration.md`](docs/module_standards_integration.m
 for the practical integration expectations for `pds-quillan`, `pds-scoreform`,
 and future modules that consume shared `pds-core` standards management.
 
+See [`docs/standards_management_workflow.md`](docs/standards_management_workflow.md)
+for the smoke-tested CLI, menu, import/export, and module selection workflow.
+
 ## Standards CLI
 
 Teachers can type the module shortcut to open the current pds-core menu:
@@ -113,6 +116,10 @@ Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
 not be unique.
 
+For an end-to-end synthetic workflow with add, profile, validation,
+import/export, menu, and module API examples, see
+[`docs/standards_management_workflow.md`](docs/standards_management_workflow.md).
+
 ## Module Standards Selection API
 
 Downstream modules can use `pds_core.standards_selection` to browse and
@@ -123,6 +130,8 @@ libraries and do not create files or folders.
 For module ownership boundaries, durable ID rules, Quillan and ScoreForm
 examples, missing/deprecated standards behavior, and future-module guidance,
 see [`docs/module_standards_integration.md`](docs/module_standards_integration.md).
+For a compact executable-style workflow, see
+[`docs/standards_management_workflow.md`](docs/standards_management_workflow.md).
 
 Modules should store only durable `standard_id` and `profile_id` values.
 Returned labels, standard `code` values, profile titles, and sources are for
