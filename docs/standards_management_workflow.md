@@ -29,6 +29,10 @@ Standards usage ledgers are separate from library management and are not
 created by standards-library commands. ScoreForm, Quillan, class folders, and
 other module folders are not created by standards-library management.
 
+Starter standards installation follows the same storage rule: it writes only
+the canonical shared library file and does not create usage ledgers or module
+folders.
+
 ## Power-User CLI Workflow
 
 Use an explicit workspace while testing or drafting standards:
@@ -121,6 +125,20 @@ pds-core --workspace ".\tmp-imported-pds-workspace" standards import ".\syntheti
 pds-core --workspace ".\tmp-imported-pds-workspace" standards validate
 ```
 
+Install a bundled starter standards pack:
+
+```powershell
+pds-core --workspace $workspace standards starter list
+pds-core --workspace $workspace standards starter preview njsls_ela_2023
+pds-core --workspace $workspace standards starter validate njsls_ela_2023
+pds-core --workspace $workspace standards starter install njsls_ela_2023
+```
+
+Starter install merges missing records, skips identical records, and refuses
+conflicting existing records unless `--overwrite` is supplied. The bundled
+`njsls_ela_2023` pack provides English 10 and English 12 reusable standards
+profiles from the 2023 NJSLS-ELA high school standards.
+
 ## Teacher-Facing Menu Workflow
 
 Teachers can open the broader Core menu:
@@ -147,7 +165,8 @@ Broad menu workflow:
 4. Browse, search, and view standards.
 5. Browse and view profiles.
 6. Import or export libraries and profiles when needed.
-7. Validate the library.
+7. Install starter standards when a prepared library/profile pool is useful.
+8. Validate the library.
 
 The menu displays teacher-readable labels such as codes, titles, sources, and
 descriptions. It stores durable `standard_id` and `profile_id` values
@@ -166,6 +185,10 @@ requires `--overwrite`. Invalid imports do not partially rewrite
 Profile export writes one canonical `StandardsProfile` JSON file. Profile
 import supports explicit add or replacement behavior and validates standard
 references against the current library before writing.
+
+Starter standards install validates the bundled pack before writing. It is a
+merge workflow, not full-library replacement. Existing teacher-edited records
+are protected from silent overwrite.
 
 Import/export files contain shared standards metadata only. They do not
 contain student work, answer sheets, essays, scans, rosters, assignment files,
@@ -221,6 +244,7 @@ For module ownership boundaries and ScoreForm/Quillan expectations, see
 - Standards management does not read student work.
 - Standards management does not grade, score, or determine mastery.
 - Library management does not emit standards usage events.
+- Starter standards installation does not emit standards usage events.
 - Review import/export files before sharing because local teacher-created
   metadata may still be sensitive.
 

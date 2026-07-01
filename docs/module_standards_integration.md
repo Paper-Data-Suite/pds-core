@@ -18,6 +18,8 @@ Paper Data Suite modules.
 
 For practical CLI, teacher-menu, import/export, and module-selection examples,
 see [`standards_management_workflow.md`](standards_management_workflow.md).
+For installable starter standards packs, see
+[`starter_standards.md`](starter_standards.md).
 
 ## Dependency Direction
 
@@ -45,6 +47,11 @@ This file stores shared standard definitions and reusable standards profiles.
 Modules must not create competing standards libraries. Modules may store
 module-owned assignment, review, report, or export data that references shared
 standards by durable ID.
+
+Starter standards packs are optional setup helpers owned by `pds-core`. They
+populate the same shared library with definitions and reusable profile pools,
+but modules still own assignment creation, focus selection, scoring, tagging,
+review records, and reports.
 
 | Concern | Owner |
 | -- | -- |
@@ -190,6 +197,11 @@ Future Quillan assignment creation should use `pds-core` shared standards and
 profile selection to replace typed entry for `standards_profile_id` and
 `focus_standards`. The teacher-facing workflow should let the teacher select a
 profile and then choose focus standards from that profile.
+
+The bundled `english10_2023_njsls_ela` and `english12_2023_njsls_ela`
+profiles are broad selectable pools. They are not Quillan assignment
+templates, and Quillan still stores the specific focus standards chosen for
+each assignment.
 
 ### Review Tags and Comments
 

@@ -12,6 +12,8 @@ and missing/deprecated standards behavior, see
 For the smoke-tested standards management workflow across CLI commands,
 teacher menus, import/export, and module-facing selection APIs, see
 [`standards_management_workflow.md`](standards_management_workflow.md).
+For optional bundled starter standards packs, see
+[`starter_standards.md`](starter_standards.md).
 
 The central architecture decision is:
 
@@ -305,6 +307,11 @@ workspace standards library creates only the `standards/` parent directory and
 Usage events remain separate from definitions and profiles. Creating or
 writing the standards library does not create standards usage ledgers and does
 not record usage.
+
+Installing starter standards is also library setup, not usage. Starter
+installation may merge shared definitions and profiles into
+`standards/library.json`, but it must not create usage ledgers or
+module-specific files.
 
 `settings/school_year.json` stores the suite-level active school-year state
 owned by `pds-core`. It records the currently opened school year, when it was

@@ -1,0 +1,1818 @@
+{
+    "standards":  [
+                      {
+                          "standard_id":  "njsls-ela:L.SS.9-10.1",
+                          "code":  "L.SS.9-10.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Language System and Structure",
+                          "description":  "Demonstrate command of the system and structure of the English language when writing or speaking.\nA. Use parallel structure.\nB. Use various types of phrases (noun, verb, adjectival, adverbial, participial, prepositional, absolute) and clauses (independent, dependent; noun, relative, adverbial) to convey specific meanings and add variety and interest to writing or presentations.\nC. Use a semicolon (and perhaps a conjunctive adverb) to link two or more closely related independent clauses.\nD. Use a colon to introduce a list or quotation.\nE. Recognize spelling conventions.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "language_system_and_structure",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.KL.9-10.2",
+                          "code":  "L.KL.9-10.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Language in Context",
+                          "description":  "Apply knowledge of language to make effective choices for meaning, or style, and to comprehend more fully when reading, writing, speaking or listening.\nA. Acquire and use accurately general academic and domain-specific words and phrases, sufficient for reading, writing, speaking, and listening at the college and career readiness level.\nB. Vary word choice and sentence structure to demonstrate an understanding of the influence of language.\nC. Demonstrate independence in gathering vocabulary knowledge when considering a word or phrase important to comprehension or expression.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "language_in_context",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.VL.9-10.3",
+                          "code":  "L.VL.9-10.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Vocabulary in Context",
+                          "description":  "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grades 9--10 reading and content, including technical meanings, choosing flexibly from a range of strategies.\nA. Use context (e.g., the overall meaning of a sentence, paragraph, or text; a word\u0027s position or function in a sentence) as a clue to the meaning of a word or phrase.\nB. Identify and correctly use patterns of word changes that indicate different meanings or parts of speech (e.g., analyze, analysis, analytical; advocate, advocacy).\nC. Analyze the cumulative impact of specific word choices on meaning and tone (e.g., how the language of a court opinion differs from that of a newspaper).\nD. Consult general and specialized reference materials (e.g., dictionaries, glossaries, thesauruses), both print and digital, to find the pronunciation of a word or determine or clarify its precise meaning, its part of speech, or its etymology.\nE. Verify the preliminary determination of the meaning of a word or phrase (e.g., by checking the inferred meaning in context or in a dictionary).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "vocabulary_in_context",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.VI.9-10.4",
+                          "code":  "L.VI.9-10.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Figurative Language",
+                          "description":  "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings, including connotative meanings.\nA. Interpret figures of speech (e.g., euphemism, oxymoron) in context and analyze their role in the text.\nB. Analyze nuances in the meaning of words with similar denotations.\nC. Analyze the cumulative impact of specific word choices on meaning and tone (e.g., how the language evokes a sense of time and place; how it sets a formal or informal tone; how the language of a court opinion differs from that of a newspaper).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "figurative_language",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CR.9-10.1",
+                          "code":  "RL.CR.9-10.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Cite Textual Evidence",
+                          "description":  "Cite a range of thorough textual evidence and make relevant connections to strongly support analysis of multiple aspects of what a literary text says explicitly and inferentially, as well as including determining where the text leaves matters uncertain.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "cite_textual_evidence",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CR.9-10.1",
+                          "code":  "RI.CR.9-10.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Cite Textual Evidence",
+                          "description":  "cite a range and thorough textual evidence and make clear and relevant connections, to strongly support an analysis of multiple aspects of what an informational text says explicitly and inferentially, as well as interpretations of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "cite_textual_evidence",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CI.9-10.2",
+                          "code":  "RL.CI.9-10.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Central Ideas and Themes",
+                          "description":  "Determine one or more themes of a literary text and analyze how it is developed and refined over the course of the text, including how it emerges and is shaped by specific details; provide an objective summary of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "central_ideas_and_themes",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CI.9-10.2",
+                          "code":  "RI.CI.9-10.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Central Ideas and Themes",
+                          "description":  "Determine one or more central ideas of an informational text and analyze how it is developed and refined over the course of a text, including how it emerges and is shaped by specific details; provide an objective summary of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "central_ideas_and_themes",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.IT.9-10.3",
+                          "code":  "RL.IT.9-10.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Ideas and Development",
+                          "description":  "Analyze how an author unfolds and develops ideas throughout a text, including how complex characters (e.g., those with multiple or conflicting motivations) develop, interact with other characters, and advance the plot or develop the theme.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "ideas_and_development",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.IT.9-10.3",
+                          "code":  "RI.IT.9-10.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Ideas and Development",
+                          "description":  "Analyze how an author unfolds ideas throughout the text, including the order in which the points are made, how they are introduced and developed, and the connections that are drawn between them.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "ideas_and_development",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.TS.9-10.4",
+                          "code":  "RL.TS.9-10.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Text Structure",
+                          "description":  "Analyze how an author\u0027s choices concerning the structure of a text, order of the events within it (e.g., parallel plots), and manipulation of time (e.g., pacing, flashbacks) create specific effects (e.g., mystery, tension, or surprise).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "text_structure",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.TS.9-10.4",
+                          "code":  "RI.TS.9-10.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Text Structure",
+                          "description":  "Analyze in detail the author\u0027s choices concerning the structure of ideas or claims of a text, and how they are developed and refined by particular sentences, paragraphs, or larger portions of a text (e.g., a section or chapter).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "text_structure",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.PP.9-10.5",
+                          "code":  "RL.PP.9-10.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Perspective and Purpose",
+                          "description":  "Determine an author\u0027s lens in a text (including cultural experience reflected in a work of literature from outside the United States, drawing on a wide reading of world literature) and analyze how an author uses rhetorical devices to advance a point of view.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "perspective_and_purpose",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.PP.9-10.5",
+                          "code":  "RI.PP.9-10.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Perspective and Purpose",
+                          "description":  "Determine an author\u0027s purpose in a text (including cultural experience and knowledge reflected in text originating outside the United States) and analyze how an author uses rhetorical devices to advance that purpose.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "perspective_and_purpose",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.MF.9-10.6",
+                          "code":  "RL.MF.9-10.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Media and Formats",
+                          "description":  "Analyze integrate, and evaluate multiple interpretations (e.g., recorded or live production of a play or recorded novel or poetry) of a single text or text/s presented in different formats (visually, quantitatively).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "media_and_formats",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.MF.9-10.6",
+                          "code":  "RI.MF.9-10.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Media and Formats",
+                          "description":  "Analyze, integrate, and evaluate multiple interpretations (e.g., charts, graphs, diagrams, videos) of a single text or text/s presented in different formats (visually, quantitatively) as well as in words in order to address a question or solve a problem.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "media_and_formats",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.AA.9-10.7",
+                          "code":  "RI.AA.9-10.7",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Argument Analysis",
+                          "description":  "Describe and evaluate the argument and specific claims in an informational text, assessing whether the reasoning is valid and the evidence is relevant and sufficient; identify false statements and reasoning.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "argument_analysis",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CT.9-10.8",
+                          "code":  "RL.CT.9-10.8",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Comparative Texts",
+                          "description":  "Analyze and reflect on (e.g., practical knowledge, historical/cultural context, and background knowledge) how an author draws on, develops, or transforms source material historical and literary significance (e.g., how a modern author treats a theme or topic from mythology or a religious text) and how they relate in terms of themes and significant concepts.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "comparative_texts",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CT.9-10.8",
+                          "code":  "RI.CT.9-10.8",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Comparative Texts",
+                          "description":  "Analyze and reflect on (e.g., practical knowledge, historical/cultural context, and background knowledge) seminal and informational text of historical and scientific significance, including how they relate in terms of themes and significant concepts.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "comparative_texts",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.AW.9-10.1",
+                          "code":  "W.AW.9-10.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Argument Writing",
+                          "description":  "Write arguments to support claims in an analysis of substantive topics or texts, using valid reasoning and relevant and sufficient textual and non-textual evidence.\nA. Introduce precise claim(s), distinguish the claim(s) from alternate or opposing claims, and create an organization that establishes clear relationships among claim(s), counterclaims, reasons, and evidence.\nB. Develop claim(s) and counterclaims using sound reasoning, supplying data and evidence for each while pointing out the strengths and limitations of both claim(s) and counterclaims in a discipline-appropriate manner that anticipates the audience\u0027s knowledge level and concerns.\nC. Use transitions (e.g., words, phrases, clauses) to link the major sections of the text, create cohesion, and clarify the relationships between claim(s) and reasons, between reasons and evidence, and between claim(s) and counterclaims.\nD. Establish and maintain a style and tone appropriate to the audience and purpose (e.g., formal and objective for academic writing) while attending to the norms and conventions of the discipline in which they are writing.\nE. Provide a concluding paragraph or section that supports the argument presented.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "argument_writing",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.IW.9-10.2",
+                          "code":  "W.IW.9-10.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Informative / Explanatory Writing",
+                          "description":  "Write informative/explanatory texts (including the narration of historical events, scientific procedures/ experiments, or technical processes) to examine and convey complex ideas, concepts, and information clearly and accurately through the effective selection, organization, and analysis of content.\nA. Introduce a topic; organize complex ideas, concepts, and information to make important connections and distinctions; include formatting (e.g., headings), graphics (e.g., figures, tables), and multimedia when useful to aid in comprehension.\nB. Develop the topic with well-chosen, relevant, and sufficient facts, extended definitions, concrete details, quotations, or other information and examples appropriate to the audience\u0027s knowledge of the topic.\nC. Use appropriate and varied transitions to link the major sections of the text, create cohesion, and clarify the relationships among complex ideas and concepts.\nD. Use precise language and domain-specific vocabulary to manage the complexity of the topic.\nE. Establish and maintain a style and tone appropriate to the audience and purpose (e.g., formal and objective for academic writing) while attending to the norms and conventions of the discipline in which they are writing.\nF. Provide a concluding paragraph or section that supports the information or explanation presented (e.g., articulating implications or the significance of the topic).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "informative_explanatory_writing",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.NW.9-10.3",
+                          "code":  "W.NW.9-10.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Narrative Writing",
+                          "description":  "Write narratives to develop real or imagined experiences or events using effective technique, well-chosen details, and well-structured event sequences.\nA. Engage and orient the reader by setting out a problem, situation, or observation, establishing one or multiple point(s) of view, and introducing a narrator and/or characters; create a smooth progression of experiences or events.\nB. Use narrative techniques, such as dialogue, pacing, description, reflection, and multiple plot lines, to develop experiences, events, and/or characters.\nC. Use a variety of techniques to sequence events so that they build on one another to create a coherent whole.\nD. Use precise words and phrases, telling details, and sensory language to convey a vivid picture of the experiences, events, setting, and/or characters.\nE. Provide a conclusion that follows from and reflects on what is experienced, observed, or resolved over the course of the narrative.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "narrative_writing",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.WP.9-10.4",
+                          "code":  "W.WP.9-10.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Writing Process",
+                          "description":  "Develop and strengthen writing as needed by planning, revising, editing, rewriting, trying a new approach; sustaining effort to complete complex writing tasks; seeking out feedback and reflecting on personal writing progress; consulting a style manual (such as MLA or APA Style), focusing on addressing what is most significant for a specific purpose and audience.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "writing_process",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.WR.9-10.5",
+                          "code":  "W.WR.9-10.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Research Writing",
+                          "description":  "Conduct short as well as more sustained research projects to answer a question (including a self-generated question) or solve a problem; narrow or broaden the inquiry when appropriate; synthesize multiple sources on the subject, demonstrating understanding of the subject under investigation.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "research_writing",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.SE.9-10.6",
+                          "code":  "W.SE.9-10.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Sources and Evidence",
+                          "description":  "Gather relevant information from multiple authoritative print and digital sources, using advanced searches effectively; assess the usefulness of each source in answering the research question; integrate information into the text selectively to maintain the flow of ideas, avoiding plagiarism and following a standard format for citation (MLA or APA Style Manuals).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "sources_and_evidence",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.RW.9-10.7",
+                          "code":  "W.RW.9-10.7",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Routine Writing",
+                          "description":  "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of tasks, purposes, and audiences.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "routine_writing",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.PE.9-10.1",
+                          "code":  "SL.PE.9-10.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Collaborative Discussion",
+                          "description":  "Initiate and participate effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with peers on grades 9--10 topics, texts, and issues, building on others\u0027 ideas and expressing their own clearly and persuasively.\nA. Come to discussions prepared, having read and researched material under study; explicitly draw on that preparation by referring to evidence from texts and other research on the topic or issue to stimulate a thoughtful, well-reasoned exchange of ideas.\nB. Collaborate with peers to set rules for discussions (e.g., informal consensus, taking votes on key issues, presentation of alternate views); develop clear goals and assessment criteria (e.g., student developed rubric) and assign individual roles as needed.\nC. Propel conversations by posing and responding to questions that relate the current discussion to broader themes or larger ideas; actively incorporate others into the discussion; and clarify, verify, or challenge ideas and conclusions.\nD. Respond thoughtfully to various perspectives, summarize points of agreement and disagreement, and justify own views. Make new connections in light of the evidence and reasoning presented.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "collaborative_discussion",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.II.9-10.2",
+                          "code":  "SL.II.9-10.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Integrate Information",
+                          "description":  "Integrate multiple sources of information presented in diverse media or formats (e.g., visually, quantitatively, qualitatively, orally) evaluating the credibility and accuracy of each source.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "integrate_information",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.ES.9-10.3",
+                          "code":  "SL.ES.9-10.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Evaluate Speaker",
+                          "description":  "Evaluate a speaker\u0027s point of view, reasoning, and use of evidence and rhetoric, identifying any false reasoning or distorted evidence.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "evaluate_speaker",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.PI.9-10.4",
+                          "code":  "SL.PI.9-10.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Present Information",
+                          "description":  "Present information, findings, and supporting evidence clearly, concisely, and logically. The content, organization, development, and style are appropriate to task, purpose, and audience.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "present_information",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.UM.9-10.5",
+                          "code":  "SL.UM.9-10.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Use Media",
+                          "description":  "Make strategic use of digital media (e.g., textual, graphical, audio, visual, and interactive elements) in presentations to enhance findings, reasoning, and evidence and to add interest.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "use_media",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.AS.9-10.6",
+                          "code":  "SL.AS.9-10.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Adapt Speech",
+                          "description":  "Adapt speech to a variety of contexts and tasks, demonstrating command of formal English.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 10",
+                          "grade_band":  "9-10",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 10",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "adapt_speech",
+                                       "grades_9_10"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.SS.11-12.1",
+                          "code":  "L.SS.11-12.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Language System and Structure",
+                          "description":  "Demonstrate command of the system and structure of the English language when writing or speaking.\nA. Apply the understanding that usage is a matter of convention, can change over time, and place, and is sometimes contested.\nB. Observe hyphenation conventions.\nC. Recognize spelling conventions.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "language_system_and_structure",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.KL.11-12.2",
+                          "code":  "L.KL.11-12.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Language in Context",
+                          "description":  "Apply knowledge of language to understand how language functions in different contexts, to make effective choices for meaning or style, and to comprehend more fully when reading or listening.\nA. Acquire and use accurately general academic and domain-specific words and phrases, sufficient for reading, writing, speaking, and listening at the college and career readiness level.\nB. Vary syntax for effect, apply an understanding of syntax to the study of complex texts.\nC. Demonstrate independence in gathering vocabulary knowledge when considering a word or phrase important to comprehension or expression.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "language_in_context",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.VL.11-12.3",
+                          "code":  "L.VL.11-12.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Vocabulary in Context",
+                          "description":  "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grades 11--12 reading and content, including technical meanings, choosing flexibly from a range of strategies.\nA. Use context (e.g., the overall meaning of a sentence, paragraph, or text; a word\u0027s position or function in a sentence) as a clue to the meaning of a word or phrase.\nB. Identify and correctly use patterns of word changes that indicate different meanings or parts of speech (e.g., conceive, conception, conceivable).\nC. Analyze how an author or speaker uses and refines the meaning of a key term or terms over the course of a text or discussion.\nD. Consult general and specialized reference materials (e.g., dictionaries, glossaries, thesauruses), both print and digital, to find the pronunciation of a word or determine or clarify its precise meaning, its part of speech, its etymology, or its standard usage.\nE. Verify the preliminary determination of the meaning of a word or phrase (e.g., by checking the inferred meaning in context or in a dictionary).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "vocabulary_in_context",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:L.VI.11-12.4",
+                          "code":  "L.VI.11-12.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Figurative Language",
+                          "description":  "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings, including connotative meanings.\nA. Interpret figures of speech (e.g., hyperbole, paradox) in context and analyze their role in the text.\nB. Analyze nuances in the meaning of words with similar denotations.\nC. Analyze how the meaning of a key term or terms develops or is refined over the course of a text.\nD. Analyze the impact of specific word choices on meaning and tone, including language that is particularly fresh, engaging, or beautiful.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Language",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Language"
+                                            ],
+                          "tags":  [
+                                       "language",
+                                       "figurative_language",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CR.11-12.1",
+                          "code":  "RL.CR.11-12.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Cite Textual Evidence",
+                          "description":  "Accurately cite strong and thorough textual evidence and make relevant connections to strongly support a comprehensive analysis of multiple aspects of what a literary text says explicitly and inferentially, as well as interpretations of the text; this may include determining where the text leaves matters uncertain.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "cite_textual_evidence",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CR.11-12.1",
+                          "code":  "RI.CR.11-12.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Cite Textual Evidence",
+                          "description":  "Accurately cite a range of thorough textual evidence and make relevant connections to strongly support a comprehensive analysis of multiple aspects of what an informational text says explicitly and inferentially, as well as interpretations of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "cite_textual_evidence",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CI.11-12.2",
+                          "code":  "RL.CI.11-12.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Central Ideas and Themes",
+                          "description":  "Determine two or more themes of a literary text and analyze how they are developed and refined over the course of the text, including how they interact and build on one another to produce a complex account or analysis; provide an objective summary of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "central_ideas_and_themes",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CI.11-12.2",
+                          "code":  "RI.CI.11-12.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Central Ideas and Themes",
+                          "description":  "Determine two or more central ideas of an informational text and analyze how they are developed and refined over the course of a text, including how they interact and build on one another to provide a complex account or analysis; provide an objective summary of the text.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "central_ideas_and_themes",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.IT.11-12.3",
+                          "code":  "RL.IT.11-12.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Ideas and Development",
+                          "description":  "Analyze the impact of the author\u0027s choices as they develop ideas throughout the text regarding how to develop and relate elements of a story or drama (e.g., where a story is set, how the action is ordered, how the characters are introduced and developed).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "ideas_and_development",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.IT.11-12.3",
+                          "code":  "RI.IT.11-12.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Ideas and Development",
+                          "description":  "Analyze the impact of an author\\\u0027s choices as they develop ideas throughout the text regarding a complex set of ideas or sequence of events, and explain how specific individuals, ideas, or events interact and develop.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "ideas_and_development",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.TS.11-12.4",
+                          "code":  "RL.TS.11-12.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Text Structure",
+                          "description":  "Evaluate the author\u0027s choices concerning the structure and the effectiveness of specific parts of a text (e.g., the choice of where to begin or end a story, the choice to provide a comedic or tragic resolution) and how they contribute to its overall structure and meaning, as well as its aesthetic impact.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "text_structure",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.TS.11-12.4",
+                          "code":  "RI.TS.11-12.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Text Structure",
+                          "description":  "Evaluate the author\u0027s choices concerning structure and the effectiveness of the structure an author uses in his or her exposition or argument, including whether the structure makes points clear, convincing, and engaging.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "text_structure",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.PP.11-12.5",
+                          "code":  "RL.PP.11-12.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Perspective and Purpose",
+                          "description":  "Evaluate perspectives/lenses from two or more texts on related topics and justify the more cogent viewpoint (e.g., different accounts of the same event or issue, use of different media or formats).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "perspective_and_purpose",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.PP.11-12.5",
+                          "code":  "RI.PP.11-12.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Perspective and Purpose",
+                          "description":  "Analyze an author\u0027s purpose in a text distinguishing what is directly stated in a text or through rhetoric, analyzing how style and content convey information and advance a point of view.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "perspective_and_purpose",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.MF.11-12.6",
+                          "code":  "RL.MF.11-12.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Media and Formats",
+                          "description":  "Synthesize complex information across multiple sources and formats to develop ideas, resolve conflicting information, or develop an interpretation that goes beyond explicit text information (e.g., express a personal point of view, new interpretation of the author\u0027s message).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "media_and_formats",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.MF.11-12.6",
+                          "code":  "RI.MF.11-12.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Media and Formats",
+                          "description":  "Synthesize complex information across multiple sources and formats to develop ideas, resolve conflicting information, or develop an interpretation that goes beyond explicit text information (e.g., express a personal point of view, new interpretation of the concept).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "media_and_formats",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.AA.11-12.7",
+                          "code":  "RI.AA.11-12.7",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Argument Analysis",
+                          "description":  "Describe and evaluate the reasoning in seminal U.S. and global texts, and the premises, purposes, and arguments in these works.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "argument_analysis",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RL.CT.11-12.8",
+                          "code":  "RL.CT.11-12.8",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Comparative Texts",
+                          "description":  "Demonstrate knowledge of, analyze, and reflect on (e.g., practical knowledge, historical/cultural context, and background knowledge) documents of historical and literary significance for their themes, purposes, and rhetorical features, including how two or more texts from the same period treat similar themes or topics.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Literature",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Literature"
+                                            ],
+                          "tags":  [
+                                       "reading_literature",
+                                       "comparative_texts",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:RI.CT.11-12.8",
+                          "code":  "RI.CT.11-12.8",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Comparative Texts",
+                          "description":  "Analyze and reflect on (e.g., practical knowledge, historical/cultural context, and background knowledge) documents of historical and scientific significance for their purposes, including primary source documents relevant to U.S. and/or global history and texts proposing scientific or technical advancements.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Reading Informational",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Reading Informational"
+                                            ],
+                          "tags":  [
+                                       "reading_informational",
+                                       "comparative_texts",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.AW.11-12.1",
+                          "code":  "W.AW.11-12.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Argument Writing",
+                          "description":  "Write arguments to support claims in an analysis of substantive topics or texts, using valid reasoning and relevant and sufficient evidence.\nA. Introduce precise, knowledgeable claim(s), establish the significance of the claim(s), distinguish the claim(s) from alternate or opposing claims, and create an organization that logically sequences claim(s), counterclaims, reasons, and evidence.\nB. Develop claim(s) and counterclaims avoiding common logical fallacies and using sound reasoning and thoroughly, supplying the most relevant evidence for each while pointing out the strengths and limitations of both in a manner that anticipates the audience\u0027s knowledge level, concerns, values, and possible biases.\nC. Use transitions (e.g., words, phrases, clauses) to link the major sections of the text, create cohesion, and clarify the relationships between claim(s) and reasons, between reasons and evidence, and between claim(s) and counterclaims.\nD. Establish and maintain a style and tone appropriate to the audience and purpose (e.g., formal and objective for academic writing) while attending to the norms and conventions of the discipline in which they are writing.\nE. Provide a concluding paragraph or section that supports the argument presented (e.g., articulating implications or the significance of the topic).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "argument_writing",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.IW.11-12.2",
+                          "code":  "W.IW.11-12.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Informative / Explanatory Writing",
+                          "description":  "Write informative/explanatory texts (including the narration of historical events, scientific procedures/ experiments, or technical processes) to examine and convey complex ideas, concepts, and information clearly and accurately through the effective selection, organization, and analysis of content.\nA. Introduce a topic; organize complex ideas, concepts, and information so that each new element builds on that which precedes it to create a unified whole; include formatting (e.g., headings), graphics (e.g., figures, tables), and multimedia when useful to aiding comprehension.\nB. Develop the topic thoroughly by selecting the most significant and relevant facts, extended definitions, concrete details, quotations, or other information and examples appropriate to the audience\u0027s knowledge of the topic.\nC. Use appropriate and varied transitions and syntax to link the major sections of the text, create cohesion, and clarify the relationships among complex ideas and concepts.\nD. Use precise language, domain-specific vocabulary, and techniques such as metaphor, simile, and analogy to manage the complexity of the topic.\nE. Establish and maintain a style and tone appropriate to the audience and purpose (e.g., formal and objective for academic writing) while attending to the norms and conventions of the discipline in which they are writing.\nF. Provide a concluding paragraph or section that supports the argument presented (e.g., articulating implications or the significance of the topic).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "informative_explanatory_writing",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.NW.11-12.3",
+                          "code":  "W.NW.11-12.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Narrative Writing",
+                          "description":  "Write narratives to develop real or imagined experiences or events using effective technique, well-chosen details, and well-structured event sequences.\nA. Engage and orient the reader by setting out a problem, situation, or observation and its significance, establishing one or multiple point(s) of view, and introducing a narrator and/or characters; create a smooth progression of experiences or events.\nB. Use narrative techniques, such as dialogue, pacing, description, reflection, and multiple plot lines, to develop experiences, events, and/or characters.\nC. Use a variety of techniques to sequence events so that they build on one another to create a coherent whole and build toward a particular tone and outcome (e.g., a sense of mystery, suspense, growth, or resolution).\nD. Use precise words and phrases, telling details, and sensory language to convey a vivid picture of the experiences, events, setting, and/or characters.\nE. Provide a conclusion that follows from and reflects on what is experienced, observed, or resolved over the course of the narrative.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "narrative_writing",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.WP.11-12.4",
+                          "code":  "W.WP.11-12.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Writing Process",
+                          "description":  "Develop and strengthen writing as needed by planning, revising, editing, rewriting, trying a new approach; sustaining effort to complete complex writing tasks; tracking and reflecting on personal writing progress (e.g., using portfolios, journals, conferencing); or consulting a style manual (such as MLA or APA Style), focusing on addressing what is most significant for a specific purpose and audience.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "writing_process",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.WR.11-12.5",
+                          "code":  "W.WR.11-12.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Research Writing",
+                          "description":  "Conduct short as well as more sustained research projects to answer a question (including a self-generated question) or solve a problem; narrow or broaden the inquiry when appropriate; synthesize multiple sources on the subject, demonstrating understanding of the subject under investigation.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "research_writing",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.SE.11-12.6",
+                          "code":  "W.SE.11-12.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Sources and Evidence",
+                          "description":  "Gather relevant information from multiple authoritative print and digital sources, using advanced searches effectively; assess the strengths and limitations of each source in terms of the task, purpose, and audience; integrate information into the text selectively to maintain the flow of ideas, avoiding plagiarism and overreliance on any one source and following a standard format for citation (MLA or APA Style Manuals).",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "sources_and_evidence",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:W.RW.11-12.7",
+                          "code":  "W.RW.11-12.7",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Routine Writing",
+                          "description":  "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of tasks, purposes.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Writing",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Writing"
+                                            ],
+                          "tags":  [
+                                       "writing",
+                                       "routine_writing",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.PE.11-12.1",
+                          "code":  "SL.PE.11-12.1",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Collaborative Discussion",
+                          "description":  "Initiate and participate effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with peers on grades 11--12 topics, texts, and issues, building on others\u0027 ideas and expressing their own clearly and persuasively.\nA. Come to discussions prepared, having read and researched material under study; explicitly draw on that preparation by referring to evidence from texts and other research on the topic or issue to stimulate a thoughtful, well-reasoned exchange of ideas.\nB. Collaborate with peers to promote civil, democratic discussions and decision-making, set clear goals and assessments (e.g., student developed rubrics), and establish individual roles as needed.\nC. Propel conversations by posing and responding to questions that probe reasoning and evidence; ensure a hearing for a full range of positions on a topic or issue; clarify, verify, or challenge ideas and conclusions; and promote divergent and creative perspectives.\nD. Respond thoughtfully to diverse perspectives; synthesize comments, claims, and evidence made on all sides of an issue; resolve contradictions when possible; and determine what additional information or research is required to deepen the investigation or complete the task.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "collaborative_discussion",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.II.11-12.2",
+                          "code":  "SL.II.11-12.2",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Integrate Information",
+                          "description":  "Integrate multiple sources of information presented in diverse formats and media (e.g., visually, quantitatively, orally) in order to make informed decisions and solve problems, evaluating the credibility and accuracy of each source and noting any discrepancies among the data.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "integrate_information",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.ES.11-12.3",
+                          "code":  "SL.ES.11-12.3",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Evaluate Speaker",
+                          "description":  "Evaluate a speaker\u0027s point of view, reasoning, and use of evidence and rhetoric, assessing the stance, premises, links among ideas, word choice, points of emphasis, and tone used.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "evaluate_speaker",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.PI.11-12.4",
+                          "code":  "SL.PI.11-12.4",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Present Information",
+                          "description":  "Present information, findings and supporting evidence clearly, concisely, and logically. The content, organization, development, and style are appropriate to task, purpose, and audience.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "present_information",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.UM.11-12.5",
+                          "code":  "SL.UM.11-12.5",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Use Media",
+                          "description":  "Make strategic use of digital media (e.g., textual, graphical, audio, visual, and interactive elements) in presentations to enhance understanding of findings, reasoning, and evidence and to add interest.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "use_media",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      },
+                      {
+                          "standard_id":  "njsls-ela:SL.AS.11-12.6",
+                          "code":  "SL.AS.11-12.6",
+                          "source":  "2023 NJSLS-ELA",
+                          "short_name":  "Adapt Speech",
+                          "description":  "Adapt speech to a variety of contexts and tasks, demonstrating a command of formal English when indicated or appropriate.",
+                          "subject":  "English Language Arts",
+                          "course":  "English 12",
+                          "grade_band":  "11-12",
+                          "domain":  "Speaking and Listening",
+                          "category_path":  [
+                                                "English Language Arts",
+                                                "2023 NJSLS-ELA",
+                                                "English 12",
+                                                "Speaking and Listening"
+                                            ],
+                          "tags":  [
+                                       "speaking_and_listening",
+                                       "adapt_speech",
+                                       "grades_11_12"
+                                   ],
+                          "active":  true,
+                          "available_modules":  [
+                                                    "pds-quillan",
+                                                    "pds-scoreform"
+                                                ]
+                      }
+                  ],
+    "profiles":  [
+                     {
+                         "profile_id":  "english10_2023_njsls_ela",
+                         "standards":  [
+                                           "njsls-ela:L.SS.9-10.1",
+                                           "njsls-ela:L.KL.9-10.2",
+                                           "njsls-ela:L.VL.9-10.3",
+                                           "njsls-ela:L.VI.9-10.4",
+                                           "njsls-ela:RL.CR.9-10.1",
+                                           "njsls-ela:RI.CR.9-10.1",
+                                           "njsls-ela:RL.CI.9-10.2",
+                                           "njsls-ela:RI.CI.9-10.2",
+                                           "njsls-ela:RL.IT.9-10.3",
+                                           "njsls-ela:RI.IT.9-10.3",
+                                           "njsls-ela:RL.TS.9-10.4",
+                                           "njsls-ela:RI.TS.9-10.4",
+                                           "njsls-ela:RL.PP.9-10.5",
+                                           "njsls-ela:RI.PP.9-10.5",
+                                           "njsls-ela:RL.MF.9-10.6",
+                                           "njsls-ela:RI.MF.9-10.6",
+                                           "njsls-ela:RI.AA.9-10.7",
+                                           "njsls-ela:RL.CT.9-10.8",
+                                           "njsls-ela:RI.CT.9-10.8",
+                                           "njsls-ela:W.AW.9-10.1",
+                                           "njsls-ela:W.IW.9-10.2",
+                                           "njsls-ela:W.NW.9-10.3",
+                                           "njsls-ela:W.WP.9-10.4",
+                                           "njsls-ela:W.WR.9-10.5",
+                                           "njsls-ela:W.SE.9-10.6",
+                                           "njsls-ela:W.RW.9-10.7",
+                                           "njsls-ela:SL.PE.9-10.1",
+                                           "njsls-ela:SL.II.9-10.2",
+                                           "njsls-ela:SL.ES.9-10.3",
+                                           "njsls-ela:SL.PI.9-10.4",
+                                           "njsls-ela:SL.UM.9-10.5",
+                                           "njsls-ela:SL.AS.9-10.6"
+                                       ],
+                         "subject":  "English Language Arts",
+                         "course":  "English 10",
+                         "source":  "2023 NJSLS-ELA",
+                         "title":  "English 10 - 2023 NJSLS ELA",
+                         "description":  "Reusable standards profile for grades 9-10 English Language Arts standards from the 2023 New Jersey Student Learning Standards."
+                     },
+                     {
+                         "profile_id":  "english12_2023_njsls_ela",
+                         "standards":  [
+                                           "njsls-ela:L.SS.11-12.1",
+                                           "njsls-ela:L.KL.11-12.2",
+                                           "njsls-ela:L.VL.11-12.3",
+                                           "njsls-ela:L.VI.11-12.4",
+                                           "njsls-ela:RL.CR.11-12.1",
+                                           "njsls-ela:RI.CR.11-12.1",
+                                           "njsls-ela:RL.CI.11-12.2",
+                                           "njsls-ela:RI.CI.11-12.2",
+                                           "njsls-ela:RL.IT.11-12.3",
+                                           "njsls-ela:RI.IT.11-12.3",
+                                           "njsls-ela:RL.TS.11-12.4",
+                                           "njsls-ela:RI.TS.11-12.4",
+                                           "njsls-ela:RL.PP.11-12.5",
+                                           "njsls-ela:RI.PP.11-12.5",
+                                           "njsls-ela:RL.MF.11-12.6",
+                                           "njsls-ela:RI.MF.11-12.6",
+                                           "njsls-ela:RI.AA.11-12.7",
+                                           "njsls-ela:RL.CT.11-12.8",
+                                           "njsls-ela:RI.CT.11-12.8",
+                                           "njsls-ela:W.AW.11-12.1",
+                                           "njsls-ela:W.IW.11-12.2",
+                                           "njsls-ela:W.NW.11-12.3",
+                                           "njsls-ela:W.WP.11-12.4",
+                                           "njsls-ela:W.WR.11-12.5",
+                                           "njsls-ela:W.SE.11-12.6",
+                                           "njsls-ela:W.RW.11-12.7",
+                                           "njsls-ela:SL.PE.11-12.1",
+                                           "njsls-ela:SL.II.11-12.2",
+                                           "njsls-ela:SL.ES.11-12.3",
+                                           "njsls-ela:SL.PI.11-12.4",
+                                           "njsls-ela:SL.UM.11-12.5",
+                                           "njsls-ela:SL.AS.11-12.6"
+                                       ],
+                         "subject":  "English Language Arts",
+                         "course":  "English 12",
+                         "source":  "2023 NJSLS-ELA",
+                         "title":  "English 12 - 2023 NJSLS ELA",
+                         "description":  "Reusable standards profile for grades 11-12 English Language Arts standards from the 2023 New Jersey Student Learning Standards."
+                     }
+                 ]
+}

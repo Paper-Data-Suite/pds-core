@@ -57,6 +57,10 @@ and future modules that consume shared `pds-core` standards management.
 See [`docs/standards_management_workflow.md`](docs/standards_management_workflow.md)
 for the smoke-tested CLI, menu, import/export, and module selection workflow.
 
+See [`docs/starter_standards.md`](docs/starter_standards.md) for bundled
+starter standards packs, including the installable 2023 NJSLS-ELA high school
+starter library and English 10 / English 12 reusable profiles.
+
 ## Standards CLI
 
 Teachers can type the module shortcut to open the current pds-core menu:
@@ -91,6 +95,10 @@ pds-core standards profile validate english_12_njsls
 pds-core standards profile show english_12_njsls
 pds-core standards validate
 pds-core standards validate-file ".\standards-library.json"
+pds-core standards starter list
+pds-core standards starter preview njsls_ela_2023
+pds-core standards starter validate
+pds-core standards starter install njsls_ela_2023
 pds-core standards export ".\standards-library.json"
 pds-core standards import ".\standards-library.json" --replace
 pds-core standards add --standard-id local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use evidence from a text."
@@ -111,6 +119,13 @@ Mutation commands write only the canonical
 `<workspace>/standards/library.json`; they may create the `standards/`
 directory and library file, but do not create usage ledgers or module-specific
 folders.
+
+Starter standards install optional shared definitions and reusable profiles
+into the same canonical library. The bundled `njsls_ela_2023` pack contains
+64 high school ELA standards and the profiles `english10_2023_njsls_ela` and
+`english12_2023_njsls_ela`. Install merges missing records, skips identical
+records, refuses conflicts by default, and requires `--overwrite` to replace
+conflicting starter records. Starter install does not record usage events.
 
 Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may

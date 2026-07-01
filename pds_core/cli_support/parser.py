@@ -45,6 +45,12 @@ from pds_core.cli_support.standards_read import (
     handle_standards_sources,
     handle_standards_subjects,
 )
+from pds_core.cli_support.starter_standards import (
+    handle_starter_standards_install,
+    handle_starter_standards_list,
+    handle_starter_standards_preview,
+    handle_starter_standards_validate,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -86,6 +92,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_menu_parser(standards_subparsers)
     _add_import_parser(standards_subparsers)
     _add_export_parser(standards_subparsers)
+    _add_starter_parser(standards_subparsers)
     _add_list_parser(standards_subparsers)
     _add_show_parser(standards_subparsers)
     _add_standard_mutation_parsers(standards_subparsers)
@@ -200,6 +207,91 @@ def _add_export_parser(
         help="Overwrite the target export file if it already exists.",
     )
     export_parser.set_defaults(handler=handle_standards_export)
+
+
+def _add_starter_parser(
+    standards_subparsers: argparse._SubParsersAction[Any],
+) -> None:
+    starter_parser = standards_subparsers.add_parser(
+        "starter",
+        help="Discover, validate, preview, and install starter standards packs.",
+        description=(
+            "Work with bundled starter standards packs. Starter install merges "
+            "missing definitions and profiles into the canonical workspace "
+            "standards/library.json, skips identical existing records, and "
+            "requires --overwrite before replacing conflicting starter records. "
+            "Installed profile_id values reference durable standard_id values."
+        ),
+    )
+    starter_subparsers = starter_parser.add_subparsers(dest="starter_command")
+
+    list_parser = starter_subparsers.add_parser(
+        "list",
+        help="List bundled starter standards packs.",
+        description=(
+            "List bundled starter standards packs without reading or writing "
+            "the workspace standards library. Installed profile_id values "
+            "reference durable standard_id values."
+        ),
+    )
+    list_parser.set_defaults(
+        handler=handle_starter_standards_list,
+        load_workspace_library=False,
+    )
+
+    preview_parser = starter_subparsers.add_parser(
+        "preview",
+        help="Preview one starter standards pack.",
+        description=(
+            "Preview starter standards pack metadata, counts, and profile IDs "
+            "without writing workspace files. Profiles store durable "
+            "profile_id values and member standard_id references."
+        ),
+    )
+    preview_parser.add_argument("pack_id", help="Starter standards pack ID.")
+    preview_parser.set_defaults(
+        handler=handle_starter_standards_preview,
+        load_workspace_library=False,
+    )
+
+    validate_parser = starter_subparsers.add_parser(
+        "validate",
+        help="Validate one or all starter standards packs.",
+        description=(
+            "Validate bundled starter standards pack JSON against the "
+            "StandardsLibrary model without writing workspace files. Validation "
+            "checks profile_id and standard_id references."
+        ),
+    )
+    validate_parser.add_argument(
+        "pack_id",
+        nargs="?",
+        help="Optional starter standards pack ID. Validates all packs if omitted.",
+    )
+    validate_parser.set_defaults(
+        handler=handle_starter_standards_validate,
+        load_workspace_library=False,
+    )
+
+    install_parser = starter_subparsers.add_parser(
+        "install",
+        help="Install a starter standards pack into the workspace library.",
+        description=(
+            "Install one starter standards pack into the canonical workspace "
+            "standards/library.json. Missing records are merged, identical "
+            "records are skipped, and conflicting existing records are refused "
+            "unless --overwrite is supplied. Installation does not record "
+            "standards usage events. Installed profile_id values reference "
+            "durable standard_id values."
+        ),
+    )
+    install_parser.add_argument("pack_id", help="Starter standards pack ID.")
+    install_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Replace conflicting existing standards/profile records from the pack.",
+    )
+    install_parser.set_defaults(handler=handle_starter_standards_install)
 
 
 def _add_list_parser(

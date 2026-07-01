@@ -5,12 +5,12 @@ from __future__ import annotations
 import argparse
 from typing import TextIO
 
-from pds_core.cli_support.menu_import_export_workflows import ImportExportWorkflowMixin
+from pds_core.cli_support.menu_starter_workflows import StarterStandardsWorkflowMixin
 from pds_core.cli_support.standards_io import handle_standards_validate
 from pds_core.standards import StandardsLibrary
 
 
-class StandardsMenu(ImportExportWorkflowMixin):
+class StandardsMenu(StarterStandardsWorkflowMixin):
     """Small stateful runner for the interactive standards menu."""
 
     def __init__(
@@ -33,6 +33,7 @@ class StandardsMenu(ImportExportWorkflowMixin):
             "2": self.profiles_submenu,
             "3": self.import_export_submenu,
             "4": self.validate_standards_library,
+            "s": self.starter_standards_submenu,
         }
         while True:
             self._print_menu(
@@ -42,6 +43,7 @@ class StandardsMenu(ImportExportWorkflowMixin):
                     "2. Profiles",
                     "3. Import / Export",
                     "4. Validate library",
+                    "S. Starter Standards",
                     "5. Back",
                 ),
             )
@@ -49,7 +51,7 @@ class StandardsMenu(ImportExportWorkflowMixin):
             if choice is None or choice == "5":
                 print("Back.", file=self.stdout)
                 return 0
-            action = actions.get(choice)
+            action = actions.get(choice.casefold())
             if action is None:
                 print("Invalid menu choice. Please try again.", file=self.stdout)
                 continue
