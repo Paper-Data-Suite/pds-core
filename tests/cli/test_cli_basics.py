@@ -20,6 +20,12 @@ def test_console_script_is_declared() -> None:
     "args",
     [
         ["--help"],
+        ["workspace", "--help"],
+        ["workspace", "show", "--help"],
+        ["workspace", "set", "--help"],
+        ["workspace", "validate", "--help"],
+        ["workspace", "reset", "--help"],
+        ["workspace", "paths", "--help"],
         ["standards", "--help"],
         ["standards", "validate", "--help"],
         ["standards", "validate-file", "--help"],
@@ -55,6 +61,15 @@ def test_help_text_exists_and_distinguishes_ids(
     captured = capsys.readouterr()
 
     assert code == 0
+    if args[0] == "workspace":
+        assert "workspace" in captured.out.lower()
+        assert (
+            "PDS_WORKSPACE_ROOT" in captured.out
+            or "saved preference" in captured.out
+            or "workspace status" in captured.out.lower()
+            or "workspace root" in captured.out.lower()
+        )
+        return
     assert "standards" in captured.out
     assert "standard_id" in captured.out or "profile_id" in captured.out
     if "show" in args or "export" in args:

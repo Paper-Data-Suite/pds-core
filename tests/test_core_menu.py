@@ -37,13 +37,15 @@ def test_core_menu_opens_and_exits_via_back(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "4\n")
 
     assert code == 0
     assert "PDS Core\n\nMain Menu" in out
     assert "Paper Data Suite Core" not in out
     assert "1. Standards Management" in out
-    assert "2. Back / Exit" in out
+    assert "2. Workspace Settings" in out
+    assert "3. Help" in out
+    assert "4. Exit" in out
     assert "Back." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -78,7 +80,7 @@ def test_core_menu_delegates_to_existing_standards_menu(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n4\n")
 
     assert code == 0
     assert "PDS Core\n\nMain Menu" in out
@@ -103,7 +105,7 @@ def test_core_menu_clears_before_display_and_after_standards_return(
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
 
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n4\n")
 
     assert code == 0
     assert err == ""
@@ -127,6 +129,80 @@ def test_core_workspace_override_reaches_standards_validation_without_artifacts(
     assert not (tmp_path / "standards" / "usage").exists()
     assert not (tmp_path / "ScoreForm").exists()
     assert not (tmp_path / "Quillan").exists()
+
+
+def test_workspace_settings_menu_is_reachable_and_back_is_read_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\n6\n4\n")
+
+    assert code == 0
+    assert "Workspace Settings" in out
+    assert "1. Show workspace status" in out
+    assert "2. Set workspace root" in out
+    assert "3. Validate/create current workspace" in out
+    assert "4. Reset saved workspace preference" in out
+    assert "5. Show workspace paths and precedence" in out
+    assert "6. Back" in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_workspace_status_menu_is_read_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\n1\n\n6\n4\n")
+
+    assert code == 0
+    assert "Show Workspace Status" in out
+    assert "Resolved workspace root:" in out
+    assert str(tmp_path) in out
+    assert "Resolution source:" in out
+    assert "explicit" in out
+    assert "Workspace marker:" in out
+    assert "missing" in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_workspace_validate_menu_creates_only_marker(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    code, out, err = run_core_menu(
+        workspace_root,
+        monkeypatch,
+        capsys,
+        "2\n3\n\n6\n4\n",
+    )
+
+    assert code == 0
+    assert "Workspace validated successfully:" in out
+    assert (workspace_root / ".pds" / "workspace.json").is_file()
+    assert not (workspace_root / "standards").exists()
+    assert not (workspace_root / "classes").exists()
+    assert not (workspace_root / "ScoreForm").exists()
+    assert not (workspace_root / "Quillan").exists()
+    assert err == ""
+
+
+def test_workspace_settings_invalid_choice_then_back(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\nnope\n6\n4\n")
+
+    assert code == 0
+    assert "Invalid menu choice. Please try again." in out
+    assert err == ""
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_direct_standards_menu_route_still_works(

@@ -14,6 +14,8 @@ teacher menus, import/export, and module-facing selection APIs, see
 [`standards_management_workflow.md`](standards_management_workflow.md).
 For optional bundled starter standards packs, see
 [`starter_standards.md`](starter_standards.md).
+For teacher-facing workspace setup, validation, reset, and clean simulation
+workspace workflows, see [`workspace_management.md`](workspace_management.md).
 
 The central architecture decision is:
 
@@ -274,6 +276,14 @@ versioning. Extraction is not justified by the current design alone.
 
 Standards should be stored under the resolved Paper Data Suite workspace, not
 inside an installed package or source checkout.
+
+The workspace root itself is managed by `pds-core` workspace helpers and the
+teacher-facing `core -> Workspace Settings` menu. Direct parity commands are
+available as `pds-core workspace show`, `set`, `validate`, `reset`, and
+`paths`. Workspace validation creates only the workspace root and
+`.pds/workspace.json`; it does not create standards libraries, usage ledgers,
+or module-specific folders. Workspace reset clears only the saved preference
+and does not delete workspace files.
 
 The canonical shared standards library location is:
 
