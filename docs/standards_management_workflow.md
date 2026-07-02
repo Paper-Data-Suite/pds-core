@@ -33,12 +33,22 @@ Starter standards installation follows the same storage rule: it writes only
 the canonical shared library file and does not create usage ledgers or module
 folders.
 
+For workspace setup, validation, reset, and clean simulation workspace
+workflows, see [`workspace_management.md`](workspace_management.md). From the
+teacher menu, use `core -> Workspace Settings`.
+
 ## Power-User CLI Workflow
 
 Use an explicit workspace while testing or drafting standards:
 
 ```powershell
 $workspace = ".\tmp-pds-workspace"
+```
+
+Validate or create that workspace root before writing standards data:
+
+```powershell
+pds-core --workspace $workspace workspace validate
 ```
 
 Add a synthetic umbrella standard:

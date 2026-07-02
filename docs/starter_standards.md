@@ -14,6 +14,12 @@ Installing starter standards does not record standards usage, does not create
 usage ledgers, and does not create ScoreForm, Quillan, class, assignment,
 roster, submission, review, scan, or export files.
 
+If the workspace itself needs to be inspected or created first, use
+`core -> Workspace Settings` or `pds-core workspace validate`. Workspace
+validation creates only the workspace root and `.pds/workspace.json`; it does
+not install starter standards or create module-specific folders. See
+[`workspace_management.md`](workspace_management.md).
+
 ## Bundled Pack
 
 The first bundled pack is:

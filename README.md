@@ -57,6 +57,10 @@ and future modules that consume shared `pds-core` standards management.
 See [`docs/standards_management_workflow.md`](docs/standards_management_workflow.md)
 for the smoke-tested CLI, menu, import/export, and module selection workflow.
 
+See [`docs/workspace_management.md`](docs/workspace_management.md) for
+teacher-facing workspace status, setup, validation, reset, and clean simulation
+workspace workflows.
+
 See [`docs/starter_standards.md`](docs/starter_standards.md) for bundled
 starter standards packs, including the installable 2023 NJSLS-ELA high school
 starter library and English 10 / English 12 reusable profiles.
@@ -70,9 +74,10 @@ core
 ```
 
 The `core` shortcut opens a plain-text Paper Data Suite Core menu. Standards
-Management is currently available from that menu. The existing `pds-core`
-command remains the full CLI namespace for direct commands and scripts, and
-`pds-core standards menu` remains available as the direct standards route.
+Management and Workspace Settings are available from that menu. The existing
+`pds-core` command remains the full CLI namespace for direct commands and
+scripts, and `pds-core standards menu` remains available as the direct
+standards route.
 
 PDS Core exposes `pds-core standards` commands for inspecting, validating,
 importing, exporting, and mutating the active workspace standards library:
@@ -266,6 +271,29 @@ module-specific data folders.
 Use `clear_saved_workspace_root()` to forget the saved workspace preference and
 fall back to the environment variable or default root. Clearing the setting
 does not delete the workspace folder, `.pds/` metadata, or user data.
+
+Teacher-facing workspace management is available from:
+
+```text
+core
+-> Workspace Settings
+```
+
+The direct CLI commands are:
+
+```powershell
+pds-core workspace show
+pds-core workspace set "C:\Path\To\Paper Data Suite"
+pds-core workspace validate
+pds-core workspace reset
+pds-core workspace paths
+```
+
+`workspace show` and `workspace paths` are read-only. `workspace validate`
+creates only the workspace root and `.pds/workspace.json` marker. `workspace
+reset` clears only the saved preference and does not delete workspace data. See
+[`docs/workspace_management.md`](docs/workspace_management.md) for the full
+teacher workflow.
 
 ## Development Setup
 

@@ -10,6 +10,7 @@ from typing import TextIO
 from pds_core.cli_support import screen
 from pds_core.cli_support.context import ArgumentParser
 from pds_core.cli_support.menu import handle_standards_menu
+from pds_core.cli_support.workspace_management import handle_workspace_menu
 from pds_core.standards import (
     StandardsLibrary,
     StandardsReadError,
@@ -46,19 +47,11 @@ def _run(
         return code
 
     try:
-        workspace_root = resolve_workspace_root(args.workspace)
-        if workspace_root.exists() and not workspace_root.is_dir():
-            print(
-                f"Error: workspace root is not a directory: {workspace_root}",
-                file=stderr,
-            )
-            return 1
-        library = load_workspace_standards_library(workspace_root)
         menu_args = argparse.Namespace(
-            workspace_root=workspace_root,
+            workspace=args.workspace,
             stdin=stdin,
         )
-        return CoreMenu(menu_args, library, stdin, stdout, stderr).run()
+        return CoreMenu(menu_args, stdin, stdout, stderr).run()
     except (
         WorkspaceRootError,
         StandardsReadError,
@@ -99,13 +92,11 @@ class CoreMenu:
     def __init__(
         self,
         args: argparse.Namespace,
-        library: StandardsLibrary,
         stdin: TextIO,
         stdout: TextIO,
         stderr: TextIO,
     ) -> None:
         self.args = args
-        self.library = library
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
@@ -114,20 +105,81 @@ class CoreMenu:
         while True:
             self._print_menu()
             choice = self._prompt("Choose an option: ")
-            if choice is None or choice in ("", "2"):
+            if choice is None or choice in ("", "4"):
                 print("Back.", file=self.stdout)
                 return 0
             if choice == "1":
-                code = handle_standards_menu(
+                code = self._run_standards_menu()
+                if code != 0:
+                    return code
+                continue
+            if choice == "2":
+                code = handle_workspace_menu(
                     self.args,
-                    self.library,
+                    StandardsLibrary(standards=(), profiles=()),
                     self.stdout,
                     self.stderr,
                 )
                 if code != 0:
                     return code
                 continue
+            if choice == "3":
+                self._print_help()
+                self._pause("Main Menu")
+                continue
             print("Invalid menu choice. Please try again.", file=self.stdout)
+
+    def _run_standards_menu(self) -> int:
+        try:
+            workspace_root = resolve_workspace_root(self.args.workspace)
+            if workspace_root.exists() and not workspace_root.is_dir():
+                print(
+                    f"Error: workspace root is not a directory: {workspace_root}",
+                    file=self.stderr,
+                )
+                return 1
+            library = load_workspace_standards_library(workspace_root)
+        except (
+            WorkspaceRootError,
+            StandardsReadError,
+            StandardsValidationError,
+            StandardsWriteError,
+        ) as error:
+            print(f"Error: {error}", file=self.stderr)
+            return 1
+
+        standards_args = argparse.Namespace(
+            workspace=self.args.workspace,
+            workspace_root=workspace_root,
+            stdin=self.stdin,
+        )
+        return handle_standards_menu(
+            standards_args,
+            library,
+            self.stdout,
+            self.stderr,
+        )
+
+    def _print_help(self) -> None:
+        screen.clear_screen(self.stdout)
+        screen.print_app_header(self.stdout)
+        print("Help", file=self.stdout)
+        print("", file=self.stdout)
+        print(
+            "Use Standards Management to browse and maintain shared standards.",
+            file=self.stdout,
+        )
+        print(
+            "Use Workspace Settings to inspect, set, validate, or reset "
+            "the shared workspace root.",
+            file=self.stdout,
+        )
+        print(
+            "Workspace reset clears only the saved preference; "
+            "it does not delete files.",
+            file=self.stdout,
+        )
+        print("", file=self.stdout)
 
     def _print_menu(self) -> None:
         screen.clear_screen(self.stdout)
@@ -135,7 +187,9 @@ class CoreMenu:
         print("Main Menu", file=self.stdout)
         print("", file=self.stdout)
         print("1. Standards Management", file=self.stdout)
-        print("2. Back / Exit", file=self.stdout)
+        print("2. Workspace Settings", file=self.stdout)
+        print("3. Help", file=self.stdout)
+        print("4. Exit", file=self.stdout)
         print("", file=self.stdout)
 
     def _prompt(self, prompt: str) -> str | None:
@@ -145,6 +199,13 @@ class CoreMenu:
         if line == "":
             return None
         return line.rstrip("\r\n").strip()
+
+    def _pause(self, context: str = "menu") -> None:
+        print("", file=self.stdout)
+        print(f"Press Enter to return to the {context}...", file=self.stdout)
+        print(">", end="", file=self.stdout, flush=True)
+        self.stdin.readline()
+        print("", file=self.stdout)
 
 
 if __name__ == "__main__":

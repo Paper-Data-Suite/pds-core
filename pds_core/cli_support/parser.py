@@ -51,6 +51,13 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_preview,
     handle_starter_standards_validate,
 )
+from pds_core.cli_support.workspace_management import (
+    handle_workspace_paths,
+    handle_workspace_reset,
+    handle_workspace_set,
+    handle_workspace_show,
+    handle_workspace_validate,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -87,6 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     standards_subparsers = standards.add_subparsers(dest="standards_command")
 
+    _add_workspace_parser(subparsers)
     _add_validate_parser(standards_subparsers)
     _add_validate_file_parser(standards_subparsers)
     _add_menu_parser(standards_subparsers)
@@ -102,6 +110,91 @@ def build_parser() -> argparse.ArgumentParser:
     _add_profile_parser(standards_subparsers)
 
     return parser
+
+
+def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    workspace = subparsers.add_parser(
+        "workspace",
+        help="Show, set, validate, or reset the shared PDS workspace root.",
+        description=(
+            "Manage the shared Paper Data Suite workspace root. Reset clears "
+            "only the saved preference and never deletes workspace files."
+        ),
+    )
+    workspace_subparsers = workspace.add_subparsers(dest="workspace_command")
+
+    show_parser = workspace_subparsers.add_parser(
+        "show",
+        help="Show current workspace status without creating files.",
+        description=(
+            "Show current workspace status without creating files. Displays "
+            "the resolved workspace root, resolution source, filesystem "
+            "status, saved config path, default workspace root, and marker "
+            "status."
+        ),
+    )
+    show_parser.set_defaults(
+        handler=handle_workspace_show,
+        load_workspace_library=False,
+    )
+
+    set_parser = workspace_subparsers.add_parser(
+        "set",
+        help="Validate/create and save a workspace root preference.",
+        description=(
+            "Validate or create the selected workspace root, create core "
+            "workspace metadata, then save the selected path as the user "
+            "workspace preference. This does not move or delete files."
+        ),
+    )
+    set_parser.add_argument("path", help="Workspace root folder to save.")
+    set_parser.set_defaults(
+        handler=handle_workspace_set,
+        load_workspace_library=False,
+    )
+
+    validate_parser = workspace_subparsers.add_parser(
+        "validate",
+        help="Validate/create the current resolved workspace root.",
+        description=(
+            "Validate or create the current resolved workspace root using "
+            "normal precedence. This may create the workspace root and "
+            ".pds/workspace.json marker, but it does not create standards "
+            "libraries or module-specific folders."
+        ),
+    )
+    validate_parser.set_defaults(
+        handler=handle_workspace_validate,
+        load_workspace_library=False,
+    )
+
+    reset_parser = workspace_subparsers.add_parser(
+        "reset",
+        help="Clear the saved workspace preference without deleting files.",
+        description=(
+            "Clear only the saved workspace preference. No workspace files "
+            "are deleted. If PDS_WORKSPACE_ROOT is set, it still takes "
+            "precedence after reset."
+        ),
+    )
+    reset_parser.set_defaults(
+        handler=handle_workspace_reset,
+        load_workspace_library=False,
+    )
+
+    paths_parser = workspace_subparsers.add_parser(
+        "paths",
+        help="Explain workspace paths and resolution precedence.",
+        description=(
+            "Explain workspace resolution precedence: explicit command path, "
+            "PDS_WORKSPACE_ROOT, saved preference, and default workspace root. "
+            "This command is read-only."
+        ),
+    )
+    paths_parser.set_defaults(
+        handler=handle_workspace_paths,
+        load_workspace_library=False,
+    )
 
 
 def _add_validate_parser(
