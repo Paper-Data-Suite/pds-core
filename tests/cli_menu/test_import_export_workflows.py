@@ -52,7 +52,7 @@ def test_menu_export_library_and_profile_refuse_overwrite_unless_confirmed(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -105,7 +105,7 @@ def test_menu_import_full_library_requires_confirmation_and_validates(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -165,7 +165,7 @@ def test_menu_import_profile_add_and_replace(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -189,7 +189,7 @@ def test_empty_export_profile_returns_before_profile_id_prompt(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "3\n4\n\n5\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "3\n4\n\n5\n6\n")
 
     assert code == 0
     assert "Export Standards Profile" not in out

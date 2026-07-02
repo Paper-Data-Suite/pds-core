@@ -45,7 +45,7 @@ def test_menu_browse_search_and_view_standards(
             "missing:standard",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -82,7 +82,7 @@ def test_browse_standards_filters_clear_and_support_skip_remaining(
         print("[clear]", file=stdout)
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
-    inputs = "\n".join(("1", "1", "1", "1", "1", "0", "", "5", "5", ""))
+    inputs = "\n".join(("1", "1", "1", "1", "1", "0", "", "5", "6", ""))
 
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
@@ -101,7 +101,7 @@ def test_search_standards_searches_directly_without_filters(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     write_workspace_standards_library(tmp_path, make_cli_library())
-    inputs = "\n".join(("1", "2", "informational", "", "5", "5", ""))
+    inputs = "\n".join(("1", "2", "informational", "", "5", "6", ""))
 
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
@@ -140,7 +140,7 @@ def test_empty_available_module_filter_is_skipped(
         )
     )
     write_workspace_standards_library(tmp_path, library)
-    inputs = "\n".join(("1", "1", "", "", "", "", "", "", "", "5", "5", ""))
+    inputs = "\n".join(("1", "1", "", "", "", "", "", "", "", "5", "6", ""))
 
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 
@@ -172,7 +172,7 @@ def test_menu_browse_and_view_profiles(
             "missing_profile",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -203,7 +203,7 @@ def test_browse_profiles_results_clear_after_filters(
         print("[clear]", file=stdout)
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
-    inputs = "\n".join(("2", "1", "0", "", "7", "5", ""))
+    inputs = "\n".join(("2", "1", "0", "", "7", "6", ""))
 
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, inputs)
 

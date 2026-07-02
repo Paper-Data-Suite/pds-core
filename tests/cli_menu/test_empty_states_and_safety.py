@@ -13,7 +13,7 @@ def test_menu_validate_missing_library_does_not_create_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "4\n\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "4\n\n6\n")
 
     assert code == 0
     assert "Validate Standards Library" in out
@@ -51,7 +51,7 @@ def test_opening_and_cancelling_guidance_workflows_does_not_create_artifacts(
             "",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -91,7 +91,7 @@ def test_empty_standards_actions_return_before_irrelevant_prompts(
         tmp_path,
         monkeypatch,
         capsys,
-        "\n".join(("1", choice, "", "5", "5", "")),
+        "\n".join(("1", choice, "", "5", "6", "")),
     )
 
     assert code == 0
@@ -125,7 +125,7 @@ def test_empty_profile_actions_return_before_irrelevant_prompts(
         tmp_path,
         monkeypatch,
         capsys,
-        "\n".join(("2", choice, "", "7", "5", "")),
+        "\n".join(("2", choice, "", "7", "6", "")),
     )
 
     assert code == 0
@@ -142,7 +142,7 @@ def test_empty_profile_edit_does_not_enter_submenu(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "2\n4\n\n7\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "2\n4\n\n7\n6\n")
 
     assert code == 0
     assert "No standards profiles found." in out

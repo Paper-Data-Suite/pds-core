@@ -55,7 +55,7 @@ def test_menu_create_profile_with_standards_and_cancellation(
             "YES",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -134,7 +134,7 @@ def test_menu_create_profile_rejects_invalid_selection_without_writing(
             "no",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -177,7 +177,7 @@ def test_menu_create_profile_retries_invalid_selection_without_metadata_restart(
             "YES",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -230,7 +230,7 @@ def test_menu_create_profile_retries_invalid_selection_then_accepts_blank(
             "YES",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -269,7 +269,7 @@ def test_menu_create_profile_rejects_duplicate_profile_id_without_writing(
             "",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -312,7 +312,7 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
             "",
             "4",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -356,17 +356,17 @@ def test_menu_profile_membership_editing_preserves_metadata_and_definitions(
     ("inputs", "expected_output", "expected_error"),
     [
         (
-            ("2", "4", "1", "english_12_njsls", "99", "", "4", "7", "5", ""),
+            ("2", "4", "1", "english_12_njsls", "99", "", "4", "7", "6", ""),
             "Invalid selection: 99 is outside",
             "",
         ),
         (
-            ("2", "4", "2", "english_12_local", "99", "", "4", "7", "5", ""),
+            ("2", "4", "2", "english_12_local", "99", "", "4", "7", "6", ""),
             "Invalid selection: 99 is outside",
             "",
         ),
         (
-            ("2", "4", "1", "missing_profile", "", "4", "7", "5", ""),
+            ("2", "4", "1", "missing_profile", "", "4", "7", "6", ""),
             "",
             "standards profile not found",
         ),

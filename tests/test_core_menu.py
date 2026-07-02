@@ -80,7 +80,7 @@ def test_core_menu_delegates_to_existing_standards_menu(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n4\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n6\n4\n")
 
     assert code == 0
     assert "PDS Core\n\nMain Menu" in out
@@ -90,7 +90,9 @@ def test_core_menu_delegates_to_existing_standards_menu(
     assert "2. Profiles" in out
     assert "3. Import / Export" in out
     assert "4. Validate library" in out
-    assert "5. Back" in out
+    assert "5. Starter Standards" in out
+    assert "6. Back" in out
+    assert "S. Starter Standards" not in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -105,7 +107,7 @@ def test_core_menu_clears_before_display_and_after_standards_return(
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
 
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n5\n4\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n6\n4\n")
 
     assert code == 0
     assert err == ""
@@ -120,7 +122,7 @@ def test_core_workspace_override_reaches_standards_validation_without_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n4\n\n5\n2\n")
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "1\n4\n\n6\n2\n")
 
     assert code == 0
     assert "using empty library" in out
@@ -210,7 +212,7 @@ def test_direct_standards_menu_route_still_works(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr("sys.stdin", io.StringIO("5\n"))
+    monkeypatch.setattr("sys.stdin", io.StringIO("6\n"))
 
     code = pds_core_main(["--workspace", str(tmp_path), "standards", "menu"])
     captured = capsys.readouterr()
@@ -220,6 +222,7 @@ def test_direct_standards_menu_route_still_works(
     assert "1. Standards" in captured.out
     assert "2. Profiles" in captured.out
     assert "3. Import / Export" in captured.out
-    assert "5. Back" in captured.out
+    assert "5. Starter Standards" in captured.out
+    assert "6. Back" in captured.out
     assert captured.err == ""
     assert list(tmp_path.iterdir()) == []
