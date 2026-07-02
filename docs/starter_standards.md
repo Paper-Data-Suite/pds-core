@@ -86,11 +86,15 @@ The direct standards menu includes:
 
 ```text
 pds-core standards menu
--> Starter Standards
+-> Standards Library
+-> 5. Starter Standards
 ```
 
 The starter menu can list, preview, validate, and install starter standards
-packs. Installation requires typing `YES`.
+packs. Preview, validate-one-pack, and install workflows show available packs
+as numbered choices, then display the selected pack metadata. Teachers do not
+need to type internal pack IDs in the menu. Installation still requires typing
+`YES` before writing `standards/library.json`.
 
 ## Profiles Are Pools
 

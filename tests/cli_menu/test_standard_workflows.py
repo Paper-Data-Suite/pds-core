@@ -33,7 +33,7 @@ def test_menu_add_standard_normalizes_common_dash_input(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -75,7 +75,7 @@ def test_menu_add_standard_creates_subpart_definitions(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -124,7 +124,7 @@ def test_add_standard_clears_between_major_prompts(
             "YES",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )

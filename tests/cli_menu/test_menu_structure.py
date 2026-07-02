@@ -34,7 +34,7 @@ def test_menu_opens_and_exits_via_back(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "6\n")
 
     assert code == 0
     assert out.index("PDS Core") < out.index("Standards Library")
@@ -43,7 +43,9 @@ def test_menu_opens_and_exits_via_back(
     assert "2. Profiles" in out
     assert "3. Import / Export" in out
     assert "4. Validate library" in out
-    assert "5. Back" in out
+    assert "5. Starter Standards" in out
+    assert "6. Back" in out
+    assert "S. Starter Standards" not in out
     assert "Standards Management" not in out
     assert "12. Back" not in out
     assert "6. Create profile" not in out
@@ -64,7 +66,7 @@ def test_menu_prompt_order_keeps_prompt_at_bottom(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "6\n")
 
     assert code == 0
     assert err == ""
@@ -81,7 +83,7 @@ def test_menu_handles_invalid_and_blank_choices_without_traceback(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "nope\n\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "nope\n\n6\n")
 
     assert code == 0
     assert out.count("Invalid menu choice. Please try again.") == 2
@@ -138,7 +140,7 @@ def test_standards_menu_and_nested_menus_clear_before_display(
         tmp_path,
         monkeypatch,
         capsys,
-        "2\n4\n4\n7\n3\n5\n5\n",
+        "2\n4\n4\n7\n3\n5\n6\n",
     )
 
     assert code == 0
@@ -162,7 +164,7 @@ def test_create_profile_clears_before_first_prompt(
 
     write_workspace_standards_library(tmp_path, make_cli_library())
 
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "2\n3\n\n7\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "2\n3\n\n7\n6\n")
 
     assert code == 0
     assert err == ""
@@ -211,7 +213,7 @@ def test_browse_search_view_workflows_clear_before_prompt(
             "",
             "",
             "7",
-            "5",
+            "6",
             "",
         )
     )
@@ -271,7 +273,7 @@ def test_nested_workflow_actions_clear_before_prompt(
             "",
             "",
             "5",
-            "5",
+            "6",
             "",
         )
     )
@@ -299,7 +301,7 @@ def test_validate_clears_before_validation_screen(
 
     monkeypatch.setattr(screen, "clear_screen", mark_clear)
 
-    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "4\n\n5\n")
+    code, out, err = run_menu(tmp_path, monkeypatch, capsys, "4\n\n6\n")
 
     assert code == 0
     assert err == ""
@@ -322,7 +324,7 @@ def test_results_pause_before_returning_to_clean_menu(
         tmp_path,
         monkeypatch,
         capsys,
-        "\n".join(("1", "1", "3", "", "", "", "", "", "", "", "5", "5", "")),
+        "\n".join(("1", "1", "3", "", "", "", "", "", "", "", "5", "6", "")),
     )
 
     assert code == 0

@@ -33,6 +33,7 @@ class StandardsMenu(StarterStandardsWorkflowMixin):
             "2": self.profiles_submenu,
             "3": self.import_export_submenu,
             "4": self.validate_standards_library,
+            "5": self.starter_standards_submenu,
             "s": self.starter_standards_submenu,
         }
         while True:
@@ -43,12 +44,12 @@ class StandardsMenu(StarterStandardsWorkflowMixin):
                     "2. Profiles",
                     "3. Import / Export",
                     "4. Validate library",
-                    "S. Starter Standards",
-                    "5. Back",
+                    "5. Starter Standards",
+                    "6. Back",
                 ),
             )
             choice = self._prompt("Choose an option: ")
-            if choice is None or choice == "5":
+            if choice is None or choice == "6":
                 print("Back.", file=self.stdout)
                 return 0
             action = actions.get(choice.casefold())

@@ -7,12 +7,15 @@ from typing import TextIO
 
 from pds_core.cli_support.starter_standards import (
     handle_starter_standards_install,
-    handle_starter_standards_list,
     handle_starter_standards_preview,
     handle_starter_standards_validate,
 )
 from pds_core.cli_support.menu_import_export_workflows import ImportExportWorkflowMixin
 from pds_core.standards import StandardsLibrary, load_workspace_standards_library
+from pds_core.starter_standards import (
+    StarterStandardsPackMetadata,
+    list_starter_standards_packs,
+)
 
 
 class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
@@ -53,18 +56,14 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
             "List Starter Standards",
             ("Showing bundled starter standards packs.", "This does not write files."),
         )
-        handle_starter_standards_list(
-            self.args,
-            self.library,
-            self.stdout,
-            self.stderr,
-        )
+        self._print_starter_pack_list(list_starter_standards_packs(), detailed=True)
 
     def preview_starter_standards(self) -> None:
-        pack_id = self._starter_pack_prompt("Preview Starter Standards")
-        if pack_id is None:
+        pack = self._choose_starter_pack("Preview Starter Standards")
+        if pack is None:
             return
-        command_args = argparse.Namespace(pack_id=pack_id)
+        self._workflow_screen("Preview Starter Standards")
+        command_args = argparse.Namespace(pack_id=pack.pack_id)
         handle_starter_standards_preview(
             command_args,
             self.library,
@@ -73,15 +72,28 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
         )
 
     def validate_starter_standards(self) -> None:
-        pack_id = self._optional_guided_prompt(
+        self._print_menu(
             "Validate Starter Standards",
             (
-                "Enter a starter standards pack ID.",
-                "Leave blank to validate all packs.",
-                "Example: njsls_ela_2023",
+                "1. Validate all starter standards packs",
+                "2. Choose a starter standards pack to validate",
+                "3. Back",
             ),
-            clear=True,
         )
+        choice = self._prompt("Choose an option: ")
+        if choice is None or choice == "3":
+            print("Back.", file=self.stdout)
+            return
+        if choice == "1":
+            pack_id = None
+        elif choice == "2":
+            pack = self._choose_starter_pack("Choose Starter Standards Pack")
+            if pack is None:
+                return
+            pack_id = pack.pack_id
+        else:
+            print("Invalid menu choice. Please try again.", file=self.stdout)
+            return
         command_args = argparse.Namespace(pack_id=pack_id)
         handle_starter_standards_validate(
             command_args,
@@ -91,14 +103,26 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
         )
 
     def install_starter_standards(self) -> None:
-        pack_id = self._starter_pack_prompt("Install Starter Standards")
-        if pack_id is None:
+        pack = self._choose_starter_pack("Install Starter Standards")
+        if pack is None:
             return
         if not self._guided_confirm(
             (
+                "Selected starter standards pack:",
+                pack.title,
+                "",
+                f"Pack ID: {pack.pack_id}",
+                f"Source: {pack.source}",
+                f"Grade bands: {', '.join(pack.grade_bands)}",
+                f"Standards: {pack.standard_count}",
+                f"Profiles: {pack.profile_count}",
+                f"Profile IDs: {', '.join(pack.profile_ids)}",
+                "",
                 "Install this starter standards pack into standards/library.json?",
+                "",
                 "Existing matching records are skipped.",
                 "Conflicting teacher-edited records are refused by default.",
+                "No standards usage events will be recorded.",
                 "Type YES to install.",
             ),
             title="Confirm Starter Standards Install",
@@ -109,7 +133,7 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
 
         command_args = argparse.Namespace(
             workspace_root=self.args.workspace_root,
-            pack_id=pack_id,
+            pack_id=pack.pack_id,
             overwrite=False,
         )
         code = handle_starter_standards_install(
@@ -121,12 +145,43 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
         if code == 0:
             self.library = load_workspace_standards_library(self.args.workspace_root)
 
-    def _starter_pack_prompt(self, title: str) -> str | None:
-        return self._required_guided_prompt(
-            title,
-            (
-                "Enter Starter Standards Pack ID.",
-                "Example: njsls_ela_2023",
-            ),
-            clear=True,
-        )
+    def _choose_starter_pack(self, title: str) -> StarterStandardsPackMetadata | None:
+        packs = list_starter_standards_packs()
+        if not packs:
+            self._workflow_screen(title, ("No starter standards packs found.",))
+            return None
+
+        while True:
+            self._workflow_screen(title, ("Available starter standards packs:",))
+            self._print_starter_pack_list(packs, detailed=True)
+            back_choice = str(len(packs) + 1)
+            print(f"{back_choice}. Back", file=self.stdout)
+            print("", file=self.stdout)
+            choice = self._prompt("Choose a starter standards pack: ")
+            if choice is None or choice == back_choice:
+                print("Back.", file=self.stdout)
+                return None
+            if choice.isdecimal():
+                index = int(choice) - 1
+                if 0 <= index < len(packs):
+                    return packs[index]
+            print("Invalid menu choice. Please try again.", file=self.stdout)
+
+    def _print_starter_pack_list(
+        self,
+        packs: tuple[StarterStandardsPackMetadata, ...],
+        *,
+        detailed: bool,
+    ) -> None:
+        if not packs:
+            print("No starter standards packs found.", file=self.stdout)
+            return
+        for index, pack in enumerate(packs, start=1):
+            print(f"{index}. {pack.title}", file=self.stdout)
+            if detailed:
+                print(f"   Pack ID: {pack.pack_id}", file=self.stdout)
+                print(f"   Source: {pack.source}", file=self.stdout)
+                print(f"   Grade bands: {', '.join(pack.grade_bands)}", file=self.stdout)
+                print(f"   Standards: {pack.standard_count}", file=self.stdout)
+                print(f"   Profiles: {pack.profile_count}", file=self.stdout)
+            print("", file=self.stdout)
