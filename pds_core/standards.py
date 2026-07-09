@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import tempfile
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -15,15 +14,12 @@ from types import MappingProxyType
 from typing import Final, TypeVar, cast
 
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
+from pds_core.school_years import SchoolYearValidationError, validate_school_year
 
 
 STANDARD_USAGE_TYPES: Final[frozenset[str]] = frozenset(
     {"taught", "practiced", "assessed", "reviewed"}
 )
-_SCHOOL_YEAR_PATTERN: Final[re.Pattern[str]] = re.compile(
-    r"^(?P<start>\d{4})-(?P<end>\d{4})$"
-)
-
 
 class StandardsValidationError(ValueError):
     """Raised when shared standards metadata is invalid."""
@@ -134,14 +130,10 @@ def _optional_text(value: object, field_name: str) -> str | None:
 
 
 def _validate_school_year(value: object) -> str:
-    match = _SCHOOL_YEAR_PATTERN.fullmatch(
-        _required_text(value, "school_year")
-    )
-    if match is None or int(match["end"]) != int(match["start"]) + 1:
-        raise StandardsValidationError(
-            "school_year must use consecutive years in YYYY-YYYY format."
-        )
-    return match.group(0)
+    try:
+        return validate_school_year(value)
+    except SchoolYearValidationError as error:
+        raise StandardsValidationError(str(error)) from error
 
 
 def _validate_usage_class_id(value: object) -> str:

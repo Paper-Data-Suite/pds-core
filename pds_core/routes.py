@@ -23,6 +23,11 @@ def class_roster_path(root: str | Path, class_id: str) -> Path:
     return class_dir(root, class_id) / "roster.csv"
 
 
+def class_metadata_path(root: str | Path, class_id: str) -> Path:
+    """Return the class metadata JSON path for a class."""
+    return class_dir(root, class_id) / "class.json"
+
+
 def class_assignments_dir(root: str | Path, class_id: str) -> Path:
     """Return the assignments directory for a class."""
     return class_dir(root, class_id) / "assignments"
