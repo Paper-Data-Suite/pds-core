@@ -4,19 +4,47 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import cast
+from typing import Final, cast
 
-from pds_core.standards import StandardsValidationError, _validate_school_year
 from pds_core.workspace import _normalize_workspace_root
+
+_SCHOOL_YEAR_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r"^(?P<start>\d{4})-(?P<end>\d{4})$"
+)
 
 
 class SchoolYearStateError(ValueError):
     """Raised when workspace school-year state is invalid or cannot be updated."""
+
+
+class SchoolYearValidationError(ValueError):
+    """Raised when a school-year value is invalid."""
+
+
+def _required_text(value: object, field_name: str) -> str:
+    if not isinstance(value, str):
+        raise SchoolYearValidationError(f"{field_name} must be a string.")
+
+    normalized = value.strip()
+    if not normalized:
+        raise SchoolYearValidationError(f"{field_name} must not be blank.")
+    return normalized
+
+
+def validate_school_year(value: object) -> str:
+    """Validate a consecutive YYYY-YYYY school year and return it."""
+    match = _SCHOOL_YEAR_PATTERN.fullmatch(_required_text(value, "school_year"))
+    if match is None or int(match["end"]) != int(match["start"]) + 1:
+        raise SchoolYearValidationError(
+            "school_year must use consecutive years in YYYY-YYYY format."
+        )
+    return match.group(0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,8 +80,8 @@ _STATE_KEYS = frozenset({"active_school_year", "opened_at", "closed_at"})
 
 def _validate_state_school_year(value: object) -> str:
     try:
-        return _validate_school_year(value)
-    except StandardsValidationError as error:
+        return validate_school_year(value)
+    except SchoolYearValidationError as error:
         raise SchoolYearStateError(str(error)) from error
 
 

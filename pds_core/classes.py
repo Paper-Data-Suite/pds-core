@@ -5,6 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from pds_core.class_metadata import (
+    ClassMetadata,
+    ClassMetadataError,
+    load_class_metadata_for_class,
+)
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
 from pds_core.rosters import (
     Roster,
@@ -17,6 +22,7 @@ from pds_core.rosters import (
 from pds_core.routes import (
     class_assignments_dir,
     class_dir,
+    class_metadata_path,
     class_roster_path,
     classes_dir,
 )
@@ -29,7 +35,9 @@ class ClassFolder:
     class_id: str
     class_dir: Path
     roster_path: Path
+    metadata_path: Path
     roster: Roster | None = None
+    metadata: ClassMetadata | None = None
 
 
 def class_folder(workspace_root: str | Path, class_id: str) -> ClassFolder:
@@ -39,6 +47,7 @@ def class_folder(workspace_root: str | Path, class_id: str) -> ClassFolder:
         class_id=class_id,
         class_dir=class_dir(workspace_root, class_id),
         roster_path=class_roster_path(workspace_root, class_id),
+        metadata_path=class_metadata_path(workspace_root, class_id),
     )
 
 
@@ -92,6 +101,8 @@ def list_class_folders(
     *,
     require_roster: bool = False,
     load_rosters: bool = False,
+    require_metadata: bool = False,
+    load_metadata: bool = False,
 ) -> tuple[ClassFolder, ...]:
     """Discover valid class folders under a workspace root."""
     root = classes_dir(workspace_root)
@@ -112,17 +123,31 @@ def list_class_folders(
         folder = class_folder(workspace_root, entry.name)
         if (require_roster or load_rosters) and not folder.roster_path.is_file():
             continue
+        if (require_metadata or load_metadata) and not folder.metadata_path.is_file():
+            continue
 
+        roster: Roster | None = None
         if load_rosters:
             try:
                 roster = load_class_roster(workspace_root, entry.name)
             except RosterError:
                 continue
+
+        metadata: ClassMetadata | None = None
+        if load_metadata:
+            try:
+                metadata = load_class_metadata_for_class(workspace_root, entry.name)
+            except ClassMetadataError:
+                continue
+
+        if load_rosters or load_metadata:
             folder = ClassFolder(
                 class_id=folder.class_id,
                 class_dir=folder.class_dir,
                 roster_path=folder.roster_path,
+                metadata_path=folder.metadata_path,
                 roster=roster,
+                metadata=metadata,
             )
 
         folders.append(folder)

@@ -17,6 +17,7 @@ from pds_core.routes import (
     assignment_templates_dir,
     class_assignments_dir,
     class_dir,
+    class_metadata_path,
     class_roster_path,
     classes_dir,
     student_submission_dir,
@@ -40,6 +41,12 @@ def test_class_dir() -> None:
 def test_class_roster_path() -> None:
     assert class_roster_path("paper_data", "english12_p4") == (
         Path("paper_data") / "classes" / "english12_p4" / "roster.csv"
+    )
+
+
+def test_class_metadata_path() -> None:
+    assert class_metadata_path("paper_data", "english12_p4") == (
+        Path("paper_data") / "classes" / "english12_p4" / "class.json"
     )
 
 
@@ -181,6 +188,8 @@ def test_assignment_debug_dir() -> None:
 def test_routes_reject_invalid_class_ids(class_id: str) -> None:
     with pytest.raises(IdentifierValidationError, match="class_id"):
         class_dir("paper_data", class_id)
+    with pytest.raises(IdentifierValidationError, match="class_id"):
+        class_metadata_path("paper_data", class_id)
 
 
 @pytest.mark.parametrize(

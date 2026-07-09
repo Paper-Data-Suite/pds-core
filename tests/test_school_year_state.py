@@ -17,11 +17,26 @@ from pds_core.school_years import (
     load_school_year_state,
     open_school_year,
     school_year_state_path,
+    validate_school_year,
 )
 
 
 OPENED_AT = datetime(2026, 8, 28, 9, 0, tzinfo=timezone.utc)
 CLOSED_AT = datetime(2027, 6, 25, 15, 0, tzinfo=timezone.utc)
+
+
+@pytest.mark.parametrize("school_year", ["2026-2027", "1999-2000"])
+def test_validate_school_year_accepts_consecutive_years(school_year: str) -> None:
+    assert validate_school_year(school_year) == school_year
+
+
+@pytest.mark.parametrize(
+    "school_year",
+    ["2026", "2026-26", "2026-2028", "2027-2026", "abcd-efgh"],
+)
+def test_validate_school_year_rejects_invalid_years(school_year: str) -> None:
+    with pytest.raises(ValueError, match="school_year"):
+        validate_school_year(school_year)
 
 
 def write_state_json(tmp_path: Path, data: object) -> Path:
