@@ -280,10 +280,11 @@ inside an installed package or source checkout.
 The workspace root itself is managed by `pds-core` workspace helpers and the
 teacher-facing `core -> Workspace Settings` menu. Direct parity commands are
 available as `pds-core workspace show`, `set`, `validate`, `reset`, and
-`paths`. Workspace validation creates only the workspace root and
-`.pds/workspace.json`; it does not create standards libraries, usage ledgers,
-or module-specific folders. Workspace reset clears only the saved preference
-and does not delete workspace files.
+`paths`. Workspace validation creates the workspace root,
+`.pds/workspace.json`, and shared baseline class and scan directories; it does
+not create standards libraries, usage ledgers, or module-specific folders.
+Workspace reset clears only the saved preference and does not delete workspace
+files.
 
 The canonical shared standards library location is:
 

@@ -63,7 +63,7 @@ def test_workspace_show_displays_status_without_creating_root(
     assert not workspace_root.exists()
 
 
-def test_workspace_set_creates_marker_saves_config_and_warns(
+def test_workspace_set_creates_baseline_saves_config_and_warns(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -83,7 +83,10 @@ def test_workspace_set_creates_marker_saves_config_and_warns(
         "workspace_root": str(workspace_root.resolve())
     }
     assert not (workspace_root / "standards").exists()
-    assert not (workspace_root / "classes").exists()
+    assert (workspace_root / "classes").is_dir()
+    assert (workspace_root / "scans_inbox").is_dir()
+    assert (workspace_root / "scans" / "source").is_dir()
+    assert (workspace_root / "scans" / "review").is_dir()
     assert not (workspace_root / "ScoreForm").exists()
     assert not (workspace_root / "Quillan").exists()
     assert err == ""
@@ -109,7 +112,10 @@ def test_workspace_validate_creates_current_root_idempotently(
 
     assert (workspace_root / ".pds" / "workspace.json").is_file()
     assert not (workspace_root / "standards").exists()
-    assert not (workspace_root / "classes").exists()
+    assert (workspace_root / "classes").is_dir()
+    assert (workspace_root / "scans_inbox").is_dir()
+    assert (workspace_root / "scans" / "source").is_dir()
+    assert (workspace_root / "scans" / "review").is_dir()
     assert not (workspace_root / "ScoreForm").exists()
     assert not (workspace_root / "Quillan").exists()
 

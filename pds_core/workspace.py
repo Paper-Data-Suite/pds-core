@@ -9,6 +9,14 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from pds_core.routes import classes_dir
+from pds_core.scan_routes import (
+    routing_review_dir,
+    scans_inbox_dir,
+    scans_root_dir,
+    scans_source_dir,
+)
+
 WORKSPACE_ROOT_ENV_VAR = "PDS_WORKSPACE_ROOT"
 _WORKSPACE_MARKER = {"created_by": "pds-core", "workspace_version": 1}
 
@@ -257,6 +265,17 @@ def inspect_workspace_root(
     )
 
 
+def workspace_baseline_dirs(root: str | Path) -> tuple[Path, ...]:
+    """Return shared baseline directories in stable creation order."""
+    return (
+        classes_dir(root),
+        scans_inbox_dir(root),
+        scans_root_dir(root),
+        scans_source_dir(root),
+        routing_review_dir(root),
+    )
+
+
 def ensure_workspace_root(
     path: str | Path,
     create: bool = True,
@@ -321,5 +340,14 @@ def ensure_workspace_root(
             raise WorkspaceRootError(
                 f"Could not create workspace metadata: {metadata_dir}"
             ) from exc
+
+        for baseline_dir in workspace_baseline_dirs(workspace_root):
+            try:
+                baseline_dir.mkdir(exist_ok=True)
+            except OSError as exc:
+                raise WorkspaceRootError(
+                    "Could not create workspace baseline directory: "
+                    f"{baseline_dir}"
+                ) from exc
 
     return workspace_root

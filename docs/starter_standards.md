@@ -16,8 +16,9 @@ roster, submission, review, scan, or export files.
 
 If the workspace itself needs to be inspected or created first, use
 `core -> Workspace Settings` or `pds-core workspace validate`. Workspace
-validation creates only the workspace root and `.pds/workspace.json`; it does
-not install starter standards or create module-specific folders. See
+validation creates the workspace root, `.pds/workspace.json`, and shared
+baseline class and scan directories; it does not install starter standards or
+create module-specific folders. See
 [`workspace_management.md`](workspace_management.md).
 
 ## Bundled Pack

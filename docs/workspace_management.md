@@ -58,17 +58,23 @@ The Workspace Settings menu can:
 `Show workspace status` and `Show workspace paths and precedence` are read-only
 and do not create workspace folders.
 
-`Validate/create current workspace` creates only:
+`Validate/create current workspace` creates or verifies the workspace root and
+initializes the shared baseline workspace structure:
 
 ```text
 <workspace>/
-<workspace>/.pds/
-<workspace>/.pds/workspace.json
+  .pds/
+    workspace.json
+  classes/
+  scans_inbox/
+  scans/
+    source/
+    review/
 ```
 
-It does not create class folders, assignment folders, standards libraries,
-usage ledgers, Quillan files, ScoreForm files, scan folders, review records,
-feedback exports, or local output folders.
+It does not create class rosters, assignments, standards libraries, usage
+ledgers, review records, feedback exports, reports, generated answer sheets,
+scored results, date-bucketed scan folders, Quillan files, or ScoreForm files.
 
 `Reset saved workspace preference` clears only the saved config file. It does
 not delete workspace files or move data.
