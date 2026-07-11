@@ -274,8 +274,9 @@ path = assignment_dir(workspace_root, "english12_p4", "personal_narrative")
 
 An explicit root applies only to that call and does not change saved
 configuration. `ensure_workspace_root()` can create and validate a workspace,
-including a small `.pds/workspace.json` marker; it does not create
-module-specific data folders.
+including a small `.pds/workspace.json` marker and the shared baseline folders
+`classes/`, `scans_inbox/`, `scans/source/`, and `scans/review/`. It does not
+create module-specific data folders or files.
 
 Use `clear_saved_workspace_root()` to forget the saved workspace preference and
 fall back to the environment variable or default root. Clearing the setting
@@ -299,8 +300,24 @@ pds-core workspace paths
 ```
 
 `workspace show` and `workspace paths` are read-only. `workspace validate`
-creates only the workspace root and `.pds/workspace.json` marker. `workspace
-reset` clears only the saved preference and does not delete workspace data. See
+creates or verifies the workspace root and initializes this shared baseline
+structure:
+
+```text
+<workspace>/
+  .pds/
+    workspace.json
+  classes/
+  scans_inbox/
+  scans/
+    source/
+    review/
+```
+
+It does not create class rosters, assignments, standards libraries, usage
+ledgers, review records, feedback exports, reports, generated answer sheets,
+scored results, or date-bucketed scan folders. `workspace reset` clears only
+the saved preference and does not delete workspace data. See
 [`docs/workspace_management.md`](docs/workspace_management.md) for the full
 teacher workflow.
 

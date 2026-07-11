@@ -22,6 +22,7 @@ from pds_core.workspace import (
     load_workspace_config,
     resolve_workspace_root,
     save_workspace_root,
+    workspace_baseline_dirs,
 )
 
 
@@ -525,7 +526,17 @@ def test_inspect_workspace_root_does_not_create_or_save(
     assert not config_path.exists()
 
 
-def test_ensure_workspace_root_creates_directory_and_marker(
+def test_workspace_baseline_dirs_returns_expected_paths(tmp_path: Path) -> None:
+    assert workspace_baseline_dirs(tmp_path) == (
+        tmp_path / "classes",
+        tmp_path / "scans_inbox",
+        tmp_path / "scans",
+        tmp_path / "scans" / "source",
+        tmp_path / "scans" / "review",
+    )
+
+
+def test_ensure_workspace_root_creates_directory_marker_and_baseline_dirs(
     tmp_path: Path,
 ) -> None:
     workspace_root = tmp_path / "new-workspace"
@@ -548,6 +559,39 @@ def test_ensure_workspace_root_creates_directory_and_marker(
     )
     assert list(marker_path.parent.glob(".workspace.json.*.tmp")) == []
     assert list(workspace_root.glob(".pds_write_test.*.tmp")) == []
+    assert all(path.is_dir() for path in workspace_baseline_dirs(workspace_root))
+
+
+def test_ensure_workspace_root_is_idempotent_and_preserves_existing_files(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    preserved_file = workspace_root / "scans_inbox" / "scan.pdf"
+    preserved_file.parent.mkdir(parents=True)
+    preserved_file.write_text("scan data", encoding="utf-8")
+
+    ensure_workspace_root(workspace_root)
+    ensure_workspace_root(workspace_root)
+
+    assert preserved_file.read_text(encoding="utf-8") == "scan data"
+    assert all(path.is_dir() for path in workspace_baseline_dirs(workspace_root))
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    ["classes", "scans_inbox", "scans", "scans/source", "scans/review"],
+)
+def test_ensure_workspace_root_rejects_baseline_path_that_is_a_file(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    conflict_path = workspace_root / relative_path
+    conflict_path.parent.mkdir(parents=True)
+    conflict_path.write_text("conflict", encoding="utf-8")
+
+    with pytest.raises(WorkspaceRootError, match="baseline directory"):
+        ensure_workspace_root(workspace_root)
 
 
 def test_ensure_workspace_root_fails_for_missing_path_without_create(
@@ -567,6 +611,7 @@ def test_ensure_workspace_root_accepts_existing_writable_directory(
         workspace_root.resolve()
     )
     assert not (workspace_root / ".pds").exists()
+    assert not any(path.exists() for path in workspace_baseline_dirs(workspace_root))
     assert list(workspace_root.glob(".pds_write_test.*.tmp")) == []
 
 

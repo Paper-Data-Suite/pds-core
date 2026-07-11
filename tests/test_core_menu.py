@@ -209,7 +209,7 @@ def test_workspace_status_menu_is_read_only(
     assert list(tmp_path.iterdir()) == []
 
 
-def test_workspace_validate_menu_creates_only_marker(
+def test_workspace_validate_menu_creates_marker_and_baseline_dirs(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -226,7 +226,10 @@ def test_workspace_validate_menu_creates_only_marker(
     assert "Workspace validated successfully:" in out
     assert (workspace_root / ".pds" / "workspace.json").is_file()
     assert not (workspace_root / "standards").exists()
-    assert not (workspace_root / "classes").exists()
+    assert (workspace_root / "classes").is_dir()
+    assert (workspace_root / "scans_inbox").is_dir()
+    assert (workspace_root / "scans" / "source").is_dir()
+    assert (workspace_root / "scans" / "review").is_dir()
     assert not (workspace_root / "ScoreForm").exists()
     assert not (workspace_root / "Quillan").exists()
     assert err == ""
