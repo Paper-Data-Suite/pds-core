@@ -3,13 +3,13 @@
 ## Status and Scope
 
 This document defines the shared Paper Data Suite contract for active scan
-intake, retained source scans, routed evidence, routing review, failure
-metadata, and provenance.
+intake, retained source scans, routed evidence, routing review, failure and
+resolution metadata, and provenance.
 
 The shared route, retained-filename, retained-source copy/provenance helper,
-failure metadata validation, and safe failure metadata writing helpers are
-implemented in `pds-core`. Scan routing, QR extraction, PDF splitting, and
-module workflow adoption remain module work.
+failure and resolution metadata validation, and safe metadata writing helpers
+are implemented in `pds-core`. Scan routing, QR extraction, PDF splitting,
+and module workflow adoption remain module work.
 
 ## Terminology
 
@@ -57,6 +57,7 @@ The preferred shared active scan layout is:
     source/
       YYYY-MM-DD/
     review/
+      resolutions/
   classes/
     <class_id>/
       assignments/
@@ -74,6 +75,8 @@ The locations have these roles:
   date-bucketed by PDS intake UTC date.
 * `scans/review/` contains canonical routing review records and may contain
   optional problem artifacts.
+* `scans/review/resolutions/` contains immutable resolution records linked to
+  failure records.
 * `classes/<class_id>/assignments/<assignment_id>/scans/` contains routed scan
   evidence. It is not canonical source retention.
 * `classes/<class_id>/assignments/<assignment_id>/submissions/<student_id>/`
@@ -254,6 +257,28 @@ Module-specific categories remain module-owned. For example:
 * OCR-related failures are module-specific unless a later shared OCR contract
   is defined.
 
+## Scan Resolution Metadata
+
+Resolution records live under
+`scans/review/resolutions/<resolution_id>.json`. Failure records remain
+immutable: a teacher or module decision is recorded in a separate immutable
+resolution record linked by `failure_id` and optional
+`failure_metadata_path`. A failure may have multiple resolution records as an
+audit trail. The absence of a resolution record means the failure is
+unresolved; Core does not select a latest resolution.
+
+Shared statuses are `resolved` and `deferred`. Shared actions are
+`manual_entry`, `manual_marks`, `rescan_needed`, `cannot_route`,
+`mixed_assignment`, `evidence_filed`, `dismissed_duplicate`, and `other`.
+Modules put structured module-specific information in `module_details` and
+own all teacher-facing review UX, manual entry, result writing, and
+module-specific outcomes and evidence.
+
+Resolution metadata describes decisions in active workflows; it is not
+historical archiving. Writing a resolution record does not delete scan
+evidence or move a retained source. Assignment-local evidence remains routed
+or resolution evidence, not canonical source retention.
+
 ## Relationship to Existing Scan Route Helpers
 
 `pds_core.scan_routes` currently provides:
@@ -283,6 +308,15 @@ retain_source_scan(...)
 routing_failure_metadata_path(...)
 validate_routing_failure_metadata(...)
 write_routing_failure_metadata(...)
+scan_resolution_metadata_dir(...)
+scan_resolution_metadata_path(...)
+ScanResolutionMetadata
+ScanResolutionMetadataError
+ScanResolutionMetadataWriteError
+validate_scan_resolution_metadata(...)
+scan_resolution_metadata_to_dict(...)
+scan_resolution_metadata_from_dict(...)
+write_scan_resolution_metadata(...)
 ```
 
 The legacy helpers remain available with unchanged paths and exceptions. Core
@@ -301,6 +335,8 @@ adoption remain separate module work.
 * retained source naming;
 * base failure metadata;
 * shared failure categories;
+* base resolution metadata and shared resolution statuses and actions;
+* resolution record paths and exclusive writing;
 * copy-first, no-overwrite, and provenance semantics;
 * shared active-scan helpers and validators.
 
@@ -315,6 +351,8 @@ Modules own:
 * routed evidence generation;
 * routed submission assembly;
 * teacher review UX;
+* manual entry and result-writing decisions;
+* module-specific resolution evidence;
 * module-specific failure details;
 * module-specific result and report formats.
 
@@ -337,6 +375,7 @@ This contract preserves the following behavior:
 * Assignment-level `scans/` remains a valid routed-evidence location.
 
 Active source/review path helpers, retained filename/path helpers, retained
-source copying and provenance, failure metadata validation, and exclusive
-failure metadata writing are implemented. No routing behavior, QR extraction,
-PDF splitting, module migration, or legacy-helper deprecation is implemented.
+source copying and provenance, failure and resolution metadata validation, and
+exclusive metadata writing are implemented. No routing behavior, QR
+extraction, PDF splitting, module migration, or legacy-helper deprecation is
+implemented.
