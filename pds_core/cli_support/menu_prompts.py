@@ -8,6 +8,12 @@ from typing import TextIO
 
 from pds_core.cli_support import screen
 from pds_core.cli_support.standards_mutation import write_workspace_mutated_library
+from pds_core.menu_navigation import (
+    NavigationChoice,
+    navigation_hint,
+    navigation_labels,
+    parse_navigation_choice,
+)
 from pds_core.standards import (
     StandardsLibrary,
     StandardsValidationError,
@@ -41,9 +47,12 @@ class MenuPromptMixin:
             if choice is None or choice == back_choice:
                 print("Back.", file=self.stdout)
                 return
+            if parse_navigation_choice(choice) is NavigationChoice.BACK:
+                print("Back.", file=self.stdout)
+                return
             action = actions.get(choice)
             if action is None:
-                print("Invalid menu choice. Please try again.", file=self.stdout)
+                print(navigation_hint(), file=self.stdout)
                 continue
             action_func, pause_after = action
             action_func()
@@ -64,7 +73,12 @@ class MenuPromptMixin:
             print(line, file=self.stdout)
         if guidance:
             print("", file=self.stdout)
-        for line in lines:
+        displayed_lines = tuple(
+            line
+            for line in lines
+            if not (line.endswith(". Back") and line.split(".", 1)[0].isdigit())
+        ) + navigation_labels()
+        for line in displayed_lines:
             print(line, file=self.stdout)
         print("", file=self.stdout)
 

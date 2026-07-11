@@ -45,10 +45,45 @@ def test_core_menu_opens_and_exits_via_back(
     assert "1. Standards Management" in out
     assert "2. Workspace Settings" in out
     assert "3. Help" in out
-    assert "4. Exit" in out
-    assert "Back." in out
+    assert out.count("Q. Quit") == 1
+    assert "B. Back" not in out
+    assert "M. Main Menu" not in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize("choice", ["Q", "q", "  q  "])
+def test_core_menu_quits_cleanly(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    choice: str,
+) -> None:
+    code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, f"{choice}\n")
+
+    assert code == 0
+    assert "Q. Quit" in out
+    assert err == ""
+
+
+def test_nested_navigation_back_main_menu_and_quit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code, out, err = run_core_menu(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "1\n1\nB\n2\nM\n1\n2\nQ\n",
+    )
+
+    assert code == 0
+    assert "Standards" in out
+    assert "Profiles" in out
+    assert out.count("PDS Core\n\nMain Menu") >= 2
+    assert "Back." in out
+    assert err == ""
 
 
 def test_core_menu_handles_invalid_blank_and_eof_without_traceback(
@@ -59,8 +94,7 @@ def test_core_menu_handles_invalid_blank_and_eof_without_traceback(
     code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "nope\n\n")
 
     assert code == 0
-    assert "Invalid menu choice. Please try again." in out
-    assert "Back." in out
+    assert "Please choose a listed option, B, M, or Q." in out
     assert "Traceback" not in err
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -69,7 +103,7 @@ def test_core_menu_handles_invalid_blank_and_eof_without_traceback(
 
     assert code == 0
     assert "PDS Core\n\nMain Menu" in out
-    assert "Back." in out
+    assert "Q. Quit" in out
     assert "Traceback" not in err
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -91,7 +125,9 @@ def test_core_menu_delegates_to_existing_standards_menu(
     assert "3. Import / Export" in out
     assert "4. Validate library" in out
     assert "5. Starter Standards" in out
-    assert "6. Back" in out
+    assert "B. Back" in out
+    assert "M. Main Menu" in out
+    assert "Q. Quit" in out
     assert "S. Starter Standards" not in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -147,7 +183,9 @@ def test_workspace_settings_menu_is_reachable_and_back_is_read_only(
     assert "3. Validate/create current workspace" in out
     assert "4. Reset saved workspace preference" in out
     assert "5. Show workspace paths and precedence" in out
-    assert "6. Back" in out
+    assert "B. Back" in out
+    assert "M. Main Menu" in out
+    assert "Q. Quit" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -202,7 +240,7 @@ def test_workspace_settings_invalid_choice_then_back(
     code, out, err = run_core_menu(tmp_path, monkeypatch, capsys, "2\nnope\n6\n4\n")
 
     assert code == 0
-    assert "Invalid menu choice. Please try again." in out
+    assert "Please choose a listed option, B, M, or Q." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -223,6 +261,8 @@ def test_direct_standards_menu_route_still_works(
     assert "2. Profiles" in captured.out
     assert "3. Import / Export" in captured.out
     assert "5. Starter Standards" in captured.out
-    assert "6. Back" in captured.out
+    assert "B. Back" in captured.out
+    assert "M. Main Menu" in captured.out
+    assert "Q. Quit" in captured.out
     assert captured.err == ""
     assert list(tmp_path.iterdir()) == []

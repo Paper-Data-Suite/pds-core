@@ -18,6 +18,15 @@ PDS Core is intended to be used by:
 - `pds-scoreform`
 - `pds-quillan`
 
+### Shared Menu Navigation
+
+PDS modules should use `pds_core.menu_navigation` for teacher-facing controlled
+prompts that support `B. Back`, `M. Main Menu`, and `Q. Quit`. Modules should
+catch `ReturnToMainMenu` at their main-menu boundary and `QuitPDS` at their
+top-level interactive entry point. The module handles parsing, labels, hints,
+and unwind signals; it does not handle screen clearing, app headers, or
+workflow logic.
+
 Module-specific scoring, tagging, PDF layout, and reporting logic should remain in the module repositories.
 
 Module wrappers can use `pds_core.local_open.open_local_path(...)` to ask the

@@ -9,6 +9,12 @@ from typing import TextIO
 
 from pds_core.cli_support import screen
 from pds_core.standards import StandardsLibrary
+from pds_core.menu_navigation import (
+    NavigationChoice,
+    navigation_hint,
+    parse_navigation_choice,
+    print_navigation_options,
+)
 from pds_core.workspace import (
     WORKSPACE_ROOT_ENV_VAR,
     WorkspaceStatus,
@@ -216,9 +222,12 @@ class WorkspaceSettingsMenu:
             if choice is None or choice == "6":
                 print("Back.", file=self.stdout)
                 return 0
+            if parse_navigation_choice(choice) is NavigationChoice.BACK:
+                print("Back.", file=self.stdout)
+                return 0
             action = actions.get(choice)
             if action is None:
-                print("Invalid menu choice. Please try again.", file=self.stdout)
+                print(navigation_hint(), file=self.stdout)
                 continue
             action()
             self._pause("Workspace Settings menu")
@@ -277,7 +286,7 @@ class WorkspaceSettingsMenu:
         print("3. Validate/create current workspace", file=self.stdout)
         print("4. Reset saved workspace preference", file=self.stdout)
         print("5. Show workspace paths and precedence", file=self.stdout)
-        print("6. Back", file=self.stdout)
+        print_navigation_options(file=self.stdout)
         print("", file=self.stdout)
 
     def _workflow_screen(self, title: str, lines: tuple[str, ...] = ()) -> None:

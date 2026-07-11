@@ -44,7 +44,9 @@ def test_menu_opens_and_exits_via_back(
     assert "3. Import / Export" in out
     assert "4. Validate library" in out
     assert "5. Starter Standards" in out
-    assert "6. Back" in out
+    assert out.count("B. Back") == 1
+    assert out.count("M. Main Menu") == 1
+    assert out.count("Q. Quit") == 1
     assert "S. Starter Standards" not in out
     assert "Standards Management" not in out
     assert "12. Back" not in out
@@ -54,6 +56,36 @@ def test_menu_opens_and_exits_via_back(
     assert_no_prompt_header_fusion(out)
     assert err == ""
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    "method_name",
+    [
+        "standards_submenu",
+        "profiles_submenu",
+        "import_export_submenu",
+        "starter_standards_submenu",
+    ],
+)
+def test_nested_menu_renders_shared_navigation_once(
+    tmp_path: Path,
+    method_name: str,
+) -> None:
+    stdout = io.StringIO()
+    menu = StandardsMenu(
+        argparse.Namespace(workspace_root=tmp_path),
+        StandardsLibrary(standards=()),
+        io.StringIO("B\n"),
+        stdout,
+        io.StringIO(),
+    )
+
+    getattr(menu, method_name)()
+
+    output = stdout.getvalue()
+    assert output.count("B. Back") == 1
+    assert output.count("M. Main Menu") == 1
+    assert output.count("Q. Quit") == 1
 
 
 def test_pds_core_header_helper_supports_plain_and_green() -> None:
@@ -86,7 +118,7 @@ def test_menu_handles_invalid_and_blank_choices_without_traceback(
     code, out, err = run_menu(tmp_path, monkeypatch, capsys, "nope\n\n6\n")
 
     assert code == 0
-    assert out.count("Invalid menu choice. Please try again.") == 2
+    assert out.count("Please choose a listed option, B, M, or Q.") == 2
     assert "Traceback" not in err
 
 
