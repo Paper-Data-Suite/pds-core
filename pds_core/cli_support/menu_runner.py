@@ -7,6 +7,11 @@ from typing import TextIO
 
 from pds_core.cli_support.menu_starter_workflows import StarterStandardsWorkflowMixin
 from pds_core.cli_support.standards_io import handle_standards_validate
+from pds_core.menu_navigation import (
+    NavigationChoice,
+    navigation_hint,
+    parse_navigation_choice,
+)
 from pds_core.standards import StandardsLibrary
 
 
@@ -45,16 +50,18 @@ class StandardsMenu(StarterStandardsWorkflowMixin):
                     "3. Import / Export",
                     "4. Validate library",
                     "5. Starter Standards",
-                    "6. Back",
                 ),
             )
             choice = self._prompt("Choose an option: ")
             if choice is None or choice == "6":
                 print("Back.", file=self.stdout)
                 return 0
+            if parse_navigation_choice(choice) is NavigationChoice.BACK:
+                print("Back.", file=self.stdout)
+                return 0
             action = actions.get(choice.casefold())
             if action is None:
-                print("Invalid menu choice. Please try again.", file=self.stdout)
+                print(navigation_hint(), file=self.stdout)
                 continue
             action()
             if choice == "4":

@@ -11,6 +11,13 @@ from pds_core.cli_support import screen
 from pds_core.cli_support.context import ArgumentParser
 from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.cli_support.workspace_management import handle_workspace_menu
+from pds_core.menu_navigation import (
+    QuitPDS,
+    ReturnToMainMenu,
+    navigation_hint,
+    parse_navigation_choice,
+    print_navigation_options,
+)
 from pds_core.standards import (
     StandardsLibrary,
     StandardsReadError,
@@ -64,6 +71,8 @@ def _run(
         print("", file=stdout)
         print("Cancelled.", file=stdout)
         return 0
+    except QuitPDS:
+        return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -106,20 +115,29 @@ class CoreMenu:
             self._print_menu()
             choice = self._prompt("Choose an option: ")
             if choice is None or choice in ("", "4"):
-                print("Back.", file=self.stdout)
                 return 0
+            try:
+                parse_navigation_choice(choice, allow_back=False)
+            except ReturnToMainMenu:
+                continue
             if choice == "1":
-                code = self._run_standards_menu()
+                try:
+                    code = self._run_standards_menu()
+                except ReturnToMainMenu:
+                    continue
                 if code != 0:
                     return code
                 continue
             if choice == "2":
-                code = handle_workspace_menu(
-                    self.args,
-                    StandardsLibrary(standards=(), profiles=()),
-                    self.stdout,
-                    self.stderr,
-                )
+                try:
+                    code = handle_workspace_menu(
+                        self.args,
+                        StandardsLibrary(standards=(), profiles=()),
+                        self.stdout,
+                        self.stderr,
+                    )
+                except ReturnToMainMenu:
+                    continue
                 if code != 0:
                     return code
                 continue
@@ -127,7 +145,7 @@ class CoreMenu:
                 self._print_help()
                 self._pause("Main Menu")
                 continue
-            print("Invalid menu choice. Please try again.", file=self.stdout)
+            print(navigation_hint(), file=self.stdout)
 
     def _run_standards_menu(self) -> int:
         try:
@@ -189,7 +207,7 @@ class CoreMenu:
         print("1. Standards Management", file=self.stdout)
         print("2. Workspace Settings", file=self.stdout)
         print("3. Help", file=self.stdout)
-        print("4. Exit", file=self.stdout)
+        print_navigation_options(back=False, main_menu=False, file=self.stdout)
         print("", file=self.stdout)
 
     def _prompt(self, prompt: str) -> str | None:
