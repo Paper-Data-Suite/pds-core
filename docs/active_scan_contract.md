@@ -6,10 +6,10 @@ This document defines the shared Paper Data Suite contract for active scan
 intake, retained source scans, routed evidence, routing review, failure
 metadata, and provenance.
 
-The shared route, retained-filename, failure metadata validation, and safe
-failure metadata writing helpers are implemented in `pds-core`. Source scan
-copying, scan routing, QR extraction, and module workflow adoption remain
-future implementation work.
+The shared route, retained-filename, retained-source copy/provenance helper,
+failure metadata validation, and safe failure metadata writing helpers are
+implemented in `pds-core`. Scan routing, QR extraction, PDF splitting, and
+module workflow adoption remain module work.
 
 ## Terminology
 
@@ -277,13 +277,18 @@ scans_source_date_dir(...)
 routing_review_dir(...)
 build_retained_source_filename(...)
 retained_source_scan_path(...)
+RetainedSourceScan
+SourceRetentionError
+retain_source_scan(...)
 routing_failure_metadata_path(...)
 validate_routing_failure_metadata(...)
 write_routing_failure_metadata(...)
 ```
 
-The legacy helpers remain available with unchanged paths and exceptions. The
-new helpers do not migrate consuming modules and do not copy or route scans.
+The legacy helpers remain available with unchanged paths and exceptions. Core
+implements the reusable retained-source copy and provenance operation, but it
+does not route scans, decode QR codes, or split PDFs. ScoreForm and Quillan
+adoption remain separate module work.
 
 ## Ownership Boundaries
 
@@ -331,7 +336,7 @@ This contract preserves the following behavior:
 * Existing Quillan behavior is unchanged.
 * Assignment-level `scans/` remains a valid routed-evidence location.
 
-Active source/review path helpers, retained filename/path helpers, failure
-metadata validation, and exclusive failure metadata writing are implemented.
-No copying behavior, routing behavior, module migration, or legacy-helper
-deprecation is implemented.
+Active source/review path helpers, retained filename/path helpers, retained
+source copying and provenance, failure metadata validation, and exclusive
+failure metadata writing are implemented. No routing behavior, QR extraction,
+PDF splitting, module migration, or legacy-helper deprecation is implemented.
