@@ -66,7 +66,7 @@ def test_menu_starter_install_writes_library_after_confirmation(
     assert err == ""
     assert library_file(tmp_path).is_file()
     library = load_standards_library(library_file(tmp_path))
-    assert len(library.standards) == 64
+    assert len(library.standards) == 135
     assert len(library.profiles) == 2
     assert not (tmp_path / "standards" / "usage").exists()
 

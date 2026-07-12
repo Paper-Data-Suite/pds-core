@@ -14,6 +14,13 @@ teacher menus, import/export, and module-facing selection APIs, see
 [`standards_management_workflow.md`](standards_management_workflow.md).
 For optional bundled starter standards packs, see
 [`starter_standards.md`](starter_standards.md).
+
+Bundled profiles may contain both broad parent standards and lettered
+subskills. A subskill is represented by an ordinary first-class
+`StandardDefinition` with its own durable `standard_id`; this requires no
+hierarchy field. Grouping metadata supports selection and display only, not
+parent/child rollup, mastery aggregation, grading policy, or curriculum
+guidance.
 For teacher-facing workspace setup, validation, reset, and clean simulation
 workspace workflows, see [`workspace_management.md`](workspace_management.md).
 

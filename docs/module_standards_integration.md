@@ -21,6 +21,12 @@ see [`standards_management_workflow.md`](standards_management_workflow.md).
 For installable starter standards packs, see
 [`starter_standards.md`](starter_standards.md).
 
+The bundled NJSLS-ELA profiles include parent standards and lettered subskills
+as ordinary first-class `StandardDefinition` records. Modules may select a
+subskill by its durable `standard_id` exactly as they select a parent. The
+current workflow does not require hierarchy fields, and Core does not perform
+parent/child rollup or mastery aggregation.
+
 ## Dependency Direction
 
 The intended dependency direction is:

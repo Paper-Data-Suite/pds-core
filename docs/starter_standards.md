@@ -36,14 +36,22 @@ It was generated from the local Pandoc Markdown reference file
 pds_core/starter_data/standards/njsls_ela_2023_library.json
 ```
 
-The pack contains 64 main-standard definitions from the 2023 NJSLS-ELA high
-school grade bands and 2 reusable profiles:
+The pack contains 64 parent-standard definitions and 71 lettered subskill
+definitions from the 2023 NJSLS-ELA high school grade bands, for 135 standards
+total, plus 2 reusable profiles:
 
 - `english10_2023_njsls_ela`
 - `english12_2023_njsls_ela`
 
-Subparts from the Markdown source are folded into each main standard's
-description. They are not separate durable standards in this starter pack.
+Each lettered subskill is an ordinary, first-class `StandardDefinition`. Its
+durable `standard_id` and display `code` extend the parent value with the
+subskill letter, and its `category_path` and tags identify the parent grouping.
+Both profiles list parent standards followed by their subskills, so downstream
+modules can select either granularity by durable `standard_id`.
+
+No hierarchy schema is required for this representation. Parent/child rollup
+and mastery aggregation are outside the standards library's scope. Starter
+standards are setup metadata, not grading policy or curriculum guidance.
 
 ## CLI Workflow
 
