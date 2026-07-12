@@ -29,7 +29,7 @@ def test_starter_list_and_preview_do_not_touch_workspace(
     assert PACK_ID in out
     assert "2023 NJSLS-ELA" in out
     assert "grade bands: 9-10, 11-12" in out
-    assert "64 standards" in out
+    assert "135 standards" in out
     assert "2 profiles" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -65,7 +65,7 @@ def test_starter_validate_reports_success_without_workspace_writes(
 
     assert code == 0
     assert f"Starter standards pack is valid: {PACK_ID}" in out
-    assert "(64 standards, 2 profiles)" in out
+    assert "(135 standards, 2 profiles)" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -85,13 +85,13 @@ def test_starter_install_writes_expected_library_only(
 
     assert code == 0
     assert f"Installed starter standards pack: {PACK_ID}" in out
-    assert "Standards: 64 added, 0 skipped, 0 overwritten." in out
+    assert "Standards: 135 added, 0 skipped, 0 overwritten." in out
     assert "Profiles: 2 added, 0 skipped, 0 overwritten." in out
     assert "No standards usage events were recorded." in out
     assert err == ""
     assert standards_library_path(tmp_path).is_file()
     library = load_standards_library(standards_library_path(tmp_path))
-    assert len(library.standards) == 64
+    assert len(library.standards) == 135
     assert len(library.profiles) == 2
     assert not (tmp_path / "standards" / "usage").exists()
     assert not (tmp_path / "classes").exists()
@@ -124,7 +124,7 @@ def test_starter_install_repeated_run_is_clear_and_idempotent(
     )
 
     assert code == 0
-    assert "Standards: 0 added, 64 skipped, 0 overwritten." in out
+    assert "Standards: 0 added, 135 skipped, 0 overwritten." in out
     assert "Profiles: 0 added, 2 skipped, 0 overwritten." in out
     assert "No workspace changes were needed." in out
     assert err == ""
@@ -203,7 +203,7 @@ def test_starter_install_overwrite_requires_explicit_flag(
     )
 
     assert code == 0
-    assert "Standards: 0 added, 62 skipped, 2 overwritten." in out
+    assert "Standards: 0 added, 125 skipped, 10 overwritten." in out
     assert err == ""
     assert load_standards_library(library_path).standards[0].short_name == (
         "Language System and Structure"

@@ -136,8 +136,10 @@ folders.
 
 Starter standards install optional shared definitions and reusable profiles
 into the same canonical library. The bundled `njsls_ela_2023` pack contains
-64 high school ELA standards and the profiles `english10_2023_njsls_ela` and
-`english12_2023_njsls_ela`. Install merges missing records, skips identical
+64 parent standards and 71 first-class lettered subskills. Its English 10 and
+English 12 profiles include both kinds of record so modules can select either
+by durable `standard_id`; no hierarchy schema or parent/child rollup is
+implied. Install merges missing records, skips identical
 records, refuses conflicts by default, and requires `--overwrite` to replace
 conflicting starter records. Starter install does not record usage events.
 

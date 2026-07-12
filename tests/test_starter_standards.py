@@ -11,7 +11,9 @@ from pds_core.standards import (
     StandardsLibrary,
     StandardsValidationError,
     load_standards_library,
+    standards_library_from_dict,
     standards_library_path,
+    standards_library_to_dict,
     validate_profile_standard_selection,
 )
 from pds_core.standards_selection import (
@@ -40,7 +42,7 @@ def test_njsls_ela_2023_starter_pack_is_discoverable() -> None:
     assert metadata.source == "2023 NJSLS-ELA"
     assert metadata.grade_bands == ("9-10", "11-12")
     assert metadata.courses == ("English 10", "English 12")
-    assert metadata.standard_count == 64
+    assert metadata.standard_count == 135
     assert metadata.profile_count == 2
     assert metadata.profile_ids == (
         "english10_2023_njsls_ela",
@@ -53,7 +55,7 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
     standard_ids = [definition.standard_id for definition in library.standards]
     profile_ids = [profile.profile_id for profile in library.profiles]
 
-    assert len(standard_ids) == len(set(standard_ids)) == 64
+    assert len(standard_ids) == len(set(standard_ids)) == 135
     assert len(profile_ids) == len(set(profile_ids)) == 2
     assert all(standard_id.startswith("njsls-ela:") for standard_id in standard_ids)
     assert all(definition.active for definition in library.standards)
@@ -82,17 +84,49 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
     assert {by_id[standard_id].grade_band for standard_id in english12.standards} == {
         "11-12"
     }
+    assert len(english10.standards) == 68
+    assert len(english12.standards) == 67
+    assert english10.standards[:3] == (
+        "njsls-ela:L.SS.9-10.1",
+        "njsls-ela:L.SS.9-10.1.A",
+        "njsls-ela:L.SS.9-10.1.B",
+    )
+    assert english12.standards[:3] == (
+        "njsls-ela:L.SS.11-12.1",
+        "njsls-ela:L.SS.11-12.1.A",
+        "njsls-ela:L.SS.11-12.1.B",
+    )
 
 
-def test_starter_pack_preserves_main_standard_ids_and_subparts() -> None:
+def test_starter_pack_round_trip_preserves_parent_and_subskill_records() -> None:
+    library = load_starter_standards_library(PACK_ID)
+
+    restored = standards_library_from_dict(standards_library_to_dict(library))
+
+    assert restored == library
+    restored_ids = {definition.standard_id for definition in restored.standards}
+    assert "njsls-ela:W.AW.11-12.1" in restored_ids
+    assert "njsls-ela:W.AW.11-12.1.A" in restored_ids
+
+
+def test_starter_pack_represents_parents_and_subskills_as_standards() -> None:
     library = load_starter_standards_library(PACK_ID)
     by_id = {definition.standard_id: definition for definition in library.standards}
 
     assert "njsls-ela:W.AW.9-10.1" in by_id
-    assert "njsls-ela:W.AW.9-10.1.A" not in by_id
-    assert "A. Introduce precise claim(s)" in by_id[
-        "njsls-ela:W.AW.9-10.1"
-    ].description
+    assert "njsls-ela:W.AW.9-10.1.A" in by_id
+    parent = by_id["njsls-ela:W.AW.9-10.1"]
+    subskill = by_id["njsls-ela:W.AW.9-10.1.A"]
+    assert "A. Introduce precise claim(s)" not in parent.description
+    assert subskill.code == "W.AW.9-10.1.A"
+    assert subskill.short_name == "Argument Writing - A"
+    assert subskill.category_path[-1] == parent.code
+    assert "subskill" in subskill.tags
+    assert f"parent_standard:{parent.standard_id}" in subskill.tags
+    assert "subskill_letter:a" in subskill.tags
+    assert "parent_standard" in parent.tags
+    assert subskill.active
+    assert subskill.available_modules == ("pds-quillan", "pds-scoreform")
     assert by_id["njsls-ela:RL.PP.9-10.5"].code == "RL.PP.9-10.5"
     assert by_id["njsls-ela:SL.PI.11-12.4"].code == "SL.PI.11-12.4"
 
@@ -104,9 +138,9 @@ def test_install_into_empty_workspace_writes_only_library(tmp_path: Path) -> Non
         StandardsLibrary(standards=()),
     )
 
-    assert result.standards_added == 64
+    assert result.standards_added == 135
     assert result.profiles_added == 2
-    assert result.changed_count == 66
+    assert result.changed_count == 137
     assert standards_library_path(tmp_path).is_file()
     assert load_standards_library(standards_library_path(tmp_path)) == (
         load_starter_standards_library(PACK_ID)
@@ -138,9 +172,9 @@ def test_repeated_install_is_idempotent(tmp_path: Path) -> None:
         load_standards_library(standards_library_path(tmp_path)),
     )
 
-    assert first.changed_count == 66
+    assert first.changed_count == 137
     assert second.standards_added == 0
-    assert second.standards_skipped == 64
+    assert second.standards_skipped == 135
     assert second.profiles_added == 0
     assert second.profiles_skipped == 2
     assert second.changed_count == 0
@@ -233,7 +267,11 @@ def test_installed_profiles_work_with_module_selection_helpers(tmp_path: Path) -
         available_module="pds-quillan",
     )
     assert english10_items[0].standard_id == "njsls-ela:L.SS.9-10.1"
+    assert english10_items[1].standard_id == "njsls-ela:L.SS.9-10.1.A"
     assert "njsls-ela:W.AW.9-10.1" in [
+        item.standard_id for item in english10_items
+    ]
+    assert "njsls-ela:W.AW.9-10.1.A" in [
         item.standard_id for item in english10_items
     ]
 
