@@ -149,7 +149,8 @@ conflicting existing records unless `--overwrite` is supplied. The bundled
 `njsls_ela_2023` pack provides English 10 and English 12 reusable standards
 profiles from the 2023 NJSLS-ELA high school standards. The profiles include
 parent standards and ordinary first-class records for lettered subskills;
-downstream modules can select either by durable `standard_id`. This flat
+their `short_name` values provide concise teacher-readable skill labels.
+Downstream modules can select either by durable `standard_id`. This flat
 representation does not define hierarchy, rollup, mastery, grading policy, or
 curriculum guidance.
 
@@ -182,9 +183,10 @@ Broad menu workflow:
 7. Install starter standards when a prepared library/profile pool is useful.
 8. Validate the library.
 
-The menu displays teacher-readable labels such as codes, titles, sources, and
-descriptions. It stores durable `standard_id` and `profile_id` values
-internally. Write operations require explicit confirmation.
+The menu displays teacher-readable labels such as codes, short names, titles,
+sources, and descriptions. Module-facing standard selection labels prioritize
+`code | short_name | source`; modules store durable `standard_id` and
+`profile_id` values internally. Write operations require explicit confirmation.
 
 ## Import and Export Safety
 

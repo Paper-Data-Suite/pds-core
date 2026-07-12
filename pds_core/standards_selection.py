@@ -58,7 +58,6 @@ def format_standard_for_display(definition: StandardDefinition) -> str:
     """Return a teacher-readable label for one standard definition."""
     label = " | ".join(
         (
-            definition.standard_id,
             definition.code,
             definition.short_name,
             definition.source,
