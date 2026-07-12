@@ -104,13 +104,14 @@ Rules:
 ## How Modules Should Display Standards
 
 Modules should not show raw IDs as the primary teacher-facing choice. When
-teachers select standards, modules should show readable fields such as:
+teachers select standards, Core's module-facing helper prioritizes:
 
 ```text
-L.KL.11-12.2 - Apply Language in Context
-Apply knowledge of language to understand how language functions in different contexts...
-Source: NJSLS-ELA 2023 | Subject: English Language Arts | Course: English 12 | Domain: Language
+<code> | <short_name> | <source>
 ```
+
+Inactive items append `[inactive]`. Lettered subskills use concise,
+teacher-readable `short_name` values rather than a bare subskill letter.
 
 The module should save the durable ID:
 
@@ -125,7 +126,9 @@ The module should not save only the display code:
 ```
 
 `pds-core` selection helpers return display-ready items and durable IDs so
-modules can keep teacher-facing display separate from durable storage.
+modules can keep teacher-facing display separate from durable storage. The
+label is presentation metadata; modules persist `item.standard_id`, not
+`item.label`.
 
 ## How Modules Should Validate Saved References
 

@@ -20,7 +20,9 @@ subskills. A subskill is represented by an ordinary first-class
 `StandardDefinition` with its own durable `standard_id`; this requires no
 hierarchy field. Grouping metadata supports selection and display only, not
 parent/child rollup, mastery aggregation, grading policy, or curriculum
-guidance.
+guidance. Bundled subskill `short_name` values are concise teacher-readable
+labels derived from each subskill's description.
+
 For teacher-facing workspace setup, validation, reset, and clean simulation
 workspace workflows, see [`workspace_management.md`](workspace_management.md).
 
@@ -1166,6 +1168,10 @@ Teacher-facing displays should prefer `code` and `short_name` for readability
 while preserving access to `standard_id` for durable references, support
 cases, imports, and exact command use. Retired/inactive standards should be
 visibly marked in compact rows and detail views.
+
+Core module-facing standard selection labels use `code | short_name | source`,
+with `[inactive]` appended when needed. `StandardSelectionItem.standard_id`
+remains the separate durable value that modules store.
 
 ### Browsing and Filtering Needs
 

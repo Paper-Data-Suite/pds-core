@@ -227,10 +227,15 @@ def test_standard_listing_active_modes_and_filters() -> None:
     )
     all_items = list_standards_for_selection(library, active=None)
     assert "njsls-ela:RI.CR.11-12.1" in item_ids(all_items)
-    assert "[inactive]" in resolve_standard_selection(
+    inactive_item = resolve_standard_selection(
         library,
         "njsls-ela:RI.CR.11-12.1",
-    ).label
+    )
+    assert inactive_item.standard_id == "njsls-ela:RI.CR.11-12.1"
+    assert inactive_item.label == (
+        "RI.CR.11-12.1 | Informational Text Evidence | "
+        "NJSLS-ELA 2023 [inactive]"
+    )
 
     filtered = list_standards_for_selection(
         library,
@@ -355,8 +360,7 @@ def test_display_formatters_distinguish_ids_from_display_fields() -> None:
     library = make_library()
 
     assert format_standard_for_display(library.standards[1]) == (
-        "njsls-ela:RL.CR.11-12.1 | RL.CR.11-12.1 | "
-        "Close Reading Evidence | NJSLS-ELA 2023"
+        "RL.CR.11-12.1 | Close Reading Evidence | NJSLS-ELA 2023"
     )
     assert format_profile_for_display(library.profiles[0]) == (
         "english_12_njsls | English 12 NJSLS | NJSLS-ELA 2023 | "
@@ -431,7 +435,9 @@ def test_scoreform_like_question_level_standard_tagging() -> None:
         "njsls-ela:RI.CR.11-12.1",
         "njsls-ela:RL.CR.11-12.1",
     )
-    assert question_1_standard.label.startswith("njsls-ela:RL.CR.11-12.1 |")
+    assert question_1_standard.label == (
+        "RL.CR.11-12.1 | Close Reading Evidence | NJSLS-ELA 2023"
+    )
     assert assignment_data == {
         "questions": [
             {"number": 1, "standard_ids": ["njsls-ela:RL.CR.11-12.1"]},

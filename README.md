@@ -139,9 +139,11 @@ into the same canonical library. The bundled `njsls_ela_2023` pack contains
 64 parent standards and 71 first-class lettered subskills. Its English 10 and
 English 12 profiles include both kinds of record so modules can select either
 by durable `standard_id`; no hierarchy schema or parent/child rollup is
-implied. Install merges missing records, skips identical
-records, refuses conflicts by default, and requires `--overwrite` to replace
-conflicting starter records. Starter install does not record usage events.
+implied. Subskill `short_name` values pair the parent skill with a concise,
+teacher-readable description-derived label. Install merges missing records,
+skips identical records, refuses conflicts by default, and requires
+`--overwrite` to replace conflicting starter records. Starter install does not
+record usage events.
 
 Use `standard_id` and `profile_id` for durable Paper Data Suite references.
 Teacher-facing `code`, profile titles, and sources are display fields and may
@@ -166,7 +168,9 @@ For a compact executable-style workflow, see
 
 Modules should store only durable `standard_id` and `profile_id` values.
 Returned labels, standard `code` values, profile titles, and sources are for
-teacher display only and should not be stored as durable references.
+teacher display only and should not be stored as durable references. Standard
+selection labels use `code | short_name | source` (plus `[inactive]` when
+applicable); the durable ID remains available separately as `item.standard_id`.
 
 ```python
 from pds_core.standards_selection import (

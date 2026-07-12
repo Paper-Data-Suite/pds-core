@@ -45,7 +45,9 @@ total, plus 2 reusable profiles:
 
 Each lettered subskill is an ordinary, first-class `StandardDefinition`. Its
 durable `standard_id` and display `code` extend the parent value with the
-subskill letter, and its `category_path` and tags identify the parent grouping.
+subskill letter. Its `short_name` combines the parent skill name with a concise,
+teacher-readable label derived from the subskill description, while its
+`category_path` and tags identify the parent grouping.
 Both profiles list parent standards followed by their subskills, so downstream
 modules can select either granularity by durable `standard_id`.
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace as dataclass_replace
 from pathlib import Path
 
@@ -119,7 +120,9 @@ def test_starter_pack_represents_parents_and_subskills_as_standards() -> None:
     subskill = by_id["njsls-ela:W.AW.9-10.1.A"]
     assert "A. Introduce precise claim(s)" not in parent.description
     assert subskill.code == "W.AW.9-10.1.A"
-    assert subskill.short_name == "Argument Writing - A"
+    assert subskill.short_name.startswith("Argument Writing - ")
+    assert not re.search(r" - [A-Z]$", subskill.short_name)
+    assert subskill.description
     assert subskill.category_path[-1] == parent.code
     assert "subskill" in subskill.tags
     assert f"parent_standard:{parent.standard_id}" in subskill.tags
@@ -129,6 +132,27 @@ def test_starter_pack_represents_parents_and_subskills_as_standards() -> None:
     assert subskill.available_modules == ("pds-quillan", "pds-scoreform")
     assert by_id["njsls-ela:RL.PP.9-10.5"].code == "RL.PP.9-10.5"
     assert by_id["njsls-ela:SL.PI.11-12.4"].code == "SL.PI.11-12.4"
+
+
+def test_starter_subskills_have_teacher_readable_short_names() -> None:
+    library = load_starter_standards_library(PACK_ID)
+    subskills = [
+        definition
+        for definition in library.standards
+        if "subskill" in definition.tags
+    ]
+
+    assert len(subskills) == 71
+    assert all(definition.description for definition in subskills)
+    assert all(
+        not re.search(r" - [A-Z]$", definition.short_name)
+        for definition in subskills
+    )
+    assert all(
+        definition.short_name.rsplit(" - ", 1)[-1]
+        not in {"A", "B", "C", "D", "E", "F"}
+        for definition in subskills
+    )
 
 
 def test_install_into_empty_workspace_writes_only_library(tmp_path: Path) -> None:
@@ -268,6 +292,10 @@ def test_installed_profiles_work_with_module_selection_helpers(tmp_path: Path) -
     )
     assert english10_items[0].standard_id == "njsls-ela:L.SS.9-10.1"
     assert english10_items[1].standard_id == "njsls-ela:L.SS.9-10.1.A"
+    assert english10_items[1].label == (
+        "L.SS.9-10.1.A | Language System and Structure - Parallel Structure | "
+        "2023 NJSLS-ELA"
+    )
     assert "njsls-ela:W.AW.9-10.1" in [
         item.standard_id for item in english10_items
     ]
