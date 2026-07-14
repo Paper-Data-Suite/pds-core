@@ -7,7 +7,7 @@ Shared responsibilities include:
 - identifier validation;
 - strict PDS2 page-locator payload parsing and canonical serialization;
 - generic PDS2 routing identity and registration models;
-- safe route/path construction;
+- deterministic module-qualified route/path construction;
 - generic opening of existing local files and directories in the system viewer;
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
@@ -38,12 +38,21 @@ API in `pds_core.routing_models`, including `ModuleWorkRef`, `RouteLocator`,
 JSON-safe module details validation are included.
 `pds_core.route_ids.generate_route_id()` provides non-semantic,
 collision-resistant route IDs using standard-library secure randomness.
+Module-qualified work roots use
+`classes/<class_id>/modules/<module_id>/work/<work_id>/`. Route registrations
+are created and loaded through `pds_core.route_registrations` at deterministic
+paths beneath each work root. Creation is exclusive and never overwrites an
+existing route; loading requires the persisted locator to match the requested
+locator exactly.
 
 See [`docs/pds2_payload_contract.md`](docs/pds2_payload_contract.md) for the
 payload grammar, limits, public API, and error contract. See
 [`docs/routing_identity_models.md`](docs/routing_identity_models.md) for
 identity composition, serialized shapes, validation rules, and ownership
-boundaries.
+boundaries. See
+[`docs/module_qualified_workspace.md`](docs/module_qualified_workspace.md) for
+the implemented workspace paths, safe module-owned descendants, persisted
+registration behavior, and runtime resolution contract.
 
 ### Shared Menu Navigation
 
@@ -304,14 +313,16 @@ root = ensure_workspace_root(
 save_workspace_root(root)
 ```
 
-Consuming modules resolve the root and pass it to the existing route helpers:
+Consuming modules resolve the root and pass it to the module-qualified helpers:
 
 ```python
-from pds_core.routes import assignment_dir
+from pds_core.routes import module_work_dir
+from pds_core.routing_models import ModuleWorkRef
 from pds_core.workspace import resolve_workspace_root
 
 workspace_root = resolve_workspace_root()
-path = assignment_dir(workspace_root, "english12_p4", "personal_narrative")
+work = ModuleWorkRef("quillan", "english12_p4", "personal_narrative")
+path = module_work_dir(workspace_root, work)
 ```
 
 An explicit root applies only to that call and does not change saved
@@ -356,7 +367,7 @@ structure:
     review/
 ```
 
-It does not create class rosters, assignments, standards libraries, usage
+It does not create class rosters, module work roots, standards libraries, usage
 ledgers, review records, feedback exports, reports, generated answer sheets,
 scored results, or date-bucketed scan folders. `workspace reset` clears only
 the saved preference and does not delete workspace data. See

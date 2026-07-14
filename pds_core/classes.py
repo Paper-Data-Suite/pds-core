@@ -20,7 +20,6 @@ from pds_core.rosters import (
     write_roster,
 )
 from pds_core.routes import (
-    class_assignments_dir,
     class_dir,
     class_metadata_path,
     class_roster_path,
@@ -54,10 +53,7 @@ def class_folder(workspace_root: str | Path, class_id: str) -> ClassFolder:
 def ensure_class_folder(workspace_root: str | Path, class_id: str) -> ClassFolder:
     """Create the canonical class-level directories and return their paths."""
     folder = class_folder(workspace_root, class_id)
-    class_assignments_dir(workspace_root, class_id).mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    folder.class_dir.mkdir(parents=True, exist_ok=True)
     return folder
 
 
