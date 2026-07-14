@@ -1,5 +1,13 @@
 # QR Payload and Routing Contract
 
+> [!IMPORTANT]
+> This document records the superseded PDS1 routing design and does not describe
+> supported runtime behavior.
+>
+> PDS1 and OMR1 parsing and generation are no longer supported. New Core
+> implementation work is governed by
+> [`ADR 0001: Adopt PDS2 Page-Locator Routing`](decisions/0001-adopt-pds2-page-locator-routing.md).
+
 ## Purpose
 
 This document defines the first shared Paper Data Suite QR payload and routing contract.
