@@ -28,7 +28,7 @@ from pds_core.rosters import (
     load_roster,
     write_roster,
 )
-from pds_core.routes import class_assignments_dir, class_metadata_path, class_roster_path
+from pds_core.routes import class_metadata_path, class_roster_path
 
 OPENED_AT = datetime(2026, 8, 28, 9, 0, tzinfo=timezone.utc)
 
@@ -71,7 +71,7 @@ def test_ensure_class_folder_creates_class_directories(tmp_path: Path) -> None:
 
     assert first == second
     assert first.class_dir.is_dir()
-    assert class_assignments_dir(tmp_path, "english9_p2").is_dir()
+    assert list(first.class_dir.iterdir()) == []
     assert not first.roster_path.exists()
     assert not first.metadata_path.exists()
 
@@ -108,7 +108,7 @@ def test_write_class_roster_writes_to_canonical_path(tmp_path: Path) -> None:
 
     assert path == class_roster_path(tmp_path, roster.class_id)
     assert load_roster(path).students == roster.students
-    assert class_assignments_dir(tmp_path, roster.class_id).is_dir()
+    assert path.parent == tmp_path / "classes" / roster.class_id
 
 
 def test_write_class_roster_honors_overwrite(tmp_path: Path) -> None:
