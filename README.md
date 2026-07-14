@@ -9,6 +9,7 @@ Shared responsibilities include:
 - generic PDS2 routing identity and registration models;
 - deterministic module-qualified route/path construction;
 - explicit and installed module-profile registration with page dispatch;
+- version 2 generic scan-failure metadata and append-only resolution events;
 - generic opening of existing local files and directories in the system viewer;
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
@@ -67,6 +68,18 @@ expected failures. See
 for the public profile, registry, discovery, compatibility, and dispatch
 contract.
 
+PDS Core implements routing failure and resolution schema version `"2"` in
+`pds_core.scan_failure_metadata` and `pds_core.scan_resolution_metadata`.
+Failure files are immutable and created exclusively at
+`scans/review/<failure_id>.json`; resolutions append separately at
+`scans/review/resolutions/<resolution_id>.json`, and several resolutions may
+reference one failure. Shared metadata contains no universal student or
+assignment fields. It stores raw payload separately from an optional validated
+`RouteLocator`, and accepts an optional validated `ModuleRecordRef` target.
+See
+[`docs/scan_failure_resolution_metadata.md`](docs/scan_failure_resolution_metadata.md)
+for exact schemas, dispatch mapping, linkage checks, and module ownership.
+
 ### Shared Menu Navigation
 
 PDS modules should use `pds_core.menu_navigation` for teacher-facing controlled
@@ -98,10 +111,11 @@ See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for
 
 See [`docs/active_scan_contract.md`](docs/active_scan_contract.md) for the
 defined active scan intake, retained source, routing review, failure metadata,
-and provenance contract. Shared route/path, retained filename, failure metadata
-validation, and exclusive metadata writing helpers are implemented. Source
-scan copying, routing, QR extraction, and module adoption remain future work;
-legacy `scans_archive_*` behavior is preserved.
+and provenance contract. Source retention, PDS2 routing and dispatch, immutable
+version 2 failure records, strict loaders, and append-only linked resolutions
+are implemented. Image decoding, PDF splitting, module-owned evidence, and
+downstream Review adoption remain module work; legacy `scans_archive_*`
+behavior is preserved.
 
 See [`docs/standards_contract.md`](docs/standards_contract.md) for the shared
 standards contract. PDS Core owns durable standard definitions, reusable
