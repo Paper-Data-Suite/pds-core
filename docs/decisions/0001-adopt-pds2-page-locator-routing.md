@@ -1,11 +1,17 @@
 # ADR 0001: Adopt PDS2 Page-Locator Routing
 
-**Status:** Accepted
+**Status:** Accepted; implemented in `pds-core` v0.5.0
 **Date:** July 14, 2026
 **Decision owners:** Paper Data Suite maintainers
 **Applies to:** `pds-core` and all Paper Data Suite modules that generate or route returned paper pages
 **Related issue:** `Paper-Data-Suite/pds-core#136`
 **Umbrella issue:** `Paper-Data-Suite/pds-core#135`
+
+**Implementation note:** Core issues #137 through #141 completed the routing
+models, PDS2 parser/serializer, module-qualified workspace and registrations,
+module profiles and dispatch, and generalized failure/resolution metadata.
+Version 0.5.0 completes the Core documentation and packaging work. The
+coordinated ScoreForm, Quillan, and Concord migrations remain downstream work.
 
 ## Context
 
@@ -914,7 +920,7 @@ Rejected because:
 
 ## Required Follow-Up
 
-Implementation proceeds through the following Core issues:
+Implementation was completed through the following Core issues:
 
 1. `Paper-Data-Suite/pds-core#137`
    Add generic routing identity models and route-ID generation.

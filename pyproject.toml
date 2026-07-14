@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pds-core"
-version = "0.1.0"
-description = "Shared core utilities for Paper Data Suite modules."
+version = "0.5.0"
+description = "Shared contracts and infrastructure for Paper Data Suite modules."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }

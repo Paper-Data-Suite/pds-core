@@ -7,6 +7,8 @@
 > by [ADR 0001](docs/decisions/0001-adopt-pds2-page-locator-routing.md), the
 > [PDS2 payload contract](docs/pds2_payload_contract.md), and the
 > [routing identity model contract](docs/routing_identity_models.md).
+> Supported module integration guidance is in the
+> [PDS2 module integration guide](docs/pds2_module_integration.md).
 
 ## Purpose
 

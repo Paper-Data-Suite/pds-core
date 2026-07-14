@@ -1,71 +1,81 @@
 # Changelog
 
-All notable changes to PDS Core will be documented in this file.
+All notable changes to PDS Core are documented in this file.
 
 ## Version Policy
 
-PDS Core is in early pre-1.0 development. GitHub issues and milestones may be
-used as planning buckets, while package versions describe installable package
-state.
+PDS Core remains pre-1.0. Package versions describe installable package state;
+planning milestones and historical development notes do not imply that every
+minor version was published. Unless otherwise documented, only the latest
+supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+No changes yet.
+
+## [0.5.0] - 2026-07-14
+
 ### Added
 
-- Added a generic, standard-library-only helper for opening existing local
-  files and directories in the system default application.
-- Added shared active scan root, retained source, date-bucket, routing review,
-  retained filename, and retained source path helpers without directory
-  creation or scan copying.
-- Added shared routing failure categories, a frozen failure metadata model,
-  strict validation and dictionary conversion, canonical review JSON paths,
-  and exclusive UTF-8 JSON writing.
-- Defined the active scan intake, retained source scan, routing review, failure
-  metadata, and provenance contract without changing existing scan route
-  helpers or module behavior.
-- Added pure in-memory roster mutation helpers for adding, replacing,
-  upserting, and removing student records while returning new validated
-  `Roster` instances.
-- Added pure in-memory standards library mutation helpers for adding,
-  replacing, and upserting standard definitions and standards profiles while
-  returning new validated `StandardsLibrary` instances.
-- Added a module-neutral standards profile selection validator for checking
-  assignment focus-standard IDs against shared standards profiles.
-- Documented the shared standards integration contract, including PDS Core as
-  the standards source of truth, module storage of `standard_id` references,
-  module-specific extension boundaries, usage-event expectations, and future
-  Codex-assisted ingestion as validation-and-review-gated draft generation.
-- Added read-only in-memory standards library browsing helpers for finding and
-  filtering standard definitions and standards profiles, plus deterministic
-  subject, source, domain, and category-path listing helpers.
-- Added shared active school-year workspace state helpers.
-- Added shared standards library workspace-storage behavior where the canonical
-  `standards/library.json` path is side-effect free to resolve, missing
-  workspace libraries load as empty libraries without creating files, and
-  workspace writes create only the standards library file and parent directory.
-- Added root-level `CHANGELOG.md`.
-- Added root-level `LICENSE`.
-- Added root-level `SECURITY.md`.
+- Added strict PDS2 page-locator parsing and canonical serialization.
+- Added generic routing identities, route-ID generation, exact dictionary
+  conversion, route-registration persistence, and runtime route resolution.
+- Added module-qualified work roots at
+  `classes/<class_id>/modules/<module_id>/work/<work_id>/` and safe
+  module-owned descendant paths.
+- Added explicit and entry-point-discovered module profiles through the
+  `paper_data_suite.modules` group, exact module registries, compatibility
+  checks, and ordered mixed-module dispatch.
+- Added version 2 generic routing-failure records and append-only linked
+  resolution events with strict JSON loading and immutable creation.
+- Added active source-scan retention with SHA-256 provenance.
+- Added shared workspace, roster, class, standards, school-year, menu
+  navigation, and local-open infrastructure developed before this release.
+- Added the `pds-core` CLI, the `core` teacher menu, bundled 2023 NJSLS-ELA
+  starter standards, and standards management and selection APIs.
+- Added explicit PEP 517 setuptools build metadata and release-metadata
+  regression tests.
+
+### Changed
+
+- Core is now documented as the shared contracts and infrastructure package
+  for ScoreForm, Quillan, Concord, and future Paper Data Suite modules.
+- QR payloads now identify an expected physical page route through
+  `module_id`, `class_id`, `work_id`, and `route_id`; semantic target identity
+  remains behind a persisted module-owned registration.
+- Shared routing failure and resolution schemas are version `"2"`; version 1
+  records are historical and are not converted automatically.
+- The active workspace contract is module-qualified. Core no longer treats
+  assignments or student-submission directories as universal routing roots.
+
+### Removed
+
+- Removed PDS1 and OMR1 parsing, generation, normalization, and compatibility
+  behavior. These payloads are rejected as unsupported schemas.
+- Removed the former `QrPayload` model and the `pds_core.pds1`,
+  `pds_core.omr1`, and `pds_core.qr_payload` runtime modules.
+- Removed universal assignment and student-submission route helpers, including
+  the former `pds_core.assignments` surface.
+- Removed shared routing assumptions that every page has a `student_id`, an
+  assignment identity, a logical page number, or a Core-owned final evidence
+  destination.
+
+### Migration
+
+- Downstream modules must require Python 3.11 or newer and depend on
+  `pds-core>=0.5,<0.6` while integrating this pre-1.0 line.
+- Replace legacy payload handling with `pds_core.pds2` and
+  `pds_core.routing_models`.
+- Replace universal assignment paths with `pds_core.routes` module-qualified
+  work roots and keep module-specific descendants module-owned.
+- Register a `ModuleProfile` explicitly or expose a zero-argument provider in
+  the `paper_data_suite.modules` entry-point group before dispatch.
+- See [the v0.5.0 release notes](docs/releases/v0.5.0.md) and
+  [the PDS2 module integration guide](docs/pds2_module_integration.md).
 
 ## Historical Development Notes
 
-PDS Core already includes shared infrastructure for:
-
-- identifier validation;
-- safe route and path helpers;
-- PDS1 QR payload construction and parsing;
-- legacy OMR1 compatibility where needed by downstream modules;
-- legacy scan inbox and `scans_archive_*` route helpers;
-- workspace-root resolution and status inspection;
-- roster models, validation, CSV loading, and CSV writing;
-- class folder helpers;
-- assignment folder helpers;
-- shared standards definition and profile models;
-- standards library JSON helpers;
-- standards workspace library helpers;
-- standards usage event models;
-- explicit-path standards usage JSONL helpers;
-- canonical standards usage workspace ledger helpers.
-
-These notes summarize existing capability areas. They do not represent formal
-tagged releases.
+The repository previously reported package version `0.1.0` while capabilities
+were developed through planning milestones. No formal `0.2.0`, `0.3.0`, or
+`0.4.0` package release history is asserted here. Version 0.5.0 is the next
+installable release represented by this changelog.

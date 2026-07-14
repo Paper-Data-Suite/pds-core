@@ -11,9 +11,9 @@ The central architecture decision is:
 Shared roster and workspace management belongs in pds-core.
 ```
 
-This is a design contract only. It does not add roster or class-workspace APIs.
-The proposed API names below identify expected responsibilities and may be
-refined during implementation. Implementation should proceed through focused follow-up tickets rather than a broad cross-repository refactor.
+The Core roster, class-folder, and workspace APIs described below are
+implemented. Downstream adoption remains module work and should proceed through
+focused migrations rather than a broad cross-repository refactor.
 
 ## Architecture Decision
 
@@ -23,9 +23,10 @@ from `pds-core`:
 ```text
 pds-scoreform -> pds-core
 pds-quillan   -> pds-core
+pds-concord   -> pds-core
 ```
 
-ScoreForm and Quillan must not depend on each other.
+Downstream modules must not depend on each other through shared roster use.
 
 A separate shared dependency is not currently recommended because:
 
@@ -99,15 +100,15 @@ Optional columns are roster metadata, not an automatic extension of every
 module's output schema. Modules must explicitly choose whether an optional
 field belongs in a result export.
 
-## Proposed Roster Model and APIs
+## Roster Model and APIs
 
-A likely future module is:
+The implemented module is:
 
 ```python
 pds_core.rosters
 ```
 
-Likely public pieces are:
+Public pieces include:
 
 ```python
 ROSTER_REQUIRED_COLUMNS
@@ -121,21 +122,20 @@ RosterValidationError
 load_roster(path) -> Roster
 validate_roster_rows(...)
 create_roster(class_id, students, ...) -> Roster
-write_roster(path, roster, *, overwrite=False) -> Path
-write_class_roster(root, roster, *, overwrite=False) -> Path
+write_roster(path, roster, *, overwrite=False) -> None
 add_student_record(roster, student) -> Roster
 replace_student_record(roster, student) -> Roster
 upsert_student_record(roster, student) -> Roster
 remove_student_record(roster, student_id) -> Roster
-student_display_name(student, ...)
-student_sort_name(student, ...)
+student_display_name(student) -> str
+student_sort_name(student) -> str
 student_lookup(roster) -> Mapping[str, StudentRecord]
 ```
 
-`StudentRecord` should retain the canonical fields and ordered optional fields.
-`Roster` should retain the class ID, student records, source columns, and an
-optional source path. The models should preserve string values rather than
-coercing identifier-like values to numbers.
+`StudentRecord` retains the canonical fields and ordered optional fields.
+`Roster` retains the class ID, student records, source columns, and an optional
+source path. The models preserve string values rather than coercing
+identifier-like values to numbers.
 
 Writing should be atomic where practical. Writers must not overwrite an
 existing roster unless the caller explicitly sets `overwrite=True`.
@@ -149,18 +149,14 @@ Removing a student means removing that student from the active roster object
 only. ScoreForm and Quillan still own their own UI, menu, and workflow
 wrappers.
 
-These APIs should work equally well in tests, command-line wrappers, and future
-menu wrappers.
+These APIs work in tests and module-owned command or menu wrappers.
 
 ## Student Identity and Display
 
-`student_id` is the canonical identity for:
-
-* routes;
-* QR payloads;
-* scan routing;
-* persistent records;
-* lookups.
+`student_id` is the canonical identity within a `Roster` and for roster
+lookups. A module may reference it in module-owned records where that domain
+requires student identity. It is not part of PDS2 payloads, shared Core route
+identity, or mandatory scan routing metadata.
 
 Names are for teacher display only. Shared helpers should provide consistent
 forms such as:
@@ -171,8 +167,8 @@ student_sort_name(student)     # "Doe, Jane"
 ```
 
 If a roster includes the optional `preferred_name` field, it may replace
-`first_name` for display only. It must not replace `student_id`, change routes
-or QR payloads, or become a hidden identifier.
+`first_name` for display only. It must not replace `student_id` in the roster or
+become a hidden identifier.
 
 ## Structured Diagnostics
 
@@ -222,15 +218,15 @@ Shared workspace behavior includes:
 Changing or resetting workspace configuration must not automatically migrate,
 move, copy, or delete user files.
 
-The existing low-level functions in `pds_core.workspace` should remain
-available. Possible convenience APIs for consistent module behavior are:
+The implemented public functions in `pds_core.workspace` include:
 
 ```python
 WorkspaceStatus
 
 inspect_workspace_root(explicit_root=None) -> WorkspaceStatus
-configure_workspace_root(path, *, create=True) -> Path
-reset_workspace_root() -> WorkspaceStatus
+ensure_workspace_root(path, create=True) -> Path
+save_workspace_root(path) -> Path
+clear_saved_workspace_root() -> bool
 ```
 
 `WorkspaceStatus` exposes the resolved root, stable resolution source,
@@ -247,38 +243,36 @@ The shared layout is:
   classes/
     <class_id>/
       roster.csv
-      assignments/
-        <assignment_id>/
-          assignment.json
-          templates/
-          scans/
-          submissions/
-          results/
-          debug/
+      class.json
+      modules/
+        <module_id>/
+          work/
+            <work_id>/
+              routes/
+                <route_id>.json
+              <module-owned descendants>
 ```
 
 Existing route helpers are pure path constructors. Calling a route helper does
 not create a directory or imply that every part of the returned route already
 exists.
 
-PDS Core owns the canonical class and assignment folder paths. Assignment
-folder helpers are schema-neutral: modules may place their own metadata and
-artifacts inside an assignment folder, but PDS Core does not define, load, or
-validate module-specific assignment contents.
+PDS Core owns canonical class, module, work, and route-registration paths.
+Modules own the meaning of `work_id` and their descendants beneath a work
+root. Core does not define a universal assignment root or student-submission
+directory. A module may use assignments or students in its own domain model
+without making either concept part of shared routing identity.
 
 Directory creation belongs in explicit setup helpers. Class setup should:
 
 * validate `class_id`;
-* ensure the workspace root;
 * create the class directory;
-* create the class `assignments/` directory;
 * return useful path information.
 
 Class setup must not:
 
-* create assignments;
-* create assignment-level `templates/`, `scans/`, `submissions/`, `results/`,
-  or `debug/` directories;
+* create module work or route-registration directories;
+* create module-owned descendants;
 * synthesize a roster;
 * overwrite an existing roster.
 
@@ -306,13 +300,16 @@ list_class_folders(
     *,
     require_roster=False,
     load_rosters=False,
+    require_metadata=False,
+    load_metadata=False,
 ) -> tuple[ClassFolder, ...]
 ```
 
 `ClassFolder` provides the validated class ID and useful canonical paths,
-including the class directory and roster path. When requested through
-`list_class_folders(..., load_rosters=True)`, it may also carry loaded roster
-data.
+including the class directory, roster path, and class metadata path. When
+requested through `list_class_folders(..., load_rosters=True)` or
+`list_class_folders(..., load_metadata=True)`, it may also carry loaded roster
+or metadata data.
 
 Class folder listing handles invalid entries deterministically. Invalid folder
 names are skipped rather than reinterpreted. When roster loading is requested,
@@ -320,28 +317,17 @@ invalid or mismatched rosters are also skipped.
 
 ## CLI and Menu Wrappers
 
-`pds-core` should not own:
-
-* `argparse`;
-* terminal menus;
-* prompts;
-* coloring;
-* module branding.
-
-Each module should expose thin wrappers around shared behavior. Expected future
-operations include:
+Core owns the implemented `pds-core` command namespace and the `core`
+teacher-facing menu for shared standards and workspace management. Modules own
+their branding and module-specific workflows and may expose thin wrappers over
+shared behavior. Core's direct workspace operations are:
 
 ```text
-<module> workspace show
-<module> workspace set <path>
-<module> workspace validate
-<module> workspace reset
-
-<module> roster create
-<module> roster validate <path>
-<module> roster show <class_id>
-<module> class create <class_id>
-<module> class list
+pds-core workspace show
+pds-core workspace set <path>
+pds-core workspace validate
+pds-core workspace reset
+pds-core workspace paths
 ```
 
 Wrapper behavior should be consistent:
@@ -350,13 +336,9 @@ Wrapper behavior should be consistent:
 * `workspace set` creates or validates and saves the root without migrating
   files;
 * `workspace reset` clears only saved configuration;
-* `roster validate` is read-only;
-* `roster create` writes to the canonical class roster route;
-* `class list` handles invalid entries deterministically;
-* wrappers format structured exceptions for their own users.
-
-Existing ScoreForm command aliases and menu wording should remain available
-during migration where compatibility requires them.
+* `workspace paths` is read-only;
+* shared commands format structured exceptions for users; and
+* module wrappers retain ownership of module-specific roster and class UX.
 
 ## Module Boundaries
 
@@ -428,53 +410,32 @@ Important integration points are:
 * Quillan should eventually expose the same workspace wrapper behavior as
   ScoreForm.
 
-## Architectural Follow-Ups
+## Downstream Follow-Ups
 
-### Quillan `reports/` versus shared `results/`
+### Module-owned outputs
 
-Quillan currently refers to `reports/`, while the shared assignment layout uses
-`results/`. This contract does not resolve that inconsistency.
-
-Possible resolutions include:
-
-* migrating Quillan reports under `results/`;
-* using `results/reports/`;
-* formally adding `reports/` to the shared layout.
-
-The likely long-term preference is alignment with `results/`, but the decision
-requires a separate follow-up issue before report generation is implemented.
+Quillan `reports/`, ScoreForm results, and comparable module outputs are
+module-owned descendants beneath a module-qualified work root. Core does not
+define a universal shared `results/`, assignment, or submission layout. Each
+downstream migration must document its own target paths.
 
 ### Python version compatibility
 
-ScoreForm currently supports Python `>=3.10`, while `pds-core` requires Python
-`>=3.11`. This must be tracked as a compatibility concern before ScoreForm
-depends more directly on new roster and class-workspace APIs. This ticket does
-not change either project's supported Python version.
+Core v0.5.0 requires Python `>=3.11`. A downstream module must raise its own
+requirement to Python 3.11 or newer before depending on this release.
 
 ## Migration Sequence
 
-1. Create this contract document.
-2. Add shared roster models, validation, and read-only loading in `pds-core`.
-3. Add atomic roster writing and class setup helpers in `pds-core`.
-4. Add workspace status and convenience helpers in `pds-core`.
-5. Add a ScoreForm compatibility adapter over shared roster APIs.
-6. Migrate ScoreForm roster discovery, creation, and display helpers
-   incrementally.
-7. Keep ScoreForm assignment and scoring behavior unchanged.
-8. Add a canonical synthetic roster fixture to Quillan.
-9. Update Quillan printable generation to consume shared roster and student
-   records.
-10. Add Quillan workspace CLI and menu wrappers.
-11. Resolve Quillan `reports/` versus shared `results/` before report
-    generation.
-12. Remove compatibility adapters only after consumers and documentation have
-    migrated.
+The shared roster models, validation, atomic writing, class helpers, workspace
+status, and workspace configuration helpers are implemented in Core. ScoreForm,
+Quillan, and Concord adoption remains in their downstream issues. Compatibility
+adapters, if required, remain module-owned and should be removed only after
+consumers and documentation have migrated.
 
 ## Non-Goals
 
 This contract does not include:
 
-* implementation of roster APIs;
 * a ScoreForm refactor;
 * Quillan CLI or menu implementation;
 * scan routing;
@@ -492,9 +453,9 @@ This contract does not include:
 ## Summary
 
 `pds-core` is the shared owner of roster parsing, roster validation, student
-identity helpers, class setup, workspace settings, and canonical path
-conventions. ScoreForm and Quillan remain responsible for their own assignment,
-output, and teacher-workflow behavior.
+identity helpers, class setup, workspace settings, and shared class-level path
+conventions. ScoreForm, Quillan, and Concord remain responsible for their own
+module-qualified work, output, and teacher-workflow behavior.
 
 This boundary keeps shared data contracts consistent without coupling the
 modules to each other or moving UI and educational judgment into the core
