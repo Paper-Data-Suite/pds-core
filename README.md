@@ -74,6 +74,11 @@ See [`docs/starter_standards.md`](docs/starter_standards.md) for bundled
 starter standards packs, including the installable 2023 NJSLS-ELA high school
 starter library and English 10 / English 12 reusable profiles.
 
+See [`docs/decisions/README.md`](docs/decisions/README.md) for accepted
+architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
+persisted route registrations, module-qualified work identity, and the removal
+of PDS1 and OMR1 support.
+
 ## Standards CLI
 
 Teachers can type the module shortcut to open the current pds-core menu:
