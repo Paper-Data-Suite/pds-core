@@ -252,3 +252,11 @@ These models do not inherit from or convert through the removed legacy
 `QrPayload`. PDS1 and OMR1 have incompatible student-, assignment-, and
 page-oriented semantics and are not accepted by this API. Active parsing and
 generation support for those formats has been removed from Core.
+
+Validated `RouteLocator` and `ModuleRecordRef` values are also the only
+authoritative route and target identities accepted by version 2 scan failure
+and resolution metadata. Raw or incomplete payload observations remain
+diagnostic `module_details`; they are never synthesized into typed identities.
+See
+[`scan_failure_resolution_metadata.md`](scan_failure_resolution_metadata.md)
+for the exact persisted schemas and ownership boundary.

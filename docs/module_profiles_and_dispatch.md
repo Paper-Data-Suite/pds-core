@@ -148,5 +148,21 @@ request, module, compatibility, persistence, and routing-model failures are
 isolated to that page, so later pages continue. One retained source may
 therefore produce heterogeneous successes and failures across ScoreForm-like,
 Quillan-like, Concord-like, or other installed integrations. Outcomes are
-runtime values, not persisted metadata; generalized failure and resolution
-mapping remains separate work.
+runtime values, not persisted metadata. An expected `RouteDispatchFailure`
+can be converted explicitly with
+`routing_failure_metadata_from_dispatch_failure(...)`; successful dispatch is
+not automatically a resolution of a prior failure.
+
+## Persisted failure mapping
+
+The version 2 scan-metadata contract maps dispatch errors without importing or
+interpreting module-owned records. Unsupported modules and profile
+incompatibility map to `module_resolution`; registration lookup, integrity,
+read, and status failures map to `route_resolution`; registration-validator
+failures map to `module_validation`; and handler failures map to
+`module_handling`. Request errors and handler errors use generic
+`processing_error`; routing-model errors use `identifier_invalid`.
+
+The complete error/category/stage table, immutable failure persistence, and
+append-only resolution linkage rules are documented in
+[`scan_failure_resolution_metadata.md`](scan_failure_resolution_metadata.md).
