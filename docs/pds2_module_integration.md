@@ -185,9 +185,11 @@ it for installed discovery with:
 quillan = "quillan.pds_integration:module_profile"
 ```
 
-Entry-point names are diagnostic only; `profile.module_id` is authoritative.
-Duplicate module IDs, malformed providers, provider errors, and invalid
-profiles fail discovery. Core never derives an import path from QR data.
+The entry-point name must exactly equal the returned profile's `module_id`.
+Both values must be valid lowercase module identifiers. Discovery fails rather
+than guessing or normalizing when they differ. Duplicate module IDs, malformed
+providers, provider errors, and invalid profiles also fail discovery. Core
+never derives an import path from QR data.
 
 Applications may instead construct a registry explicitly:
 

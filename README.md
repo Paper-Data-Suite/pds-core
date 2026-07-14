@@ -104,6 +104,34 @@ routing contract and shared infrastructure described below. Pre-1.0 releases
 may make intentional breaking changes, and only the latest supported minor line
 receives fixes unless otherwise documented.
 
+## Installation
+
+PDS Core v0.5.0 requires Python 3.11 or newer. See the
+[v0.5.0 release notes](docs/releases/v0.5.0.md) for compatibility details,
+breaking changes, and migration guidance.
+
+Install the verified wheel attached to the GitHub Release:
+
+```powershell
+python -m pip install .\pds_core-0.5.0-py3-none-any.whl
+python -m pip check
+```
+
+Downstream packages should declare:
+
+```text
+pds-core>=0.5,<0.6
+```
+
+For local sibling-repository development:
+
+```powershell
+python -m pip install -e "../pds-core"
+```
+
+Version 0.5.0 is distributed through the GitHub Release. This release does not
+publish to PyPI.
+
 Active implementation guidance begins with
 [`docs/pds2_module_integration.md`](docs/pds2_module_integration.md). The
 [`migration_plan.md`](migration_plan.md) file is retained only as a superseded
