@@ -1,6 +1,7 @@
 # PDS Core
 
-PDS Core contains shared infrastructure for Paper Data Suite modules.
+PDS Core contains shared contracts and infrastructure for Paper Data Suite
+modules.
 
 Shared responsibilities include:
 
@@ -18,6 +19,7 @@ PDS Core is intended to be used by:
 
 - `pds-scoreform`
 - `pds-quillan`
+- `pds-concord`
 
 ## PDS2 Routing Identity API
 
@@ -97,10 +99,43 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Early setup and design.
+Version 0.5.0 is a supported pre-1.0 Core release. It implements the PDS2
+routing contract and shared infrastructure described below. Pre-1.0 releases
+may make intentional breaking changes, and only the latest supported minor line
+receives fixes unless otherwise documented.
 
-See [`migration_plan.md`](migration_plan.md) for the superseded historical
-migration direction.
+## Installation
+
+PDS Core v0.5.0 requires Python 3.11 or newer. See the
+[v0.5.0 release notes](docs/releases/v0.5.0.md) for compatibility details,
+breaking changes, and migration guidance.
+
+Install the verified wheel attached to the GitHub Release:
+
+```powershell
+python -m pip install .\pds_core-0.5.0-py3-none-any.whl
+python -m pip check
+```
+
+Downstream packages should declare:
+
+```text
+pds-core>=0.5,<0.6
+```
+
+For local sibling-repository development:
+
+```powershell
+python -m pip install -e "../pds-core"
+```
+
+Version 0.5.0 is distributed through the GitHub Release. This release does not
+publish to PyPI.
+
+Active implementation guidance begins with
+[`docs/pds2_module_integration.md`](docs/pds2_module_integration.md). The
+[`migration_plan.md`](migration_plan.md) file is retained only as a superseded
+historical PDS1/OMR1 plan and is not current guidance.
 
 See [`docs/pds2_payload_contract.md`](docs/pds2_payload_contract.md) for the
 active QR payload text contract. The earlier
@@ -122,9 +157,8 @@ standards contract. PDS Core owns durable standard definitions, reusable
 standards profiles, workspace standards storage, browsing/filtering helpers,
 and module-neutral standards usage events; modules should store shared
 `standard_id` references and keep module-specific feedback or alignment
-behavior in module-owned data. The same contract also includes the v0.4.0
-standards management surface audit for the planned `pds-core` CLI, teacher
-menu, import/export, mutation, and module-facing API work.
+behavior in module-owned data. The same contract preserves the historical
+v0.4.0 planning audit whose implemented management surface ships in v0.5.0.
 
 See [`docs/module_standards_integration.md`](docs/module_standards_integration.md)
 for the practical integration expectations for `pds-quillan`, `pds-scoreform`,
@@ -144,7 +178,7 @@ starter library and English 10 / English 12 reusable profiles.
 See [`docs/decisions/README.md`](docs/decisions/README.md) for accepted
 architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
-of PDS1 and OMR1 support.
+of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
 ## Standards CLI
 
@@ -279,7 +313,7 @@ is full-record replacement and clears omitted optional metadata and membership.
 remove-standard` removes one membership reference only. It does not delete the
 standard definition. `profile validate`, `profile show`, `profile import`, and
 `profile export` remain available. Destructive profile deletion is not
-supported in v0.4.0.
+supported in v0.5.0.
 
 Individual standard mutation commands require `code`, `source`, `short-name`,
 and `description`. `add` also requires `--standard-id`; `replace` and `upsert`
@@ -293,15 +327,16 @@ Reading"`. Repeat `--tag` or `--available-module` for multiple values.
 `upsert` adds or replaces as appropriate. `retire` is non-destructive: it marks
 the standard inactive and leaves the record in the library, so historical data
 and profile references remain valid. `reactivate` marks a retired standard
-active again. There is no destructive standard deletion command in v0.4.0.
+active again. There is no destructive standard deletion command in v0.5.0.
 
 Import and export commands are deliberately conservative. Imports validate the
 entire external JSON file before writing anything. Full-library import requires
 `--replace`; replacing an existing workspace `standards/library.json` also
 requires `--overwrite`. Profile import supports `--add`, which fails rather
 than silently replacing an existing `profile_id`. Exports refuse to overwrite
-target files unless `--overwrite` is supplied. Merge/upsert import and
-module-facing selection commands remain future work.
+target files unless `--overwrite` is supplied. Merge/upsert import remains
+future work; module-facing selection APIs are available in
+`pds_core.standards_selection`.
 
 ## Workspace Root
 

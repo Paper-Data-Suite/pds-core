@@ -7,6 +7,8 @@
 > PDS1 and OMR1 parsing and generation are no longer supported. New Core
 > implementation work is governed by
 > [`ADR 0001: Adopt PDS2 Page-Locator Routing`](decisions/0001-adopt-pds2-page-locator-routing.md).
+> Supported module integration guidance is in the
+> [PDS2 module integration guide](pds2_module_integration.md).
 
 ## Purpose
 

@@ -80,9 +80,10 @@ when `<PDS workspace root>/standards/library.json` is missing, and that missing
 load does not create files or directories. PDS Core also provides read-only
 standards browsing and filtering helpers over existing in-memory
 `StandardsLibrary` objects.
-CLI commands, migrations, module adapters, and
-automated educational judgment remain future work unless explicitly added by
-later issues.
+The `pds-core` CLI, teacher menu, import/export and mutation workflows,
+module-facing selection APIs, and starter standards are implemented. Downstream
+module migrations, module adapters, and automated educational judgment remain
+outside this contract unless explicitly added by later issues.
 
 ## Design Principles
 
@@ -110,9 +111,10 @@ The dependency direction remains:
 ```text
 pds-scoreform -> pds-core
 pds-quillan   -> pds-core
+pds-concord   -> pds-core
 ```
 
-ScoreForm and Quillan must not depend on each other.
+Downstream modules must not depend on each other through Core integration.
 
 ## Existing Module Behavior
 
@@ -981,12 +983,17 @@ If standards data later needs independent lifecycle management, a separate
 does not create that repository, add standards-source trees, add official
 standards documents, implement OCR, or implement an ingestion pipeline.
 
-## v0.4.0 Standards Management Surface Audit
+## Historical v0.4.0 Standards Management Planning Audit
 
-This section defines the standards management surface that later v0.4.0
-implementation tickets should use. It is a design and contract inventory, not
-an implementation of the CLI, teacher menu, import/export commands, mutation
-commands, or module adapters.
+> [!NOTE]
+> This section preserves the planning inventory formerly labeled v0.4.0. No
+> formal v0.4.0 package release is asserted, and this section is not current
+> implementation status. The implemented management surface ships in v0.5.0
+> and is documented in
+> [`standards_management_workflow.md`](standards_management_workflow.md).
+
+The remainder of this section retains the planning-time wording so the design
+history is not silently rewritten as current release guidance.
 
 ### Existing Backend Inventory
 
@@ -1347,9 +1354,9 @@ See [`module_standards_integration.md`](module_standards_integration.md) for
 the concrete Quillan assignment-config expectations, ScoreForm question-level
 alignment expectations, validation behavior, and future-module checklist.
 
-### Missing Workflow Inventory
+### Recorded Missing Workflow Inventory
 
-The current status of v0.4.0 management workflows is:
+At the time of the v0.4.0 planning audit, the recorded status was:
 
 * `pds-core` console script: future work;
 * standards list/show/search CLI commands: future work;
@@ -1363,6 +1370,9 @@ The current status of v0.4.0 management workflows is:
 * smoke tests for full management workflow: future work;
 * documentation for teacher-facing workflows: future work.
 
+Those listed workflows are implemented in v0.5.0. This list is retained only
+to document the original planning baseline.
+
 The backend helpers those workflows can build on are implemented for models,
 validation, serialization, explicit-path storage, canonical workspace storage,
 usage ledgers, usage summaries, browsing/filtering, profile-selection
@@ -1370,19 +1380,12 @@ validation, and in-memory add/replace/upsert mutation.
 
 ## Explicit Non-Goals
 
-This issue does not implement:
+The standards contract does not implement:
 
-* standards CLI commands;
-* standards import or export CLI commands;
-* standards mutation commands;
-* profile management commands;
-* yearly reset commands;
-* teacher-facing interactive standards menus;
-* module-facing standards selection APIs;
+* destructive yearly data deletion;
 * ScoreForm standards migration;
 * Quillan standards migration;
 * migration adapters;
-* standards UI or menu workflows;
 * automatic standards import from state websites;
 * standards ingestion from PDFs;
 * OCR or AI parsing logic;
@@ -1435,9 +1438,11 @@ Future standards implementation issues should report:
 * confirmation that no sibling repositories were modified;
 * remaining open design questions.
 
-## Open Design Questions
+## Historical Open Design Questions
 
-The following questions should be resolved before implementation:
+The following questions were recorded before the focused implementation work.
+They are retained as design history; implemented contracts and current APIs
+govern where later work has resolved them:
 
 1. What exact syntax and generation rules should `standard_id` use for
    official and teacher-defined standards?

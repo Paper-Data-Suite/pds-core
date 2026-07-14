@@ -26,7 +26,7 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 
 | ADR                                             | Decision                        | Status   |
 | ----------------------------------------------- | ------------------------------- | -------- |
-| [0001](0001-adopt-pds2-page-locator-routing.md) | Adopt PDS2 Page-Locator Routing | Accepted |
+| [0001](0001-adopt-pds2-page-locator-routing.md) | Adopt PDS2 Page-Locator Routing | Accepted; implemented in v0.5.0 |
 
 ## Standard ADR Structure
 
@@ -222,7 +222,10 @@ ADR 0001 establishes the active architectural direction for:
 * module-owned page targets;
 * and the removal of PDS1 and OMR1 support.
 
-Detailed implementation of that decision is tracked through `Paper-Data-Suite/pds-core#135` and its child issues.
+That decision is implemented by `pds-core` v0.5.0. Active module guidance is
+the [PDS2 module integration guide](../pds2_module_integration.md), together
+with the accepted contracts it links. Issues under
+`Paper-Data-Suite/pds-core#135` preserve the completed implementation history.
 
 ## Cross-Repository Decisions
 
