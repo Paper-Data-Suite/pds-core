@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TextIO
 
 from pds_core.standards import (
+    StandardDefinition,
     StandardsLibrary,
     StandardsProfile,
     StandardsReadError,
@@ -17,11 +18,54 @@ from pds_core.standards import (
     StandardsWriteError,
     load_standards_library,
     standards_library_path,
+    standard_definition_from_dict,
     standards_profile_from_dict,
     standards_profile_to_dict,
     write_standards_library,
     write_workspace_standards_library,
 )
+
+
+def load_standard_definitions_request(
+    path: str | Path,
+) -> tuple[StandardDefinition, ...]:
+    """Read a strict, non-empty standard-definition batch request."""
+    source_path = Path(path)
+    try:
+        with source_path.open(encoding="utf-8") as request_file:
+            data = json.load(request_file)
+    except json.JSONDecodeError as error:
+        raise StandardsReadError(source_path, f"invalid JSON: {error}") from error
+    except (OSError, UnicodeError) as error:
+        raise StandardsReadError(source_path, str(error)) from error
+
+    if not isinstance(data, dict):
+        raise StandardsReadError(source_path, "top-level JSON value must be an object")
+    if set(data) != {"standards"}:
+        unknown = sorted(set(data) - {"standards"})
+        if unknown:
+            message = f"unknown top-level key(s): {', '.join(unknown)}"
+        else:
+            message = "missing required top-level key: standards"
+        raise StandardsReadError(source_path, message)
+    items = data["standards"]
+    if not isinstance(items, list):
+        raise StandardsReadError(source_path, "standards must be an array")
+    if not items:
+        raise StandardsReadError(source_path, "standards must not be empty")
+    definitions: list[StandardDefinition] = []
+    try:
+        for index, item in enumerate(items):
+            if not isinstance(item, dict):
+                raise StandardsValidationError(
+                    f"standards[{index}] must be an object."
+                )
+            definitions.append(standard_definition_from_dict(item))
+    except (StandardsValidationError, KeyError, TypeError) as error:
+        raise StandardsReadError(
+            source_path, f"invalid standard definitions request: {error}"
+        ) from error
+    return tuple(definitions)
 
 
 def handle_standards_validate(

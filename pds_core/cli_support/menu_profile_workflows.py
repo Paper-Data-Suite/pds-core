@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import replace as dataclass_replace
 from typing import TextIO
 
 from pds_core.cli_support.formatting import standard_metadata
@@ -15,10 +14,12 @@ from pds_core.standards import (
     StandardsLibrary,
     StandardsProfile,
     StandardsValidationError,
+    add_standards_to_profile,
     add_standards_profile,
     find_standard_definition,
     find_standards_profile,
-    replace_standards_profile,
+    remove_standards_from_profile,
+    set_profile_standards,
 )
 
 
@@ -191,12 +192,16 @@ class ProfileWorkflowMixin(StandardsWorkflowMixin, MenuSelectionMixin):
         if standards is None or not standards:
             return
 
-        updated_profile = dataclass_replace(
-            profile,
-            standards=profile.standards + standards,
-        )
+        try:
+            updated_library = add_standards_to_profile(
+                self.library, profile.profile_id, standards
+            )
+        except StandardsValidationError as error:
+            print(f"Error: {error}", file=self.stderr)
+            return
         self._replace_profile_membership(
-            updated_profile,
+            updated_library,
+            profile.profile_id,
             f"Add selected standards to profile {profile.profile_id}?",
             f"Added {len(standards)} standard(s) to profile {profile.profile_id}.",
         )
@@ -229,14 +234,16 @@ class ProfileWorkflowMixin(StandardsWorkflowMixin, MenuSelectionMixin):
         if standards is None or not standards:
             return
 
-        updated_profile = dataclass_replace(
-            profile,
-            standards=tuple(
-                existing for existing in profile.standards if existing not in standards
-            ),
-        )
+        try:
+            updated_library = remove_standards_from_profile(
+                self.library, profile.profile_id, standards
+            )
+        except StandardsValidationError as error:
+            print(f"Error: {error}", file=self.stderr)
+            return
         self._replace_profile_membership(
-            updated_profile,
+            updated_library,
+            profile.profile_id,
             f"Remove selected standards from profile {profile.profile_id}?",
             f"Removed {len(standards)} standard(s) from profile {profile.profile_id}.",
         )
@@ -263,11 +270,14 @@ class ProfileWorkflowMixin(StandardsWorkflowMixin, MenuSelectionMixin):
         if standards is None:
             return
         try:
-            updated_profile = dataclass_replace(profile, standards=standards)
-            updated_library = replace_standards_profile(self.library, updated_profile)
+            updated_library = set_profile_standards(
+                self.library, profile.profile_id, standards
+            )
         except StandardsValidationError as error:
             print(f"Error: {error}", file=self.stderr)
             return
+        updated_profile = find_standards_profile(updated_library, profile.profile_id)
+        assert updated_profile is not None
 
         self._print_profile_summary("Replace profile standards", updated_profile)
         if not self._guided_confirm(
@@ -288,15 +298,13 @@ class ProfileWorkflowMixin(StandardsWorkflowMixin, MenuSelectionMixin):
 
     def _replace_profile_membership(
         self,
-        updated_profile: StandardsProfile,
+        updated_library: StandardsLibrary,
+        profile_id: str,
         prompt_text: str,
         success_message: str,
     ) -> None:
-        try:
-            updated_library = replace_standards_profile(self.library, updated_profile)
-        except StandardsValidationError as error:
-            print(f"Error: {error}", file=self.stderr)
-            return
+        updated_profile = find_standards_profile(updated_library, profile_id)
+        assert updated_profile is not None
         self._print_profile_summary("Profile membership change", updated_profile)
         if not self._guided_confirm(
             (

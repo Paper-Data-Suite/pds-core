@@ -11,12 +11,15 @@ from pds_core.cli_support.profiles import (
     add_profile_metadata_arguments,
     add_profile_standard_arguments,
     handle_profile_add_standard,
+    handle_profile_add_standards,
     handle_profile_create,
     handle_profile_export,
     handle_profile_import,
     handle_profile_remove_standard,
+    handle_profile_remove_standards,
     handle_profile_replace,
     handle_profile_show,
+    handle_profile_set_standards,
     handle_profile_validate,
 )
 from pds_core.cli_support.standards_io import (
@@ -28,6 +31,7 @@ from pds_core.cli_support.standards_io import (
 from pds_core.cli_support.standards_mutation import (
     add_standard_mutation_fields,
     handle_standards_add,
+    handle_standards_add_batch,
     handle_standards_reactivate,
     handle_standards_replace,
     handle_standards_retire,
@@ -434,6 +438,18 @@ def _add_standard_mutation_parsers(
     add_standard_mutation_fields(add_parser, include_standard_id=True)
     add_parser.set_defaults(handler=handle_standards_add)
 
+    add_batch_parser = standards_subparsers.add_parser(
+        "add-batch",
+        help="Atomically add an ordered batch of standard definitions from JSON.",
+        description=(
+            "Read a UTF-8 JSON request containing exactly one non-empty standards "
+            "array and append every definition in order using one atomic canonical "
+            "library write. Definitions remain independent records in a flat model."
+        ),
+    )
+    add_batch_parser.add_argument("path", help="Standard-definition batch JSON file.")
+    add_batch_parser.set_defaults(handler=handle_standards_add_batch)
+
     replace_parser = standards_subparsers.add_parser(
         "replace",
         help="Replace an existing standard definition.",
@@ -652,6 +668,18 @@ def _add_profile_membership_parsers(
     )
     profile_add_standard_parser.set_defaults(handler=handle_profile_add_standard)
 
+    profile_add_standards_parser = profile_subparsers.add_parser(
+        "add-standards",
+        help="Atomically add one or more standard_id references to a profile.",
+        description=(
+            "Append all requested durable standard_id references in argument order "
+            "while preserving profile metadata, using one atomic library write."
+        ),
+    )
+    profile_add_standards_parser.add_argument("profile_id")
+    profile_add_standards_parser.add_argument("standard_ids", nargs="+")
+    profile_add_standards_parser.set_defaults(handler=handle_profile_add_standards)
+
     profile_remove_standard_parser = profile_subparsers.add_parser(
         "remove-standard",
         help="Remove one standard_id reference from a profile.",
@@ -672,6 +700,32 @@ def _add_profile_membership_parsers(
     profile_remove_standard_parser.set_defaults(
         handler=handle_profile_remove_standard
     )
+
+    profile_remove_standards_parser = profile_subparsers.add_parser(
+        "remove-standards",
+        help="Atomically remove one or more standard_id references from a profile.",
+        description=(
+            "Remove the complete requested set while preserving remaining order and "
+            "profile metadata, using one atomic library write."
+        ),
+    )
+    profile_remove_standards_parser.add_argument("profile_id")
+    profile_remove_standards_parser.add_argument("standard_ids", nargs="+")
+    profile_remove_standards_parser.set_defaults(
+        handler=handle_profile_remove_standards
+    )
+
+    profile_set_standards_parser = profile_subparsers.add_parser(
+        "set-standards",
+        help="Atomically replace only a profile's standard membership.",
+        description=(
+            "Set ordered membership to repeated --standard values while preserving "
+            "all profile metadata. Omitting --standard intentionally clears membership."
+        ),
+    )
+    profile_set_standards_parser.add_argument("profile_id")
+    add_profile_standard_arguments(profile_set_standards_parser)
+    profile_set_standards_parser.set_defaults(handler=handle_profile_set_standards)
 
 
 def _add_profile_validate_parser(
