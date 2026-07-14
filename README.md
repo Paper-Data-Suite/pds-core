@@ -18,6 +18,20 @@ PDS Core is intended to be used by:
 - `pds-scoreform`
 - `pds-quillan`
 
+## PDS2 Routing Identity API
+
+PDS Core implements the generic PDS2 routing identity and registration API in
+`pds_core.routing_models`, including `ModuleWorkRef`, `RouteLocator`,
+`ModuleRecordRef`, `RouteRegistration`, and the runtime-only `RouteResolution`.
+Exact mapping conversion, shared registration statuses, and JSON-safe module
+details validation are included. `pds_core.route_ids.generate_route_id()`
+provides non-semantic, collision-resistant route IDs using standard-library
+secure randomness.
+
+See [`docs/routing_identity_models.md`](docs/routing_identity_models.md) for
+identity composition, serialized shapes, validation rules, ownership
+boundaries, and the separation from PDS1 and OMR1.
+
 ### Shared Menu Navigation
 
 PDS modules should use `pds_core.menu_navigation` for teacher-facing controlled
