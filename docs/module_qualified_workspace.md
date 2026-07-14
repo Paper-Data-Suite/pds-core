@@ -167,6 +167,14 @@ create evidence, or authorize processing or scoring. In particular, successful
 resolution of a non-active registration is structural information, not
 processing authorization.
 
+Module-profile availability is checked by `dispatch_route(...)`, not by
+resolution. Dispatch is the next shared step after structural resolution: it
+checks the active Core and QR contracts before loading, then registration
+schema support and the profile's dispatchable status policy after loading.
+Consequently, all shared statuses may resolve while only the statuses
+explicitly permitted by the selected profile may invoke its handler. See the
+[module profiles and page dispatch contract](module_profiles_and_dispatch.md).
+
 ```python
 from pds_core.pds2 import parse_pds2_payload
 from pds_core.route_registrations import (

@@ -11,6 +11,13 @@ failure and resolution metadata validation, and safe metadata writing helpers
 are implemented in `pds-core`. Scan routing, QR extraction, PDF splitting,
 and module workflow adoption remain module work.
 
+Shared module-profile discovery and page-by-page dispatch are also implemented.
+Pages from one retained source may target different modules and are dispatched
+independently, so an expected page failure does not stop later pages. Dispatch
+does not itself write the failure or resolution metadata documented below;
+generalized mapping of dispatch outcomes into those persisted schemas remains
+separate follow-up work.
+
 ## Terminology
 
 `scans_inbox/` is the existing teacher-facing scan intake/drop location. It
