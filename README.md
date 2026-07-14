@@ -8,6 +8,7 @@ Shared responsibilities include:
 - strict PDS2 page-locator payload parsing and canonical serialization;
 - generic PDS2 routing identity and registration models;
 - deterministic module-qualified route/path construction;
+- explicit and installed module-profile registration with page dispatch;
 - generic opening of existing local files and directories in the system viewer;
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
@@ -53,6 +54,18 @@ boundaries. See
 [`docs/module_qualified_workspace.md`](docs/module_qualified_workspace.md) for
 the implemented workspace paths, safe module-owned descendants, persisted
 registration behavior, and runtime resolution contract.
+
+PDS Core also implements runtime module profiles and per-page dispatch in
+`pds_core.module_profiles` and `pds_core.module_dispatch`. Applications may
+register profiles explicitly or discover zero-argument providers from the
+`paper_data_suite.modules` Python entry-point group. Core contains no
+hard-coded ScoreForm, Quillan, or Concord imports, never derives an import path
+from a QR module value, and rejects unknown module IDs explicitly before route
+registration lookup. Mixed-module batches preserve page order and isolate
+expected failures. See
+[`docs/module_profiles_and_dispatch.md`](docs/module_profiles_and_dispatch.md)
+for the public profile, registry, discovery, compatibility, and dispatch
+contract.
 
 ### Shared Menu Navigation
 

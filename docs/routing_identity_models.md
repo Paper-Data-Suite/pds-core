@@ -195,6 +195,11 @@ represented by a resolution. The owning module still decides whether its
 target and workflow permit further handling; resolution is not processing
 authorization.
 
+A `RouteResolution` does not identify, discover, or validate an installed
+module profile. Profile availability, runtime contract compatibility, route
+status policy, and module-owned handling are the next dispatch-stage concerns.
+See the [module profiles and page dispatch contract](module_profiles_and_dispatch.md).
+
 There is intentionally no shared `RouteResolution` JSON schema or conversion
 function.
 
