@@ -1,5 +1,13 @@
 # Paper Data Suite Migration Plan
 
+> [!IMPORTANT]
+> This migration plan is superseded and is retained only as a historical
+> record of the former PDS1/OMR1 direction. It is not an active roadmap and
+> must not be used as implementation guidance. Current routing work is governed
+> by [ADR 0001](docs/decisions/0001-adopt-pds2-page-locator-routing.md), the
+> [PDS2 payload contract](docs/pds2_payload_contract.md), and the
+> [routing identity model contract](docs/routing_identity_models.md).
+
 ## Purpose
 
 This document tracks remaining migration and architecture work for the Paper Data Suite family of repositories.

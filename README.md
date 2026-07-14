@@ -2,12 +2,11 @@
 
 PDS Core contains shared infrastructure for Paper Data Suite modules.
 
-Planned responsibilities include:
+Shared responsibilities include:
 
 - identifier validation;
-- QR payload construction and parsing;
-- legacy ScoreForm `OMR1` compatibility;
-- shared Paper Data Suite `PDS1` QR contracts;
+- strict PDS2 page-locator payload parsing and canonical serialization;
+- generic PDS2 routing identity and registration models;
 - safe route/path construction;
 - generic opening of existing local files and directories in the system viewer;
 - active scan intake, source retention, and routing review contracts;
@@ -20,17 +19,31 @@ PDS Core is intended to be used by:
 
 ## PDS2 Routing Identity API
 
-PDS Core implements the generic PDS2 routing identity and registration API in
-`pds_core.routing_models`, including `ModuleWorkRef`, `RouteLocator`,
-`ModuleRecordRef`, `RouteRegistration`, and the runtime-only `RouteResolution`.
-Exact mapping conversion, shared registration statuses, and JSON-safe module
-details validation are included. `pds_core.route_ids.generate_route_id()`
-provides non-semantic, collision-resistant route IDs using standard-library
-secure randomness.
+PDS Core implements strict PDS2 payload parsing and serialization in
+`pds_core.pds2`. Parsing accepts the required `m`, `c`, `w`, and `r` fields in
+any order and returns a validated `RouteLocator`; serialization emits the
+canonical compact form:
 
-See [`docs/routing_identity_models.md`](docs/routing_identity_models.md) for
-identity composition, serialized shapes, validation rules, ownership
-boundaries, and the separation from PDS1 and OMR1.
+```text
+PDS2|m=<module_id>|c=<class_id>|w=<work_id>|r=<route_id>
+```
+
+The payload is ASCII-only, contains exactly those four fields, and has a hard
+limit of 256 bytes. PDS1 and OMR1 are not supported.
+
+PDS Core also implements the generic PDS2 routing identity and registration
+API in `pds_core.routing_models`, including `ModuleWorkRef`, `RouteLocator`,
+`ModuleRecordRef`, `RouteRegistration`, and the runtime-only
+`RouteResolution`. Exact mapping conversion, shared registration statuses, and
+JSON-safe module details validation are included.
+`pds_core.route_ids.generate_route_id()` provides non-semantic,
+collision-resistant route IDs using standard-library secure randomness.
+
+See [`docs/pds2_payload_contract.md`](docs/pds2_payload_contract.md) for the
+payload grammar, limits, public API, and error contract. See
+[`docs/routing_identity_models.md`](docs/routing_identity_models.md) for
+identity composition, serialized shapes, validation rules, and ownership
+boundaries.
 
 ### Shared Menu Navigation
 
@@ -51,9 +64,13 @@ application. The helper rejects URLs and does not create or modify paths.
 
 Early setup and design.
 
-See [`migration_plan.md`](migration_plan.md) for the current migration direction.
+See [`migration_plan.md`](migration_plan.md) for the superseded historical
+migration direction.
 
-See [`docs/qr_payload_and_routing_contract.md`](docs/qr_payload_and_routing_contract.md) for the shared QR payload and routing contract.
+See [`docs/pds2_payload_contract.md`](docs/pds2_payload_contract.md) for the
+active QR payload text contract. The earlier
+[`docs/qr_payload_and_routing_contract.md`](docs/qr_payload_and_routing_contract.md)
+is retained only as a superseded historical design record.
 
 See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for the shared roster and workspace contract.
 
