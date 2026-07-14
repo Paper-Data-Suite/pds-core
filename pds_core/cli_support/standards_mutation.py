@@ -7,12 +7,15 @@ from dataclasses import replace as dataclass_replace
 from typing import TextIO
 
 from pds_core.cli_support.standards_read import parse_category_path
+from pds_core.cli_support.standards_io import load_standard_definitions_request
 from pds_core.standards import (
     StandardDefinition,
     StandardsLibrary,
+    StandardsReadError,
     StandardsValidationError,
     StandardsWriteError,
     add_standard_definition,
+    add_standard_definitions,
     find_standard_definition,
     replace_standard_definition,
     upsert_standard_definition,
@@ -95,6 +98,24 @@ def handle_standards_add(
         return 1
 
     print(f"Added standard {definition.standard_id}.", file=stdout)
+    return 0
+
+
+def handle_standards_add_batch(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    try:
+        definitions = load_standard_definitions_request(args.path)
+        updated_library = add_standard_definitions(library, definitions)
+        write_workspace_mutated_library(args, updated_library)
+    except (StandardsReadError, StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+
+    print(f"Added {len(definitions)} standards from {args.path}.", file=stdout)
     return 0
 
 

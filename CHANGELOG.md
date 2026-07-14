@@ -11,7 +11,12 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Added atomic ordered standard-definition batch addition and atomic profile
+  membership add, remove, and metadata-preserving replacement CLI commands.
+- Added shared presentation-independent transformations used by both the direct
+  CLI and teacher menu for those four compound mutations.
 
 ## [0.5.0] - 2026-07-14
 

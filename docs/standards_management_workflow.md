@@ -51,7 +51,62 @@ Validate or create that workspace root before writing standards data:
 pds-core --workspace $workspace workspace validate
 ```
 
-Add a synthetic umbrella standard:
+Create `synthetic-standard-definitions.json` as an ordered batch request:
+
+```json
+{
+  "standards": [
+    {
+      "standard_id": "njsls-ela:L.KL.11-12.2",
+      "code": "L.KL.11-12.2",
+      "source": "NJSLS-ELA 2023",
+      "short_name": "Apply Language in Context",
+      "description": "Apply knowledge of language in different contexts.",
+      "subject": "English Language Arts",
+      "course": "English 12",
+      "grade_band": "11-12",
+      "domain": "Language",
+      "category_path": ["English Language Arts", "Language"],
+      "tags": ["synthetic"],
+      "active": true,
+      "available_modules": ["pds-scoreform", "pds-quillan"]
+    },
+    {
+      "standard_id": "njsls-ela:L.KL.11-12.2.A",
+      "code": "L.KL.11-12.2.A",
+      "source": "NJSLS-ELA 2023",
+      "short_name": "Contextual Language Choice",
+      "description": "Analyze how language choices shape meaning in context.",
+      "subject": "English Language Arts",
+      "course": "English 12",
+      "grade_band": "11-12",
+      "domain": "Language",
+      "category_path": ["English Language Arts", "Language"],
+      "tags": ["synthetic"],
+      "active": true,
+      "available_modules": ["pds-scoreform"]
+    }
+  ]
+}
+```
+
+Add the complete request atomically:
+
+```powershell
+pds-core --workspace $workspace standards add-batch `
+  ".\synthetic-standard-definitions.json"
+```
+
+The request is not a canonical `StandardsLibrary` document: it accepts exactly
+the `standards` key and rejects `profiles`. Every item uses the existing
+`StandardDefinition` JSON contract and optional defaults. The whole request is
+parsed, normalized, duplicate-checked, and validated before one canonical
+write. Any error leaves an existing library unchanged. Array order is
+preserved. A parent followed by lettered subpart-shaped records remains a flat
+collection; Core does not infer hierarchy, inheritance, suffix rules, or
+rollups. Callers never need to edit the canonical `standards/library.json`.
+
+The singular command remains available for one synthetic umbrella standard:
 
 ```powershell
 pds-core --workspace $workspace standards add `
@@ -114,6 +169,33 @@ pds-core --workspace $workspace standards profile create `
   --standard njsls-ela:L.KL.11-12.2.A `
   --standard njsls-ela:L.KL.11-12.2.B
 ```
+
+Update only ordered profile membership with atomic compound commands:
+
+```powershell
+pds-core --workspace $workspace standards profile add-standards `
+  english_12_language_synthetic `
+  njsls-ela:L.KL.11-12.2.A njsls-ela:L.KL.11-12.2.B
+
+pds-core --workspace $workspace standards profile remove-standards `
+  english_12_language_synthetic `
+  njsls-ela:L.KL.11-12.2.A njsls-ela:L.KL.11-12.2.B
+
+pds-core --workspace $workspace standards profile set-standards `
+  english_12_language_synthetic `
+  --standard njsls-ela:L.KL.11-12.2.B `
+  --standard njsls-ela:L.KL.11-12.2
+
+pds-core --workspace $workspace standards profile set-standards `
+  english_12_language_synthetic
+```
+
+The add/remove forms require one or more positional standard IDs. They validate
+the complete request and write once, so failures cannot commit a prefix. The
+set form uses repeated `--standard` flags in caller order; with none, it
+intentionally clears membership. It preserves the profile ID, title,
+description, subject, course, and source. These commands refuse missing IDs,
+duplicates, and membership conflicts and never overwrite standard definitions.
 
 Validate and inspect the library:
 

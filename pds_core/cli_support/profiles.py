@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from typing import TextIO
@@ -19,12 +20,20 @@ from pds_core.standards import (
     StandardsReadError,
     StandardsValidationError,
     StandardsWriteError,
+    add_standards_to_profile,
     add_standards_profile,
     find_standard_definition,
     find_standards_profile,
     replace_standards_profile,
+    remove_standards_from_profile,
+    set_profile_standards,
     write_workspace_standards_library,
 )
+
+
+ProfileMembershipTransformation = Callable[
+    [StandardsLibrary, str, tuple[str, ...]], StandardsLibrary
+]
 
 
 def add_profile_metadata_arguments(parser: argparse.ArgumentParser) -> None:
@@ -169,6 +178,79 @@ def handle_profile_remove_standard(
         f"Removed standard {standard_id} from profile {profile.profile_id}.",
         file=stdout,
     )
+    return 0
+
+
+def handle_profile_add_standards(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    return _handle_profile_membership_batch(
+        args,
+        library,
+        stdout,
+        stderr,
+        transformation=add_standards_to_profile,
+        message=f"Added {len(args.standard_ids)} standards to profile {{profile_id}}.",
+    )
+
+
+def handle_profile_remove_standards(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    return _handle_profile_membership_batch(
+        args,
+        library,
+        stdout,
+        stderr,
+        transformation=remove_standards_from_profile,
+        message=f"Removed {len(args.standard_ids)} standards from profile {{profile_id}}.",
+    )
+
+
+def handle_profile_set_standards(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+) -> int:
+    standards = tuple(args.standards or ())
+    return _handle_profile_membership_batch(
+        args,
+        library,
+        stdout,
+        stderr,
+        transformation=set_profile_standards,
+        standard_ids=standards,
+        message=f"Set profile {{profile_id}} membership to {len(standards)} standards.",
+    )
+
+
+def _handle_profile_membership_batch(
+    args: argparse.Namespace,
+    library: StandardsLibrary,
+    stdout: TextIO,
+    stderr: TextIO,
+    *,
+    transformation: ProfileMembershipTransformation,
+    message: str,
+    standard_ids: tuple[str, ...] | None = None,
+) -> int:
+    requested = standard_ids if standard_ids is not None else tuple(args.standard_ids)
+    try:
+        updated_library = transformation(library, args.profile_id, requested)
+        write_workspace_mutated_library(args, updated_library)
+    except (StandardsValidationError, StandardsWriteError) as error:
+        print(f"Error: {error}", file=stderr)
+        return 1
+    profile = find_standards_profile(updated_library, args.profile_id)
+    assert profile is not None
+    print(message.format(profile_id=profile.profile_id), file=stdout)
     return 0
 
 

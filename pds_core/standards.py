@@ -7,7 +7,7 @@ import os
 import tempfile
 from collections import Counter
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace as dataclass_replace
 from datetime import datetime
 from pathlib import Path
 from types import MappingProxyType
@@ -488,6 +488,49 @@ def add_standard_definition(
     )
 
 
+def add_standard_definitions(
+    library: StandardsLibrary,
+    definitions: Iterable[StandardDefinition],
+) -> StandardsLibrary:
+    """Return a new library with an ordered batch of definitions appended."""
+    validated_library = validate_standards_library(library)
+    if isinstance(definitions, (str, bytes)):
+        raise StandardsValidationError(
+            "definitions must be an iterable of StandardDefinition objects."
+        )
+    try:
+        requested = tuple(definitions)
+    except TypeError as error:
+        raise StandardsValidationError(
+            "definitions must be an iterable of StandardDefinition objects."
+        ) from error
+    if not requested:
+        raise StandardsValidationError("definitions batch must not be empty.")
+
+    validated = tuple(validate_standard_definition(item) for item in requested)
+    requested_ids = tuple(item.standard_id for item in validated)
+    if len(requested_ids) != len(set(requested_ids)):
+        raise StandardsValidationError(
+            "definitions batch must not contain duplicate standard IDs."
+        )
+    existing_ids = {item.standard_id for item in validated_library.standards}
+    conflicts = [
+        standard_id for standard_id in requested_ids if standard_id in existing_ids
+    ]
+    if conflicts:
+        raise StandardsValidationError(
+            "add_standard_definitions cannot add existing standard_id "
+            f"{conflicts[0]!r}."
+        )
+
+    return validate_standards_library(
+        StandardsLibrary(
+            standards=validated_library.standards + validated,
+            profiles=validated_library.profiles,
+        )
+    )
+
+
 def replace_standard_definition(
     library: StandardsLibrary,
     definition: StandardDefinition,
@@ -600,6 +643,95 @@ def replace_standards_profile(
             standards=validated_library.standards,
             profiles=tuple(profiles),
         )
+    )
+
+
+def _profile_membership_request(
+    library: StandardsLibrary,
+    profile_id: str,
+    standard_ids: Iterable[str],
+    *,
+    allow_empty: bool,
+) -> tuple[StandardsLibrary, StandardsProfile, tuple[str, ...]]:
+    validated_library = validate_standards_library(library)
+    profile = find_standards_profile(validated_library, profile_id)
+    if profile is None:
+        normalized_profile_id = _required_text(profile_id, "profile_id")
+        raise StandardsValidationError(
+            f"standards profile not found: {normalized_profile_id}"
+        )
+    requested = _text_tuple(standard_ids, "standard_ids")
+    if not requested and not allow_empty:
+        raise StandardsValidationError("standard_ids must not be empty.")
+    if len(requested) != len(set(requested)):
+        raise StandardsValidationError(
+            "standard_ids must not contain duplicate standard IDs."
+        )
+    known_ids = {definition.standard_id for definition in validated_library.standards}
+    missing = [
+        standard_id for standard_id in requested if standard_id not in known_ids
+    ]
+    if missing:
+        raise StandardsValidationError(f"standard not found: {missing[0]}")
+    return validated_library, profile, requested
+
+
+def add_standards_to_profile(
+    library: StandardsLibrary,
+    profile_id: str,
+    standard_ids: Iterable[str],
+) -> StandardsLibrary:
+    """Append several resolved standards to one profile atomically."""
+    validated_library, profile, requested = _profile_membership_request(
+        library, profile_id, standard_ids, allow_empty=False
+    )
+    conflicts = [item for item in requested if item in profile.standards]
+    if conflicts:
+        raise StandardsValidationError(
+            f"profile already contains standard {conflicts[0]}: {profile.profile_id}"
+        )
+    return replace_standards_profile(
+        validated_library,
+        dataclass_replace(profile, standards=profile.standards + requested),
+    )
+
+
+def remove_standards_from_profile(
+    library: StandardsLibrary,
+    profile_id: str,
+    standard_ids: Iterable[str],
+) -> StandardsLibrary:
+    """Remove several resolved standards from one profile atomically."""
+    validated_library, profile, requested = _profile_membership_request(
+        library, profile_id, standard_ids, allow_empty=False
+    )
+    missing = [item for item in requested if item not in profile.standards]
+    if missing:
+        raise StandardsValidationError(
+            f"profile does not contain standard {missing[0]}: {profile.profile_id}"
+        )
+    removed = set(requested)
+    return replace_standards_profile(
+        validated_library,
+        dataclass_replace(
+            profile,
+            standards=tuple(item for item in profile.standards if item not in removed),
+        ),
+    )
+
+
+def set_profile_standards(
+    library: StandardsLibrary,
+    profile_id: str,
+    standard_ids: Iterable[str],
+) -> StandardsLibrary:
+    """Replace only profile membership while preserving every metadata field."""
+    validated_library, profile, requested = _profile_membership_request(
+        library, profile_id, standard_ids, allow_empty=True
+    )
+    return replace_standards_profile(
+        validated_library,
+        dataclass_replace(profile, standards=requested),
     )
 
 

@@ -215,6 +215,9 @@ pds-core standards profile create --profile-id english_12_njsls --title "English
 pds-core standards profile replace english_12_njsls --title "English 12 NJSLS" --standard njsls-ela:RL.CR.11-12.1
 pds-core standards profile add-standard english_12_njsls njsls-ela:RI.CR.11-12.1
 pds-core standards profile remove-standard english_12_njsls njsls-ela:RI.CR.11-12.1
+pds-core standards profile add-standards english_12_njsls njsls-ela:RI.CR.11-12.1 local-reading:close_reading
+pds-core standards profile remove-standards english_12_njsls njsls-ela:RI.CR.11-12.1 local-reading:close_reading
+pds-core standards profile set-standards english_12_njsls --standard local-reading:close_reading
 pds-core standards profile validate english_12_njsls
 pds-core standards profile show english_12_njsls
 pds-core standards validate
@@ -226,6 +229,7 @@ pds-core standards starter install njsls_ela_2023
 pds-core standards export ".\standards-library.json"
 pds-core standards import ".\standards-library.json" --replace
 pds-core standards add --standard-id local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use evidence from a text."
+pds-core standards add-batch ".\standard-definitions-request.json"
 pds-core standards replace local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use stronger textual evidence."
 pds-core standards upsert local-reading:close_reading --code CR.1 --source "Local Reading" --short-name "Close Reading" --description "Use evidence from a text."
 pds-core standards retire local-reading:close_reading
@@ -315,7 +319,11 @@ references. `profile create` adds a new durable `profile_id`; `profile replace`
 is full-record replacement and clears omitted optional metadata and membership.
 `profile add-standard` appends one standard reference, and `profile
 remove-standard` removes one membership reference only. It does not delete the
-standard definition. `profile validate`, `profile show`, `profile import`, and
+standard definition. The plural `profile add-standards` and
+`profile remove-standards` forms validate the complete request and commit it in
+one all-or-nothing write. `profile set-standards` replaces membership only,
+preserves every metadata field, and clears membership when no `--standard`
+flags are supplied. `profile validate`, `profile show`, `profile import`, and
 `profile export` remain available. Destructive profile deletion is not
 supported in v0.5.0.
 
@@ -326,6 +334,15 @@ take the durable ID as the positional `standard_id`. Optional metadata includes
 `--available-module`, `--active`, and `--inactive`. Category paths use `/`, for
 example `--category-path "English Language Arts/Reading Literature/Close
 Reading"`. Repeat `--tag` or `--available-module` for multiple values.
+
+`standards add-batch <path>` reads a strict UTF-8 JSON request containing
+exactly one non-empty `standards` array. It validates every definition before a
+single atomic write, preserves array order, and refuses existing IDs rather
+than overwriting them. Parent- and lettered subpart-shaped IDs remain ordinary
+independent records: batch addition does not infer, inherit, or introduce a
+hierarchy. See the workflow guide for the complete request format and a
+synthetic example. Any request or write failure leaves the prior canonical
+library unchanged.
 
 `replace` is full-record replacement, so omitted optional fields are cleared.
 `upsert` adds or replaces as appropriate. `retire` is non-destructive: it marks

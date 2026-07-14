@@ -16,7 +16,7 @@ from pds_core.standards import (
     StandardDefinition,
     StandardsLibrary,
     StandardsValidationError,
-    add_standard_definition,
+    add_standard_definitions,
     find_standard_definition,
 )
 
@@ -222,9 +222,9 @@ class StandardsWorkflowMixin(MenuFilterMixin):
             return
 
         try:
-            updated_library = add_standard_definition(self.library, definition)
-            for subpart in subparts:
-                updated_library = add_standard_definition(updated_library, subpart)
+            updated_library = add_standard_definitions(
+                self.library, (definition, *subparts)
+            )
         except StandardsValidationError as error:
             print(f"Error: {error}", file=self.stderr)
             return
