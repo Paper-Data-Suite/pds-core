@@ -167,6 +167,10 @@ and future modules that consume shared `pds-core` standards management.
 See [`docs/standards_management_workflow.md`](docs/standards_management_workflow.md)
 for the smoke-tested CLI, menu, import/export, and module selection workflow.
 
+See [`docs/cli_menu_parity.md`](docs/cli_menu_parity.md) for the durable
+teacher-menu/non-interactive CLI parity policy, complete capability matrix,
+current partial-parity findings, and linked implementation follow-up.
+
 See [`docs/workspace_management.md`](docs/workspace_management.md) for
 teacher-facing workspace status, setup, validation, reset, and clean simulation
 workspace workflows.
