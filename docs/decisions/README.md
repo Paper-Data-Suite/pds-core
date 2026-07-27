@@ -19,6 +19,7 @@ Examples:
 ```text
 0001-adopt-pds2-page-locator-routing.md
 0002-adopt-typed-reportable-data-publication-registry.md
+0003-adopt-hierarchical-academic-period-model.md
 ```
 
 ADR numbers are never reused, including when an ADR is later deprecated, rejected, or superseded.
@@ -29,6 +30,7 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 | ---------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------- |
 | [0001](0001-adopt-pds2-page-locator-routing.md)                  | Adopt PDS2 Page-Locator Routing                             | Accepted; implemented in v0.5.0 |
 | [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted                        |
+| [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted                        |
 
 ## Standard ADR Structure
 
@@ -132,8 +134,10 @@ A new ADR should normally be created when a change:
 * changes source-retention or provenance requirements;
 * introduces or removes a suite-wide compatibility obligation;
 * introduces or changes a shared registry or publication contract;
+* introduces or changes shared academic-calendar identity or hierarchy;
 * changes canonical-versus-derived data authority;
 * changes the relationship between Core and module-owned records;
+* changes the boundary between Core-owned shared structure and downstream policy;
 * or reverses an accepted architectural constraint.
 
 ## Editing an Accepted ADR
@@ -260,6 +264,36 @@ ADR 0002 also establishes that:
 
 Implementation is coordinated under `Paper-Data-Suite/pds-core#154`.
 
+### ADR 0003: Hierarchical Academic-Period Model
+
+ADR 0003 establishes the architectural direction for:
+
+* one Core-owned Academic Period Calendar per configured school year;
+* school-year-scoped Academic Period identity;
+* durable period references;
+* marking-period, semester, quarter, trimester, progress-window, and custom period types;
+* inclusive calendar-date ranges;
+* explicit parent-child hierarchy;
+* permitted parallel and overlapping period structures;
+* deterministic sibling ordering;
+* explicit period lifecycle;
+* immutable, revisioned calendar history;
+* and shared calendar queries without embedding grading policy in Core.
+
+ADR 0003 also establishes that:
+
+* the existing Core school year remains the containing identity and is not duplicated as an Academic Period;
+* classes relate to the calendar through existing `school_year` metadata;
+* period labels, dates, hierarchy, ordering, and lifecycle do not replace durable period identity;
+* opening or closing a school year does not create or mutate period definitions;
+* Core does not infer Grade-item membership from assignment, result, scan, Score, or publication dates;
+* child-period membership does not automatically create ancestor membership;
+* a closed period does not mean that Grades are locked or finalized;
+* Core owns neutral period structure;
+* and Meridian owns Grade-item membership, rollup, calculations, locking, snapshots, and reporting.
+
+Implementation is coordinated under `Paper-Data-Suite/pds-core#154`, beginning with issues `#157` and `#158`.
+
 ## Cross-Repository Decisions
 
 Some Core decisions originate from design pressure discovered in another Paper Data Suite module.
@@ -287,9 +321,21 @@ Consuming modules must conform to accepted Core ADRs when using Core-owned:
 * Publication Records;
 * publication kinds and capabilities;
 * manifest-binding rules;
+* Academic Period Calendars;
+* Academic Period identities and references;
+* period hierarchy, ordering, lifecycle, and revision rules;
 * derived catalogs;
 * or module-integration interfaces.
 
 Module-specific domain semantics remain under the authority of the owning module’s accepted ADRs and contracts.
 
 Core may carry typed references to module-owned records and manifests without assuming ownership of or interpreting their domain meaning.
+
+Likewise, Core may provide neutral Academic Period identity and calendar structure without owning:
+
+* Grade-item period membership;
+* Grade calculations;
+* parent-period rollup;
+* Grade locking;
+* report finalization;
+* or other Meridian grading and reporting policy.
