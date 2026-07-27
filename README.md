@@ -28,6 +28,14 @@ Class-period use and Grade-item membership remain Meridian-owned. CLI audit and
 repair commands remain tracked by issue #163, and the derived, nonauthoritative
 SQLite catalog remains tracked by issue #162.
 
+Core also provides revisioned Academic Work Registration records with durable
+identity through `ModuleWorkRef`, exact dictionary conversion, canonical
+neutral registry persistence, strict current and historical loading, and
+append-preserving registration history. Registration does not publish results
+or create Grade or Academic Period membership. Producer-facing idempotent
+registration services remain tracked by issue #161, Publication Records by
+issue #160, and the derived SQLite catalog by issue #162.
+
 PDS Core is intended to be used by:
 
 - `pds-scoreform`
