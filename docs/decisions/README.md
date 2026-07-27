@@ -14,19 +14,21 @@ ADR filenames use a four-digit sequence followed by a concise lowercase hyphenat
 NNNN-decision-name.md
 ```
 
-Example:
+Examples:
 
 ```text
 0001-adopt-pds2-page-locator-routing.md
+0002-adopt-typed-reportable-data-publication-registry.md
 ```
 
 ADR numbers are never reused, including when an ADR is later deprecated, rejected, or superseded.
 
 ## Current Decisions
 
-| ADR                                             | Decision                        | Status   |
-| ----------------------------------------------- | ------------------------------- | -------- |
-| [0001](0001-adopt-pds2-page-locator-routing.md) | Adopt PDS2 Page-Locator Routing | Accepted; implemented in v0.5.0 |
+| ADR                                                              | Decision                                                    | Status                          |
+| ---------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------- |
+| [0001](0001-adopt-pds2-page-locator-routing.md)                  | Adopt PDS2 Page-Locator Routing                             | Accepted; implemented in v0.5.0 |
+| [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted                        |
 
 ## Standard ADR Structure
 
@@ -40,6 +42,7 @@ Date
 Decision owners
 Applies to
 Related issue
+Umbrella issue
 
 Context
 Decision
@@ -128,6 +131,8 @@ A new ADR should normally be created when a change:
 * changes workspace or persistence architecture;
 * changes source-retention or provenance requirements;
 * introduces or removes a suite-wide compatibility obligation;
+* introduces or changes a shared registry or publication contract;
+* changes canonical-versus-derived data authority;
 * changes the relationship between Core and module-owned records;
 * or reverses an accepted architectural constraint.
 
@@ -211,7 +216,10 @@ The primary `pds-core` documentation includes:
 * [`../active_scan_contract.md`](../active_scan_contract.md) — active scan intake, retained-source, routing-review, failure, resolution, and provenance contract;
 * [`../roster_workspace_contract.md`](../roster_workspace_contract.md) — shared class, roster, and workspace conventions;
 * [`../standards_contract.md`](../standards_contract.md) — shared standards-management contract;
-* and [`../module_standards_integration.md`](../module_standards_integration.md) — module-facing standards integration guidance.
+* [`../module_standards_integration.md`](../module_standards_integration.md) — module-facing standards integration guidance;
+* and [`../pds2_module_integration.md`](../pds2_module_integration.md) — active module-facing PDS2 routing and dispatch guidance.
+
+### ADR 0001: PDS2 Page-Locator Routing
 
 ADR 0001 establishes the active architectural direction for:
 
@@ -222,10 +230,35 @@ ADR 0001 establishes the active architectural direction for:
 * module-owned page targets;
 * and the removal of PDS1 and OMR1 support.
 
-That decision is implemented by `pds-core` v0.5.0. Active module guidance is
-the [PDS2 module integration guide](../pds2_module_integration.md), together
-with the accepted contracts it links. Issues under
-`Paper-Data-Suite/pds-core#135` preserve the completed implementation history.
+That decision is implemented by `pds-core` v0.5.0.
+
+Issues under `Paper-Data-Suite/pds-core#135` preserve the completed implementation history.
+
+### ADR 0002: Typed Work and Reportable-Data Publication Registry
+
+ADR 0002 establishes the architectural direction for:
+
+* explicit Academic Work Registration;
+* module-owned immutable manifest revisions;
+* immutable Core Publication Records;
+* typed academic-result and intervention publications;
+* producer-declared discovery capabilities;
+* manifest digest binding;
+* explicit publication supersession and withdrawal;
+* canonical JSON registry records;
+* a nonauthoritative, rebuildable derived catalog;
+* and cross-module discovery without recursive workspace crawling.
+
+ADR 0002 also establishes that:
+
+* module work remains neutral and is not automatically academic;
+* physical-page routing and reportable-data publication are separate Core domains;
+* Core does not normalize native producer results into one universal score;
+* academic results and Portia-style intervention records remain semantically distinct;
+* discoverability does not grant authorization;
+* and Meridian or another authorized consumer owns grading and reporting policy.
+
+Implementation is coordinated under `Paper-Data-Suite/pds-core#154`.
 
 ## Cross-Repository Decisions
 
@@ -236,6 +269,8 @@ A Core ADR may therefore reference design documents or accepted ADRs from:
 * `pds-scoreform`;
 * `pds-quillan`;
 * `pds-concord`;
+* `pds-portia`;
+* `pds-meridian`;
 * or another PDS repository.
 
 Those references provide requirements and rationale, but the Core ADR remains authoritative for the shared Core contract.
@@ -248,6 +283,13 @@ Consuming modules must conform to accepted Core ADRs when using Core-owned:
 * route registrations;
 * source provenance;
 * failure metadata;
+* Academic Work Registrations;
+* Publication Records;
+* publication kinds and capabilities;
+* manifest-binding rules;
+* derived catalogs;
 * or module-integration interfaces.
 
 Module-specific domain semantics remain under the authority of the owning module’s accepted ADRs and contracts.
+
+Core may carry typed references to module-owned records and manifests without assuming ownership of or interpreting their domain meaning.
