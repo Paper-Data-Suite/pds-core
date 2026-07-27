@@ -15,11 +15,18 @@ Shared responsibilities include:
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
 
-Core also provides in-memory, school-year-qualified Academic Period references;
-validated immutable Academic Period and calendar-revision models; exact
-dictionary conversion; whole-calendar hierarchy validation; and pure
-cross-revision transition validation. Canonical workspace storage and calendar
-query APIs are not yet implemented and remain tracked by issue #158.
+Core also provides school-year-qualified Academic Period references; validated
+immutable Academic Period and calendar-revision models; exact dictionary
+conversion; whole-calendar hierarchy and cross-revision validation; canonical
+immutable workspace revision storage with explicit current-revision pointers;
+expected-revision write protection; strict validated loading and deterministic
+school-year and revision listing; pure hierarchy and date queries; and exact
+school-year-qualified reference resolution.
+
+No Academic Period Calendar or default periods are created automatically.
+Class-period use and Grade-item membership remain Meridian-owned. CLI audit and
+repair commands remain tracked by issue #163, and the derived, nonauthoritative
+SQLite catalog remains tracked by issue #162.
 
 PDS Core is intended to be used by:
 
