@@ -15,6 +15,12 @@ Shared responsibilities include:
 - active scan intake, source retention, and routing review contracts;
 - workspace-root conventions.
 
+Core also provides in-memory, school-year-qualified Academic Period references;
+validated immutable Academic Period and calendar-revision models; exact
+dictionary conversion; whole-calendar hierarchy validation; and pure
+cross-revision transition validation. Canonical workspace storage and calendar
+query APIs are not yet implemented and remain tracked by issue #158.
+
 PDS Core is intended to be used by:
 
 - `pds-scoreform`
