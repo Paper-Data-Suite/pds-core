@@ -25,8 +25,7 @@ school-year-qualified reference resolution.
 
 No Academic Period Calendar or default periods are created automatically.
 Class-period use and Grade-item membership remain Meridian-owned. CLI audit and
-repair commands remain tracked by issue #163, and the derived, nonauthoritative
-SQLite catalog remains tracked by issue #162.
+repair commands remain tracked by issue #163.
 
 Core also provides revisioned Academic Work Registration records with durable
 identity through `ModuleWorkRef`, exact dictionary conversion, canonical
@@ -51,9 +50,15 @@ remain non-idempotent, while exact service replay creates no duplicate registry
 entry. Contradictory logical-revision reuse is an integrity failure, and replay
 never restores a withdrawn publication. Producer manifests remain authoritative.
 
-The derived SQLite catalog remains assigned to issue #162, registry audit and
-repair to #163, cross-producer fixtures to #164, and the complete integration
-and release guide to #165.
+Core provides a disposable SQLite discovery catalog at `registry/catalog.sqlite`.
+Callers rebuild it explicitly from bounded canonical Core JSON records and use
+typed, read-only queries. It may be deleted at any time and is never authoritative:
+catalog rows cannot create, revise, select, supersede, or withdraw canonical
+records, and a missing, stale, locked, malformed, or corrupt catalog does not
+invalidate those records. Rebuild does not open producer manifests or crawl
+producer work directories. Registry audit and catalog repair remain assigned to
+issue #163, cross-producer fixtures to #164, and the integration and release guide
+to #165.
 
 PDS Core is intended to be used by:
 
