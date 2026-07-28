@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from pds_core.academic_work_registrations import AcademicWorkRegistrationValidationError
+from pds_core.publication_records import PublicationRecordValidationError
 from pds_core.routing_models import ModuleWorkRef, RoutingModelError, validate_module_work_ref
 from pds_core.workspace import _normalize_workspace_root
 
@@ -12,6 +14,30 @@ from pds_core.workspace import _normalize_workspace_root
 def registry_dir(workspace_root: str | Path) -> Path:
     """Return the neutral Core registry root."""
     return _normalize_workspace_root(workspace_root) / "registry"
+
+
+def publications_dir(workspace_root: str | Path) -> Path:
+    """Return the canonical immutable Publication Record collection."""
+    return registry_dir(workspace_root) / "publications"
+
+
+def publication_record_path(
+    workspace_root: str | Path, publication_id: str,
+) -> Path:
+    """Return the canonical path for one immutable Publication Record."""
+    return publications_dir(workspace_root) / f"{_publication_id(publication_id)}.json"
+
+
+def publication_withdrawals_dir(workspace_root: str | Path) -> Path:
+    """Return the canonical immutable publication-withdrawal collection."""
+    return registry_dir(workspace_root) / "withdrawals"
+
+
+def publication_withdrawal_path(
+    workspace_root: str | Path, publication_id: str,
+) -> Path:
+    """Return the canonical path for one immutable publication withdrawal."""
+    return publication_withdrawals_dir(workspace_root) / f"{_publication_id(publication_id)}.json"
 
 
 def academic_work_registrations_dir(workspace_root: str | Path) -> Path:
@@ -65,5 +91,14 @@ def _positive_revision(value: object) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise AcademicWorkRegistrationValidationError(
             "registration_revision must be a positive integer."
+        )
+    return value
+
+
+def _publication_id(value: object) -> str:
+    if not isinstance(value, str) or re.fullmatch(r"pub_[0-9a-f]{32}", value) is None:
+        raise PublicationRecordValidationError(
+            "publication_id must use the format "
+            "pub_<32 lowercase hexadecimal characters>."
         )
     return value
