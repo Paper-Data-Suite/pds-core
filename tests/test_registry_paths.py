@@ -5,6 +5,8 @@ import pytest
 from pds_core.academic_work_registrations import AcademicWorkRegistrationValidationError
 from pds_core.publication_records import PublicationRecordValidationError
 from pds_core.registry_paths import (
+    academic_catalog_lock_path,
+    academic_catalog_path,
     academic_work_registration_current_path,
     academic_work_registration_dir,
     academic_work_registration_revision_path,
@@ -28,6 +30,14 @@ def test_registry_paths_are_exact_normalized_and_pure(tmp_path: Path) -> None:
     assert academic_work_registration_revisions_dir(tmp_path, work) == base / "revisions"
     assert academic_work_registration_revision_path(tmp_path, work, 2) == base / "revisions" / "2.json"
     assert academic_work_registration_current_path(tmp_path, work) == base / "current.json"
+    assert not (tmp_path / "registry").exists()
+
+
+def test_academic_catalog_paths_are_exact_and_pure(tmp_path: Path) -> None:
+    assert academic_catalog_path(tmp_path) == tmp_path / "registry" / "catalog.sqlite"
+    assert academic_catalog_lock_path(tmp_path) == (
+        tmp_path / "registry" / ".locks" / "catalog.lock"
+    )
     assert not (tmp_path / "registry").exists()
 
 

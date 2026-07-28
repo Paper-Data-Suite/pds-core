@@ -16,6 +16,16 @@ def registry_dir(workspace_root: str | Path) -> Path:
     return _normalize_workspace_root(workspace_root) / "registry"
 
 
+def academic_catalog_path(workspace_root: str | Path) -> Path:
+    """Return the nonauthoritative derived academic-catalog path."""
+    return registry_dir(workspace_root) / "catalog.sqlite"
+
+
+def academic_catalog_lock_path(workspace_root: str | Path) -> Path:
+    """Return the exclusive derived academic-catalog rebuild lock path."""
+    return registry_dir(workspace_root) / ".locks" / "catalog.lock"
+
+
 def publications_dir(workspace_root: str | Path) -> Path:
     """Return the canonical immutable Publication Record collection."""
     return registry_dir(workspace_root) / "publications"
