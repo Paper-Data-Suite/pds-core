@@ -32,9 +32,10 @@ Core also provides revisioned Academic Work Registration records with durable
 identity through `ModuleWorkRef`, exact dictionary conversion, canonical
 neutral registry persistence, strict current and historical loading, and
 append-preserving registration history. Registration does not publish results
-or create Grade or Academic Period membership. Producer-facing idempotent
-registration services remain tracked by issue #161, and the derived SQLite
-catalog remains tracked by issue #162.
+or create Grade or Academic Period membership. Core's stable producer-facing
+registry services add idempotent initial registration, explicit complete-state
+metadata updates, service-owned revisions and timestamps, and structured
+conflict or partial-success reporting.
 
 Core also provides typed immutable Publication Records for academic-result and
 intervention record sets. The neutral registry preserves stable record-set
@@ -43,9 +44,16 @@ producer manifest paths, exact SHA-256 manifest binding, explicit
 supersession, and separate immutable withdrawal records. Producer manifests
 remain authoritative, and publication does not imply Grade inclusion or
 Academic Period membership. Intervention publications require no Academic Work
-Registration. Idempotent producer-facing services remain tracked by issue
-#161, the derived SQLite catalog by issue #162, and registry audit and repair
-commands by issue #163.
+Registration. Core's producer-facing services calculate manifest digests,
+orchestrate first publication and explicit supersession, reconcile exact replay, preserve
+withdrawal, and provide stable canonical retrieval. Strict storage writers
+remain non-idempotent, while exact service replay creates no duplicate registry
+entry. Contradictory logical-revision reuse is an integrity failure, and replay
+never restores a withdrawn publication. Producer manifests remain authoritative.
+
+The derived SQLite catalog remains assigned to issue #162, registry audit and
+repair to #163, cross-producer fixtures to #164, and the complete integration
+and release guide to #165.
 
 PDS Core is intended to be used by:
 
