@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 from typing import TextIO, cast
 
 from pds_core.cli_support.context import Handler
+from pds_core.cli_support.academic_registry import emit_academic_command_error
 from pds_core.cli_support.parser import build_parser
 from pds_core.standards import (
     StandardsLibrary,
@@ -16,6 +18,18 @@ from pds_core.standards import (
     load_workspace_standards_library,
 )
 from pds_core.workspace import WorkspaceRootError, resolve_workspace_root
+
+
+def _academic_command_name(args: object) -> str:
+    academic = getattr(args, "academic_command", None)
+    if academic == "registry":
+        command = getattr(args, "registry_command", None)
+        entity = getattr(args, "entity", None)
+        suffix = f" {entity}" if command in {"list", "show"} and entity else ""
+        return f"academic registry {command or 'command'}{suffix}"
+    if academic == "periods":
+        return f"academic periods {getattr(args, 'periods_command', None) or 'command'}"
+    return "academic command"
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -50,11 +64,9 @@ def _run(
     try:
         workspace_root = resolve_workspace_root(args.workspace)
         if workspace_root.exists() and not workspace_root.is_dir():
-            print(
-                f"Error: workspace root is not a directory: {workspace_root}",
-                file=stderr,
+            raise WorkspaceRootError(
+                f"workspace root is not a directory: {workspace_root}"
             )
-            return 1
         args.workspace_root = workspace_root
         if getattr(args, "load_workspace_library", True):
             library = load_workspace_standards_library(workspace_root)
@@ -67,6 +79,21 @@ def _run(
         StandardsValidationError,
         StandardsWriteError,
     ) as error:
+        if getattr(args, "command", None) == "academic":
+            if not hasattr(args, "workspace_root"):
+                raw_workspace = getattr(args, "workspace", None)
+                args.workspace_root = (
+                    Path(raw_workspace).resolve(strict=False)
+                    if isinstance(raw_workspace, str) and raw_workspace
+                    else Path.cwd().resolve()
+                )
+            return emit_academic_command_error(
+                args,
+                _academic_command_name(args),
+                error,
+                stdout,
+                stderr,
+            )
         print(f"Error: {error}", file=stderr)
         return 1
 

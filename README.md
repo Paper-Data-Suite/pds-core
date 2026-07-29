@@ -404,6 +404,47 @@ target files unless `--overwrite` is supplied. Merge/upsert import remains
 future work; module-facing selection APIs are available in
 `pds_core.standards_selection`.
 
+## Academic Registry Inspection and Maintenance
+
+Core provides bounded, scriptable inspection of the typed academic registry:
+
+```text
+pds-core academic registry status
+pds-core academic registry validate
+pds-core academic registry list {registrations,publications,withdrawals,locks}
+pds-core academic registry show {registration,publication,withdrawal,catalog,lock}
+pds-core academic registry rebuild-catalog
+pds-core academic registry clear-lock
+pds-core academic periods list
+pds-core academic periods validate
+```
+
+Every command supports deterministic plain text and `--format json`. Validation
+is read-only and aggregates independent defects across the selected scopes.
+Inspection is deliberately nonrecursive: Core enumerates its documented
+canonical namespaces and opens only the exact manifest paths referenced by
+valid Publication Records. It does not search producer work roots for
+unpublished data.
+
+Academic Period revisions and pointers, Academic Work Registration revisions
+and pointers, Publication Records, withdrawals, and producer-owned manifests
+remain authoritative. `registry/catalog.sqlite` is disposable derived state;
+catalog corruption or drift is never described as canonical data loss.
+Producer manifests remain authoritative, and producer-specific interpretation
+of manifest bodies is outside Core.
+
+`rebuild-catalog` modifies only the derived catalog and its coordination
+artifacts after canonical preflight validation. It does not repair individual
+SQLite rows or modify canonical or producer records. `clear-lock` removes only
+one known coordination lock selected by a stable lock ID, and requires an exact
+SHA-256 fingerprint plus `--force` (unless `--dry-run` is used). Core cannot
+prove that a lock is stale; the user must review and assert that operational
+fact.
+
+Cross-producer compatibility fixtures are tracked by issue #164. Complete
+integration, migration, and recovery guidance, together with the v0.6.0
+release, is tracked by issue #165.
+
 ## Workspace Root
 
 The PDS workspace root is the top-level folder where Paper Data Suite modules
