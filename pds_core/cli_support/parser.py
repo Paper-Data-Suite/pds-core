@@ -3,8 +3,30 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date, datetime
+import re
 from typing import Any
 
+from pds_core.academic_periods import (
+    ACADEMIC_PERIOD_LIFECYCLES,
+    ACADEMIC_PERIOD_TYPES,
+)
+from pds_core.academic_work_registrations import (
+    ACADEMIC_WORK_INTENTS,
+    ACADEMIC_WORK_REGISTRATION_LIFECYCLES,
+)
+from pds_core.cli_support.academic_periods import (
+    handle_periods_list,
+    handle_periods_validate,
+)
+from pds_core.cli_support.academic_registry import (
+    handle_registry_clear_lock,
+    handle_registry_list,
+    handle_registry_rebuild,
+    handle_registry_show,
+    handle_registry_status,
+    handle_registry_validate,
+)
 from pds_core.cli_support.context import ArgumentParser
 from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.cli_support.profiles import (
@@ -62,6 +84,9 @@ from pds_core.cli_support.workspace_management import (
     handle_workspace_show,
     handle_workspace_validate,
 )
+from pds_core.identifiers import IdentifierValidationError, validate_identifier
+from pds_core.publication_records import PUBLICATION_CAPABILITIES
+from pds_core.school_years import SchoolYearValidationError, validate_school_year
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -79,7 +104,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--workspace",
         metavar="PATH",
         help=(
-            "Use this Paper Data Suite workspace root for this read-only "
+            "Use this Paper Data Suite workspace root for this "
             "command without saving configuration."
         ),
     )
@@ -99,6 +124,7 @@ def build_parser() -> argparse.ArgumentParser:
     standards_subparsers = standards.add_subparsers(dest="standards_command")
 
     _add_workspace_parser(subparsers)
+    _add_academic_parser(subparsers)
     _add_validate_parser(standards_subparsers)
     _add_validate_file_parser(standards_subparsers)
     _add_menu_parser(standards_subparsers)
@@ -114,6 +140,217 @@ def build_parser() -> argparse.ArgumentParser:
     _add_profile_parser(standards_subparsers)
 
     return parser
+
+
+def _positive(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("value must be a positive integer")
+    return parsed
+
+
+def _nonnegative(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("value must be a nonnegative integer")
+    return parsed
+
+
+def _aware_datetime(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("value must be an ISO 8601 datetime") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise argparse.ArgumentTypeError("datetime must include a UTC offset")
+    return parsed
+
+
+def _calendar_date(value: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("value must be an ISO date (YYYY-MM-DD)") from error
+
+
+def _identifier(value: str) -> str:
+    try:
+        return validate_identifier(value, "identifier")
+    except IdentifierValidationError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+
+def _module_identifier(value: str) -> str:
+    result = _identifier(value)
+    if result != result.lower():
+        raise argparse.ArgumentTypeError("module ID must be lowercase")
+    return result
+
+
+def _school_year(value: str) -> str:
+    try:
+        return validate_school_year(value)
+    except SchoolYearValidationError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+
+def _publication_id(value: str) -> str:
+    if re.fullmatch(r"pub_[0-9a-f]{32}", value) is None:
+        raise argparse.ArgumentTypeError("publication ID must use pub_<32 lowercase hex characters>")
+    return value
+
+
+def _sha256(value: str) -> str:
+    if re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise argparse.ArgumentTypeError("SHA-256 must be 64 lowercase hexadecimal characters")
+    return value
+
+
+def _format(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--format", choices=("text", "json"), default="text")
+
+
+def _work_filters(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--class-id", type=_identifier)
+    parser.add_argument("--module-id", type=_module_identifier)
+    parser.add_argument("--work-id", type=_identifier)
+
+
+def _page(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--limit", type=_positive)
+    parser.add_argument("--offset", type=_nonnegative, default=0)
+
+
+def _add_academic_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    academic = subparsers.add_parser(
+        "academic", help="Inspect and maintain typed academic registry infrastructure."
+    )
+    academic_subparsers = academic.add_subparsers(dest="academic_command")
+    registry = academic_subparsers.add_parser(
+        "registry", help="Inspect, validate, and safely maintain the academic registry."
+    )
+    registry_subparsers = registry.add_subparsers(dest="registry_command")
+
+    status = registry_subparsers.add_parser("status", help="Show concise registry health and catalog readiness.")
+    status.add_argument("--verify-manifests", action="store_true")
+    status.add_argument("--strict", action="store_true")
+    _format(status)
+    status.set_defaults(handler=handle_registry_status, load_workspace_library=False)
+
+    validate = registry_subparsers.add_parser("validate", help="Run a bounded, read-only registry audit.")
+    validate.add_argument("--scope", action="append", choices=("academic-periods", "registrations", "publications", "manifests", "contracts", "catalog", "locks"), default=[])
+    validate.add_argument("--school-year", type=_school_year)
+    _work_filters(validate)
+    validate.add_argument("--publication-id", type=_publication_id)
+    validate.add_argument("--require-catalog", action="store_true")
+    validate.add_argument("--require-producer-profiles", action="store_true")
+    validate.add_argument("--no-installed-producer-profiles", action="store_true")
+    validate.add_argument("--strict", action="store_true")
+    _format(validate)
+    validate.set_defaults(handler=handle_registry_validate, load_workspace_library=False)
+
+    listing = registry_subparsers.add_parser("list", help="List canonical registry entities.")
+    list_subparsers = listing.add_subparsers(dest="entity", required=True)
+    registrations = list_subparsers.add_parser("registrations")
+    registrations.add_argument("--school-year", type=_school_year)
+    _work_filters(registrations)
+    registrations.add_argument("--producer-contract-version", type=_identifier)
+    registrations.add_argument("--academic-intent", choices=tuple(sorted(ACADEMIC_WORK_INTENTS)))
+    registrations.add_argument("--lifecycle", choices=tuple(sorted(ACADEMIC_WORK_REGISTRATION_LIFECYCLES)))
+    registrations.add_argument("--all-revisions", action="store_true")
+    _page(registrations)
+    _format(registrations)
+    registrations.set_defaults(handler=handle_registry_list, load_workspace_library=False)
+
+    publications = list_subparsers.add_parser("publications")
+    publications.add_argument("--school-year", type=_school_year)
+    _work_filters(publications)
+    publications.add_argument("--publication-kind", choices=("academic_result_set", "intervention_record_set"))
+    publications.add_argument("--capability", choices=tuple(sorted(PUBLICATION_CAPABILITIES)))
+    publications.add_argument("--manifest-contract-version", type=_identifier)
+    publications.add_argument("--source-contract-version", type=_identifier)
+    publications.add_argument("--record-set-id", type=_identifier)
+    publications.add_argument("--state", choices=("current", "series-heads", "historical", "withdrawn", "all"), default="all")
+    publications.add_argument("--published-at-or-after", type=_aware_datetime)
+    publications.add_argument("--published-before", type=_aware_datetime)
+    _page(publications)
+    _format(publications)
+    publications.set_defaults(handler=handle_registry_list, load_workspace_library=False)
+
+    withdrawals = list_subparsers.add_parser("withdrawals")
+    withdrawals.add_argument("--school-year", type=_school_year)
+    _work_filters(withdrawals)
+    withdrawals.add_argument("--publication-kind", choices=("academic_result_set", "intervention_record_set"))
+    withdrawals.add_argument("--published-at-or-after", type=_aware_datetime)
+    withdrawals.add_argument("--published-before", type=_aware_datetime)
+    _page(withdrawals)
+    _format(withdrawals)
+    withdrawals.set_defaults(handler=handle_registry_list, load_workspace_library=False)
+
+    locks = list_subparsers.add_parser("locks")
+    _format(locks)
+    locks.set_defaults(handler=handle_registry_list, load_workspace_library=False)
+
+    show = registry_subparsers.add_parser("show", help="Show one exact registry entity.")
+    show_subparsers = show.add_subparsers(dest="entity", required=True)
+    registration = show_subparsers.add_parser("registration")
+    registration.add_argument("module_id", type=_module_identifier)
+    registration.add_argument("class_id", type=_identifier)
+    registration.add_argument("work_id", type=_identifier)
+    registration.add_argument("--revision", type=_positive)
+    _format(registration)
+    registration.set_defaults(handler=handle_registry_show, load_workspace_library=False)
+    publication = show_subparsers.add_parser("publication")
+    publication.add_argument("publication_id", type=_publication_id)
+    publication.add_argument("--verify-manifest", action="store_true")
+    _format(publication)
+    publication.set_defaults(handler=handle_registry_show, load_workspace_library=False)
+    withdrawal = show_subparsers.add_parser("withdrawal")
+    withdrawal.add_argument("publication_id", type=_publication_id)
+    _format(withdrawal)
+    withdrawal.set_defaults(handler=handle_registry_show, load_workspace_library=False)
+    catalog = show_subparsers.add_parser("catalog")
+    catalog.add_argument("--sources", action="store_true")
+    _format(catalog)
+    catalog.set_defaults(handler=handle_registry_show, load_workspace_library=False)
+    lock = show_subparsers.add_parser("lock")
+    lock.add_argument("lock_id")
+    _format(lock)
+    lock.set_defaults(handler=handle_registry_show, load_workspace_library=False)
+
+    rebuild = registry_subparsers.add_parser("rebuild-catalog", help="Atomically rebuild only the disposable derived catalog.")
+    rebuild.add_argument("--dry-run", action="store_true")
+    rebuild.add_argument("--verify-manifests", action="store_true")
+    rebuild.add_argument("--require-manifests-valid", action="store_true")
+    _format(rebuild)
+    rebuild.set_defaults(handler=handle_registry_rebuild, load_workspace_library=False)
+
+    clear = registry_subparsers.add_parser("clear-lock", help="Remove one user-asserted stale lock after exact fingerprint verification; Core cannot prove staleness.")
+    clear.add_argument("lock_id")
+    clear.add_argument("--expected-sha256", required=True, type=_sha256)
+    clear.add_argument("--force", action="store_true")
+    clear.add_argument("--dry-run", action="store_true")
+    _format(clear)
+    clear.set_defaults(handler=handle_registry_clear_lock, load_workspace_library=False)
+
+    periods = academic_subparsers.add_parser("periods", help="List or validate canonical Academic Period calendars.")
+    periods_subparsers = periods.add_subparsers(dest="periods_command")
+    period_list = periods_subparsers.add_parser("list")
+    period_list.add_argument("--school-year", type=_school_year)
+    revision_group = period_list.add_mutually_exclusive_group()
+    revision_group.add_argument("--calendar-revision", type=_positive)
+    revision_group.add_argument("--all-revisions", action="store_true")
+    period_list.add_argument("--period-type", choices=tuple(sorted(ACADEMIC_PERIOD_TYPES)))
+    period_list.add_argument("--lifecycle", choices=tuple(sorted(ACADEMIC_PERIOD_LIFECYCLES)))
+    period_list.add_argument("--active-on", type=_calendar_date)
+    _page(period_list)
+    _format(period_list)
+    period_list.set_defaults(handler=handle_periods_list, load_workspace_library=False)
+    period_validate = periods_subparsers.add_parser("validate")
+    period_validate.add_argument("--school-year", type=_school_year)
+    period_validate.add_argument("--strict", action="store_true")
+    _format(period_validate)
+    period_validate.set_defaults(handler=handle_periods_validate, load_workspace_library=False)
 
 
 def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
