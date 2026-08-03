@@ -1,0 +1,116 @@
+{
+  "assignment": {
+    "assignment_id": "position_paper",
+    "focus_standards": [
+      "synthetic_standard_argument",
+      "synthetic_standard_evidence"
+    ],
+    "standards_profile_id": "synthetic_writing_profile",
+    "title": "Synthetic Position Paper"
+  },
+  "assignment_local_rating_scale": {
+    "levels": [
+      {
+        "label": "Beginning",
+        "level_id": "beginning",
+        "meaning": "Evidence is emerging and requires substantial revision.",
+        "order": 1
+      },
+      {
+        "label": "Developing",
+        "level_id": "developing",
+        "meaning": "Evidence is partial and developing toward the assignment expectation.",
+        "order": 2
+      },
+      {
+        "label": "Meeting",
+        "level_id": "meeting",
+        "meaning": "Evidence meets the assignment expectation for this Focus Standard.",
+        "order": 3
+      }
+    ],
+    "scale_id": "synthetic_assignment_scale",
+    "scale_revision": 3
+  },
+  "contract_version": "fixture_quillan_assignment_results_v1",
+  "generated_at": "2026-08-01T12:00:00Z",
+  "producer_module_id": "quillan",
+  "record_set": {
+    "record_set_id": "assignment_ratings",
+    "revision": 1
+  },
+  "reviews": [
+    {
+      "feedback_export_state": "exported",
+      "minimum_requirement_state": "evaluated_met",
+      "overall_focus_standard_ratings": [
+        {
+          "rating_level_id": "meeting",
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_argument"
+        },
+        {
+          "rating_level_id": "developing",
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_evidence"
+        }
+      ],
+      "returned_without_full_review": false,
+      "review_id": "synthetic_review_001",
+      "review_state": "complete",
+      "subject_id": "synthetic_subject_rated",
+      "warnings": []
+    },
+    {
+      "feedback_export_state": "not_exported",
+      "minimum_requirement_state": "evaluated_met",
+      "overall_focus_standard_ratings": [
+        {
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_argument",
+          "state": "missing"
+        },
+        {
+          "rating_level_id": "developing",
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_evidence"
+        }
+      ],
+      "returned_without_full_review": false,
+      "review_id": "synthetic_review_002",
+      "review_state": "ratings_in_progress",
+      "subject_id": "synthetic_subject_missing",
+      "warnings": [
+        "one_focus_standard_rating_missing"
+      ]
+    },
+    {
+      "feedback_export_state": "not_exported",
+      "minimum_requirement_state": "not_evaluated",
+      "overall_focus_standard_ratings": [
+        {
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_argument",
+          "state": "not_reviewed"
+        },
+        {
+          "scale_id": "synthetic_assignment_scale",
+          "standard_id": "synthetic_standard_evidence",
+          "state": "not_reviewed"
+        }
+      ],
+      "returned_without_full_review": true,
+      "review_id": "synthetic_review_003",
+      "review_state": "returned_without_full_review",
+      "subject_id": "synthetic_subject_returned",
+      "warnings": [
+        "full_review_not_completed"
+      ]
+    }
+  ],
+  "work": {
+    "class_id": "synthetic_class_2026",
+    "module_id": "quillan",
+    "work_id": "position_paper"
+  }
+}

@@ -15,6 +15,7 @@ from pds_core.publication_compatibility import (
     build_publication_producer_registry,
     discover_publication_producer_profiles,
     evaluate_publication_compatibility,
+    validate_publication_producer_profile,
 )
 import pds_core.publication_compatibility as compatibility
 from pds_core.academic_work_registrations import AcademicWorkRegistration
@@ -24,8 +25,8 @@ from pds_core.routing_models import ModuleRecordRef, ModuleWorkRef
 
 def profile() -> PublicationProducerProfile:
     return PublicationProducerProfile(
-        module_id="quillan",
-        display_name="Quillan",
+        module_id="fixture_producer",
+        display_name="Fixture Producer",
         supported_core_publication_schema_versions=frozenset({"1"}),
         supported_academic_work_contract_versions=frozenset({"1"}),
         publication_contracts=(
@@ -35,7 +36,7 @@ def profile() -> PublicationProducerProfile:
                 supported_capabilities=frozenset({"standards_ratings"}),
                 source_record_contracts=(
                     SourceRecordContractSupport(
-                        "rating", frozenset({"1"}), allows_unversioned=False
+                        "result", frozenset({"1"}), allows_unversioned=False
                     ),
                 ),
                 allows_missing_source_record=False,
@@ -49,19 +50,41 @@ def publication(*, version: str = "1") -> PublicationRecord:
         schema_version="1",
         record_type="publication_record",
         publication_id="pub_11111111111111111111111111111111",
-        work=ModuleWorkRef("quillan", "class_a", "essay"),
-        source_record=ModuleRecordRef("quillan", "rating", "rating_1", version),
+        work=ModuleWorkRef("fixture_producer", "class_a", "essay"),
+        source_record=ModuleRecordRef(
+            "fixture_producer", "result", "result_1", version
+        ),
         publication_kind="academic_result_set",
         capabilities=("standards_ratings",),
         record_set_id="results",
         record_set_revision=1,
         manifest_contract_version="1",
-        manifest_path="classes/class_a/modules/quillan/work/essay/manifest.json",
+        manifest_path=(
+            "classes/class_a/modules/fixture_producer/work/essay/manifest.json"
+        ),
         manifest_digest_algorithm="sha256",
         manifest_digest="0" * 64,
         published_at=datetime(2026, 7, 1, tzinfo=UTC),
         academic_work_registration_revision=1,
         supersedes_publication_id=None,
+    )
+
+
+def intervention_profile(
+    *, academic_work_versions: frozenset[str] = frozenset()
+) -> PublicationProducerProfile:
+    return PublicationProducerProfile(
+        module_id="intervention_fixture",
+        display_name="Intervention Fixture",
+        supported_core_publication_schema_versions=frozenset({"1"}),
+        supported_academic_work_contract_versions=academic_work_versions,
+        publication_contracts=(
+            PublicationContractSupport(
+                publication_kind="intervention_record_set",
+                manifest_contract_versions=frozenset({"intervention_v1"}),
+                supported_capabilities=frozenset({"intervention_status"}),
+            ),
+        ),
     )
 
 
@@ -93,17 +116,17 @@ def test_profile_is_frozen_sorted_and_registry_lookup() -> None:
     assert value.publication_contracts[0].publication_kind == "academic_result_set"
     assert build_publication_producer_registry(
         explicit_profiles=(value,), discover_installed=False
-    ).get("quillan") == value
+    ).get("fixture_producer") == value
     with pytest.raises(AttributeError):
         value.module_id = "other"  # type: ignore[misc]
 
 
-@pytest.mark.parametrize("module_id", ["Quillan", "../quillan", ""])
+@pytest.mark.parametrize("module_id", ["Fixture_Producer", "../fixture", ""])
 def test_profile_rejects_invalid_module_id(module_id: str) -> None:
     with pytest.raises(PublicationProducerProfileError):
         PublicationProducerProfile(
             module_id,
-            "Quillan",
+            "Fixture Producer",
             frozenset({"1"}),
             frozenset({"1"}),
             profile().publication_contracts,
@@ -127,8 +150,73 @@ def test_duplicate_support_rows_are_rejected() -> None:
     row = profile().publication_contracts[0]
     with pytest.raises(PublicationProducerProfileError):
         PublicationProducerProfile(
-            "quillan", "Quillan", frozenset({"1"}), frozenset({"1"}), (row, row)
+            "fixture_producer",
+            "Fixture Producer",
+            frozenset({"1"}),
+            frozenset({"1"}),
+            (row, row),
         )
+
+
+@pytest.mark.parametrize(
+    "academic_work_versions", [frozenset(), frozenset({"unused_v1"})]
+)
+def test_intervention_only_profile_accepts_empty_or_nonempty_academic_versions(
+    academic_work_versions: frozenset[str],
+) -> None:
+    value = intervention_profile(academic_work_versions=academic_work_versions)
+    assert value.supported_academic_work_contract_versions == academic_work_versions
+    assert validate_publication_producer_profile(value) == value
+    assert (
+        build_publication_producer_registry(
+            explicit_profiles=(value,), discover_installed=False
+        ).get("intervention_fixture")
+        == value
+    )
+
+
+def test_academic_and_mixed_profiles_require_academic_work_versions() -> None:
+    academic = profile().publication_contracts[0]
+    intervention = intervention_profile().publication_contracts[0]
+    message = (
+        "academic-result producer profile requires at least one Academic Work "
+        "Registration contract version"
+    )
+    with pytest.raises(PublicationProducerProfileError, match=message):
+        replace(profile(), supported_academic_work_contract_versions=frozenset())
+    with pytest.raises(PublicationProducerProfileError, match=message):
+        PublicationProducerProfile(
+            module_id="mixed_fixture",
+            display_name="Mixed Fixture",
+            supported_core_publication_schema_versions=frozenset({"1"}),
+            supported_academic_work_contract_versions=frozenset(),
+            publication_contracts=(academic, intervention),
+        )
+    assert profile().supported_academic_work_contract_versions == frozenset({"1"})
+
+
+def test_unrelated_version_sets_remain_nonempty() -> None:
+    with pytest.raises(
+        PublicationProducerProfileError,
+        match="supported_core_publication_schema_versions must not be empty",
+    ):
+        replace(
+            intervention_profile(),
+            supported_core_publication_schema_versions=frozenset(),
+        )
+    with pytest.raises(
+        PublicationProducerProfileError,
+        match="manifest_contract_versions must not be empty",
+    ):
+        replace(
+            intervention_profile().publication_contracts[0],
+            manifest_contract_versions=frozenset(),
+        )
+    with pytest.raises(
+        PublicationProducerProfileError,
+        match="contract_versions must not be empty",
+    ):
+        SourceRecordContractSupport("result", frozenset())
 
 
 def test_every_claimed_compatibility_code() -> None:
@@ -177,7 +265,9 @@ def test_every_claimed_compatibility_code() -> None:
     ).codes
     wrong_kind = replace(
         value,
-        source_record=ModuleRecordRef("quillan", "other", "rating_1", "1"),
+        source_record=ModuleRecordRef(
+            "fixture_producer", "other", "result_1", "1"
+        ),
     )
     assert "contracts.source_record_kind_incompatible" in evaluate_publication_compatibility(
         wrong_kind, profile(), registration(wrong_kind)
@@ -193,7 +283,10 @@ def test_registration_relationship_is_exact_and_intervention_needs_none() -> Non
         evaluate_publication_compatibility(
             value,
             profile(),
-            registration(value, work=ModuleWorkRef("quillan", "class_b", "essay")),
+            registration(
+                value,
+                work=ModuleWorkRef("fixture_producer", "class_b", "essay"),
+            ),
         )
     with pytest.raises(PublicationProducerProfileError):
         evaluate_publication_compatibility(
@@ -230,10 +323,15 @@ def test_discovery_identity_order_duplicates_and_provider_failures(
     monkeypatch.setattr(
         importlib_metadata,
         "entry_points",
-        lambda: _EntryPoints((_point("zeta", lambda: second), _point("quillan", profile))),
+        lambda: _EntryPoints(
+            (
+                _point("zeta", lambda: second),
+                _point("fixture_producer", profile),
+            )
+        ),
     )
     assert [item.module_id for item in discover_publication_producer_profiles()] == [
-        "quillan",
+        "fixture_producer",
         "zeta",
     ]
     monkeypatch.setattr(
@@ -246,7 +344,7 @@ def test_discovery_identity_order_duplicates_and_provider_failures(
     monkeypatch.setattr(
         importlib_metadata,
         "entry_points",
-        lambda: _EntryPoints((_point("quillan", object()),)),
+        lambda: _EntryPoints((_point("fixture_producer", object()),)),
     )
     with pytest.raises(compatibility.PublicationProducerDiscoveryError):
         discover_publication_producer_profiles()
@@ -257,10 +355,22 @@ def test_discovery_identity_order_duplicates_and_provider_failures(
     monkeypatch.setattr(
         importlib_metadata,
         "entry_points",
-        lambda: _EntryPoints((_point("quillan", broken),)),
+        lambda: _EntryPoints((_point("fixture_producer", broken),)),
     )
     with pytest.raises(compatibility.PublicationProducerDiscoveryError):
         discover_publication_producer_profiles()
+
+
+def test_discovery_accepts_intervention_only_profile_with_empty_academic_versions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    value = intervention_profile()
+    monkeypatch.setattr(
+        importlib_metadata,
+        "entry_points",
+        lambda: _EntryPoints((_point("intervention_fixture", lambda: value),)),
+    )
+    assert discover_publication_producer_profiles() == (value,)
 
 
 def test_defensive_result_registry_and_display_name_validation() -> None:

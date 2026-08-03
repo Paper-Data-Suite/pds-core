@@ -1,0 +1,58 @@
+{
+  "contract_version": "fixture_portia_intervention_result_v1",
+  "follow_up": {
+    "next_review_on": "2026-10-15",
+    "state": "scheduled"
+  },
+  "generated_at": "2026-08-01T12:00:00Z",
+  "implementation_history": [
+    {
+      "event_id": "synthetic_event_001",
+      "occurred_on": "2026-09-08",
+      "status": "planned"
+    },
+    {
+      "event_id": "synthetic_event_002",
+      "occurred_on": "2026-09-15",
+      "status": "implemented"
+    }
+  ],
+  "implementation_status": "active",
+  "intervention_type": "synthetic_check_in_schedule",
+  "outcome": {
+    "observed_on": "2026-10-01",
+    "state": "continue_and_review"
+  },
+  "producer_module_id": "portia",
+  "record_set": {
+    "record_set_id": "intervention_history",
+    "revision": 1
+  },
+  "related_records": [
+    {
+      "record_ref": {
+        "contract_version": "fixture_related_record_v1",
+        "module_id": "fixture_source",
+        "record_id": "synthetic_record_001",
+        "record_kind": "observation"
+      },
+      "work_ref": {
+        "class_id": "synthetic_class_2026",
+        "module_id": "fixture_source",
+        "work_id": "synthetic_context_work"
+      }
+    }
+  ],
+  "support_process": {
+    "process_id": "synthetic_support_process_001",
+    "time_context": {
+      "end_on": "2026-10-31",
+      "start_on": "2026-09-01"
+    }
+  },
+  "work": {
+    "class_id": "synthetic_class_2026",
+    "module_id": "portia",
+    "work_id": "synthetic_support_process_001"
+  }
+}
