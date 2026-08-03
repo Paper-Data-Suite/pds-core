@@ -1,0 +1,241 @@
+{
+  "activity": {
+    "activity_id": "synthetic_activity_gamma",
+    "class_id": "synthetic_class_2026",
+    "focus_standard_ids": [
+      "synthetic_standard_reasoning"
+    ],
+    "scoring_orientation": "mixed",
+    "standards_profile_id": "synthetic_concord_profile",
+    "title": "Synthetic Design Critique"
+  },
+  "criteria": [
+    {
+      "criterion_id": "criterion_reasoning",
+      "criterion_kind": "standard_backed",
+      "criterion_set_id": "synthetic_criteria_revision_1",
+      "definition": "Evaluate the reasoning used to justify the design decision.",
+      "standard_id": "synthetic_standard_reasoning",
+      "status": "active",
+      "supported_target_kinds": [
+        "individual"
+      ]
+    },
+    {
+      "alignment_standard_ids": [
+        "synthetic_standard_reasoning"
+      ],
+      "criterion_id": "criterion_craft",
+      "criterion_kind": "local",
+      "criterion_set_id": "synthetic_criteria_revision_1",
+      "definition": "Evaluate local design craft without making a direct standards claim.",
+      "status": "active",
+      "supported_target_kinds": [
+        "group",
+        "individual"
+      ]
+    }
+  ],
+  "generated_at": "2026-08-01T12:00:00Z",
+  "manifest_contract_version": "concord_academic_result_manifest_v1",
+  "moderation": [
+    {
+      "approval_state": "approved",
+      "completion_state": "complete",
+      "moderation_id": "synthetic_moderation_001",
+      "moderation_revision": 2,
+      "qualification_state": "permitted_for_publication",
+      "responsible_role": "teacher",
+      "score_record_ids": [
+        "synthetic_score_001",
+        "synthetic_score_002",
+        "synthetic_score_003",
+        "synthetic_score_004"
+      ]
+    }
+  ],
+  "producer_module_id": "concord",
+  "publication_projection_provenance": {
+    "current_and_superseded_history_policy": "include_both",
+    "fixture_generator": "pds_core_synthetic_fixture",
+    "included_score_scope": "teacher_approved_activity_scores",
+    "projected_at": "2026-08-01T12:00:00Z",
+    "source_activity_contract_version": "fixture_contract_1",
+    "synthetic_fixture": true
+  },
+  "record_set_id": "approved_scores",
+  "record_set_revision": 1,
+  "score_evidence_links": [
+    {
+      "evidence_reference": {
+        "contract_version": "fixture_evidence_1",
+        "module_id": "concord",
+        "record_id": "synthetic_artifact_001",
+        "record_kind": "artifact"
+      },
+      "link_id": "synthetic_evidence_link_001",
+      "position": 1,
+      "relation": "supports",
+      "score_record_id": "synthetic_score_002",
+      "status": "active"
+    },
+    {
+      "evidence_reference": {
+        "contract_version": "fixture_evidence_1",
+        "module_id": "concord",
+        "record_id": "synthetic_artifact_002",
+        "record_kind": "artifact"
+      },
+      "link_id": "synthetic_evidence_link_002",
+      "position": 1,
+      "relation": "supports",
+      "score_record_id": "synthetic_score_003",
+      "status": "active"
+    }
+  ],
+  "score_records": [
+    {
+      "activity_id": "synthetic_activity_gamma",
+      "basis": "linked_evidence",
+      "criterion_id": "criterion_reasoning",
+      "current_status": "superseded",
+      "disposition": "scored",
+      "moderation_complete": true,
+      "score_kind": "standard_backed",
+      "score_record_id": "synthetic_score_001",
+      "scored_at": "2026-07-20T12:00:00Z",
+      "scorer": {
+        "role": "teacher"
+      },
+      "scoring_scale_id": "synthetic_concord_scale_revision_4",
+      "scoring_scale_revision": 4,
+      "standard_id": "synthetic_standard_reasoning",
+      "superseded_by_score_record_id": "synthetic_score_002",
+      "target_reference": {
+        "target_id": "synthetic_individual_target",
+        "target_kind": "individual"
+      },
+      "value": "developing"
+    },
+    {
+      "activity_id": "synthetic_activity_gamma",
+      "basis": "linked_evidence",
+      "criterion_id": "criterion_reasoning",
+      "current_status": "current",
+      "disposition": "scored",
+      "moderation_complete": true,
+      "score_kind": "standard_backed",
+      "score_record_id": "synthetic_score_002",
+      "scored_at": "2026-07-25T12:00:00Z",
+      "scorer": {
+        "role": "teacher"
+      },
+      "scoring_scale_id": "synthetic_concord_scale_revision_4",
+      "scoring_scale_revision": 4,
+      "standard_id": "synthetic_standard_reasoning",
+      "supersedes_score_record_id": "synthetic_score_001",
+      "target_reference": {
+        "target_id": "synthetic_individual_target",
+        "target_kind": "individual"
+      },
+      "value": "meeting"
+    },
+    {
+      "activity_id": "synthetic_activity_gamma",
+      "basis": "linked_evidence",
+      "criterion_id": "criterion_craft",
+      "current_status": "current",
+      "disposition": "scored",
+      "moderation_complete": true,
+      "score_kind": "local",
+      "score_record_id": "synthetic_score_003",
+      "scored_at": "2026-07-25T12:05:00Z",
+      "scorer": {
+        "role": "teacher"
+      },
+      "scoring_scale_id": "synthetic_concord_scale_revision_4",
+      "scoring_scale_revision": 4,
+      "target_reference": {
+        "target_id": "synthetic_individual_target",
+        "target_kind": "individual"
+      },
+      "value": "strong"
+    },
+    {
+      "activity_id": "synthetic_activity_gamma",
+      "basis": "insufficient_linked_evidence",
+      "criterion_id": "criterion_craft",
+      "current_status": "current",
+      "disposition": "insufficient_evidence",
+      "moderation_complete": true,
+      "score_kind": "local",
+      "score_record_id": "synthetic_score_004",
+      "scored_at": "2026-07-25T12:10:00Z",
+      "scorer": {
+        "role": "teacher"
+      },
+      "scoring_scale_id": "synthetic_concord_scale_revision_4",
+      "scoring_scale_revision": 4,
+      "target_reference": {
+        "target_id": "synthetic_group_target",
+        "target_kind": "group"
+      }
+    }
+  ],
+  "scoring_scales": [
+    {
+      "levels": [
+        {
+          "description": "Evidence is emerging.",
+          "display_label": "Emerging",
+          "machine_value": "emerging",
+          "order": 1
+        },
+        {
+          "description": "Evidence is developing toward the Criterion expectation.",
+          "display_label": "Developing",
+          "machine_value": "developing",
+          "order": 2
+        },
+        {
+          "description": "Evidence meets the Criterion expectation.",
+          "display_label": "Meeting",
+          "machine_value": "meeting",
+          "order": 3
+        },
+        {
+          "description": "Evidence demonstrates a strong response to the Criterion.",
+          "display_label": "Strong",
+          "machine_value": "strong",
+          "order": 4
+        }
+      ],
+      "revision": 4,
+      "scale_lineage_id": "synthetic_concord_scale",
+      "scale_type": "ordinal",
+      "scoring_scale_id": "synthetic_concord_scale_revision_4",
+      "status": "active"
+    }
+  ],
+  "source_activity": {
+    "contract_version": "fixture_contract_1",
+    "module_id": "concord",
+    "record_id": "synthetic_activity_gamma",
+    "record_kind": "activity"
+  },
+  "targets": [
+    {
+      "target_id": "synthetic_individual_target",
+      "target_kind": "individual"
+    },
+    {
+      "target_id": "synthetic_group_target",
+      "target_kind": "group"
+    }
+  ],
+  "work": {
+    "class_id": "synthetic_class_2026",
+    "module_id": "concord",
+    "work_id": "synthetic_activity_gamma"
+  }
+}

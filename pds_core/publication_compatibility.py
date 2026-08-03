@@ -59,7 +59,9 @@ def _identifier(value: object, name: str, *, lowercase: bool = False) -> str:
     return result
 
 
-def _versions(value: object, name: str) -> frozenset[str]:
+def _versions(
+    value: object, name: str, *, allow_empty: bool = False
+) -> frozenset[str]:
     if isinstance(value, (str, bytes, Mapping)):
         raise PublicationProducerProfileError(f"{name} must be an iterable of versions.")
     try:
@@ -68,7 +70,7 @@ def _versions(value: object, name: str) -> frozenset[str]:
         )
     except TypeError as error:
         raise PublicationProducerProfileError(f"{name} must be iterable.") from error
-    if not result:
+    if not result and not allow_empty:
         raise PublicationProducerProfileError(f"{name} must not be empty.")
     return result
 
@@ -150,7 +152,11 @@ class PublicationProducerProfile:
                 "display_name must be a nonempty trimmed single-line string without control characters."
             )
         object.__setattr__(self, "supported_core_publication_schema_versions", _versions(self.supported_core_publication_schema_versions, "supported_core_publication_schema_versions"))
-        object.__setattr__(self, "supported_academic_work_contract_versions", _versions(self.supported_academic_work_contract_versions, "supported_academic_work_contract_versions"))
+        academic_work_versions = _versions(
+            self.supported_academic_work_contract_versions,
+            "supported_academic_work_contract_versions",
+            allow_empty=True,
+        )
         if isinstance(self.publication_contracts, (str, bytes, Mapping)):
             raise PublicationProducerProfileError(
                 "publication_contracts must be an iterable."
@@ -164,6 +170,18 @@ class PublicationProducerProfile:
         contracts = tuple(sorted(contracts, key=lambda row: row.publication_kind))
         if len({row.publication_kind for row in contracts}) != len(contracts):
             raise PublicationProducerProfileError("publication_contracts contains duplicate publication_kind support.")
+        if not academic_work_versions and any(
+            row.publication_kind == "academic_result_set" for row in contracts
+        ):
+            raise PublicationProducerProfileError(
+                "An academic-result producer profile requires at least one "
+                "Academic Work Registration contract version."
+            )
+        object.__setattr__(
+            self,
+            "supported_academic_work_contract_versions",
+            academic_work_versions,
+        )
         object.__setattr__(self, "publication_contracts", contracts)
 
 
