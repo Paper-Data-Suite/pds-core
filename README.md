@@ -24,8 +24,8 @@ school-year and revision listing; pure hierarchy and date queries; and exact
 school-year-qualified reference resolution.
 
 No Academic Period Calendar or default periods are created automatically.
-Class-period use and Grade-item membership remain Meridian-owned. CLI audit and
-repair commands remain tracked by issue #163.
+Class-period use and Grade-item membership remain Meridian-owned. Bounded CLI
+audit and conservative derived-catalog repair are implemented.
 
 Core also provides revisioned Academic Work Registration records with durable
 identity through `ModuleWorkRef`, exact dictionary conversion, canonical
@@ -56,15 +56,20 @@ typed, read-only queries. It may be deleted at any time and is never authoritati
 catalog rows cannot create, revise, select, supersede, or withdraw canonical
 records, and a missing, stale, locked, malformed, or corrupt catalog does not
 invalidate those records. Rebuild does not open producer manifests or crawl
-producer work directories. Registry audit and catalog repair remain assigned to
-issue #163, cross-producer fixtures to #164, and the integration and release guide
-to #165.
+producer work directories. Registry audit, catalog repair, producer-contract
+fixtures, and integration/recovery documentation are included in v0.6.0.
 
 PDS Core is intended to be used by:
 
 - `pds-scoreform`
 - `pds-quillan`
 - `pds-concord`
+- `pds-portia`
+- `pds-meridian`
+
+This list states intended consumption, not completed sibling integration.
+Canonical Core JSON and producer-native records are authoritative; the SQLite
+catalog is derived. Grade and reporting policy remain outside Core.
 
 ## PDS2 Routing Identity API
 
@@ -144,28 +149,29 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.5.0 is a supported pre-1.0 Core release. It implements the PDS2
-routing contract and shared infrastructure described below. Pre-1.0 releases
+Version 0.6.0 is a supported pre-1.0 Core release. It implements the PDS2
+routing contract, Academic Periods, typed reportable-data publication,
+compatibility discovery, catalog, and audit surfaces. Pre-1.0 releases
 may make intentional breaking changes, and only the latest supported minor line
 receives fixes unless otherwise documented.
 
 ## Installation
 
-PDS Core v0.5.0 requires Python 3.11 or newer. See the
-[v0.5.0 release notes](docs/releases/v0.5.0.md) for compatibility details,
+PDS Core v0.6.0 requires Python 3.11 or newer. See the
+[v0.6.0 release notes](docs/releases/v0.6.0.md) for compatibility details,
 breaking changes, and migration guidance.
 
 Install the verified wheel attached to the GitHub Release:
 
 ```powershell
-python -m pip install .\pds_core-0.5.0-py3-none-any.whl
+python -m pip install .\pds_core-0.6.0-py3-none-any.whl
 python -m pip check
 ```
 
 Downstream packages should declare:
 
 ```text
-pds-core>=0.5,<0.6
+pds-core>=0.6,<0.7
 ```
 
 For local sibling-repository development:
@@ -174,11 +180,15 @@ For local sibling-repository development:
 python -m pip install -e "../pds-core"
 ```
 
-Version 0.5.0 is distributed through the GitHub Release. This release does not
+Version 0.6.0 is distributed through the GitHub Release. This release does not
 publish to PyPI.
 
 Active implementation guidance begins with
 [`docs/pds2_module_integration.md`](docs/pds2_module_integration.md). The
+separate [`docs/academic_registry_integration.md`](docs/academic_registry_integration.md)
+covers producer and consumer publication, and
+[`docs/academic_registry_recovery.md`](docs/academic_registry_recovery.md)
+covers conservative audit and recovery. The
 [`migration_plan.md`](migration_plan.md) file is retained only as a superseded
 historical PDS1/OMR1 plan and is not current guidance.
 
@@ -370,7 +380,7 @@ one all-or-nothing write. `profile set-standards` replaces membership only,
 preserves every metadata field, and clears membership when no `--standard`
 flags are supplied. `profile validate`, `profile show`, `profile import`, and
 `profile export` remain available. Destructive profile deletion is not
-supported in v0.5.0.
+supported in v0.6.0.
 
 Individual standard mutation commands require `code`, `source`, `short-name`,
 and `description`. `add` also requires `--standard-id`; `replace` and `upsert`
@@ -393,7 +403,7 @@ library unchanged.
 `upsert` adds or replaces as appropriate. `retire` is non-destructive: it marks
 the standard inactive and leaves the record in the library, so historical data
 and profile references remain valid. `reactivate` marks a retired standard
-active again. There is no destructive standard deletion command in v0.5.0.
+active again. There is no destructive standard deletion command in v0.6.0.
 
 Import and export commands are deliberately conservative. Imports validate the
 entire external JSON file before writing anything. Full-library import requires
@@ -441,9 +451,11 @@ SHA-256 fingerprint plus `--force` (unless `--dry-run` is used). Core cannot
 prove that a lock is stale; the user must review and assert that operational
 fact.
 
-Cross-producer compatibility fixtures are tracked by issue #164. Complete
-integration, migration, and recovery guidance, together with the v0.6.0
-release, is tracked by issue #165.
+Cross-producer compatibility fixtures are synthetic and do not establish
+production sibling integration. See the
+[academic registry integration guide](docs/academic_registry_integration.md),
+[recovery guide](docs/academic_registry_recovery.md), and
+[v0.6.0 release notes](docs/releases/v0.6.0.md).
 
 ## Workspace Root
 

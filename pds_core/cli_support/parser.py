@@ -845,7 +845,7 @@ def _add_profile_create_parser(
             "identifier. title, source, subject, and course are display or "
             "filtering fields. Repeat --standard to store ordered durable "
             "standard_id membership references. Destructive profile deletion "
-            "is not supported in v0.5.0."
+            "is not supported in v0.6.0."
         ),
     )
     profile_create_parser.add_argument(
@@ -870,7 +870,7 @@ def _add_profile_replace_parser(
             "subject, course, description, and --standard membership values "
             "are cleared. Standards membership stores ordered durable "
             "standard_id references. Destructive profile deletion is not "
-            "supported in v0.5.0."
+            "supported in v0.6.0."
         ),
     )
     profile_replace_parser.add_argument(
@@ -892,7 +892,7 @@ def _add_profile_membership_parsers(
             "Add one durable standard_id reference to a standards profile. "
             "This edits profile membership only and preserves profile "
             "metadata. Destructive profile deletion is not supported in "
-            "v0.5.0."
+            "v0.6.0."
         ),
     )
     profile_add_standard_parser.add_argument(
@@ -923,7 +923,7 @@ def _add_profile_membership_parsers(
         description=(
             "Remove one durable standard_id reference from profile membership "
             "only. This does not delete the standard definition. Destructive "
-            "profile deletion is not supported in v0.5.0."
+            "profile deletion is not supported in v0.6.0."
         ),
     )
     profile_remove_standard_parser.add_argument(
@@ -975,7 +975,7 @@ def _add_profile_validate_parser(
             "Validate one standards profile against the active workspace "
             "library without writing files. profile_id is durable and profile "
             "membership stores durable standard_id references. Destructive "
-            "profile deletion is not supported in v0.5.0."
+            "profile deletion is not supported in v0.6.0."
         ),
     )
     profile_validate_parser.add_argument(

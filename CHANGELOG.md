@@ -11,12 +11,60 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+No unreleased changes are documented yet.
+
+## [0.6.0] - 2026-08-03
+
 ### Added
 
 - Added atomic ordered standard-definition batch addition and atomic profile
   membership add, remove, and metadata-preserving replacement CLI commands.
 - Added shared presentation-independent transformations used by both the direct
   CLI and teacher menu for those four compound mutations.
+- Added immutable, school-year-qualified Academic Period Calendar models,
+  storage with explicit current pointers, hierarchy/date queries, and exact
+  reference resolution.
+- Added immutable Academic Work Registration revisions and producer-facing
+  idempotent create/update services.
+- Added typed immutable academic-result and intervention Publication Records,
+  explicit supersession and withdrawal, exact SHA-256 manifest binding, and
+  canonical retrieval services.
+- Added publication producer profiles, compatibility evaluation, registry
+  construction, and installed discovery through
+  `paper_data_suite.publication_producers`.
+- Added a disposable SQLite academic catalog with atomic full rebuild, source
+  snapshots, and typed deterministic queries.
+- Added bounded registry audit, manifest/profile verification, dry-run catalog
+  rebuilding, and fingerprint-protected lock clearing.
+- Added the `pds-core academic registry` and `pds-core academic periods`
+  noninteractive CLI surfaces with text and schema-`"1"` JSON output.
+- Added synthetic producer contract fixtures for academic and intervention
+  compatibility without importing sibling runtime packages.
+- Added active academic-registry integration and conservative recovery guides.
+
+### Changed
+
+- Documented Core as the shared academic-period and reportable-data contract;
+  producer-native records remain authoritative and Meridian owns grading and
+  reporting policy.
+- Corrected publication-profile validation so only producers supporting
+  `academic_result_set` require supported Academic Work contract versions;
+  intervention-only profiles may declare an empty set.
+- Updated active downstream dependency guidance to `pds-core>=0.6,<0.7`.
+- Documented canonical JSON and producer records as authoritative and
+  `registry/catalog.sqlite` as rebuildable derived state.
+
+### Migration
+
+- Upgrading from v0.5 creates no calendars, registrations, manifests,
+  publications, catalog, Grade policy, or sibling producer integration.
+- Producers must opt into publication, expose a real compatibility profile,
+  and publish immutable producer-owned manifests through Core services.
+- Rebuild the derived catalog; there is no prior authoritative catalog to
+  migrate.
+- See [the v0.6.0 release notes](docs/releases/v0.6.0.md),
+  [the academic registry integration guide](docs/academic_registry_integration.md),
+  and [the recovery guide](docs/academic_registry_recovery.md).
 
 ## [0.5.0] - 2026-07-14
 

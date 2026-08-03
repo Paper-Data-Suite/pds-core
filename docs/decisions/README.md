@@ -29,8 +29,8 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 | ADR                                                              | Decision                                                    | Status                          |
 | ---------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------- |
 | [0001](0001-adopt-pds2-page-locator-routing.md)                  | Adopt PDS2 Page-Locator Routing                             | Accepted; implemented in v0.5.0 |
-| [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted                        |
-| [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted                        |
+| [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted; implemented in v0.6.0 |
+| [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted; implemented in v0.6.0 |
 
 ## Standard ADR Structure
 
@@ -221,7 +221,10 @@ The primary `pds-core` documentation includes:
 * [`../roster_workspace_contract.md`](../roster_workspace_contract.md) — shared class, roster, and workspace conventions;
 * [`../standards_contract.md`](../standards_contract.md) — shared standards-management contract;
 * [`../module_standards_integration.md`](../module_standards_integration.md) — module-facing standards integration guidance;
-* and [`../pds2_module_integration.md`](../pds2_module_integration.md) — active module-facing PDS2 routing and dispatch guidance.
+* [`../pds2_module_integration.md`](../pds2_module_integration.md) — active module-facing PDS2 routing and dispatch guidance;
+* [`../academic_registry_integration.md`](../academic_registry_integration.md) — active producer and consumer guidance;
+* [`../academic_registry_recovery.md`](../academic_registry_recovery.md) — conservative recovery guidance;
+* and [`../releases/v0.6.0.md`](../releases/v0.6.0.md) — v0.6 compatibility, migration, and release details.
 
 ### ADR 0001: PDS2 Page-Locator Routing
 
@@ -262,7 +265,8 @@ ADR 0002 also establishes that:
 * discoverability does not grant authorization;
 * and Meridian or another authorized consumer owns grading and reporting policy.
 
-Implementation is coordinated under `Paper-Data-Suite/pds-core#154`.
+That decision is implemented by `pds-core` v0.6.0. Issues #155 and #159–#164
+preserve the completed decision and implementation history.
 
 ### ADR 0003: Hierarchical Academic-Period Model
 
@@ -292,7 +296,8 @@ ADR 0003 also establishes that:
 * Core owns neutral period structure;
 * and Meridian owns Grade-item membership, rollup, calculations, locking, snapshots, and reporting.
 
-Implementation is coordinated under `Paper-Data-Suite/pds-core#154`, beginning with issues `#157` and `#158`.
+That decision is implemented by `pds-core` v0.6.0. Issues #156–#158 preserve
+the completed decision and implementation history.
 
 ## Cross-Repository Decisions
 

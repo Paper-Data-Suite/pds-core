@@ -3,7 +3,7 @@
 ## Project Status
 
 PDS Core is a supported, pre-1.0 shared infrastructure package for Paper Data
-Suite. It is local-first, is not a hosted service, and v0.5.0 is not described
+Suite. It is local-first, is not a hosted service, and v0.6.0 is not described
 as production-stable or permanently API-stable.
 
 ## Student Data and Privacy
@@ -19,6 +19,11 @@ Do not commit or publicly post:
 - secrets, credentials, tokens, or private configuration.
 
 Repository examples and test data should be synthetic.
+
+Producer manifests and producer-native records may contain sensitive
+educational data. Protect them with deployment-appropriate filesystem access,
+backup, retention, and authorization controls. Never post those records or
+manifests publicly.
 
 Paper Data Suite tools are intended to support local, teacher-controlled
 workflows, but users are responsible for following applicable school,
@@ -48,9 +53,9 @@ Unless otherwise documented, only the latest pre-1.0 minor line receives
 security and maintenance fixes.
 
 | Version | Supported |
-| --- | --- |
-| 0.5.x | Yes |
-| < 0.5 | No |
+| ------- | --------- |
+| 0.6.x   | Yes       |
+| <= 0.5  | No        |
 
 Never post real student data, sensitive school or district information,
 credentials, or other private records in a public issue.
