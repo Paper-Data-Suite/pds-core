@@ -1686,7 +1686,8 @@ Meridian decides which publications it subscribes to and how they are used.
 
 ## Required Follow-Up
 
-This decision governs later Core work under umbrella issue `#154`.
+Implementation status: completed in `pds-core` v0.6.0. The issue-by-issue list
+below is retained as completed implementation history under umbrella `#154`.
 
 ### `#159` — Add academic-work registration records
 

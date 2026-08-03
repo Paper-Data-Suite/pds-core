@@ -421,7 +421,7 @@ downstream migration must document its own target paths.
 
 ### Python version compatibility
 
-Core v0.5.0 requires Python `>=3.11`. A downstream module must raise its own
+Core v0.6.0 requires Python `>=3.11`. A downstream module must raise its own
 requirement to Python 3.11 or newer before depending on this release.
 
 ## Migration Sequence

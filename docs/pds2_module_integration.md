@@ -1,15 +1,19 @@
 # PDS2 Module Integration Guide
 
 This guide is the active integration contract for Paper Data Suite modules
-using `pds-core` v0.5.0. Accepted architecture decisions and the focused
+using `pds-core` v0.6.0. Accepted architecture decisions and the focused
 contracts linked below remain authoritative for their respective schemas.
+
+This guide covers physical-page routing. Reportable-data publication uses a
+different profile, entry-point group, compatibility contract, and service
+surface; see the [academic registry integration guide](academic_registry_integration.md).
 
 ## Requirements and compatibility
 
 A downstream module integrating this release must:
 
 - require Python 3.11 or newer;
-- depend on `pds-core>=0.5,<0.6` while Core remains pre-1.0;
+- depend on `pds-core>=0.6,<0.7` while Core remains pre-1.0;
 - use Core routing contract version `"1"`;
 - emit and parse only the `PDS2` QR payload schema;
 - persist route-registration schema version `"1"`;
@@ -24,7 +28,7 @@ Core package upgrade does not implicitly change any serialized schema version.
 For a downstream `pyproject.toml`, the dependency boundary is:
 
 ```toml
-dependencies = ["pds-core>=0.5,<0.6"]
+dependencies = ["pds-core>=0.6,<0.7"]
 ```
 
 Core has no runtime dependencies and does not depend on ScoreForm, Quillan, or
@@ -65,7 +69,7 @@ The module owns:
 
 ## Create and persist a route
 
-Use the public modules directly; v0.5.0 does not add broad re-exports from
+Use the public modules directly; v0.6.0 does not add broad re-exports from
 `pds_core.__init__`.
 
 ```python
@@ -228,7 +232,7 @@ targets.
 ## Migration checklist
 
 1. Raise the downstream Python requirement to `>=3.11` if needed.
-2. Add `pds-core>=0.5,<0.6` without adding the module to Core's dependencies.
+2. Add `pds-core>=0.6,<0.7` without adding the module to Core's dependencies.
 3. Delete PDS1, OMR1, and `QrPayload` integration code and compatibility paths.
 4. Replace assignment/student-based QR fields with PDS2 locators and persisted
    module-owned target references.
@@ -246,15 +250,15 @@ targets.
 
 ## Downstream status
 
-Core v0.5.0 establishes the contract required before downstream migration.
-The migrations remain owned by:
+Core v0.6.0 retains completed routing contract version `"1"`; PDS2 and route-
+registration schema `"1"` are unchanged. At release preparation, ScoreForm and
+Quillan package routing profiles through `paper_data_suite.modules`. Concord is
+not packaged. Routing adoption does not imply publication integration, and
+Core does not migrate module-owned targets.
 
-- ScoreForm: `Paper-Data-Suite/pds-scoreform#137`;
-- Quillan: `Paper-Data-Suite/pds-quillan#329`; and
-- Concord: `Paper-Data-Suite/pds-concord#17`.
-
-This release does not add downstream profiles, migrate their data, or implement
-their module-owned targets.
+See the [v0.6.0 release notes](releases/v0.6.0.md) for the audited downstream
+snapshot and the [publication guide](academic_registry_integration.md) for the
+separate producer contract.
 
 ## Authoritative references
 
