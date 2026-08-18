@@ -19,6 +19,9 @@ supported pre-1.0 minor line receives fixes.
 - Added self-contained `grouping_signal_csv_v1` import/export with immutable
   typed preview, deterministic one-dimension export, validated conversion to
   canonical grouping-signal models, and projection-safe identity handling.
+- Added create-only grouping-signal exchange storage with exact canonical-JSON
+  SHA-256 sidecars, strict load/integrity verification, idempotent identical
+  replay, immutable identity-collision rejection, and no current/latest alias.
 
 ## [0.6.0] - 2026-08-03
 
