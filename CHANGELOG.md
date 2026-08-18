@@ -16,6 +16,9 @@ supported pre-1.0 minor line receives fixes.
 - Added typed immutable `grouping_signal_set_v1` models, strict structural and
   exact-mapping validation, and deterministic canonical JSON text/UTF-8 bytes
   for the neutral grouping-signal interchange.
+- Added self-contained `grouping_signal_csv_v1` import/export with immutable
+  typed preview, deterministic one-dimension export, validated conversion to
+  canonical grouping-signal models, and projection-safe identity handling.
 
 ## [0.6.0] - 2026-08-03
 

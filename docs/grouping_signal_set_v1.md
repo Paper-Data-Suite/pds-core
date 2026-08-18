@@ -8,9 +8,10 @@ grouping-signal interchange. The architectural decision is
 
 Version 1 is adopted for Core v0.6.1 implementation. Typed runtime models,
 strict structural validation, exact mapping conversion, and canonical JSON
-serialization are implemented by issue #180. Human-editable CSV conversion
-remains #181, immutable exchange storage #182, workspace/roster diagnostics
-#183, and standalone/release qualification #184.
+serialization are implemented by issue #180. Human-editable one-dimension CSV
+conversion is implemented by issue #181. Immutable exchange storage remains
+#182, workspace/roster diagnostics #183, and standalone/release qualification
+#184.
 
 When documentation disagrees, the accepted ADR governs architecture and this
 contract governs detailed version-1 wire semantics.
@@ -568,13 +569,20 @@ final newlines, `Z` instead of `+00:00`, or an equivalent non-UTC timestamp.
 
 ## Human-editable CSV relationship
 
-Issue #181 will implement the human-editable CSV representation.
+Core implements a self-contained human-editable CSV representation identified
+by:
 
-Architectural rule for version 1:
+```text
+grouping_signal_csv_v1
+```
 
-> One CSV file represents one selected dimension.
+CSV is a convenience/interchange representation only. Canonical
+`grouping_signal_set_v1` JSON remains authoritative, and issue #182 will hash
+canonical JSON bytes rather than CSV bytes.
 
-The row table is:
+### One file, one selected dimension
+
+One CSV file represents exactly one selected dimension. The row table is always:
 
 ```csv
 student_id,band
@@ -582,41 +590,153 @@ student_001,2
 student_002,4
 ```
 
-Accompanying metadata must identify enough information to create an unambiguous
-canonical signal, including at least:
+The file begins with a fixed metadata preamble. A complete single-dimension
+teacher-authored signal is represented as:
 
 ```text
+# csv_contract=grouping_signal_csv_v1
+# schema_version=1
+# record_type=grouping_signal_set
+# representation_scope=complete_signal
+# signal_set_id=teacher_plan_001
+# class_id=english10_p2
+# created_at=2026-09-01T18:00:00+00:00
+# source.kind=teacher_authored
+# source.module_id=
+# source.snapshot_id=
+# source.snapshot_digest_algorithm=
+# source.snapshot_digest=
+# dimension_id=discussion_support
+# band_count=3
+student_id,band
+student_001,1
+student_002,3
+```
+
+Version 1 recognizes exactly these metadata keys:
+
+```text
+csv_contract
+schema_version
+record_type
+representation_scope
 signal_set_id
 class_id
 created_at
+source.kind
+source.module_id
+source.snapshot_id
+source.snapshot_digest_algorithm
+source.snapshot_digest
 dimension_id
 band_count
-source/provenance sufficient to construct the canonical record
 ```
 
-When exporting a multi-dimension JSON signal set, the caller/teacher must
-explicitly select the dimension. Issue #181 must not silently flatten several
-dimensions into ambiguous `student_id,band` rows.
+Metadata lines use exact `# key=value` syntax. Unknown, duplicate, or missing
+metadata keys are invalid. Nullable source fields use an empty value; arbitrary
+blank required metadata is not converted to null.
 
-A one-dimension CSV exported from a multi-dimension signal set is a
-**projection**, not a lossless serialized form of the complete source signal.
-If that projection is later imported as a standalone signal, it must receive a
-new `signal_set_id`; reusing the source `(class_id, signal_set_id)` would assign
-one immutable identity to different contents and is invalid. The import workflow
-may preserve appropriate provenance subject to the version-1 `source` rules,
-but it must not imply byte-for-byte identity with the multi-dimension source.
+Core export emits metadata in the order shown above, then the exact
+`student_id,band` header, then ascending exact-string `student_id` row order.
+Export uses comma delimiters, standard CSV quoting, UTF-8 without a BOM, LF line
+endings, and exactly one final LF.
 
-A CSV exported from an already single-dimension signal may preserve its
-`signal_set_id` only when import reconstructs the exact same canonical signal
-contents, including the original `created_at`, complete source provenance,
-dimension declaration, and student-band rows. `created_at` is required CSV
-metadata and must not be regenerated on an identity-preserving round trip. Any
-edited row, metadata change, changed provenance, changed timestamp, or other
-material change creates a new signal set and therefore requires a new
-`signal_set_id`.
+CSV import is intentionally more tolerant than canonical JSON. It accepts UTF-8
+text/bytes, an initial UTF-8 BOM, LF or CRLF, standard CSV quoting, metadata
+reordering after the required first `csv_contract` discriminator line, valid row
+reordering, and equivalent timezone-aware ISO-8601 timestamps. Import does not
+require the original bytes to match Core's deterministic exporter.
 
-CSV bytes are not the authoritative Core exchange representation. After
-validated conversion, canonical `grouping_signal_set_v1` JSON is authoritative.
+The importer rejects invalid UTF-8, NUL, malformed CSV quoting, unsupported
+headers or delimiters, unknown/duplicate/missing metadata, arbitrary comments,
+blank data records, missing/extra cells, duplicate student IDs, invalid IDs, and
+invalid bands. It does not perform delimiter sniffing or accept header aliases.
+
+### Representation scope
+
+Every file declares exactly one of:
+
+```text
+complete_signal
+dimension_projection
+```
+
+`complete_signal` means the CSV contains the complete serialized signal content
+for a signal set that has exactly one declared dimension. It does not claim
+complete class-roster coverage; partial roster coverage remains valid.
+
+`dimension_projection` means the CSV contains one explicitly selected dimension
+from a source signal set that contains more than one dimension. The CSV retains
+the source signal's `signal_set_id`, `class_id`, `created_at`, and source
+provenance for preview, but it is not a lossless serialized form of the source
+signal.
+
+Export from a one-dimension `GroupingSignalSet` uses `complete_signal`. Export
+from a multi-dimension signal requires an explicit `dimension_id` and uses
+`dimension_projection`. Core never chooses a dimension implicitly or flattens
+multiple dimensions into one row table.
+
+### Identity-preserving complete round trips
+
+An unchanged `complete_signal` CSV may preserve the CSV-declared
+`signal_set_id` and `created_at`. A valid one-dimension signal exported to CSV
+and immediately imported without edits reconstructs an equal #180 runtime model
+and therefore the exact same canonical JSON bytes.
+
+CSV conversion may also be given an explicit replacement `signal_set_id` and
+`created_at` together. The replacement ID must differ from the CSV-declared ID.
+This supports callers deliberately creating a new immutable signal after an
+edit. CSV parsing alone cannot prove whether an unrelated historical signal
+already exists under the declared identity; issue #182 will reject attempts to
+persist different canonical bytes under an existing `(class_id, signal_set_id)`.
+
+### Projection conversion
+
+A `dimension_projection` cannot become a standalone canonical signal under its
+source identity. Standalone conversion requires both:
+
+```text
+new_signal_set_id
+new_created_at
+```
+
+The new ID must differ from the CSV-declared source `signal_set_id`, and the new
+time must be explicitly supplied as a timezone-aware datetime. Core does not
+invent IDs, suffixes, UUIDs, or timestamps.
+
+The resulting `GroupingSignalSet` contains exactly the selected dimension and
+its rows. It carries no supersession/revision relationship and does not copy the
+source's omitted dimensions. Source provenance may be preserved when it remains
+truthful and valid under the version-1 source rules.
+
+### Integer and identity parsing
+
+CSV `band_count` and `band` are accepted only as unambiguous unsigned base-10
+integer text. Values such as `2.0`, `+2`, `-1`, surrounding-whitespace forms,
+booleans, or words are invalid. Leading zeros may be parsed and are normalized
+on deterministic export.
+
+The row identity is exact Core `student_id`. Version 1 does not accept
+`student_name`, `name`, email, display-name, fuzzy lookup, or roster-position
+identity. Structurally valid but unknown/wrong-class student IDs remain issue
+#183 workspace/roster diagnostics rather than CSV parser failures.
+
+### Typed preview and canonical conversion
+
+CSV parsing returns an immutable typed preview/document containing the declared
+scope, source signal identity/time, class, source provenance, selected dimension,
+band count, and every parsed `student_id`/band row. Callers may inspect that
+preview before canonical conversion, including whether a new identity is
+required.
+
+Successful conversion always produces the public #180 `GroupingSignalSet`.
+The CSV layer does not define an alternate JSON record or serializer; callers
+use #180 canonical JSON helpers after conversion.
+
+Grouping-signal CSV remains teacher-restricted educational data. Extra columns
+or metadata attempting to carry names, raw academic values, free-form notes,
+Groups, GroupMemberships, GroupPlans, planning strategies, or other extension
+state are rejected rather than preserved.
 
 ## Immutability and history
 
@@ -993,7 +1113,7 @@ sequence:
 
 ```text
 Issue #180 typed models + validation + canonical JSON — implemented
-Issue #181 one-dimension CSV conversion
+Issue #181 one-dimension CSV conversion — implemented
 Issue #182 immutable exchange storage + signal-byte digest
 Issue #183 class/roster diagnostics
 Issue #184 standalone acceptance + release audit
