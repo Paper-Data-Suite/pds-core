@@ -77,9 +77,10 @@ The accepted Core v0.6.1 grouping-signal architecture is documented in
 Typed grouping-signal models, strict structural validation, deterministic
 canonical JSON, human-editable one-dimension CSV conversion, immutable neutral
 exchange storage with canonical-byte SHA-256 binding, and workspace-aware exact
-class/roster diagnostics are implemented as unreleased v0.6.1 work. The released
-v0.6.0 package does not include this API; standalone/release qualification
-remains #184.
+class/roster diagnostics are available beginning with pds-core v0.6.1. Existing
+consumers that do not use grouping signals may continue to declare
+`pds-core>=0.6,<0.7`; consumers that require this interchange must declare
+`pds-core>=0.6.1,<0.7`.
 
 ## PDS2 Routing Identity API
 
@@ -159,29 +160,35 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.0 is a supported pre-1.0 Core release. It implements the PDS2
-routing contract, Academic Periods, typed reportable-data publication,
-compatibility discovery, catalog, and audit surfaces. Pre-1.0 releases
-may make intentional breaking changes, and only the latest supported minor line
-receives fixes unless otherwise documented.
+Version 0.6.1 is the supported pre-1.0 Core release. It preserves the PDS2
+routing, Academic Period, reportable-data publication, compatibility, catalog,
+and audit surfaces and adds the neutral `grouping_signal_set_v1` interchange.
+Pre-1.0 releases may make intentional breaking changes, and only the latest
+supported minor line receives fixes unless otherwise documented.
 
 ## Installation
 
-PDS Core v0.6.0 requires Python 3.11 or newer. See the
-[v0.6.0 release notes](docs/releases/v0.6.0.md) for compatibility details,
-breaking changes, and migration guidance.
+PDS Core v0.6.1 requires Python 3.11 or newer. See the
+[v0.6.1 release notes](docs/releases/v0.6.1.md) for compatibility details and
+release qualification boundaries.
 
 Install the verified wheel attached to the GitHub Release:
 
 ```powershell
-python -m pip install .\pds_core-0.6.0-py3-none-any.whl
+python -m pip install .\pds_core-0.6.1-py3-none-any.whl
 python -m pip check
 ```
 
-Downstream packages should declare:
+Existing Core 0.6 consumers may continue to declare:
 
 ```text
 pds-core>=0.6,<0.7
+```
+
+Consumers that require `grouping_signal_set_v1` must declare:
+
+```text
+pds-core>=0.6.1,<0.7
 ```
 
 For local sibling-repository development:
@@ -190,7 +197,7 @@ For local sibling-repository development:
 python -m pip install -e "../pds-core"
 ```
 
-Version 0.6.0 is distributed through the GitHub Release. This release does not
+Version 0.6.1 is distributed through the GitHub Release. This release does not
 publish to PyPI.
 
 Active implementation guidance begins with
@@ -390,7 +397,7 @@ one all-or-nothing write. `profile set-standards` replaces membership only,
 preserves every metadata field, and clears membership when no `--standard`
 flags are supplied. `profile validate`, `profile show`, `profile import`, and
 `profile export` remain available. Destructive profile deletion is not
-supported in v0.6.0.
+supported in v0.6.1.
 
 Individual standard mutation commands require `code`, `source`, `short-name`,
 and `description`. `add` also requires `--standard-id`; `replace` and `upsert`
@@ -413,7 +420,7 @@ library unchanged.
 `upsert` adds or replaces as appropriate. `retire` is non-destructive: it marks
 the standard inactive and leaves the record in the library, so historical data
 and profile references remain valid. `reactivate` marks a retired standard
-active again. There is no destructive standard deletion command in v0.6.0.
+active again. There is no destructive standard deletion command in v0.6.1.
 
 Import and export commands are deliberately conservative. Imports validate the
 entire external JSON file before writing anything. Full-library import requires

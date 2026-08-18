@@ -31,7 +31,7 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 | [0001](0001-adopt-pds2-page-locator-routing.md)                  | Adopt PDS2 Page-Locator Routing                             | Accepted; implemented in v0.5.0 |
 | [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted; implemented in v0.6.0 |
 | [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted; implemented in v0.6.0 |
-| [0004](0004-adopt-neutral-grouping-signal-interchange.md)        | Adopt a Neutral Grouping-Signal Interchange                 | Accepted; planned for v0.6.1     |
+| [0004](0004-adopt-neutral-grouping-signal-interchange.md)        | Adopt a Neutral Grouping-Signal Interchange                 | Accepted; implemented in v0.6.1 |
 
 ## Standard ADR Structure
 
@@ -226,7 +226,7 @@ The primary `pds-core` documentation includes:
 * [`../academic_registry_integration.md`](../academic_registry_integration.md) — active producer and consumer guidance;
 * [`../academic_registry_recovery.md`](../academic_registry_recovery.md) — conservative recovery guidance;
 * [`../grouping_signal_set_v1.md`](../grouping_signal_set_v1.md) — accepted version-1 neutral grouping-signal contract;
-* and [`../releases/v0.6.0.md`](../releases/v0.6.0.md) — v0.6 compatibility, migration, and release details.
+* and [`../releases/v0.6.1.md`](../releases/v0.6.1.md) — current v0.6 compatibility, grouping-signal, and release details.
 
 ### ADR 0001: PDS2 Page-Locator Routing
 
@@ -325,9 +325,9 @@ ADR 0004 also establishes that:
 * missing signal coverage is never silently converted to a band or permission to omit a student; and
 * signal history is immutable and has no automatic `latest` or `current` alias.
 
-The decision is accepted for Core v0.6.1 implementation. Issue #179 records the
-contract freeze; issues #180-#184 own runtime implementation and release
-qualification.
+The decision is implemented beginning with `pds-core` v0.6.1. Issue #179 records
+the contract freeze; issues #180-#184 preserve the implementation and release-
+qualification history.
 
 ## Cross-Repository Decisions
 

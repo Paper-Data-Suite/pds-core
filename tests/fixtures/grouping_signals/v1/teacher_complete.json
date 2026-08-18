@@ -1,0 +1,37 @@
+{
+  "schema_version": "1",
+  "record_type": "grouping_signal_set",
+  "signal_set_id": "teacher_complete_001",
+  "class_id": "english10_p2",
+  "created_at": "2026-09-01T18:00:00+00:00",
+  "source": {
+    "kind": "teacher_authored",
+    "module_id": null,
+    "snapshot_id": null,
+    "snapshot_digest_algorithm": null,
+    "snapshot_digest": null
+  },
+  "dimensions": [
+    {
+      "dimension_id": "discussion_support",
+      "band_count": 3
+    }
+  ],
+  "student_bands": [
+    {
+      "student_id": "student_001",
+      "dimension_id": "discussion_support",
+      "band": 1
+    },
+    {
+      "student_id": "student_002",
+      "dimension_id": "discussion_support",
+      "band": 3
+    },
+    {
+      "student_id": "student_003",
+      "dimension_id": "discussion_support",
+      "band": 2
+    }
+  ]
+}

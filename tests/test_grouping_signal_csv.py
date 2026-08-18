@@ -476,21 +476,29 @@ def test_document_programmatic_validation_and_defensive_rows() -> None:
 
 
 def test_document_rejects_duplicate_rows_and_band_above_count() -> None:
-    base = dict(
-        csv_contract="grouping_signal_csv_v1",
-        schema_version="1",
-        record_type="grouping_signal_set",
-        representation_scope="complete_signal",
-        signal_set_id="signal_001",
-        class_id="english10_p2",
-        created_at=NOW,
-        source=teacher_source(),
-        dimension=GroupingSignalDimension("reading_analysis", 3),
-    )
+    def document(rows: tuple[GroupingSignalCsvRow, ...]) -> GroupingSignalCsvDocument:
+        return GroupingSignalCsvDocument(
+            csv_contract="grouping_signal_csv_v1",
+            schema_version="1",
+            record_type="grouping_signal_set",
+            representation_scope="complete_signal",
+            signal_set_id="signal_001",
+            class_id="english10_p2",
+            created_at=NOW,
+            source=teacher_source(),
+            dimension=GroupingSignalDimension("reading_analysis", 3),
+            rows=rows,
+        )
+
     with pytest.raises(GroupingSignalCsvError, match="duplicate"):
-        GroupingSignalCsvDocument(rows=(GroupingSignalCsvRow("student_001", 1), GroupingSignalCsvRow("student_001", 2)), **base)
+        document(
+            (
+                GroupingSignalCsvRow("student_001", 1),
+                GroupingSignalCsvRow("student_001", 2),
+            )
+        )
     with pytest.raises(GroupingSignalCsvError, match="between"):
-        GroupingSignalCsvDocument(rows=(GroupingSignalCsvRow("student_001", 4),), **base)
+        document((GroupingSignalCsvRow("student_001", 4),))
 
 
 def test_export_does_not_include_privacy_extension_fields() -> None:

@@ -252,7 +252,9 @@ def test_same_student_can_appear_in_multiple_dimensions(tmp_path: Path) -> None:
 
 def test_duplicate_signal_entry_remains_structural_failure(tmp_path: Path) -> None:
     data = grouping_signal_set_to_dict(_signal())
-    bands = list(data["student_bands"])
+    raw_bands = data["student_bands"]
+    assert isinstance(raw_bands, list)
+    bands = list(raw_bands)
     bands.insert(1, dict(bands[0]))
     data["student_bands"] = bands
 
@@ -265,7 +267,9 @@ def test_duplicate_signal_entry_remains_structural_failure(tmp_path: Path) -> No
 @pytest.mark.parametrize("band", [0, 4, True, "2"])
 def test_invalid_band_remains_structural_failure(tmp_path: Path, band: object) -> None:
     data = grouping_signal_set_to_dict(_signal())
-    entries = list(data["student_bands"])
+    raw_entries = data["student_bands"]
+    assert isinstance(raw_entries, list)
+    entries = list(raw_entries)
     first = dict(entries[0])
     first["band"] = band
     entries[0] = first

@@ -11,6 +11,8 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-08-18
+
 ### Added
 
 - Added typed immutable `grouping_signal_set_v1` models, strict structural and

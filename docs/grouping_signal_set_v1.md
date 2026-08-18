@@ -6,13 +6,12 @@ This document is the normative serialized contract for Core's accepted neutral
 grouping-signal interchange. The architectural decision is
 [ADR 0004](decisions/0004-adopt-neutral-grouping-signal-interchange.md).
 
-Version 1 is adopted for Core v0.6.1 implementation. Typed runtime models,
-strict structural validation, exact mapping conversion, and canonical JSON
-serialization are implemented by issue #180. Human-editable one-dimension CSV
-conversion is implemented by issue #181. Immutable exchange storage and
-canonical-byte SHA-256 binding are implemented by issue #182. Workspace-aware
-class/roster diagnostics are implemented by issue #183, and standalone/release
-qualification remains #184.
+Version 1 is implemented for Core v0.6.1. Typed runtime models, strict
+structural validation, exact mapping conversion, and canonical JSON are
+implemented by issue #180; human-editable one-dimension CSV by #181; immutable
+exchange storage and canonical-byte SHA-256 binding by #182; workspace-aware
+class/roster diagnostics by #183; and standalone/release qualification by #184.
+`grouping_signal_set_v1` is available beginning with `pds-core` 0.6.1.
 
 When documentation disagrees, the accepted ADR governs architecture and this
 contract governs detailed version-1 wire semantics.
@@ -1271,7 +1270,7 @@ Issue #180 typed models + validation + canonical JSON — implemented
 Issue #181 one-dimension CSV conversion — implemented
 Issue #182 immutable exchange storage + signal-byte digest — implemented
 Issue #183 class/roster diagnostics — implemented
-Issue #184 standalone acceptance + release audit
+Issue #184 standalone acceptance + release audit — implemented for v0.6.1 release preparation
 ```
 
 If implementation reveals that a rule here is impossible or contradictory,
@@ -1297,5 +1296,6 @@ creating a direct runtime dependency between those modules.
 - `Paper-Data-Suite/pds-concord#47`
 - `Paper-Data-Suite/pds-paper-data-suite/development-plan.md`
 
-The implementation baseline audited for this contract was `pds-core` main
-commit `6c507213618b68a6dd3ea096e1a898201ff029e6`.
+The architecture baseline originally audited for this contract was `pds-core`
+main commit `6c507213618b68a6dd3ea096e1a898201ff029e6`. Issue #184 repeats
+qualification from the exact v0.6.1 release commit before tag/publication.

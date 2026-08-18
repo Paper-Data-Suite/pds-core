@@ -42,6 +42,7 @@ REQUIRED_DOCUMENTS = (
     PROJECT_ROOT / "docs" / "academic_registry_integration.md",
     PROJECT_ROOT / "docs" / "academic_registry_recovery.md",
     PROJECT_ROOT / "docs" / "releases" / "v0.6.0.md",
+    PROJECT_ROOT / "docs" / "releases" / "v0.6.1.md",
 )
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
@@ -56,21 +57,27 @@ def active_markdown_files() -> tuple[Path, ...]:
     return tuple(sorted(files))
 
 
-def test_required_v060_documents_exist() -> None:
+def test_required_v061_documents_exist() -> None:
     assert all(path.is_file() for path in REQUIRED_DOCUMENTS)
 
 
-def test_active_release_and_dependency_guidance_is_v060() -> None:
+def test_active_release_and_dependency_guidance_is_v061() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     security = (PROJECT_ROOT / "SECURITY.md").read_text(encoding="utf-8")
     active_text = "\n".join(
         path.read_text(encoding="utf-8") for path in active_markdown_files()
     )
 
-    assert "Version 0.6.0" in readme
+    grouping_contract = (
+        PROJECT_ROOT / "docs" / "grouping_signal_set_v1.md"
+    ).read_text(encoding="utf-8")
+    assert "Version 0.6.1" in readme
     assert "pds-core>=0.6,<0.7" in readme
+    assert "pds-core>=0.6.1,<0.7" in readme
     assert re.search(r"\|\s*0\.6\.x\s*\|\s*Yes\s*\|", security)
     assert ">=0.5,<0.6" not in active_text
+    assert "unreleased v0.6.1 work" not in readme
+    assert "standalone/release qualification remains #184" not in grouping_contract
 
 
 def test_routing_and_publication_entry_points_are_distinct() -> None:
