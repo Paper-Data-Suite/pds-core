@@ -6,9 +6,11 @@ This document is the normative serialized contract for Core's accepted neutral
 grouping-signal interchange. The architectural decision is
 [ADR 0004](decisions/0004-adopt-neutral-grouping-signal-interchange.md).
 
-Version 1 is adopted for Core v0.6.1 implementation. At the time this contract
-is first added, the runtime model, serializer, CSV conversion, exchange store,
-and roster diagnostics remain follow-up work in issues #180-#184.
+Version 1 is adopted for Core v0.6.1 implementation. Typed runtime models,
+strict structural validation, exact mapping conversion, and canonical JSON
+serialization are implemented by issue #180. Human-editable CSV conversion
+remains #181, immutable exchange storage #182, workspace/roster diagnostics
+#183, and standalone/release qualification #184.
 
 When documentation disagrees, the accepted ADR governs architecture and this
 contract governs detailed version-1 wire semantics.
@@ -528,21 +530,41 @@ student_id
 
 List order does not encode priority.
 
-Issue #180 must emit this canonical ordering. Runtime APIs may normalize accepted
-in-memory construction where explicitly designed to do so, but canonical wire
-bytes must use this order. A strict canonical-wire loader/checker must reject a
-noncanonical serialized representation rather than assigning semantic meaning
-to insertion order.
+Runtime APIs normalize valid in-memory construction into this canonical ordering
+after validating all entries and rejecting duplicates. Serialized mapping and
+canonical-wire loading are stricter: they reject noncanonical list order rather
+than silently repairing it or assigning semantic meaning to insertion order.
 
 Sorting must never be used to silently resolve duplicate or unknown identities.
 
 ## Object field order and canonical JSON
 
-Canonical serialization in #180 must emit object fields in the documented
-contract order shown in this document and use one deterministic JSON encoding.
-The exact byte-level JSON formatting policy (whitespace/newline and escaping)
-must be implemented and tested in #180. Regardless of formatting, field order
-must not be used to carry domain meaning.
+Canonical serialization emits object fields in the documented contract order shown
+in this document. Dictionaries are constructed in that order; canonical JSON
+does not enable `sort_keys`.
+
+The version-1 canonical JSON text is equivalent to:
+
+```python
+json.dumps(
+    grouping_signal_set_to_dict(value),
+    indent=2,
+    ensure_ascii=True,
+    allow_nan=False,
+) + "\n"
+```
+
+Canonical bytes are exactly that text encoded as UTF-8. Therefore canonical
+version-1 JSON uses two-space indentation, standard ASCII escaping, LF line
+endings, no BOM, and exactly one final LF. `NaN`, `Infinity`, and `-Infinity`
+are invalid. Object field order does not carry domain meaning even though the
+canonical representation emits one required order.
+
+The strict canonical JSON loader rejects duplicate object keys and requires the
+supplied text/bytes to equal Core's canonical serialization exactly after model
+validation. Semantically equivalent but byte-different JSON is noncanonical,
+including reordered object fields, alternate whitespace, CRLF, missing or extra
+final newlines, `Z` instead of `+00:00`, or an equivalent non-UTC timestamp.
 
 ## Human-editable CSV relationship
 
@@ -966,11 +988,11 @@ consumes this new contract.
 
 ## Implementation follow-up
 
-This document freezes the semantics consumed by the remaining Core v0.6.1
-issues:
+This document freezes the semantics consumed by the Core v0.6.1 implementation
+sequence:
 
 ```text
-Issue #180 typed models + validation + canonical JSON
+Issue #180 typed models + validation + canonical JSON — implemented
 Issue #181 one-dimension CSV conversion
 Issue #182 immutable exchange storage + signal-byte digest
 Issue #183 class/roster diagnostics

@@ -11,7 +11,11 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
-No unreleased changes are documented yet.
+### Added
+
+- Added typed immutable `grouping_signal_set_v1` models, strict structural and
+  exact-mapping validation, and deterministic canonical JSON text/UTF-8 bytes
+  for the neutral grouping-signal interchange.
 
 ## [0.6.0] - 2026-08-03
 
