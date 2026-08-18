@@ -9,9 +9,9 @@ grouping-signal interchange. The architectural decision is
 Version 1 is adopted for Core v0.6.1 implementation. Typed runtime models,
 strict structural validation, exact mapping conversion, and canonical JSON
 serialization are implemented by issue #180. Human-editable one-dimension CSV
-conversion is implemented by issue #181. Immutable exchange storage remains
-#182, workspace/roster diagnostics #183, and standalone/release qualification
-#184.
+conversion is implemented by issue #181. Immutable exchange storage and
+canonical-byte SHA-256 binding are implemented by issue #182. Workspace/roster
+diagnostics remain #183, and standalone/release qualification remains #184.
 
 When documentation disagrees, the accepted ADR governs architecture and this
 contract governs detailed version-1 wire semantics.
@@ -306,10 +306,11 @@ source.snapshot_digest
 
 binds an upstream source snapshot/artifact.
 
-The Core exchange service planned in #182 will separately calculate the
+The Core exchange storage implemented in #182 separately calculates the
 SHA-256 digest of the canonical `grouping_signal_set_v1` JSON bytes. That
-signal-record digest is external storage/integrity metadata and must not be
-embedded in the JSON record being hashed.
+signal-record digest is external storage/integrity metadata and is stored in a
+strict sibling `.json.sha256` sidecar rather than embedded in the JSON record
+being hashed.
 
 ## Dimensions
 
@@ -577,8 +578,8 @@ grouping_signal_csv_v1
 ```
 
 CSV is a convenience/interchange representation only. Canonical
-`grouping_signal_set_v1` JSON remains authoritative, and issue #182 will hash
-canonical JSON bytes rather than CSV bytes.
+`grouping_signal_set_v1` JSON remains authoritative, and the #182 exchange
+storage hashes canonical JSON bytes rather than CSV bytes.
 
 ### One file, one selected dimension
 
@@ -758,35 +759,145 @@ The earlier record remains historical.
 
 Version 1 has no automatic current or latest selection.
 
-## Planned Core exchange storage
+## Core exchange storage
 
-Issue #182 will implement canonical storage at:
+Issue #182 implements immutable neutral exchange storage at:
 
 ```text
 exchange/grouping-signals/<class_id>/<signal_set_id>.json
+exchange/grouping-signals/<class_id>/<signal_set_id>.json.sha256
 ```
 
-The stored file will contain canonical version-1 JSON bytes. The storage layer
-will bind those bytes by SHA-256 and reject in-place mutation.
+The `.json` file contains exactly the canonical version-1 UTF-8 JSON bytes
+emitted by the #180 serializer. Storage does not independently reserialize a
+signal and never persists CSV as the canonical exchange record.
 
-There must be no automatic alias such as:
+### Canonical-byte digest binding
+
+Core calculates:
+
+```text
+SHA256(exact canonical grouping_signal_set_v1 JSON bytes)
+```
+
+and returns the lowercase 64-character hexadecimal digest. This digest is
+separate from `source.snapshot_digest`: the source digest binds the upstream
+producer/teacher source artifact, while the storage digest binds the exact Core
+signal snapshot.
+
+The signal-record digest is not embedded in the JSON being hashed. It is stored
+in the sibling `.json.sha256` sidecar as exactly:
+
+```text
+<64 lowercase hexadecimal characters>\n
+```
+
+with no algorithm prefix, filename, BOM, spaces, CRLF, or additional newline.
+The algorithm is fixed to `sha256` for this storage contract.
+
+### Immutable creation and replay
+
+The durable identity remains:
+
+```text
+(class_id, signal_set_id)
+```
+
+Final JSON and digest-sidecar paths are create-only. Core never replaces either
+member of an existing canonical pair.
+
+For a write request:
+
+- absent identity + successful verified creation returns `created`;
+- an already-valid pair with exactly the same canonical JSON bytes returns
+  `existing` without rewriting either file; and
+- an already-valid pair under the same identity with different canonical bytes
+  raises an immutable-identity conflict.
+
+A retry therefore provides idempotency without mutation. A changed band,
+`created_at`, provenance value, dimension declaration, coverage set, or other
+canonical value requires a new `signal_set_id`.
+
+If only one member of the JSON/sidecar pair already exists, Core treats storage
+as incomplete/corrupt and fails closed. Ordinary writes do not repair or delete
+pre-existing incomplete pairs. A failed write may clean up only artifacts that
+the same call can identify as its own newly created files.
+
+### Strict loading and integrity verification
+
+Loading one exact identity requires both canonical files. Core:
+
+1. validates the requested `class_id` and `signal_set_id`;
+2. reads the raw JSON bytes and strict digest sidecar;
+3. calculates SHA-256 over the raw JSON bytes present on disk;
+4. verifies that value against the sidecar;
+5. loads the raw JSON through the strict #180 canonical JSON loader; and
+6. requires the embedded `class_id` and `signal_set_id` to match the canonical
+   directory/filename identity.
+
+Core does not normalize or rewrite noncanonical persisted JSON. A semantically
+valid but byte-noncanonical JSON file remains invalid storage even if its
+sidecar was recalculated to match those altered bytes.
+
+If neither member of an explicitly requested pair exists, the exact signal is
+not found. If exactly one exists, the state is an integrity failure rather than
+a normal not-found result.
+
+### Class-scoped listing
+
+Core can list validated `signal_set_id` values for one exact class. Listing is
+bounded to:
+
+```text
+exchange/grouping-signals/<class_id>/
+```
+
+and returns IDs in ascending exact-string order after verifying complete valid
+pairs. It does not recursively crawl the workspace or rank records by creation
+time, producer, filesystem modification time, or any academic property.
+
+A consumer still chooses an exact signal identity deliberately.
+
+### No automatic selection or mutation
+
+Version 1 creates no alias or pointer such as:
 
 ```text
 latest.json
 current.json
 active.json
+head.json
 ```
 
-A consumer selects an exact signal-set identity.
+and exposes no `load_latest`, `load_current`, update, replace, revision,
+supersession, or in-place editing semantics. Filesystem ordering and timestamps
+must not be interpreted as implicit selection policy.
 
 Where reproducibility matters, a downstream record such as a Concord GroupPlan
 should retain:
 
-- `class_id` and `signal_set_id` (or an equivalent exact Core signal reference);
-- the canonical signal-set digest; and
+- the exact `class_id` and `signal_set_id`;
+- the canonical signal-set SHA-256 digest returned by Core; and
 - the exact selected `dimension_id`.
 
 It must not copy source band values into GroupMembership.
+
+### Filesystem and threat boundary
+
+Core derives storage paths only from the normalized workspace root and validated
+Core identifiers. Existing storage-parent symlinks/redirections outside the
+workspace, final-file symlinks, directories occupying final file paths, malformed
+visible entries, incomplete pairs, and digest/path mismatches fail safely.
+
+The SHA-256 sidecar detects accidental mutation, incomplete writes, corruption,
+and stale/mismatched bytes. It is not a signature or secret-backed authenticity
+mechanism: an actor with unrestricted local filesystem write access could
+replace both the JSON and its digest sidecar. Version 1 does not claim protection
+against that threat model.
+
+Workspace-aware class and roster validation remains issue #183. Structurally
+valid signals can be stored without Meridian, Concord, a roster lookup, or
+producer-runtime discovery.
 
 ## Privacy classification
 
@@ -1114,7 +1225,7 @@ sequence:
 ```text
 Issue #180 typed models + validation + canonical JSON — implemented
 Issue #181 one-dimension CSV conversion — implemented
-Issue #182 immutable exchange storage + signal-byte digest
+Issue #182 immutable exchange storage + signal-byte digest — implemented
 Issue #183 class/roster diagnostics
 Issue #184 standalone acceptance + release audit
 ```
