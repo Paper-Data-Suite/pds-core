@@ -22,6 +22,10 @@ supported pre-1.0 minor line receives fixes.
 - Added create-only grouping-signal exchange storage with exact canonical-JSON
   SHA-256 sidecars, strict load/integrity verification, idempotent identical
   replay, immutable identity-collision rejection, and no current/latest alias.
+- Added workspace-aware grouping-signal diagnostics with exact target-roster
+  comparison, deterministic wrong-class/unknown identity distinction,
+  per-dimension missing coverage and matched-band counts, and no silent
+  remapping or completion.
 
 ## [0.6.0] - 2026-08-03
 
