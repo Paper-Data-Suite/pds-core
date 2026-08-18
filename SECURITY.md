@@ -3,7 +3,7 @@
 ## Project Status
 
 PDS Core is a supported, pre-1.0 shared infrastructure package for Paper Data
-Suite. It is local-first, is not a hosted service, and v0.6.0 is not described
+Suite. It is local-first, is not a hosted service, and v0.6.1 is not described
 as production-stable or permanently API-stable.
 
 ## Student Data and Privacy

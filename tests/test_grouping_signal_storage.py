@@ -370,7 +370,7 @@ def test_failed_verification_does_not_delete_changed_new_file(
     value = signal()
     original_load = storage.load_grouping_signal
 
-    def corrupt_then_fail(root: Path, class_id: str, signal_set_id: str):
+    def corrupt_then_fail(root: Path, class_id: str, signal_set_id: str) -> None:
         json_path = grouping_signal_path(root, class_id, signal_set_id)
         json_path.write_bytes(b"externally changed")
         raise storage.GroupingSignalIntegrityError("synthetic verification failure")

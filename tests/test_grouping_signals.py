@@ -399,19 +399,19 @@ def test_prohibited_top_level_fields_are_rejected_as_unknown(
 def test_unknown_nested_fields_are_rejected() -> None:
     data = canonical_dict()
     assert isinstance(data["source"], dict)
-    data["source"]["grade"] = 1  # type: ignore[index]
+    data["source"]["grade"] = 1
     with pytest.raises(GroupingSignalValidationError, match="unknown"):
         grouping_signal_set_from_dict(data)
 
     data = canonical_dict()
     assert isinstance(data["dimensions"], list)
-    data["dimensions"][0]["proficiency"] = "high"  # type: ignore[index]
+    data["dimensions"][0]["proficiency"] = "high"
     with pytest.raises(GroupingSignalValidationError, match="unknown"):
         grouping_signal_set_from_dict(data)
 
     data = canonical_dict()
     assert isinstance(data["student_bands"], list)
-    data["student_bands"][0]["group_id"] = "g1"  # type: ignore[index]
+    data["student_bands"][0]["group_id"] = "g1"
     with pytest.raises(GroupingSignalValidationError, match="unknown"):
         grouping_signal_set_from_dict(data)
 

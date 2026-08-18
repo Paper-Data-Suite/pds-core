@@ -122,7 +122,7 @@ coverage, or teacher edit produces a new `signal_set_id`.
 Version 1 has no mutable revision, supersession chain, `latest`, `current`,
 `active`, or head pointer. A consumer selects an exact signal set explicitly.
 
-Future Core exchange storage will bind the canonical signal bytes by SHA-256.
+Core exchange storage binds the canonical signal bytes by SHA-256.
 That digest is storage/integrity metadata and is not embedded in the record
 being hashed.
 
@@ -183,9 +183,9 @@ means only that no band is present for that student in that dimension in that
 exact signal set. It does not mean zero, lowest band, failure, absence,
 unenrollment, or permission to omit the student from a later plan.
 
-Core's later workspace-aware diagnostics will report missing, unknown,
-wrong-class, and duplicate identities without silently dropping, remapping, or
-completing entries.
+Core's workspace-aware diagnostics report missing, unknown, and wrong-class
+identities without silently dropping, remapping, or completing entries. Duplicate
+signal entries remain structural validation failures.
 
 ### Provenance
 
@@ -361,8 +361,8 @@ first-class Concord workflows. Academic grouping signals are optional.
 
 ## Required Follow-Up
 
-Core v0.6.1 issues must implement the accepted contract without changing its
-semantics silently:
+Core v0.6.1 implementation and release qualification are tracked by these
+milestone issues without changing the accepted semantics silently:
 
 1. #180 — typed models, validation, and canonical JSON serialization;
 2. #181 — human-editable one-dimension CSV import/export;
@@ -394,5 +394,5 @@ direct sibling runtime dependency.
 
 The repository audit for this decision used `pds-core` main commit
 `6c507213618b68a6dd3ea096e1a898201ff029e6` as the implementation baseline.
-The accepted contract is additive planning for Core v0.6.1; this ADR does not
-claim that the runtime models or exchange store are implemented in v0.6.0.
+The accepted contract is additive to the Core 0.6 line. Issues #180-#184
+implement and qualify it for `pds-core` v0.6.1; it is not part of v0.6.0.
