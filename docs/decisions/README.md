@@ -31,6 +31,7 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 | [0001](0001-adopt-pds2-page-locator-routing.md)                  | Adopt PDS2 Page-Locator Routing                             | Accepted; implemented in v0.5.0 |
 | [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted; implemented in v0.6.0 |
 | [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted; implemented in v0.6.0 |
+| [0004](0004-adopt-neutral-grouping-signal-interchange.md)        | Adopt a Neutral Grouping-Signal Interchange                 | Accepted; planned for v0.6.1     |
 
 ## Standard ADR Structure
 
@@ -224,6 +225,7 @@ The primary `pds-core` documentation includes:
 * [`../pds2_module_integration.md`](../pds2_module_integration.md) — active module-facing PDS2 routing and dispatch guidance;
 * [`../academic_registry_integration.md`](../academic_registry_integration.md) — active producer and consumer guidance;
 * [`../academic_registry_recovery.md`](../academic_registry_recovery.md) — conservative recovery guidance;
+* [`../grouping_signal_set_v1.md`](../grouping_signal_set_v1.md) — accepted version-1 neutral grouping-signal contract;
 * and [`../releases/v0.6.0.md`](../releases/v0.6.0.md) — v0.6 compatibility, migration, and release details.
 
 ### ADR 0001: PDS2 Page-Locator Routing
@@ -299,6 +301,34 @@ ADR 0003 also establishes that:
 That decision is implemented by `pds-core` v0.6.0. Issues #156–#158 preserve
 the completed decision and implementation history.
 
+### ADR 0004: Neutral Grouping-Signal Interchange
+
+ADR 0004 establishes the architectural direction for:
+
+* a strict Core-owned `grouping_signal_set_v1` interchange;
+* exact `(class_id, signal_set_id)` immutable snapshot identity;
+* contextual ordinal bands scoped to one exact signal set and dimension;
+* teacher-authored and module-generated provenance;
+* minimized teacher-restricted student-band data;
+* optional partial roster coverage with explicit diagnostics;
+* deterministic canonical representation;
+* independent producer and consumer qualification; and
+* Meridian-to-Core-to-Concord interoperability without a direct sibling runtime dependency.
+
+ADR 0004 also establishes that:
+
+* Core does not calculate proficiency, choose academic evidence, define band boundaries, or form Groups;
+* Meridian owns academic interpretation and rich signal derivation state;
+* Concord owns GroupPlans, grouping strategies, teacher approval, Groups, and GroupMemberships;
+* the suite shell owns no grouping policy;
+* raw grades, percentages, scores, permanent learner labels, and final group assignments are prohibited from the interchange;
+* missing signal coverage is never silently converted to a band or permission to omit a student; and
+* signal history is immutable and has no automatic `latest` or `current` alias.
+
+The decision is accepted for Core v0.6.1 implementation. Issue #179 records the
+contract freeze; issues #180-#184 own runtime implementation and release
+qualification.
+
 ## Cross-Repository Decisions
 
 Some Core decisions originate from design pressure discovered in another Paper Data Suite module.
@@ -330,6 +360,7 @@ Consuming modules must conform to accepted Core ADRs when using Core-owned:
 * Academic Period identities and references;
 * period hierarchy, ordering, lifecycle, and revision rules;
 * derived catalogs;
+* neutral grouping-signal contract, validation, canonicalization, exchange storage, and roster diagnostics;
 * or module-integration interfaces.
 
 Module-specific domain semantics remain under the authority of the owning module’s accepted ADRs and contracts.
