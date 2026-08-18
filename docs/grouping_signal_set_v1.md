@@ -10,8 +10,9 @@ Version 1 is adopted for Core v0.6.1 implementation. Typed runtime models,
 strict structural validation, exact mapping conversion, and canonical JSON
 serialization are implemented by issue #180. Human-editable one-dimension CSV
 conversion is implemented by issue #181. Immutable exchange storage and
-canonical-byte SHA-256 binding are implemented by issue #182. Workspace/roster
-diagnostics remain #183, and standalone/release qualification remains #184.
+canonical-byte SHA-256 binding are implemented by issue #182. Workspace-aware
+class/roster diagnostics are implemented by issue #183, and standalone/release
+qualification remains #184.
 
 When documentation disagrees, the accepted ADR governs architecture and this
 contract governs detailed version-1 wire semantics.
@@ -719,8 +720,8 @@ on deterministic export.
 
 The row identity is exact Core `student_id`. Version 1 does not accept
 `student_name`, `name`, email, display-name, fuzzy lookup, or roster-position
-identity. Structurally valid but unknown/wrong-class student IDs remain issue
-#183 workspace/roster diagnostics rather than CSV parser failures.
+identity. Structurally valid but unknown/wrong-class student IDs are handled by
+Core's workspace-aware diagnostics rather than CSV parser failures.
 
 ### Typed preview and canonical conversion
 
@@ -895,9 +896,50 @@ mechanism: an actor with unrestricted local filesystem write access could
 replace both the JSON and its digest sidecar. Version 1 does not claim protection
 against that threat model.
 
-Workspace-aware class and roster validation remains issue #183. Structurally
-valid signals can be stored without Meridian, Concord, a roster lookup, or
-producer-runtime discovery.
+Structurally valid signals can still be stored without Meridian, Concord, a
+roster lookup, or producer-runtime discovery. Workspace-aware diagnostics are a
+separate read-only operation and never change the stored signal or digest.
+
+## Workspace-aware class and roster diagnostics
+
+Issue #183 implements read-only diagnostics after #180 structural validation.
+Diagnostics accept one exact signal plus an optional explicit target
+`expected_class_id`; when no target is supplied, the signal's own `class_id` is
+the target. A disagreement between signal and target class is reported as a
+`class_mismatch` error without rewriting the signal, and diagnostics continue
+against the explicit target roster when that roster can be loaded reliably.
+
+Core loads the target roster through the canonical class/roster APIs. A missing,
+unreadable, malformed, or internally inconsistent target roster is an
+operational diagnostics error rather than an all-unknown result. For signal
+student IDs absent from the target roster, Core performs a bounded lookup across
+other canonical Core class rosters. An exact ID found in another roster is
+reported as `wrong_class_student`, with all matching other class IDs retained in
+deterministic order. An ID is reported as `unknown_student` only after the
+bounded canonical-roster lookup completes without a match. If a participating
+other roster cannot be loaded reliably, Core fails the diagnostic operation
+rather than making an uncertain unknown-student claim.
+
+Missing coverage is calculated independently for each declared dimension. A
+target-roster student with no entry in one dimension is reported as
+`missing_student_signal`. Missing coverage remains valid contract state and does
+not imply band 0, the lowest band, failure, exclusion, or permission to omit the
+student from later planning. Unknown or wrong-class entries do not satisfy target
+roster coverage.
+
+Each dimension receives neutral counts for total signal entries, target-roster
+matches, missing students, unknown students, wrong-class students, and the
+number of target-roster-matched entries in each valid band from `1..band_count`.
+Band distributions exclude unknown/wrong-class entries and never assign missing
+students to a band. Core does not interpret why a band exists or compare bands
+across dimensions as a common academic scale.
+
+Diagnostics use exact `student_id` identity only. They do not use student names,
+emails, roster position, fuzzy matching, or automatic remapping. The report is
+immutable and diagnostic only: Core does not repair signals or rosters, choose a
+signal, form Groups, approve GroupPlans, or make academic/grouping-policy
+decisions. Duplicate signal entries and invalid bands remain #180 structural
+failures; #183 does not introduce a permissive alternate signal parser.
 
 ## Privacy classification
 
@@ -1176,8 +1218,10 @@ to make pure #180 model validation load a roster:
 - selected class/workspace context not matching the record's `class_id`; and
 - roster members missing from one or more dimensions.
 
-Issue #183 owns those diagnostics. Core must report them without silently dropping,
-remapping, or filling entries.
+Core's #183 workspace-aware diagnostics report those conditions without silently
+dropping, remapping, or filling entries. Duplicate signal entries and invalid
+bands remain structural #180 failures and are not converted into permissive
+roster findings.
 
 ## Versioning rules
 
@@ -1226,7 +1270,7 @@ sequence:
 Issue #180 typed models + validation + canonical JSON — implemented
 Issue #181 one-dimension CSV conversion — implemented
 Issue #182 immutable exchange storage + signal-byte digest — implemented
-Issue #183 class/roster diagnostics
+Issue #183 class/roster diagnostics — implemented
 Issue #184 standalone acceptance + release audit
 ```
 
