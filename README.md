@@ -74,9 +74,11 @@ catalog is derived. Grade and reporting policy remain outside Core.
 The accepted Core v0.6.1 grouping-signal architecture is documented in
 [`docs/grouping_signal_set_v1.md`](docs/grouping_signal_set_v1.md) and
 [ADR 0004](docs/decisions/0004-adopt-neutral-grouping-signal-interchange.md).
-These documents define the planned neutral, immutable interchange contract and
-Core/Meridian/Concord ownership boundaries; v0.6.0 does not yet implement the
-grouping-signal runtime models or exchange store.
+Typed grouping-signal models, strict structural validation, exact mapping
+conversion, and deterministic canonical JSON are implemented as unreleased
+v0.6.1 work. The released v0.6.0 package does not include this API; CSV
+conversion, exchange storage, and workspace/roster diagnostics remain planned
+for #181-#183.
 
 ## PDS2 Routing Identity API
 
