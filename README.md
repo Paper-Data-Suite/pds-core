@@ -75,10 +75,10 @@ The accepted Core v0.6.1 grouping-signal architecture is documented in
 [`docs/grouping_signal_set_v1.md`](docs/grouping_signal_set_v1.md) and
 [ADR 0004](docs/decisions/0004-adopt-neutral-grouping-signal-interchange.md).
 Typed grouping-signal models, strict structural validation, exact mapping
-conversion, and deterministic canonical JSON are implemented as unreleased
-v0.6.1 work. The released v0.6.0 package does not include this API; CSV
-conversion, exchange storage, and workspace/roster diagnostics remain planned
-for #181-#183.
+conversion, deterministic canonical JSON, and human-editable one-dimension CSV
+conversion are implemented as unreleased v0.6.1 work. The released v0.6.0
+package does not include this API; exchange storage and workspace/roster
+diagnostics remain planned for #182-#183.
 
 ## PDS2 Routing Identity API
 
