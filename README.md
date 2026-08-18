@@ -71,6 +71,13 @@ This list states intended consumption, not completed sibling integration.
 Canonical Core JSON and producer-native records are authoritative; the SQLite
 catalog is derived. Grade and reporting policy remain outside Core.
 
+The accepted Core v0.6.1 grouping-signal architecture is documented in
+[`docs/grouping_signal_set_v1.md`](docs/grouping_signal_set_v1.md) and
+[ADR 0004](docs/decisions/0004-adopt-neutral-grouping-signal-interchange.md).
+These documents define the planned neutral, immutable interchange contract and
+Core/Meridian/Concord ownership boundaries; v0.6.0 does not yet implement the
+grouping-signal runtime models or exchange store.
+
 ## PDS2 Routing Identity API
 
 PDS Core implements strict PDS2 payload parsing and serialization in
