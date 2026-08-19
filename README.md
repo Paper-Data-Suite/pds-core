@@ -66,6 +66,7 @@ PDS Core is intended to be used by:
 - `pds-concord`
 - `pds-portia`
 - `pds-meridian`
+- `pds-vitrine`
 
 This list states intended consumption, not completed sibling integration.
 Canonical Core JSON and producer-native records are authoritative; the SQLite
@@ -255,6 +256,8 @@ See [`docs/decisions/README.md`](docs/decisions/README.md) for accepted
 architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
 of PDS1 and OMR1 support; it is implemented by v0.5.0.
+
+See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the Phase 1 suite-shell API audit, evidence-backed v0.6.2 scope reductions, and downstream dependency map.
 
 ## Standards CLI
 
