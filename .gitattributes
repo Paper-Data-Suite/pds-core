@@ -1,1 +1,2 @@
 tests/fixtures/producer_contracts/*.json text eol=lf
+tests/fixtures/grouping_signals/v1/** text eol=lf
