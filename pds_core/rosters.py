@@ -10,6 +10,11 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Final, Mapping, Sequence
 
+from pds_core._roster_write_lock import (
+    RosterWriteLockError,
+    acquire_roster_write_lock,
+)
+
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
 
 ROSTER_REQUIRED_COLUMNS: Final[tuple[str, ...]] = (
@@ -450,7 +455,30 @@ def write_roster(
     *,
     overwrite: bool = False,
 ) -> None:
-    """Atomically write a validated roster to a UTF-8 CSV file."""
+    """Atomically write a validated roster under an exclusive per-file lock."""
+    target_path = Path(path)
+    target_dir = target_path.parent
+
+    # Preserve the public writer's existing missing/invalid-parent behavior.
+    if not target_dir.exists():
+        raise RosterWriteError(target_path, "parent directory does not exist")
+    if not target_dir.is_dir():
+        raise RosterWriteError(target_path, "parent path is not a directory")
+
+    try:
+        with acquire_roster_write_lock(target_path):
+            _write_roster_unlocked(target_path, roster, overwrite=overwrite)
+    except RosterWriteLockError as error:
+        raise RosterWriteError(target_path, str(error)) from error
+
+
+def _write_roster_unlocked(
+    path: str | Path,
+    roster: Roster,
+    *,
+    overwrite: bool = False,
+) -> None:
+    """Write one roster while the caller already owns write coordination."""
     target_path = Path(path)
     target_dir = target_path.parent
 

@@ -151,6 +151,136 @@ wrappers.
 
 These APIs work in tests and module-owned command or menu wrappers.
 
+## Guarded Full-Roster Import
+
+Core also provides a bounded review-before-write application service in:
+
+```python
+pds_core.roster_imports
+```
+
+The service is for **complete roster replacement**, not fuzzy synchronization.
+It composes the existing roster parser, validator, canonical class path, and
+atomic writer instead of defining a second roster format.
+
+Public pieces include:
+
+```python
+RosterRecordChange
+RosterImportPreview
+RosterImportCommitResult
+RosterImportError
+RosterImportRequestError
+RosterImportClassMismatchError
+RosterImportConflictError
+RosterImportCandidateChangedError
+RosterImportWriteError
+
+plan_roster_import(root, class_id, candidate) -> RosterImportPreview
+commit_roster_import(
+    root,
+    class_id,
+    candidate,
+    *,
+    expected_current_state_token,
+    expected_candidate_state_token,
+) -> RosterImportCommitResult
+```
+
+`candidate` may be a validated `Roster` or a roster CSV path. Both paths are
+revalidated through the existing roster contract. The target `class_id` must
+match the candidate exactly.
+
+### Preview semantics
+
+`plan_roster_import(...)` is non-mutating. It does not create a workspace,
+class folder, roster, lock file, or module state.
+
+The preview partitions durable `student_id` identities into:
+
+```text
+added
+changed
+removed
+unchanged
+```
+
+Comparison uses `student_id` only. Names, email-like optional fields, row
+position, and other metadata are never used to infer identity. A changed record
+contains the exact current and proposed `StudentRecord` values. Extra fields
+therefore participate in normal complete-record change detection.
+
+Diff collections and unchanged IDs are ordered by `student_id` so callers get a
+stable presentation order. The accepted candidate roster itself retains its
+validated column and row order; a complete import commits that candidate state.
+
+The preview carries two opaque tokens:
+
+```text
+current_state_token
+candidate_state_token
+```
+
+The current token represents either the absence of a canonical roster or the
+SHA-256 of Core's deterministic canonical CSV serialization of the loaded
+roster. The candidate token binds the exact validated candidate state that was
+reviewed. Callers must carry these tokens forward unchanged rather than
+constructing or interpreting them.
+
+A missing canonical roster is distinct from an invalid or empty canonical
+roster. Existing Core semantics still require at least one student row, so an
+empty candidate is invalid and cannot be used to remove the final student by
+turning the canonical roster into a zero-row file.
+
+### Guarded commit semantics
+
+`commit_roster_import(...)` revalidates the candidate and requires both reviewed
+state tokens. Before writing, Core:
+
+1. verifies that the candidate still matches the reviewed candidate token;
+2. acquires the canonical class-roster exclusive write lock;
+3. reloads the current canonical roster while that lock is held;
+4. rejects the commit if the current token differs from the reviewed baseline;
+5. atomically writes the complete candidate roster through the existing roster
+   writer; and
+6. removes the lock when the operation exits.
+
+A stale preview fails closed. Core never silently recomputes a new diff and
+commits it on the caller's behalf.
+
+First import uses an explicit absent-roster baseline. If another canonical Core
+writer creates a roster after preview, the commit detects the changed baseline
+and refuses to overwrite it.
+
+All public `write_roster(...)` calls participate in the same per-roster
+exclusive lock, and `write_class_roster(...)` composes that writer. This closes
+the check-then-replace race even when an existing consumer writes the canonical
+roster through the lower-level public path API. Guarded commit holds the lock
+across baseline verification and the internal atomic replacement.
+
+Atomic file replacement remains the durability boundary. Candidate validation,
+stale-state rejection, lock conflicts, and pre-replacement write failures leave
+the prior canonical roster authoritative.
+
+### Ownership boundaries
+
+Guarded roster import changes only Core's canonical `roster.csv` for the target
+class. It does not create or revise:
+
+```text
+class metadata
+school-year state
+Academic Period membership
+standards profiles
+Academic Work Registration
+module work
+module-owned records
+```
+
+Teacher-facing review screens, cancellation prompts, and setup orchestration
+remain suite/module wrapper concerns. Core returns typed data and exceptions and
+does not print or prompt.
+
 ## Student Identity and Display
 
 `student_id` is the canonical identity within a `Roster` and for roster

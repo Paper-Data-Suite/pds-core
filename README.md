@@ -217,6 +217,8 @@ is retained only as a superseded historical design record.
 
 See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md) for the shared roster and workspace contract.
 
+Guarded full-roster import preview and stale-state commit semantics are documented in the same contract and exposed through `pds_core.roster_imports`.
+
 See [`docs/active_scan_contract.md`](docs/active_scan_contract.md) for the
 defined active scan intake, retained source, routing review, failure metadata,
 and provenance contract. Source retention, PDS2 routing and dispatch, immutable
