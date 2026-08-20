@@ -111,7 +111,8 @@ jobs:
           import pathlib
           import tomllib
 
-          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          project = pathlib.Path("pyproject.toml")
+          data = tomllib.loads(project.read_text(encoding="utf-8"))
           print(data["project"]["version"])
           '@).Trim()
           if ($LASTEXITCODE -ne 0 -or -not $version) {
