@@ -198,6 +198,20 @@ For local sibling-repository development:
 python -m pip install -e "../pds-core"
 ```
 
+## Development Validation
+
+Run the complete local validation sequence from the repository root with:
+
+```powershell
+.\run_tests.ps1
+```
+
+GitHub Actions also validates pull requests and pushes to `main` on Windows and
+Ubuntu across Python 3.11 through 3.14. The CI matrix runs the complete pytest
+suite, Ruff, strict mypy, and repository-hygiene checks. A separate bounded job
+builds the wheel and source distribution and verifies the installed wheel from
+outside the source checkout.
+
 Version 0.6.1 is distributed through the GitHub Release. This release does not
 publish to PyPI.
 
