@@ -347,6 +347,18 @@ The entry-point name must equal the returned profile's `module_id`. Current
 Core fixtures are architecture fixtures, not proof that ScoreForm, Quillan,
 Concord, or Portia exposes a production publication entry point.
 
+Strict publication-producer discovery remains fail-closed for runtime registry
+construction. A health-check consumer that needs isolated observations must use
+`pds_core.provider_diagnostics`: metadata inspection does not load producer
+code, while explicit diagnosis validates candidates independently, checks the
+active Publication Record schema, preserves duplicate producer observations,
+and requires no workspace or manifest access. It does not replace
+`PublicationProducerRegistry` or authorize publication.
+
+See [Core Provider Diagnostics](provider_diagnostics.md) for the shared routing
+and publication diagnostic model, privacy limits, and the distinction between
+Core provider compatibility and suite release qualification.
+
 ## Producer and consumer checklists
 
 An academic producer uses stable Core identities; defines native, manifest,

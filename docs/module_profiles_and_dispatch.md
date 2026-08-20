@@ -77,6 +77,24 @@ provider, type, validation, identity, and duplicate failures raise
 omitted. A QR `module_id` is used only for exact registry lookup and is never
 transformed into a Python import path or workspace search.
 
+## Provider diagnostics versus runtime discovery
+
+Runtime discovery above remains deliberately fail-closed. Health checks that
+need to describe a partially broken installed environment must use the separate
+`pds_core.provider_diagnostics` surface instead of weakening
+`discover_module_profiles()` or constructing a partial `ModuleRegistry`.
+
+Metadata-only inspection does not load optional provider code. Explicit provider
+diagnosis loads and calls each candidate independently, validates the returned
+`ModuleProfile`, checks the entry-point/profile identity and active Core routing
+contract, and reports duplicate routing identities without hiding the candidate
+metadata that caused the conflict. Provider diagnostics require no workspace and
+do not read routes, retained scans, rosters, or module evidence.
+
+See [Core Provider Diagnostics](provider_diagnostics.md) for the shared routing
+and publication diagnostic model, stable diagnostic codes, metadata bounds,
+privacy rules, and suite/Core ownership boundary.
+
 ## Dispatch order and boundaries
 
 `dispatch_route(...)` performs these steps in order:
