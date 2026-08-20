@@ -14,6 +14,8 @@ class LocalOpenError(Exception):
 
 def _open_on_windows(path: Path) -> None:
     """Open *path* using the Windows shell."""
+    if sys.platform != "win32":
+        raise OSError("Windows shell opener is unavailable on this platform.")
     os.startfile(path)
 
 

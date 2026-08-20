@@ -1,0 +1,283 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  validation:
+    name: Validation (${{ matrix.os }}, Python ${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13", "3.14"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install development environment
+        run: python -m pip install -e ".[dev]"
+
+      - name: Test
+        shell: pwsh
+        run: |
+          $baseTemp = Join-Path $env:RUNNER_TEMP "pytest"
+          $cacheDir = Join-Path $env:RUNNER_TEMP "pytest-cache"
+          python -m pytest --basetemp "$baseTemp" -o "cache_dir=$cacheDir"
+
+      - name: Lint
+        env:
+          RUFF_CACHE_DIR: ${{ runner.temp }}/ruff-cache
+        run: python -m ruff check .
+
+      - name: Type-check
+        shell: pwsh
+        run: |
+          $cacheDir = Join-Path $env:RUNNER_TEMP "mypy-cache"
+          python -m mypy --cache-dir "$cacheDir" .
+
+      - name: Remove known editable-install residue
+        shell: pwsh
+        run: |
+          @(
+            "build",
+            "dist",
+            "pds_core.egg-info"
+          ) | ForEach-Object {
+            if (Test-Path -LiteralPath $_) {
+              Remove-Item -Recurse -Force -LiteralPath $_
+            }
+          }
+
+      - name: Verify repository hygiene
+        shell: pwsh
+        run: |
+          git diff --check
+          if ($LASTEXITCODE -ne 0) {
+            throw "git diff --check failed."
+          }
+
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Validation modified tracked files."
+          }
+
+          git diff --cached --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Validation modified the Git index."
+          }
+
+          $residue = git status --porcelain --untracked-files=all
+          if ($residue) {
+            $residue
+            throw "Validation left unexpected repository residue."
+          }
+
+  package-smoke:
+    name: Package smoke (ubuntu-latest, Python 3.11)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tooling
+        run: python -m pip install build twine
+
+      - name: Configure package-smoke paths
+        shell: pwsh
+        run: |
+          $version = (python -c @'
+          import pathlib
+          import tomllib
+
+          project = pathlib.Path("pyproject.toml")
+          data = tomllib.loads(project.read_text(encoding="utf-8"))
+          print(data["project"]["version"])
+          '@).Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $version) {
+            throw "Could not read the source package version."
+          }
+
+          $dist = Join-Path $env:RUNNER_TEMP "dist"
+          $venv = Join-Path $env:RUNNER_TEMP "wheel-venv"
+          $smoke = Join-Path $env:RUNNER_TEMP "installed-smoke"
+          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          New-Item -ItemType Directory -Force -Path $smoke | Out-Null
+
+          "PDS_CORE_SOURCE_VERSION=$version" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_DIST=$dist" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_WHEEL_VENV=$venv" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_SMOKE_DIR=$smoke" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build distributions
+        shell: pwsh
+        run: python -m build --outdir "$env:PDS_CORE_DIST"
+
+      - name: Validate distributions
+        shell: pwsh
+        run: |
+          python -m twine check "$env:PDS_CORE_DIST/*"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Twine validation failed."
+          }
+
+          $wheels = @(
+            Get-ChildItem -LiteralPath $env:PDS_CORE_DIST -Filter "*.whl" -File
+          )
+          $sdists = @(
+            Get-ChildItem -LiteralPath $env:PDS_CORE_DIST -Filter "*.tar.gz" -File
+          )
+
+          if ($wheels.Count -ne 1) {
+            throw "Expected exactly one Core wheel; found $($wheels.Count)."
+          }
+          if ($sdists.Count -ne 1) {
+            throw "Expected exactly one Core source distribution; found $($sdists.Count)."
+          }
+
+          $expectedWheel = "pds_core-$env:PDS_CORE_SOURCE_VERSION-py3-none-any.whl"
+          $expectedSdist = "pds_core-$env:PDS_CORE_SOURCE_VERSION.tar.gz"
+          if ($wheels[0].Name -ne $expectedWheel) {
+            throw "Unexpected wheel filename: $($wheels[0].Name)"
+          }
+          if ($sdists[0].Name -ne $expectedSdist) {
+            throw "Unexpected source distribution filename: $($sdists[0].Name)"
+          }
+
+          "PDS_CORE_WHEEL=$($wheels[0].FullName)" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install built wheel in clean environment
+        shell: pwsh
+        run: |
+          python -m venv "$env:PDS_CORE_WHEEL_VENV"
+          $venvPython = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/python"
+          & $venvPython -m pip install "$env:PDS_CORE_WHEEL"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Built wheel installation failed."
+          }
+          & $venvPython -m pip check
+          if ($LASTEXITCODE -ne 0) {
+            throw "Installed wheel failed pip check."
+          }
+
+      - name: Verify installed wheel outside source checkout
+        shell: pwsh
+        run: |
+          $venvPython = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/python"
+          $venvPdsCore = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/pds-core"
+          $verifyScript = Join-Path $env:RUNNER_TEMP "verify-installed-core.py"
+
+          @'
+          import importlib.metadata
+          import os
+          from pathlib import Path
+
+          import pds_core
+
+          expected = os.environ["PDS_CORE_SOURCE_VERSION"]
+          installed = importlib.metadata.version("pds-core")
+          if installed != expected:
+              raise SystemExit(
+                  f"installed distribution version {installed!r} != source version {expected!r}"
+              )
+          if pds_core.__version__ != expected:
+              raise SystemExit(
+                  f"pds_core.__version__ {pds_core.__version__!r} != {expected!r}"
+              )
+
+          package_path = Path(pds_core.__file__).resolve()
+          checkout = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          try:
+              package_path.relative_to(checkout)
+          except ValueError:
+              pass
+          else:
+              raise SystemExit(
+                  f"installed import resolved inside source checkout: {package_path}"
+              )
+          '@ | Set-Content -LiteralPath $verifyScript -Encoding utf8NoBOM
+
+          Push-Location $env:PDS_CORE_SMOKE_DIR
+          try {
+            & $venvPython $verifyScript
+            if ($LASTEXITCODE -ne 0) {
+              throw "Installed package verification failed."
+            }
+
+            & $venvPdsCore --help | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+              throw "Installed pds-core --help smoke failed."
+            }
+
+            $residue = Get-ChildItem -LiteralPath $env:PDS_CORE_SMOKE_DIR -Force
+            if ($residue) {
+              $residue
+              throw "Installed-package smoke created unexpected working-directory state."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+      - name: Remove known build residue
+        shell: pwsh
+        run: |
+          @(
+            "build",
+            "dist",
+            "pds_core.egg-info"
+          ) | ForEach-Object {
+            if (Test-Path -LiteralPath $_) {
+              Remove-Item -Recurse -Force -LiteralPath $_
+            }
+          }
+
+      - name: Verify repository hygiene
+        shell: pwsh
+        run: |
+          git diff --check
+          if ($LASTEXITCODE -ne 0) {
+            throw "git diff --check failed."
+          }
+
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Package smoke modified tracked files."
+          }
+
+          git diff --cached --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Package smoke modified the Git index."
+          }
+
+          $residue = git status --porcelain --untracked-files=all
+          if ($residue) {
+            $residue
+            throw "Package smoke left unexpected repository residue."
+          }

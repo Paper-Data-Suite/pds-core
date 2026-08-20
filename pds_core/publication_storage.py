@@ -121,6 +121,12 @@ def resolve_publication_manifest_path(
         raise PublicationManifestIntegrityError(
             f"Could not safely resolve publication manifest {candidate}: {error}"
         ) from error
+    expected_work_root = module_work_dir(resolved_root, record.work)
+    if resolved_work_root != expected_work_root:
+        raise PublicationManifestIntegrityError(
+            "Referenced module work root does not resolve to its canonical "
+            "workspace path."
+        )
     if not _is_relative_to(resolved_work_root, resolved_root):
         raise PublicationManifestIntegrityError(
             "Referenced module work root resolves outside the workspace."
