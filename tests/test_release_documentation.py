@@ -222,3 +222,30 @@ def test_module_operations_contract_documentation_is_explicit() -> None:
     assert "does not invoke its readiness or" in diagnostics
     assert "module_operations.provider_failed" in diagnostics
     assert "docs/module_operations.md" in readme
+
+def test_guarded_roster_cli_documentation_is_explicit() -> None:
+    roster = (PROJECT_ROOT / "docs" / "roster_workspace_contract.md").read_text(
+        encoding="utf-8"
+    )
+    parity = (PROJECT_ROOT / "docs" / "cli_menu_parity.md").read_text(
+        encoding="utf-8"
+    )
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for marker in (
+        "pds-core roster import-preview",
+        "pds-core roster import-commit",
+        "current_state_token",
+        "candidate_state_token",
+        "Both tokens are opaque Core values",
+        "CLI-only",
+        "subprocess integration protocol",
+    ):
+        assert marker in roster
+
+    assert "roster import-preview <class_id> <candidate_csv>" in parity
+    assert "roster import-commit <class_id> <candidate_csv>" in parity
+    assert "CLI-only" in parity
+    assert "## Guarded Roster Import CLI" in readme
+    assert "--expected-current-state-token" in readme
+    assert "--expected-candidate-state-token" in readme

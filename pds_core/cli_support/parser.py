@@ -28,6 +28,10 @@ from pds_core.cli_support.academic_registry import (
     handle_registry_validate,
 )
 from pds_core.cli_support.context import ArgumentParser
+from pds_core.cli_support.roster_imports import (
+    handle_roster_import_commit,
+    handle_roster_import_preview,
+)
 from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.cli_support.profiles import (
     add_profile_metadata_arguments,
@@ -124,6 +128,7 @@ def build_parser() -> argparse.ArgumentParser:
     standards_subparsers = standards.add_subparsers(dest="standards_command")
 
     _add_workspace_parser(subparsers)
+    _add_roster_parser(subparsers)
     _add_academic_parser(subparsers)
     _add_validate_parser(standards_subparsers)
     _add_validate_file_parser(standards_subparsers)
@@ -219,6 +224,53 @@ def _work_filters(parser: argparse.ArgumentParser) -> None:
 def _page(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--limit", type=_positive)
     parser.add_argument("--offset", type=_nonnegative, default=0)
+
+
+def _add_roster_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    roster = subparsers.add_parser(
+        "roster",
+        help="Preview or commit guarded complete-roster imports.",
+        description=(
+            "Direct non-interactive access to Core guarded complete-roster import. "
+            "Preview first, preserve both opaque reviewed-state tokens, then pass "
+            "both tokens explicitly to import-commit."
+        ),
+    )
+    roster_subparsers = roster.add_subparsers(dest="roster_command")
+
+    preview = roster_subparsers.add_parser(
+        "import-preview",
+        help="Validate and preview a complete roster import without writing state.",
+    )
+    preview.add_argument("class_id", type=_identifier)
+    preview.add_argument("candidate_csv")
+    _format(preview)
+    preview.set_defaults(
+        handler=handle_roster_import_preview,
+        load_workspace_library=False,
+    )
+
+    commit = roster_subparsers.add_parser(
+        "import-commit",
+        help="Commit exactly one previously reviewed complete roster import.",
+    )
+    commit.add_argument("class_id", type=_identifier)
+    commit.add_argument("candidate_csv")
+    commit.add_argument(
+        "--expected-current-state-token",
+        required=True,
+        help="Opaque current_state_token returned by import-preview.",
+    )
+    commit.add_argument(
+        "--expected-candidate-state-token",
+        required=True,
+        help="Opaque candidate_state_token returned by import-preview.",
+    )
+    _format(commit)
+    commit.set_defaults(
+        handler=handle_roster_import_commit,
+        load_workspace_library=False,
+    )
 
 
 def _add_academic_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
