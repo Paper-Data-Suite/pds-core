@@ -24,6 +24,7 @@ from pds_core.academic_catalog import (
     AcademicPeriodCatalogQuery,
     AcademicWorkRegistrationCatalogQuery,
     PublicationCatalogQuery,
+    PublicationCatalogState,
     _Source,
     _snapshot,
     load_academic_catalog_metadata,
@@ -1345,15 +1346,22 @@ def test_complete_publication_projection_state_capability_and_pagination_matrix(
             publication_withdrawal_to_dict(withdrawal),
         )
     rebuild_academic_catalog(tmp_path)
+    query_states: tuple[PublicationCatalogState, ...] = (
+        "current",
+        "series_heads",
+        "historical",
+        "withdrawn",
+        "all",
+    )
     states = {
         state: [
             row.publication_id
             for row in query_publication_catalog(
                 tmp_path,
-                PublicationCatalogQuery(state=state),  # type: ignore[arg-type]
+                PublicationCatalogQuery(state=state),
             )
         ]
-        for state in ("current", "series_heads", "historical", "withdrawn", "all")
+        for state in query_states
     }
     assert set(states["current"]) == {current, intervention}
     assert set(states["series_heads"]) == {current, withdrawn_head, intervention}
