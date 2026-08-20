@@ -7,6 +7,13 @@ from typing import Callable, cast
 
 import pytest
 
+from pds_core.module_operations import (
+    MODULE_OPERATIONS_ENTRY_POINT_GROUP,
+    ModuleAttentionReport,
+    ModuleOperationsProfile,
+    ModuleOperationsRequest,
+    ModuleReadinessReport,
+)
 from pds_core.module_profiles import (
     MODULE_PROFILE_ENTRY_POINT_GROUP,
     ModuleDiscoveryError,
@@ -69,6 +76,29 @@ def _publication_profile(
     )
 
 
+def _operations_ready(_request: ModuleOperationsRequest) -> ModuleReadinessReport:
+    return ModuleReadinessReport(evaluation="evaluated", ready=True)
+
+
+def _operations_attention(
+    _request: ModuleOperationsRequest,
+) -> ModuleAttentionReport:
+    return ModuleAttentionReport(evaluation="evaluated")
+
+
+def _operations_profile(
+    module_id: str = "concord",
+    *,
+    contract_versions: frozenset[str] = frozenset({"1"}),
+) -> ModuleOperationsProfile:
+    return ModuleOperationsProfile(
+        module_id=module_id,
+        supported_core_operations_contract_versions=contract_versions,
+        readiness_provider=_operations_ready,
+        attention_provider=_operations_attention,
+    )
+
+
 class FakeEntryPoint:
     def __init__(
         self,
@@ -119,11 +149,13 @@ def _install_entry_points(
     *,
     routing: tuple[FakeEntryPoint, ...] = (),
     publication: tuple[FakeEntryPoint, ...] = (),
+    operations: tuple[FakeEntryPoint, ...] = (),
     fail_group: str | None = None,
 ) -> None:
     group_map = {
         MODULE_PROFILE_ENTRY_POINT_GROUP: routing,
         PUBLICATION_PRODUCER_ENTRY_POINT_GROUP: publication,
+        MODULE_OPERATIONS_ENTRY_POINT_GROUP: operations,
     }
 
     def entry_points(*, group: str | None = None) -> object:
@@ -131,7 +163,7 @@ def _install_entry_points(
             if group == fail_group:
                 raise RuntimeError("metadata secret must not leak")
             return group_map[group]
-        combined = routing + publication
+        combined = routing + publication + operations
         return _SelectableEntryPoints(combined, group_map)
 
     monkeypatch.setattr(
@@ -442,6 +474,12 @@ def test_invalid_profile_and_identity_mismatch_are_distinct(
                 "concord", schema_versions=frozenset({"2"})
             ),
         ),
+        (
+            "module_operations",
+            lambda: _operations_profile(
+                "concord", contract_versions=frozenset({"2"})
+            ),
+        ),
     ],
 )
 def test_active_core_compatibility_failure_is_distinct(
@@ -456,8 +494,10 @@ def test_active_core_compatibility_failure_is_distinct(
     )
     if provider_kind == "routing_module":
         _install_entry_points(monkeypatch, routing=(entry,))
-    else:
+    elif provider_kind == "publication_producer":
         _install_entry_points(monkeypatch, publication=(entry,))
+    else:
+        _install_entry_points(monkeypatch, operations=(entry,))
 
     result = diagnose_core_providers(provider_kind=provider_kind)[0]
 
@@ -598,3 +638,158 @@ def test_metadata_fallback_for_distribution_without_name(
     )[0]
 
     assert row.distribution_name == "fallback-dist"
+
+
+def test_operations_metadata_inspection_does_not_load_or_invoke_capabilities(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = {"readiness": 0, "attention": 0}
+
+    def readiness(_request: ModuleOperationsRequest) -> ModuleReadinessReport:
+        calls["readiness"] += 1
+        raise AssertionError("readiness must not run during profile diagnostics")
+
+    def attention(_request: ModuleOperationsRequest) -> ModuleAttentionReport:
+        calls["attention"] += 1
+        raise AssertionError("attention must not run during profile diagnostics")
+
+    profile = ModuleOperationsProfile(
+        module_id="scoreform",
+        supported_core_operations_contract_versions=frozenset({"1"}),
+        readiness_provider=readiness,
+        attention_provider=attention,
+    )
+    entry = FakeEntryPoint(
+        "scoreform",
+        "scoreform.operations:get_profile",
+        loaded=lambda: profile,
+        distribution_name="pds-scoreform",
+    )
+    _install_entry_points(monkeypatch, operations=(entry,))
+
+    rows = inspect_core_provider_entry_points(provider_kind="module_operations")
+
+    assert [(row.provider_kind, row.entry_point_name) for row in rows] == [
+        ("module_operations", "scoreform")
+    ]
+    assert rows[0].entry_point_group == MODULE_OPERATIONS_ENTRY_POINT_GROUP
+    assert rows[0].distribution_name == "pds-scoreform"
+    assert entry.load_count == 0
+    assert calls == {"readiness": 0, "attention": 0}
+
+    result = diagnose_core_providers(provider_kind="module_operations")[0]
+
+    assert result.code == "provider.valid"
+    assert result.stage == "valid"
+    assert result.validated_profile is profile
+    assert result.profile_validation == "passed"
+    assert result.core_compatibility == "passed"
+    assert calls == {"readiness": 0, "attention": 0}
+
+
+def test_operations_profile_validation_reuses_existing_failure_semantics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    malformed = FakeEntryPoint(
+        "scoreform",
+        "scoreform.operations:get_profile",
+        loaded=lambda: object(),
+    )
+    mismatch = FakeEntryPoint(
+        "quillan",
+        "quillan.operations:get_profile",
+        loaded=lambda: _operations_profile("concord"),
+    )
+    _install_entry_points(
+        monkeypatch,
+        operations=(mismatch, malformed),
+    )
+
+    results = diagnose_core_providers(provider_kind="module_operations")
+
+    assert [result.metadata.entry_point_name for result in results] == [
+        "quillan",
+        "scoreform",
+    ]
+    assert [result.code for result in results] == [
+        "provider.identity_mismatch",
+        "provider.profile_invalid",
+    ]
+
+
+def test_same_identity_across_all_provider_families_is_not_a_conflict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    routing = FakeEntryPoint(
+        "concord",
+        "concord.routing:get_profile",
+        loaded=lambda: _module_profile(),
+    )
+    publication = FakeEntryPoint(
+        "concord",
+        "concord.publication:get_profile",
+        loaded=lambda: _publication_profile(),
+    )
+    operations = FakeEntryPoint(
+        "concord",
+        "concord.operations:get_profile",
+        loaded=lambda: _operations_profile(),
+    )
+    _install_entry_points(
+        monkeypatch,
+        routing=(routing,),
+        publication=(publication,),
+        operations=(operations,),
+    )
+
+    results = diagnose_core_providers()
+
+    assert [
+        (result.metadata.provider_kind, result.code)
+        for result in results
+    ] == [
+        ("routing_module", "provider.valid"),
+        ("publication_producer", "provider.valid"),
+        ("module_operations", "provider.valid"),
+    ]
+    assert all(not result.registry_conflict for result in results)
+
+
+def test_duplicate_operations_identity_is_family_scoped_conflict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    first = FakeEntryPoint(
+        "concord",
+        "a.operations:get_profile",
+        loaded=lambda: _operations_profile(),
+        distribution_name="dist-a",
+    )
+    second = FakeEntryPoint(
+        "concord",
+        "b.operations:get_profile",
+        loaded=lambda: _operations_profile(),
+        distribution_name="dist-b",
+    )
+    routing = FakeEntryPoint(
+        "concord",
+        "concord.routing:get_profile",
+        loaded=lambda: _module_profile(),
+    )
+    _install_entry_points(
+        monkeypatch,
+        routing=(routing,),
+        operations=(second, first),
+    )
+
+    results = diagnose_core_providers()
+
+    assert results[0].metadata.provider_kind == "routing_module"
+    assert results[0].code == "provider.valid"
+    assert [
+        (result.metadata.entry_point_target, result.code)
+        for result in results[1:]
+    ] == [
+        ("a.operations:get_profile", "provider.identity_conflict"),
+        ("b.operations:get_profile", "provider.identity_conflict"),
+    ]
+    assert all(result.registry_conflict for result in results[1:])

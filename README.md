@@ -132,6 +132,16 @@ expected failures. See
 for the public profile, registry, discovery, compatibility, and dispatch
 contract.
 
+Core also defines the separate `paper_data_suite.module_operations` provider
+family for bounded module-owned readiness and teacher-attention reports.
+Metadata/profile inspection reuses Core provider diagnostics and never invokes
+readiness or attention implicitly; capability invocation is explicit and
+failure-isolating. See
+[`docs/module_operations.md`](docs/module_operations.md) for the normative
+contract and [`docs/provider_diagnostics.md`](docs/provider_diagnostics.md) for
+provider-profile diagnostic semantics. Operations-provider presence does not
+imply launchability, routing, publication support, or suite qualification.
+
 PDS Core implements routing failure and resolution schema version `"2"` in
 `pds_core.scan_failure_metadata` and `pds_core.scan_resolution_metadata`.
 Failure files are immutable and created exclusively at

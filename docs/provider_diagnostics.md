@@ -12,7 +12,7 @@ The public module is:
 pds_core.provider_diagnostics
 ```
 
-The initial diagnostic scope contains exactly two provider families:
+The diagnostic scope contains three Core-owned provider families:
 
 ```text
 routing_module
@@ -22,6 +22,10 @@ routing_module
 publication_producer
   paper_data_suite.publication_producers
   PublicationProducerProfile
+
+module_operations
+  paper_data_suite.module_operations
+  ModuleOperationsProfile
 ```
 
 Suite qualification, installed package versions, console scripts, launchability,
@@ -97,11 +101,15 @@ valid
 For a routing provider, compatibility means support for the active
 `CORE_ROUTING_CONTRACT_VERSION`. For a publication producer, compatibility
 means support for the active Core Publication Record schema version declared by
-`PUBLICATION_RECORD_SCHEMA_VERSION`.
+`PUBLICATION_RECORD_SCHEMA_VERSION`. For a module-operations provider,
+compatibility means support for the active
+`MODULE_OPERATIONS_CONTRACT_VERSION`.
 
 The diagnostic path does not perform route dispatch, open a publication
 manifest, evaluate a specific Publication Record, or call module-owned business
-logic beyond the zero-argument profile provider itself.
+logic beyond the zero-argument profile provider itself. In particular,
+diagnosing a `ModuleOperationsProfile` does not invoke its readiness or
+attention capability.
 
 ## Result model
 
@@ -163,8 +171,9 @@ code: provider.identity_conflict
 
 The candidates retain their own entry-point target and owning-distribution
 metadata so a diagnostic consumer can explain the conflict. A module may
-legitimately expose both a routing provider and a publication producer with the
-same `module_id`; identities conflict only within the same Core provider family.
+legitimately expose routing, publication, and module-operations providers with
+the same `module_id`; identities conflict only within the same Core provider
+family.
 
 ## Strict runtime registries remain authoritative
 
@@ -271,10 +280,37 @@ encode suite doctor policy. A missing provider is not automatically an unhealthy
 installed application unless the suite's own release contract says that
 provider is required.
 
-## Relationship to later provider families
+## Module-operations capability invocation is separate
 
-The failure-isolation and bounded-result principles here are intended to be
-reusable by later Core-defined provider contracts. They do not predefine the
-shape or semantics of the separate module-operations provider family. New
-provider families must establish their own contract first and may then reuse
-this diagnostic machinery where appropriate.
+The module-operations provider family is now defined in
+[`module_operations.md`](module_operations.md). Provider diagnostics cover only
+entry-point metadata and zero-argument profile validation.
+
+Actual readiness and attention evaluation is a separate, explicit operation
+through:
+
+```python
+invoke_module_readiness(...)
+invoke_module_attention(...)
+invoke_module_operations(...)
+```
+
+Those calls use their own bounded invocation result codes so a valid profile
+whose module-owned readiness callable later fails is not confused with an
+entry-point/profile load failure.
+
+In particular:
+
+```text
+provider.valid
+!=
+readiness evaluated
+
+provider.valid
+!=
+attention evaluated
+
+module_operations.provider_failed
+!=
+provider.call_failed
+```

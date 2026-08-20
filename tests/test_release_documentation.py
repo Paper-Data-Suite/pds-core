@@ -191,3 +191,34 @@ def test_documented_registration_and_profile_examples(tmp_path: Path) -> None:
         {"assignment_v1"}
     )
     assert intervention.supported_academic_work_contract_versions == frozenset()
+
+
+def test_module_operations_contract_documentation_is_explicit() -> None:
+    operations_path = PROJECT_ROOT / "docs" / "module_operations.md"
+    diagnostics_path = PROJECT_ROOT / "docs" / "provider_diagnostics.md"
+    assert operations_path.is_file()
+    assert diagnostics_path.is_file()
+
+    operations = operations_path.read_text(encoding="utf-8")
+    diagnostics = diagnostics_path.read_text(encoding="utf-8")
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for marker in (
+        "paper_data_suite.module_operations",
+        'MODULE_OPERATIONS_CONTRACT_VERSION = "1"',
+        "successful empty attention",
+        "module_operations.capability_absent",
+        "module_operations.evaluation_unavailable",
+        "module_operations.evaluated",
+        "module_operations.provider_failed",
+        "module_operations.result_invalid",
+        "operations provider present",
+        "Grouping-signal separation",
+    ):
+        assert marker in operations
+
+    assert "module_operations" in diagnostics
+    assert "ModuleOperationsProfile" in diagnostics
+    assert "does not invoke its readiness or" in diagnostics
+    assert "module_operations.provider_failed" in diagnostics
+    assert "docs/module_operations.md" in readme
