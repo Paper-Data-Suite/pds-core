@@ -8,6 +8,12 @@ from importlib import metadata
 from typing import Final, Literal, TypeAlias
 
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
+from pds_core.module_operations import (
+    MODULE_OPERATIONS_CONTRACT_VERSION,
+    MODULE_OPERATIONS_ENTRY_POINT_GROUP,
+    ModuleOperationsProfile,
+    validate_module_operations_profile,
+)
 from pds_core.module_profiles import (
     CORE_ROUTING_CONTRACT_VERSION,
     MODULE_PROFILE_ENTRY_POINT_GROUP,
@@ -22,7 +28,11 @@ from pds_core.publication_compatibility import (
 from pds_core.publication_records import PUBLICATION_RECORD_SCHEMA_VERSION
 
 
-ProviderKind: TypeAlias = Literal["routing_module", "publication_producer"]
+ProviderKind: TypeAlias = Literal[
+    "routing_module",
+    "publication_producer",
+    "module_operations",
+]
 ProviderDiagnosticStage: TypeAlias = Literal[
     "metadata",
     "load",
@@ -45,15 +55,19 @@ ProviderDiagnosticCode: TypeAlias = Literal[
     "provider.identity_conflict",
     "provider.valid",
 ]
-ProviderProfile: TypeAlias = ModuleProfile | PublicationProducerProfile
+ProviderProfile: TypeAlias = (
+    ModuleProfile | PublicationProducerProfile | ModuleOperationsProfile
+)
 
 _PROVIDER_KINDS: Final[tuple[ProviderKind, ...]] = (
     "routing_module",
     "publication_producer",
+    "module_operations",
 )
 _PROVIDER_GROUPS: Final[dict[ProviderKind, str]] = {
     "routing_module": MODULE_PROFILE_ENTRY_POINT_GROUP,
     "publication_producer": PUBLICATION_PRODUCER_ENTRY_POINT_GROUP,
+    "module_operations": MODULE_OPERATIONS_ENTRY_POINT_GROUP,
 }
 _PROVIDER_KIND_ORDER: Final[dict[ProviderKind, int]] = {
     kind: index for index, kind in enumerate(_PROVIDER_KINDS)
@@ -457,11 +471,18 @@ def _validate_profile(provider_kind: ProviderKind, value: object) -> ProviderPro
             raise TypeError("routing provider returned a non-ModuleProfile value")
         return validate_module_profile(value)
 
-    if not isinstance(value, PublicationProducerProfile):
+    if provider_kind == "publication_producer":
+        if not isinstance(value, PublicationProducerProfile):
+            raise TypeError(
+                "publication provider returned a non-PublicationProducerProfile value"
+            )
+        return validate_publication_producer_profile(value)
+
+    if not isinstance(value, ModuleOperationsProfile):
         raise TypeError(
-            "publication provider returned a non-PublicationProducerProfile value"
+            "operations provider returned a non-ModuleOperationsProfile value"
         )
-    return validate_publication_producer_profile(value)
+    return validate_module_operations_profile(value)
 
 
 def _profile_supports_active_core(
@@ -476,11 +497,19 @@ def _profile_supports_active_core(
             in profile.supported_core_routing_contract_versions
         )
 
-    if not isinstance(profile, PublicationProducerProfile):
+    if provider_kind == "publication_producer":
+        if not isinstance(profile, PublicationProducerProfile):
+            return False
+        return (
+            PUBLICATION_RECORD_SCHEMA_VERSION
+            in profile.supported_core_publication_schema_versions
+        )
+
+    if not isinstance(profile, ModuleOperationsProfile):
         return False
     return (
-        PUBLICATION_RECORD_SCHEMA_VERSION
-        in profile.supported_core_publication_schema_versions
+        MODULE_OPERATIONS_CONTRACT_VERSION
+        in profile.supported_core_operations_contract_versions
     )
 
 
@@ -490,9 +519,14 @@ def _incompatibility_message(provider_kind: ProviderKind) -> str:
             "Validated provider does not support active Core routing contract "
             f"{CORE_ROUTING_CONTRACT_VERSION!r}."
         )
+    if provider_kind == "publication_producer":
+        return (
+            "Validated provider does not support active Core Publication Record "
+            f"schema {PUBLICATION_RECORD_SCHEMA_VERSION!r}."
+        )
     return (
-        "Validated provider does not support active Core Publication Record "
-        f"schema {PUBLICATION_RECORD_SCHEMA_VERSION!r}."
+        "Validated provider does not support active Core module-operations "
+        f"contract {MODULE_OPERATIONS_CONTRACT_VERSION!r}."
     )
 
 
