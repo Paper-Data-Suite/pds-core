@@ -285,6 +285,37 @@ of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
 See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the Phase 1 suite-shell API audit, evidence-backed v0.6.2 scope reductions, and downstream dependency map.
 
+## Guarded Roster Import CLI
+
+Core's guarded complete-roster import service is available directly from the
+non-interactive CLI. Preview first:
+
+```powershell
+pds-core --workspace "C:\Path\To\Paper Data Suite" roster import-preview english10_p2 .\roster.csv
+```
+
+The preview is read-only and returns two opaque values:
+
+```text
+current_state_token
+candidate_state_token
+```
+
+After reviewing the diff, pass **both exact tokens** to the explicit commit:
+
+```powershell
+pds-core --workspace "C:\Path\To\Paper Data Suite" roster import-commit english10_p2 .\roster.csv `
+  --expected-current-state-token "<current_state_token>" `
+  --expected-candidate-state-token "<candidate_state_token>"
+```
+
+Use `--format json` on either command for deterministic machine-readable
+output. If the candidate or canonical roster changes after preview, create a
+new preview; Core does not bypass or silently refresh either guard. These are
+advanced/direct CLI operations and do not add a teacher-facing roster menu.
+See [`docs/roster_workspace_contract.md`](docs/roster_workspace_contract.md)
+for the complete contract.
+
 ## Standards CLI
 
 Teachers can type the module shortcut to open the current pds-core menu:

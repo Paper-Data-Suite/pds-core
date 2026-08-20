@@ -262,6 +262,68 @@ Atomic file replacement remains the durability boundary. Candidate validation,
 stale-state rejection, lock conflicts, and pre-replacement write failures leave
 the prior canonical roster authoritative.
 
+### Direct guarded-import CLI
+
+Core exposes the #187 application service directly for scripting, automation,
+diagnostics, development, recovery, and release acceptance through:
+
+```text
+pds-core roster import-preview <class_id> <candidate_csv> [--format text|json]
+
+pds-core roster import-commit <class_id> <candidate_csv>
+  --expected-current-state-token <token>
+  --expected-candidate-state-token <token>
+  [--format text|json]
+```
+
+The ordinary workflow is:
+
+```text
+import-preview
+  -> review counts and durable student IDs
+  -> preserve current_state_token unchanged
+  -> preserve candidate_state_token unchanged
+  -> import-commit with both tokens
+```
+
+The two tokens are deliberately different guards:
+
+```text
+current_state_token
+  protects the exact canonical roster state reviewed by the caller
+
+candidate_state_token
+  protects the exact validated candidate roster state reviewed by the caller
+```
+
+Both tokens are opaque Core values. CLI callers must not construct, parse,
+shorten, normalize, or recalculate them. Editing or replacing the candidate CSV
+after preview requires a new preview. A canonical roster change after preview
+also requires a new preview. `import-commit` never silently creates a fresh
+preview or accepts a new baseline.
+
+`import-preview` is read-only: it does not initialize the workspace, create a
+class folder, create a roster, create a roster lock, or load the standards
+library merely to produce a diff. The explicit candidate CSV may be outside the
+workspace.
+
+Text and JSON output are intentionally privacy-minimal. They expose aggregate
+counts, durable `student_id` values needed to review the diff, and the two
+state tokens; they do not dump complete roster rows or optional student fields.
+Handled CLI errors likewise use bounded stable messages rather than raw
+tracebacks or exception representations.
+
+Successful commands return exit `0`, handled roster/import failures return
+exit `1`, and argparse usage failures such as a missing required commit token
+return exit `2`. `--workspace` remains the existing invocation-scoped Core
+override and is not saved by these commands.
+
+These direct commands are **CLI-only** under Core's directional menu-parity
+policy. They do not create a new teacher-facing Core roster/setup menu. A suite
+or sibling application that needs guarded roster import should call the public
+`pds_core.roster_imports` Python service directly rather than using this CLI as
+a subprocess integration protocol.
+
 ### Ownership boundaries
 
 Guarded roster import changes only Core's canonical `roster.csv` for the target

@@ -131,6 +131,8 @@ their absence from the teacher menu is not a defect:
 
 | CLI route | Handler | Purpose / safety | Class |
 | --- | --- | --- | --- |
+| `roster import-preview <class_id> <candidate_csv> [--format text|json]` | `handle_roster_import_preview` -> `plan_roster_import` | Read-only guarded complete-roster review. Emits deterministic bounded counts, durable student IDs, and both opaque reviewed-state tokens without loading the standards library or creating canonical state. | CLI-only |
+| `roster import-commit <class_id> <candidate_csv> --expected-current-state-token ... --expected-candidate-state-token ... [--format text|json]` | `handle_roster_import_commit` -> `commit_roster_import` | Explicit guarded complete-roster commit. Requires both reviewed tokens; candidate/canonical changes and lock conflicts fail closed; Core retains atomic-write ownership. | CLI-only |
 | `standards validate-file <path>` | `handle_standards_validate_file` | Validate an external full-library file without workspace writes. | CLI-only |
 | `standards replace <standard_id> ...` | `handle_standards_replace` | Full-record replacement; one atomic library write. | CLI-only |
 | `standards upsert <standard_id> ...` | `handle_standards_upsert` | Explicit add-or-replace; one atomic library write. | CLI-only |
