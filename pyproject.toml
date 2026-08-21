@@ -20,9 +20,11 @@ core = "pds_core.core_menu:main"
 
 [project.optional-dependencies]
 dev = [
+    "build",
     "pytest",
     "ruff",
-    "mypy"
+    "mypy",
+    "packaging>=24",
 ]
 
 [tool.pytest.ini_options]

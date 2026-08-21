@@ -281,3 +281,92 @@ jobs:
             $residue
             throw "Package smoke left unexpected repository residue."
           }
+  released-consumer-compatibility:
+    name: Released consumer compatibility (ubuntu-latest, Python 3.11)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install qualification tooling
+        run: python -m pip install -e ".[dev]"
+
+      - name: Configure qualification paths
+        shell: pwsh
+        run: |
+          $qualificationDir = Join-Path $env:RUNNER_TEMP "released-consumer-qualification"
+          New-Item -ItemType Directory -Force -Path $qualificationDir | Out-Null
+          "PDS_CORE_QUALIFICATION_DIR=$qualificationDir" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_QUALIFICATION_WHEEL=$(Join-Path $qualificationDir 'pds_core-0.6.2-py3-none-any.whl')" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_QUALIFICATION_EVIDENCE=$(Join-Path $qualificationDir 'released-consumer-qualification.json')" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build provisional Core 0.6.2 candidate
+        shell: pwsh
+        run: |
+          python scripts/build_v062_provisional_candidate.py `
+            --outdir "$env:PDS_CORE_QUALIFICATION_DIR"
+
+      - name: Qualify exact released consumers
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          python scripts/qualify_released_consumers.py `
+            --core-wheel "$env:PDS_CORE_QUALIFICATION_WHEEL" `
+            --evidence "$env:PDS_CORE_QUALIFICATION_EVIDENCE"
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: released-consumer-qualification
+          path: |
+            ${{ runner.temp }}/released-consumer-qualification/pds_core-0.6.2-provisional-evidence.json
+            ${{ runner.temp }}/released-consumer-qualification/released-consumer-qualification.json
+          if-no-files-found: warn
+
+      - name: Remove known editable-install residue
+        if: always()
+        shell: pwsh
+        run: |
+          @(
+            "build",
+            "dist",
+            "pds_core.egg-info"
+          ) | ForEach-Object {
+            if (Test-Path -LiteralPath $_) {
+              Remove-Item -Recurse -Force -LiteralPath $_
+            }
+          }
+
+      - name: Verify repository hygiene
+        if: always()
+        shell: pwsh
+        run: |
+          git diff --check
+          if ($LASTEXITCODE -ne 0) {
+            throw "git diff --check failed."
+          }
+
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Released-consumer qualification modified tracked files."
+          }
+
+          git diff --cached --exit-code
+          if ($LASTEXITCODE -ne 0) {
+            throw "Released-consumer qualification modified the Git index."
+          }
+
+          $residue = git status --porcelain --untracked-files=all
+          if ($residue) {
+            $residue
+            throw "Released-consumer qualification left unexpected repository residue."
+          }
