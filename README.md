@@ -171,22 +171,25 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.1 is the supported pre-1.0 Core release. It preserves the PDS2
+Version 0.6.2 is the supported pre-1.0 Core release once the #196 post-merge
+release gate completes. It preserves the PDS2
 routing, Academic Period, reportable-data publication, compatibility, catalog,
-and audit surfaces and adds the neutral `grouping_signal_set_v1` interchange.
-Pre-1.0 releases may make intentional breaking changes, and only the latest
-supported minor line receives fixes unless otherwise documented.
+and `grouping_signal_set_v1` surfaces while adding guarded full-roster import,
+failure-isolating Core provider diagnostics, and the neutral version-1
+`paper_data_suite.module_operations` contract. Pre-1.0 releases may make
+intentional breaking changes, and only the latest supported minor line receives
+fixes unless otherwise documented.
 
 ## Installation
 
-PDS Core v0.6.1 requires Python 3.11 or newer. See the
-[v0.6.1 release notes](docs/releases/v0.6.1.md) for compatibility details and
+PDS Core v0.6.2 requires Python 3.11 or newer. See the
+[v0.6.2 release notes](docs/releases/v0.6.2.md) for compatibility details and
 release qualification boundaries.
 
 Install the verified wheel attached to the GitHub Release:
 
 ```powershell
-python -m pip install .\pds_core-0.6.1-py3-none-any.whl
+python -m pip install .\pds_core-0.6.2-py3-none-any.whl
 python -m pip check
 ```
 
@@ -200,6 +203,13 @@ Consumers that require `grouping_signal_set_v1` must declare:
 
 ```text
 pds-core>=0.6.1,<0.7
+```
+
+Consumers that require the guarded roster-import, provider-diagnostics, or
+module-operations surfaces added in v0.6.2 should declare:
+
+```text
+pds-core>=0.6.2,<0.7
 ```
 
 For local sibling-repository development:
@@ -222,8 +232,8 @@ suite, Ruff, strict mypy, and repository-hygiene checks. A separate bounded job
 builds the wheel and source distribution and verifies the installed wheel from
 outside the source checkout.
 
-Version 0.6.1 is distributed through the GitHub Release. This release does not
-publish to PyPI.
+Version 0.6.2 is distributed through the GitHub Release after final #196
+qualification. This release does not publish to PyPI.
 
 Active implementation guidance begins with
 [`docs/pds2_module_integration.md`](docs/pds2_module_integration.md). The
@@ -283,7 +293,7 @@ architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
 of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
-See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the Phase 1 suite-shell API audit, evidence-backed v0.6.2 scope reductions, and downstream dependency map.
+See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the Phase 1 suite-shell API audit, evidence-backed v0.6.2 scope reductions, and downstream dependency map. See [`docs/releases/v0.6.2.md`](docs/releases/v0.6.2.md) for the active release scope and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
 
 ## Guarded Roster Import CLI
 

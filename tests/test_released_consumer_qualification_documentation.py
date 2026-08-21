@@ -26,7 +26,8 @@ def test_ci_has_isolated_released_consumer_qualification_job() -> None:
         encoding="utf-8"
     )
     assert "released-consumer-compatibility:" in workflow
-    assert "scripts/build_v062_provisional_candidate.py" in workflow
+    assert "scripts/build_v062_provisional_candidate.py" not in workflow
+    assert "python -m build --wheel" in workflow
     assert "scripts/qualify_released_consumers.py" in workflow
     assert "GITHUB_TOKEN: ${{ github.token }}" in workflow
     assert "actions/upload-artifact@v4" in workflow

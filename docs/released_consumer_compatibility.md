@@ -83,7 +83,7 @@ each exact released consumer accepts candidate Core `0.6.2`. It also validates:
 Normal `pytest` validation remains offline. Network access is reserved for the
 explicit released-artifact qualification path added by #195.
 
-## Provisional candidate construction
+## Historical #195 provisional candidate construction
 
 Use:
 
@@ -109,6 +109,10 @@ The builder:
 
 The repository's committed package version remains `0.6.1` throughout #195.
 The actual version bump belongs to #196.
+
+After #196 changes tracked package metadata to `0.6.2`, this provisional builder
+is historical #195 tooling and must not be used to construct the release
+candidate. #196 uses the repository's normal tracked-version build path.
 
 The provisional evidence records only:
 
@@ -206,18 +210,21 @@ output.
 ### CI boundary
 
 The ordinary validation and package-smoke jobs stay offline with respect to
-sibling release artifacts. A dedicated released-consumer compatibility job may
-perform the explicit networked qualification on Python 3.11 using the same
-provisional candidate builder and qualification runner. Its evidence is a CI
-artifact, not a release checksum declaration.
+sibling release artifacts. During #195, the dedicated released-consumer job
+used the provisional candidate builder. After #196 commits tracked version
+`0.6.2`, that job must use the normal tracked-version build (`python -m build
+--wheel`) and pass those exact bytes to the same qualification runner. Its
+evidence remains a CI artifact, not a release checksum declaration.
 
 ## Handoff to #196
 
 The qualification runner accepts an explicit Core wheel and never rebuilds it.
 That same command is therefore the required handoff to #196. After #196 commits
-the real `0.6.2` package version and builds the exact final candidate wheel, it
-must rerun this qualification against those exact bytes. A passing provisional
-#195 wheel is not a substitute for that final run.
+the real `0.6.2` package version, its normal tracked-version build supplies the
+exact candidate wheel to this qualifier. The qualifier is run once on the
+release-preparation branch and again on the exact wheel rebuilt from the merged
+release-preparation commit. A passing provisional #195 wheel is not a substitute
+for either final-release run.
 
 After Core v0.6.2 is released, `pds-paper-data-suite#38` owns exact suite
 authentication/adoption of the released artifact before the suite's 12b
