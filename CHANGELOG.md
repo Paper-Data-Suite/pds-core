@@ -11,6 +11,42 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-08-21
+
+### Added
+
+- Added guarded full-roster import preview/diff/commit with exact `student_id`
+  identity, explicit additions/changes/removals, opaque reviewed-state tokens,
+  stale candidate/canonical-state rejection, per-roster write coordination, and
+  atomic complete replacement.
+- Added deterministic noninteractive `pds-core roster import-preview` and
+  `pds-core roster import-commit` commands over the public guarded import
+  service without adding a duplicate teacher-menu workflow.
+- Added failure-isolating diagnostics for Core-owned routing, publication, and
+  module-operations providers while preserving strict runtime registries.
+- Added the version-`"1"` `paper_data_suite.module_operations` provider contract
+  with distinct readiness and attention capabilities, bounded privacy-minimal
+  results, and opaque owner-routed action references.
+- Added authenticated exact released-consumer qualification for ScoreForm
+  0.10.0, Quillan 0.9.0, Concord 0.2.0, Meridian 0.1.1, and Vitrine 0.2.0.
+
+### Changed
+
+- Modernized package license metadata to the SPDX/PEP 639 form while retaining
+  the MIT license and packaged `LICENSE` file.
+- Final-release CI builds the tracked v0.6.2 wheel normally before invoking the
+  exact-wheel released-consumer qualifier; #195's temporary version-substitution
+  builder remains provisional historical tooling only.
+
+### Migration
+
+- Upgrading from v0.6.1 requires no workspace, path, or schema migration. New
+  roster-import and provider operations occur only through explicit calls;
+  existing Core 0.6 records retain their meanings and locations.
+- Existing consumers using established Core 0.6 APIs may continue to declare
+  `pds-core>=0.6,<0.7`. Consumers that require a new v0.6.2 API should use an
+  appropriate `>=0.6.2,<0.7` floor.
+
 ## [0.6.1] - 2026-08-18
 
 ### Added

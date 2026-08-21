@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pds-core"
-version = "0.6.1"
+version = "0.6.2"
 description = "Shared contracts and infrastructure for Paper Data Suite modules."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Stephen Severino" }
 ]
@@ -25,6 +26,7 @@ dev = [
     "ruff",
     "mypy",
     "packaging>=24",
+    "twine",
 ]
 
 [tool.pytest.ini_options]

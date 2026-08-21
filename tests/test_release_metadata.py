@@ -17,13 +17,13 @@ def project_metadata() -> dict[str, object]:
         return tomllib.load(pyproject_file)
 
 
-def test_release_version_declarations_match_v061() -> None:
+def test_release_version_declarations_match_v062() -> None:
     metadata = project_metadata()
     project = metadata["project"]
 
     assert isinstance(project, dict)
-    assert project["version"] == "0.6.1"
-    assert pds_core.__version__ == "0.6.1"
+    assert project["version"] == "0.6.2"
+    assert pds_core.__version__ == "0.6.2"
     assert pds_core.__version__ == project["version"]
 
 
@@ -33,7 +33,8 @@ def test_project_identity_and_runtime_metadata_remain_stable() -> None:
     assert isinstance(project, dict)
     assert project["name"] == "pds-core"
     assert project["requires-python"] == ">=3.11"
-    assert project["license"] == {"text": "MIT"}
+    assert project["license"] == "MIT"
+    assert project["license-files"] == ["LICENSE"]
     assert project["dependencies"] == []
 
 
@@ -42,7 +43,7 @@ def test_setuptools_build_backend_is_explicit() -> None:
 
     assert isinstance(build_system, dict)
     assert build_system["build-backend"] == "setuptools.build_meta"
-    assert "setuptools>=61" in build_system["requires"]
+    assert "setuptools>=77" in build_system["requires"]
 
 
 def test_console_scripts_remain_stable() -> None:

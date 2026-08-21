@@ -171,6 +171,15 @@ jobs:
 
           "PDS_CORE_WHEEL=$($wheels[0].FullName)" |
             Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PDS_CORE_SDIST=$($sdists[0].FullName)" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Inspect exact v0.6.2 release artifacts
+        shell: pwsh
+        run: |
+          python scripts/verify_v062_release_artifacts.py `
+            --wheel "$env:PDS_CORE_WHEEL" `
+            --sdist "$env:PDS_CORE_SDIST"
 
       - name: Install built wheel in clean environment
         shell: pwsh
@@ -245,6 +254,26 @@ jobs:
             Pop-Location
           }
 
+      - name: Run installed v0.6.2 acceptance
+        shell: pwsh
+        run: |
+          $venvPython = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/python"
+          $venvCore = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/core"
+          Push-Location $env:PDS_CORE_SMOKE_DIR
+          try {
+            & $venvPython "$env:GITHUB_WORKSPACE/scripts/verify_v062_installed_acceptance.py"
+            if ($LASTEXITCODE -ne 0) {
+              throw "Installed v0.6.2 acceptance failed."
+            }
+            & $venvCore --help | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+              throw "Installed core --help smoke failed."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
       - name: Remove known build residue
         shell: pwsh
         run: |
@@ -307,11 +336,22 @@ jobs:
           "PDS_CORE_QUALIFICATION_EVIDENCE=$(Join-Path $qualificationDir 'released-consumer-qualification.json')" |
             Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Build provisional Core 0.6.2 candidate
+      - name: Verify tracked Core v0.6.2 release identity
         shell: pwsh
         run: |
-          python scripts/build_v062_provisional_candidate.py `
-            --outdir "$env:PDS_CORE_QUALIFICATION_DIR"
+          $projectVersion = (python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])").Trim()
+          $runtimeVersion = (python -c "import pds_core; print(pds_core.__version__)").Trim()
+          if ($projectVersion -ne "0.6.2" -or $runtimeVersion -ne "0.6.2") {
+            throw "Released-consumer qualification requires tracked Core version 0.6.2."
+          }
+
+      - name: Build exact Core 0.6.2 candidate wheel
+        shell: pwsh
+        run: |
+          python -m build --wheel --outdir "$env:PDS_CORE_QUALIFICATION_DIR"
+          if (-not (Test-Path -LiteralPath $env:PDS_CORE_QUALIFICATION_WHEEL)) {
+            throw "Expected Core 0.6.2 candidate wheel was not built."
+          }
 
       - name: Qualify exact released consumers
         env:
@@ -328,7 +368,6 @@ jobs:
         with:
           name: released-consumer-qualification
           path: |
-            ${{ runner.temp }}/released-consumer-qualification/pds_core-0.6.2-provisional-evidence.json
             ${{ runner.temp }}/released-consumer-qualification/released-consumer-qualification.json
           if-no-files-found: warn
 
