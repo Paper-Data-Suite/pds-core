@@ -37,8 +37,11 @@ PACK_ID = "njsls_ela_2023"
 def test_njsls_ela_2023_starter_pack_is_discoverable() -> None:
     packs = list_starter_standards_packs()
 
-    assert [pack.pack_id for pack in packs] == [PACK_ID]
-    metadata = packs[0]
+    assert [pack.pack_id for pack in packs] == [
+        "njsls_csdt_2020",
+        PACK_ID,
+    ]
+    metadata = next(pack for pack in packs if pack.pack_id == PACK_ID)
     assert metadata.title == "2023 NJSLS ELA High School Starter Standards"
     assert metadata.source == "2023 NJSLS-ELA"
     assert metadata.grade_bands == ("9-10", "11-12")

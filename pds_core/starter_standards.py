@@ -22,6 +22,7 @@ from pds_core.standards import (
 
 
 _STARTER_STANDARDS_PACKAGE: Final[str] = "pds_core.starter_data.standards"
+_NJSLS_CSDT_2020_PACK_ID: Final[str] = "njsls_csdt_2020"
 _NJSLS_ELA_2023_PACK_ID: Final[str] = "njsls_ela_2023"
 
 
@@ -95,6 +96,23 @@ class StarterStandardsInstallResult:
 
 
 _STARTER_PACKS: Final[dict[str, StarterStandardsPackConfig]] = {
+    _NJSLS_CSDT_2020_PACK_ID: StarterStandardsPackConfig(
+        pack_id=_NJSLS_CSDT_2020_PACK_ID,
+        title=(
+            "2020 NJSLS Computer Science and Design Thinking "
+            "Starter Standards"
+        ),
+        description=(
+            "Complete coded Performance Expectations from the 2020 New Jersey "
+            "Student Learning Standards for Computer Science and Design Thinking, "
+            "with reusable grades 9-12 Computer Science and Design Thinking "
+            "profiles."
+        ),
+        source="2020 NJSLS-CS&DT",
+        grade_bands=("K-2", "3-5", "6-8", "9-12"),
+        courses=("Computer Science", "Design Thinking"),
+        resource_name="njsls_csdt_2020_library.json",
+    ),
     _NJSLS_ELA_2023_PACK_ID: StarterStandardsPackConfig(
         pack_id=_NJSLS_ELA_2023_PACK_ID,
         title="2023 NJSLS ELA High School Starter Standards",
