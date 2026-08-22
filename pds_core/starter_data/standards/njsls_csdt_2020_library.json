@@ -1,0 +1,4977 @@
+{
+  "frameworks": [
+    {
+      "framework_id": "njsls_csdt_2020",
+      "source": "2020 NJSLS-CS&DT",
+      "title": "2020 New Jersey Student Learning Standards – Computer Science and Design Thinking",
+      "authority": "New Jersey State Board of Education",
+      "publisher": "New Jersey Department of Education",
+      "source_url": "https://www.nj.gov/education/standards/compsci/Docs/2020%20NJSLS-CSDT.pdf",
+      "version": "2020",
+      "adoption_date": "2020-06-03",
+      "implementation_date": "2022-09",
+      "supersedes": [],
+      "license_name": "State of New Jersey Conditions of Use",
+      "license_url": "https://nj.gov/nj/legal.shtml",
+      "redistribution_notes": "State information may generally be viewed, copied, or distributed without obligation to the State unless particular material states otherwise. The State does not warrant that all material is free of third-party copyright, trademark, or other reuse restrictions. State and agency seals and logos are separately restricted."
+    }
+  ],
+  "standards": [
+    {
+      "standard_id": "njsls-csdt:8.1.2.CS.1",
+      "code": "8.1.2.CS.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Select and operate computing devices that perform a variety of tasks...",
+      "description": "Select and operate computing devices that perform a variety of tasks accurately and quickly based on user needs and preferences.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.CS.2",
+      "code": "8.1.2.CS.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Explain the functions of common software and hardware components of...",
+      "description": "Explain the functions of common software and hardware components of computing systems.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.CS.3",
+      "code": "8.1.2.CS.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Describe basic hardware and software problems using accurate terminology",
+      "description": "Describe basic hardware and software problems using accurate terminology.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.NI.1",
+      "code": "8.1.2.NI.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Model and describe how individuals use computers to connect to other...",
+      "description": "Model and describe how individuals use computers to connect to other individuals, places, information, and ideas through a network.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.NI.2",
+      "code": "8.1.2.NI.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Describe how the Internet enables individuals to connect with others...",
+      "description": "Describe how the Internet enables individuals to connect with others worldwide.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.NI.3",
+      "code": "8.1.2.NI.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Create a password that secures access to a device. Explain why it is...",
+      "description": "Create a password that secures access to a device. Explain why it is important to create unique passwords that are not shared with others.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.NI.4",
+      "code": "8.1.2.NI.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Explain why access to devices need to be secured",
+      "description": "Explain why access to devices need to be secured.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.IC.1",
+      "code": "8.1.2.IC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Compare how individuals live and work before and after the...",
+      "description": "Compare how individuals live and work before and after the implementation of new computing technology.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.DA.1",
+      "code": "8.1.2.DA.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Collect and present data, including climate change data, in various...",
+      "description": "Collect and present data, including climate change data, in various visual formats.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.DA.2",
+      "code": "8.1.2.DA.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Store, copy, search, retrieve, modify, and delete data using a...",
+      "description": "Store, copy, search, retrieve, modify, and delete data using a computing device.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.DA.3",
+      "code": "8.1.2.DA.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Identify and describe patterns in data visualizations",
+      "description": "Identify and describe patterns in data visualizations.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.DA.4",
+      "code": "8.1.2.DA.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Make predictions based on data using charts or graphs",
+      "description": "Make predictions based on data using charts or graphs.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.1",
+      "code": "8.1.2.AP.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Model daily processes by creating and following algorithms to...",
+      "description": "Model daily processes by creating and following algorithms to complete tasks.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.2",
+      "code": "8.1.2.AP.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Model the way programs store and manipulate data by using numbers or...",
+      "description": "Model the way programs store and manipulate data by using numbers or other symbols to represent information.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.3",
+      "code": "8.1.2.AP.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create programs with sequences and simple loops to accomplish tasks",
+      "description": "Create programs with sequences and simple loops to accomplish tasks.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.4",
+      "code": "8.1.2.AP.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Break down a task into a sequence of steps",
+      "description": "Break down a task into a sequence of steps.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.5",
+      "code": "8.1.2.AP.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Describe a program’s sequence of events, goals, and expected outcomes",
+      "description": "Describe a program’s sequence of events, goals, and expected outcomes.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.2.AP.6",
+      "code": "8.1.2.AP.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Debug errors in an algorithm or program that includes sequences and...",
+      "description": "Debug errors in an algorithm or program that includes sequences and simple loops.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "K-2",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_2",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.CS.1",
+      "code": "8.1.5.CS.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Model how computing devices connect to other components to form a system",
+      "description": "Model how computing devices connect to other components to form a system.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.CS.2",
+      "code": "8.1.5.CS.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Model how computer software and hardware work together as a system...",
+      "description": "Model how computer software and hardware work together as a system to accomplish tasks.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.CS.3",
+      "code": "8.1.5.CS.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Identify potential solutions for simple hardware and software...",
+      "description": "Identify potential solutions for simple hardware and software problems using common troubleshooting strategies.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.NI.1",
+      "code": "8.1.5.NI.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Develop models that successfully transmit and receive information...",
+      "description": "Develop models that successfully transmit and receive information using both wired and wireless methods.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.NI.2",
+      "code": "8.1.5.NI.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Describe physical and digital security measures for protecting...",
+      "description": "Describe physical and digital security measures for protecting sensitive personal information.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.IC.1",
+      "code": "8.1.5.IC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Identify computing technologies that have impacted how individuals...",
+      "description": "Identify computing technologies that have impacted how individuals live and work and describe the factors that influenced the changes.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.IC.2",
+      "code": "8.1.5.IC.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Identify possible ways to improve the accessibility and usability of...",
+      "description": "Identify possible ways to improve the accessibility and usability of computing technologies to address the diverse needs and wants of users.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.DA.1",
+      "code": "8.1.5.DA.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Collect, organize, and display data in order to highlight...",
+      "description": "Collect, organize, and display data in order to highlight relationships or support a claim.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.DA.2",
+      "code": "8.1.5.DA.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Compare the amount of storage space required for different types of data",
+      "description": "Compare the amount of storage space required for different types of data.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.DA.3",
+      "code": "8.1.5.DA.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Organize and present collected data visually to communicate insights...",
+      "description": "Organize and present collected data visually to communicate insights gained from different views of the data.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.DA.4",
+      "code": "8.1.5.DA.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Organize and present climate change data visually to highlight...",
+      "description": "Organize and present climate change data visually to highlight relationships or support a claim.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.DA.5",
+      "code": "8.1.5.DA.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Propose cause and effect relationships, predict outcomes, or...",
+      "description": "Propose cause and effect relationships, predict outcomes, or communicate ideas using data.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.1",
+      "code": "8.1.5.AP.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Compare and refine multiple algorithms for the same task and...",
+      "description": "Compare and refine multiple algorithms for the same task and determine which is the most appropriate.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.2",
+      "code": "8.1.5.AP.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create programs that use clearly named variables to store and modify...",
+      "description": "Create programs that use clearly named variables to store and modify data.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.3",
+      "code": "8.1.5.AP.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create programs that include sequences, events, loops, and conditionals",
+      "description": "Create programs that include sequences, events, loops, and conditionals.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.4",
+      "code": "8.1.5.AP.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Break down problems into smaller, manageable sub-problems to...",
+      "description": "Break down problems into smaller, manageable sub-problems to facilitate program development.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.5",
+      "code": "8.1.5.AP.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Modify, remix, or incorporate pieces of existing programs into one’s...",
+      "description": "Modify, remix, or incorporate pieces of existing programs into one’s own work to add additional features or create a new program.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.5.AP.6",
+      "code": "8.1.5.AP.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Develop programs using an iterative process, implement the program...",
+      "description": "Develop programs using an iterative process, implement the program design, and test the program to ensure it works as intended.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "3-5",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_5",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.CS.1",
+      "code": "8.1.8.CS.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Recommend improvements to computing devices in order to improve the...",
+      "description": "Recommend improvements to computing devices in order to improve the ways users interact with the devices.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.CS.2",
+      "code": "8.1.8.CS.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Design a system that combines hardware and software components to...",
+      "description": "Design a system that combines hardware and software components to process data.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.CS.3",
+      "code": "8.1.8.CS.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Justify design decisions and explain potential system trade-offs",
+      "description": "Justify design decisions and explain potential system trade-offs.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.CS.4",
+      "code": "8.1.8.CS.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Systematically apply troubleshooting strategies to identify and...",
+      "description": "Systematically apply troubleshooting strategies to identify and resolve hardware and software problems in computing systems.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.NI.1",
+      "code": "8.1.8.NI.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Model how information is broken down into smaller pieces,...",
+      "description": "Model how information is broken down into smaller pieces, transmitted as addressed packets through multiple devices over networks and the Internet, and reassembled at the destination.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.NI.2",
+      "code": "8.1.8.NI.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Model the role of protocols in transmitting data across networks and...",
+      "description": "Model the role of protocols in transmitting data across networks and the Internet and how they enable secure and errorless communication.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.NI.3",
+      "code": "8.1.8.NI.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Explain how network security depends on a combination of hardware,...",
+      "description": "Explain how network security depends on a combination of hardware, software, and practices that control access to data and systems.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.NI.4",
+      "code": "8.1.8.NI.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Explain how new security measures have been created in response to...",
+      "description": "Explain how new security measures have been created in response to key malware events.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.IC.1",
+      "code": "8.1.8.IC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Compare the trade-offs associated with computing technologies that...",
+      "description": "Compare the trade-offs associated with computing technologies that affect individual’s everyday activities and career options.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.IC.2",
+      "code": "8.1.8.IC.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Describe issues of bias and accessibility in the design of existing...",
+      "description": "Describe issues of bias and accessibility in the design of existing technologies.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.1",
+      "code": "8.1.8.DA.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Organize and transform data collected using computational tools to...",
+      "description": "Organize and transform data collected using computational tools to make it usable for a specific purpose.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.2",
+      "code": "8.1.8.DA.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Explain the difference between how the computer stores data as bits...",
+      "description": "Explain the difference between how the computer stores data as bits and how the data is displayed.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.3",
+      "code": "8.1.8.DA.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Identify the appropriate tool to access data based on its file format",
+      "description": "Identify the appropriate tool to access data based on its file format.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.4",
+      "code": "8.1.8.DA.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Transform data to remove errors and improve the accuracy of the data...",
+      "description": "Transform data to remove errors and improve the accuracy of the data for analysis.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.5",
+      "code": "8.1.8.DA.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Test, analyze, and refine computational models",
+      "description": "Test, analyze, and refine computational models.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.DA.6",
+      "code": "8.1.8.DA.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Analyze climate change computational models and propose refinements",
+      "description": "Analyze climate change computational models and propose refinements.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.1",
+      "code": "8.1.8.AP.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Design and illustrate algorithms that solve complex problems using...",
+      "description": "Design and illustrate algorithms that solve complex problems using flowcharts and/or pseudocode.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.2",
+      "code": "8.1.8.AP.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create clearly named variables that represent different data types...",
+      "description": "Create clearly named variables that represent different data types and perform operations on their values.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.3",
+      "code": "8.1.8.AP.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Design and iteratively develop programs that combine control...",
+      "description": "Design and iteratively develop programs that combine control structures, including nested loops and compound conditionals.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.4",
+      "code": "8.1.8.AP.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Decompose problems and sub-problems into parts to facilitate the...",
+      "description": "Decompose problems and sub-problems into parts to facilitate the design, implementation, and review of programs.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.5",
+      "code": "8.1.8.AP.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create procedures with parameters to organize code and make it...",
+      "description": "Create procedures with parameters to organize code and make it easier to reuse.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.6",
+      "code": "8.1.8.AP.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Refine a solution that meets users’ needs by incorporating feedback...",
+      "description": "Refine a solution that meets users’ needs by incorporating feedback from team members and users.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.7",
+      "code": "8.1.8.AP.7",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Design programs, incorporating existing code, media, and libraries,...",
+      "description": "Design programs, incorporating existing code, media, and libraries, and give attribution.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.8",
+      "code": "8.1.8.AP.8",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Systematically test and refine programs using a range of test cases...",
+      "description": "Systematically test and refine programs using a range of test cases and users.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.8.AP.9",
+      "code": "8.1.8.AP.9",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Document programs in order to make them easier to follow, test, and...",
+      "description": "Document programs in order to make them easier to follow, test, and debug.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "6-8",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_8",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.CS.1",
+      "code": "8.1.12.CS.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Describe ways in which integrated systems hide underlying...",
+      "description": "Describe ways in which integrated systems hide underlying implementation details to simplify user experiences.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.CS.2",
+      "code": "8.1.12.CS.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Model interactions between application software, system software,...",
+      "description": "Model interactions between application software, system software, and hardware.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.CS.3",
+      "code": "8.1.12.CS.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Compare the functions of application software, system software, and...",
+      "description": "Compare the functions of application software, system software, and hardware.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.CS.4",
+      "code": "8.1.12.CS.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Computing Systems - Develop guidelines that convey systematic troubleshooting strategies...",
+      "description": "Develop guidelines that convey systematic troubleshooting strategies that others can use to identify and fix errors.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Computing Systems",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Computing Systems"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:cs"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.NI.1",
+      "code": "8.1.12.NI.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Evaluate the scalability and reliability of networks, by describing...",
+      "description": "Evaluate the scalability and reliability of networks, by describing the relationship between routers, switches, servers, topology, and addressing.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.NI.2",
+      "code": "8.1.12.NI.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Evaluate security measures to address various common security threats",
+      "description": "Evaluate security measures to address various common security threats.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.NI.3",
+      "code": "8.1.12.NI.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Explain how the needs of users and the sensitivity of data determine...",
+      "description": "Explain how the needs of users and the sensitivity of data determine the level of security implemented.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.NI.4",
+      "code": "8.1.12.NI.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Networks and the Internet - Explain how decisions on methods to protect data are influenced by...",
+      "description": "Explain how decisions on methods to protect data are influenced by whether the data is at rest, in transit, or in use.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Networks and the Internet",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Networks and the Internet"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ni"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.IC.1",
+      "code": "8.1.12.IC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Evaluate the ways computing impacts personal, ethical, social,...",
+      "description": "Evaluate the ways computing impacts personal, ethical, social, economic, and cultural practices.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.IC.2",
+      "code": "8.1.12.IC.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Test and refine computational artifacts to reduce bias and equity...",
+      "description": "Test and refine computational artifacts to reduce bias and equity deficits.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.IC.3",
+      "code": "8.1.12.IC.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Impacts of Computing - Predict the potential impacts and implications of emerging...",
+      "description": "Predict the potential impacts and implications of emerging technologies on larger social, economic, and political structures, using evidence from credible sources.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Impacts of Computing",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Impacts of Computing"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ic"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.1",
+      "code": "8.1.12.DA.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Create interactive data visualizations using software tools to help...",
+      "description": "Create interactive data visualizations using software tools to help others better understand real world phenomena, including climate change.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.2",
+      "code": "8.1.12.DA.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Describe the trade-offs in how and where data is organized and stored",
+      "description": "Describe the trade-offs in how and where data is organized and stored.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.3",
+      "code": "8.1.12.DA.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Translate between decimal numbers and binary numbers",
+      "description": "Translate between decimal numbers and binary numbers.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.4",
+      "code": "8.1.12.DA.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Explain the relationship between binary numbers and the storage and...",
+      "description": "Explain the relationship between binary numbers and the storage and use of data in a computing device.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.5",
+      "code": "8.1.12.DA.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Create data visualizations from large data sets to summarize,...",
+      "description": "Create data visualizations from large data sets to summarize, communicate, and support different interpretations of real-world phenomena.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.DA.6",
+      "code": "8.1.12.DA.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Data & Analysis - Create and refine computational models to better represent the...",
+      "description": "Create and refine computational models to better represent the relationships among different elements of data collected from a phenomenon or process.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Data & Analysis",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Data & Analysis"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:da"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.1",
+      "code": "8.1.12.AP.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Design algorithms to solve computational problems using a...",
+      "description": "Design algorithms to solve computational problems using a combination of original and existing algorithms.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.2",
+      "code": "8.1.12.AP.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create generalized computational solutions using collections instead...",
+      "description": "Create generalized computational solutions using collections instead of repeatedly using simple variables.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.3",
+      "code": "8.1.12.AP.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Select and combine control structures for a specific application...",
+      "description": "Select and combine control structures for a specific application based upon performance and readability, and identify trade-offs to justify the choice.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.4",
+      "code": "8.1.12.AP.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Design and iteratively develop computational artifacts for practical...",
+      "description": "Design and iteratively develop computational artifacts for practical intent, personal expression, or to address a societal issue.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.5",
+      "code": "8.1.12.AP.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Decompose problems into smaller components through systematic...",
+      "description": "Decompose problems into smaller components through systematic analysis, using constructs such as procedures, modules, and/or objects.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.6",
+      "code": "8.1.12.AP.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Create artifacts by using procedures within a program, combinations...",
+      "description": "Create artifacts by using procedures within a program, combinations of data and procedures, or independent but interrelated programs.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.7",
+      "code": "8.1.12.AP.7",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Collaboratively design and develop programs and artifacts for broad...",
+      "description": "Collaboratively design and develop programs and artifacts for broad audiences by incorporating feedback from users.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.8",
+      "code": "8.1.12.AP.8",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Evaluate and refine computational artifacts to make them more usable...",
+      "description": "Evaluate and refine computational artifacts to make them more usable and accessible.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.1.12.AP.9",
+      "code": "8.1.12.AP.9",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Algorithms & Programming - Collaboratively document and present design decisions in the...",
+      "description": "Collaboratively document and present design decisions in the development of complex programs.",
+      "subject": "Computer Science",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Algorithms & Programming",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.1 Computer Science",
+        "9-12",
+        "Algorithms & Programming"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_1",
+        "end_grade_12",
+        "disciplinary_concept:ap"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ED.1",
+      "code": "8.2.2.ED.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Communicate the function of a product or device",
+      "description": "Communicate the function of a product or device.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ED.2",
+      "code": "8.2.2.ED.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Collaborate to solve a simple problem, or to illustrate how to build...",
+      "description": "Collaborate to solve a simple problem, or to illustrate how to build a product using the design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ED.3",
+      "code": "8.2.2.ED.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Select and use appropriate tools and materials to build a product...",
+      "description": "Select and use appropriate tools and materials to build a product using the design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ED.4",
+      "code": "8.2.2.ED.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Identify constraints and their role in the engineering design process",
+      "description": "Identify constraints and their role in the engineering design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ITH.1",
+      "code": "8.2.2.ITH.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Identify products that are designed to meet human wants or needs",
+      "description": "Identify products that are designed to meet human wants or needs.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ITH.2",
+      "code": "8.2.2.ITH.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Explain the purpose of a product and its value",
+      "description": "Explain the purpose of a product and its value.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ITH.3",
+      "code": "8.2.2.ITH.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Identify how technology impacts or improves life",
+      "description": "Identify how technology impacts or improves life.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ITH.4",
+      "code": "8.2.2.ITH.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Identify how various tools reduce work and improve daily tasks",
+      "description": "Identify how various tools reduce work and improve daily tasks.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ITH.5",
+      "code": "8.2.2.ITH.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Design a solution to a problem affecting the community in a...",
+      "description": "Design a solution to a problem affecting the community in a collaborative team and explain the intended impact of the solution.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.NT.1",
+      "code": "8.2.2.NT.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Model and explain how a product works after taking it apart,...",
+      "description": "Model and explain how a product works after taking it apart, identifying the relationship of each part, and putting it back together.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.NT.2",
+      "code": "8.2.2.NT.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Brainstorm how to build a product, improve a designed product, fix a...",
+      "description": "Brainstorm how to build a product, improve a designed product, fix a product that has stopped working, or solve a simple problem.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ETW.1",
+      "code": "8.2.2.ETW.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Classify products as resulting from nature or produced as a result...",
+      "description": "Classify products as resulting from nature or produced as a result of technology.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ETW.2",
+      "code": "8.2.2.ETW.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Identify the natural resources needed to create a product",
+      "description": "Identify the natural resources needed to create a product.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ETW.3",
+      "code": "8.2.2.ETW.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Describe or model the system used for recycling technology",
+      "description": "Describe or model the system used for recycling technology.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.ETW.4",
+      "code": "8.2.2.ETW.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Explain how the disposal of or reusing a product affects the local...",
+      "description": "Explain how the disposal of or reusing a product affects the local and global environment.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.2.EC.1",
+      "code": "8.2.2.EC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Identify and compare technology used in different schools,...",
+      "description": "Identify and compare technology used in different schools, communities, regions, and parts of the world.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "K-2",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "K-2",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_2",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.1",
+      "code": "8.2.5.ED.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Explain the functions of a system and its subsystems",
+      "description": "Explain the functions of a system and its subsystems.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.2",
+      "code": "8.2.5.ED.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Collaborate with peers to collect information, brainstorm to solve a...",
+      "description": "Collaborate with peers to collect information, brainstorm to solve a problem, and evaluate all possible solutions to provide the best results with supporting sketches or models.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.3",
+      "code": "8.2.5.ED.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Follow step by step directions to assemble a product or solve a...",
+      "description": "Follow step by step directions to assemble a product or solve a problem, using appropriate tools to accomplish the task.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.4",
+      "code": "8.2.5.ED.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Explain factors that influence the development and function of...",
+      "description": "Explain factors that influence the development and function of products and systems (e.g., resources, criteria, desired features, constraints).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.5",
+      "code": "8.2.5.ED.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Describe how specifications and limitations impact the engineering...",
+      "description": "Describe how specifications and limitations impact the engineering design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ED.6",
+      "code": "8.2.5.ED.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Evaluate and test alternative solutions to a problem using the...",
+      "description": "Evaluate and test alternative solutions to a problem using the constraints and trade-offs identified in the design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ITH.1",
+      "code": "8.2.5.ITH.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Explain how societal needs and wants influence the development and...",
+      "description": "Explain how societal needs and wants influence the development and function of a product and a system.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ITH.2",
+      "code": "8.2.5.ITH.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Evaluate how well a new tool has met its intended purpose and...",
+      "description": "Evaluate how well a new tool has met its intended purpose and identify any shortcomings it might have.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ITH.3",
+      "code": "8.2.5.ITH.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Analyze the effectiveness of a new product or system and identify...",
+      "description": "Analyze the effectiveness of a new product or system and identify the positive and/or negative consequences resulting from its use.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ITH.4",
+      "code": "8.2.5.ITH.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Describe a technology/tool that has made the way people live easier...",
+      "description": "Describe a technology/tool that has made the way people live easier or has led to a new business or career.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.NT.1",
+      "code": "8.2.5.NT.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Troubleshoot a product that has stopped working and brainstorm ideas...",
+      "description": "Troubleshoot a product that has stopped working and brainstorm ideas to correct the problem.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.NT.2",
+      "code": "8.2.5.NT.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Identify new technologies resulting from the demands, values, and...",
+      "description": "Identify new technologies resulting from the demands, values, and interests of individuals, businesses, industries, and societies.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.NT.3",
+      "code": "8.2.5.NT.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Redesign an existing product for a different purpose in a...",
+      "description": "Redesign an existing product for a different purpose in a collaborative team.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.NT.4",
+      "code": "8.2.5.NT.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Identify how improvement in the understanding of materials science...",
+      "description": "Identify how improvement in the understanding of materials science impacts technologies.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ETW.1",
+      "code": "8.2.5.ETW.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Describe how resources such as material, energy, information, time,...",
+      "description": "Describe how resources such as material, energy, information, time, tools, people, and capital are used in products or systems.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ETW.2",
+      "code": "8.2.5.ETW.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Describe ways that various technologies are used to reduce improper...",
+      "description": "Describe ways that various technologies are used to reduce improper use of resources.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ETW.3",
+      "code": "8.2.5.ETW.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Explain why human-designed systems, products, and environments need...",
+      "description": "Explain why human-designed systems, products, and environments need to be constantly monitored, maintained, and improved.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ETW.4",
+      "code": "8.2.5.ETW.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Explain the impact that resources, such as energy and materials used...",
+      "description": "Explain the impact that resources, such as energy and materials used to develop technology, have on the environment.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.ETW.5",
+      "code": "8.2.5.ETW.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Identify the impact of a specific technology on the environment and...",
+      "description": "Identify the impact of a specific technology on the environment and determine what can be done to increase positive effects and to reduce any negative effects, such as climate change.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.5.EC.1",
+      "code": "8.2.5.EC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Analyze how technology has contributed to or reduced inequities in...",
+      "description": "Analyze how technology has contributed to or reduced inequities in local and global communities and determine its short- and long-term effects.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "3-5",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "3-5",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_5",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.1",
+      "code": "8.2.8.ED.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Evaluate the function, value, and aesthetics of a technological...",
+      "description": "Evaluate the function, value, and aesthetics of a technological product or system, from the perspective of the user and the producer.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.2",
+      "code": "8.2.8.ED.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Identify the steps in the design process that could be used to solve...",
+      "description": "Identify the steps in the design process that could be used to solve a problem.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.3",
+      "code": "8.2.8.ED.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Develop a proposal for a solution to a real-world problem that...",
+      "description": "Develop a proposal for a solution to a real-world problem that includes a model (e.g., physical prototype, graphical/technical sketch).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.4",
+      "code": "8.2.8.ED.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Investigate a malfunctioning system, identify its impact, and...",
+      "description": "Investigate a malfunctioning system, identify its impact, and explain the step-by-step process used to troubleshoot, evaluate, and test options to repair the product in a collaborative team.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.5",
+      "code": "8.2.8.ED.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Explain the need for optimization in a design process",
+      "description": "Explain the need for optimization in a design process.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.6",
+      "code": "8.2.8.ED.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Analyze how trade-offs can impact the design of a product",
+      "description": "Analyze how trade-offs can impact the design of a product.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ED.7",
+      "code": "8.2.8.ED.7",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Design a product to address a real-world problem and document the...",
+      "description": "Design a product to address a real-world problem and document the iterative design process, including decisions made as a result of specific constraints and trade-offs (e.g., annotated sketches).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ITH.1",
+      "code": "8.2.8.ITH.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Explain how the development and use of technology influences...",
+      "description": "Explain how the development and use of technology influences economic, political, social, and cultural issues.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ITH.2",
+      "code": "8.2.8.ITH.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Compare how technologies have influenced society over time",
+      "description": "Compare how technologies have influenced society over time.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ITH.3",
+      "code": "8.2.8.ITH.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Evaluate the impact of sustainability on the development of a...",
+      "description": "Evaluate the impact of sustainability on the development of a designed product or system.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ITH.4",
+      "code": "8.2.8.ITH.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Identify technologies that have been designed to reduce the negative...",
+      "description": "Identify technologies that have been designed to reduce the negative consequences of other technologies and explain the change in impact.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ITH.5",
+      "code": "8.2.8.ITH.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Compare the impacts of a given technology on different societies,...",
+      "description": "Compare the impacts of a given technology on different societies, noting factors that may make a technology appropriate and sustainable in one society but not in another.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.NT.1",
+      "code": "8.2.8.NT.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Examine a malfunctioning tool, product, or system and propose...",
+      "description": "Examine a malfunctioning tool, product, or system and propose solutions to the problem.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.NT.2",
+      "code": "8.2.8.NT.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Analyze an existing technological product that has been repurposed...",
+      "description": "Analyze an existing technological product that has been repurposed for a different function.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.NT.3",
+      "code": "8.2.8.NT.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Examine a system, consider how each part relates to other parts, and...",
+      "description": "Examine a system, consider how each part relates to other parts, and redesign it for another purpose.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.NT.4",
+      "code": "8.2.8.NT.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Explain how a product designed for a specific demand was modified to...",
+      "description": "Explain how a product designed for a specific demand was modified to meet a new demand and led to a new product.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ETW.1",
+      "code": "8.2.8.ETW.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Illustrate how a product is upcycled into a new product and analyze...",
+      "description": "Illustrate how a product is upcycled into a new product and analyze the short- and long-term benefits and costs.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ETW.2",
+      "code": "8.2.8.ETW.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Analyze the impact of modifying resources in a product or system...",
+      "description": "Analyze the impact of modifying resources in a product or system (e.g., materials, energy, information, time, tools, people, capital).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ETW.3",
+      "code": "8.2.8.ETW.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Analyze the design of a product that negatively impacts the...",
+      "description": "Analyze the design of a product that negatively impacts the environment or society and develop possible solutions to lessen its impact.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.ETW.4",
+      "code": "8.2.8.ETW.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Compare the environmental effects of two alternative technologies...",
+      "description": "Compare the environmental effects of two alternative technologies devised to address climate change issues and use data to justify which choice is best.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.EC.1",
+      "code": "8.2.8.EC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Explain ethical issues that may arise from the use of new technologies",
+      "description": "Explain ethical issues that may arise from the use of new technologies.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.8.EC.2",
+      "code": "8.2.8.EC.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Examine the effects of ethical and unethical practices in product...",
+      "description": "Examine the effects of ethical and unethical practices in product design and development.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "6-8",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "6-8",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_8",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.1",
+      "code": "8.2.12.ED.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Use research to design and create a product or system that addresses...",
+      "description": "Use research to design and create a product or system that addresses a problem and make modifications based on input from potential consumers.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.2",
+      "code": "8.2.12.ED.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Create scaled engineering drawings for a new product or system and...",
+      "description": "Create scaled engineering drawings for a new product or system and make modification to increase optimization based on feedback.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.3",
+      "code": "8.2.12.ED.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Evaluate several models of the same type of product and make...",
+      "description": "Evaluate several models of the same type of product and make recommendations for a new design based on a cost benefit analysis.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.4",
+      "code": "8.2.12.ED.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Design a product or system that addresses a global problem and...",
+      "description": "Design a product or system that addresses a global problem and document decisions made based on research, constraints, trade-offs, and aesthetic and ethical considerations and share this information with an appropriate audience.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.5",
+      "code": "8.2.12.ED.5",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Evaluate the effectiveness of a product or system based on factors...",
+      "description": "Evaluate the effectiveness of a product or system based on factors that are related to its requirements, specifications, and constraints (e.g., safety, reliability, economic considerations, quality control, environmental concerns, manufacturability, maintenance and repair, ergonomics).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ED.6",
+      "code": "8.2.12.ED.6",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Engineering Design - Analyze the effects of changing resources when designing a specific...",
+      "description": "Analyze the effects of changing resources when designing a specific product or system (e.g., materials, energy, tools, capital, labor).",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Engineering Design",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Engineering Design"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ed"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ITH.1",
+      "code": "8.2.12.ITH.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Analyze a product to determine the impact that economic, political,...",
+      "description": "Analyze a product to determine the impact that economic, political, social, and/or cultural factors have had on its design, including its design constraints.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ITH.2",
+      "code": "8.2.12.ITH.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Propose an innovation to meet future demands supported by an...",
+      "description": "Propose an innovation to meet future demands supported by an analysis of the potential costs, benefits, trade-offs, and risks related to the use of the innovation.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ITH.3",
+      "code": "8.2.12.ITH.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Interaction of Technology and Humans - Analyze the impact that globalization, social media, and access to...",
+      "description": "Analyze the impact that globalization, social media, and access to open source technologies has had on innovation and on a society’s economy, politics, and culture.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Interaction of Technology and Humans",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Interaction of Technology and Humans"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ith"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.NT.1",
+      "code": "8.2.12.NT.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Explain how different groups can contribute to the overall design of...",
+      "description": "Explain how different groups can contribute to the overall design of a product.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.NT.2",
+      "code": "8.2.12.NT.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Nature of Technology - Redesign an existing product to improve form or function",
+      "description": "Redesign an existing product to improve form or function.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Nature of Technology",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Nature of Technology"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:nt"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ETW.1",
+      "code": "8.2.12.ETW.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Evaluate ethical considerations regarding the sustainability of...",
+      "description": "Evaluate ethical considerations regarding the sustainability of environmental resources that are used for the design, creation, and maintenance of a chosen product.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ETW.2",
+      "code": "8.2.12.ETW.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Synthesize and analyze data collected to monitor the effects of a...",
+      "description": "Synthesize and analyze data collected to monitor the effects of a technological product or system on the environment.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ETW.3",
+      "code": "8.2.12.ETW.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Identify a complex, global environmental or climate change issue,...",
+      "description": "Identify a complex, global environmental or climate change issue, develop a systemic plan of investigation, and propose an innovative sustainable solution.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.EC.1",
+      "code": "8.2.12.EC.1",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Analyze controversial technological issues and determine the degree...",
+      "description": "Analyze controversial technological issues and determine the degree to which individuals, businesses, and governments have an ethical role in decisions that are made.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.EC.2",
+      "code": "8.2.12.EC.2",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Assess the positive and negative impacts of emerging technologies on...",
+      "description": "Assess the positive and negative impacts of emerging technologies on developing countries and evaluate how individuals, non-profit organizations, and governments have responded.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.EC.3",
+      "code": "8.2.12.EC.3",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Ethics & Culture - Synthesize data, analyze trends, and draw conclusions regarding the...",
+      "description": "Synthesize data, analyze trends, and draw conclusions regarding the effect of a technology on the individual, culture, society, and environment and share this information with the appropriate audience.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Ethics & Culture",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Ethics & Culture"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:ec"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    },
+    {
+      "standard_id": "njsls-csdt:8.2.12.ETW.4",
+      "code": "8.2.12.ETW.4",
+      "source": "2020 NJSLS-CS&DT",
+      "short_name": "Effects of Technology on the Natural World - Research historical tensions between environmental and economic...",
+      "description": "Research historical tensions between environmental and economic considerations as driven by human needs and wants in the development of a technological product and present the competing viewpoints.",
+      "subject": "Design Thinking",
+      "course": null,
+      "grade_band": "9-12",
+      "domain": "Effects of Technology on the Natural World",
+      "category_path": [
+        "Computer Science and Design Thinking",
+        "2020 NJSLS-CS&DT",
+        "8.2 Design Thinking",
+        "9-12",
+        "Effects of Technology on the Natural World"
+      ],
+      "tags": [
+        "njsls_csdt_2020",
+        "performance_expectation",
+        "standard_8_2",
+        "end_grade_12",
+        "disciplinary_concept:etw"
+      ],
+      "active": true,
+      "available_modules": [
+        "pds-quillan",
+        "pds-scoreform"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "profile_id": "computer_science_9_12_2020_njsls_csdt",
+      "standards": [
+        "njsls-csdt:8.1.12.CS.1",
+        "njsls-csdt:8.1.12.CS.2",
+        "njsls-csdt:8.1.12.CS.3",
+        "njsls-csdt:8.1.12.CS.4",
+        "njsls-csdt:8.1.12.NI.1",
+        "njsls-csdt:8.1.12.NI.2",
+        "njsls-csdt:8.1.12.NI.3",
+        "njsls-csdt:8.1.12.NI.4",
+        "njsls-csdt:8.1.12.IC.1",
+        "njsls-csdt:8.1.12.IC.2",
+        "njsls-csdt:8.1.12.IC.3",
+        "njsls-csdt:8.1.12.DA.1",
+        "njsls-csdt:8.1.12.DA.2",
+        "njsls-csdt:8.1.12.DA.3",
+        "njsls-csdt:8.1.12.DA.4",
+        "njsls-csdt:8.1.12.DA.5",
+        "njsls-csdt:8.1.12.DA.6",
+        "njsls-csdt:8.1.12.AP.1",
+        "njsls-csdt:8.1.12.AP.2",
+        "njsls-csdt:8.1.12.AP.3",
+        "njsls-csdt:8.1.12.AP.4",
+        "njsls-csdt:8.1.12.AP.5",
+        "njsls-csdt:8.1.12.AP.6",
+        "njsls-csdt:8.1.12.AP.7",
+        "njsls-csdt:8.1.12.AP.8",
+        "njsls-csdt:8.1.12.AP.9"
+      ],
+      "subject": "Computer Science",
+      "course": "High School Computer Science",
+      "source": "2020 NJSLS-CS&DT",
+      "title": "2020 NJSLS Computer Science — Grades 9-12",
+      "description": "Reusable pool containing every 8.1.12.* Computer Science Performance Expectation from the 2020 NJSLS-CS&DT framework."
+    },
+    {
+      "profile_id": "design_thinking_9_12_2020_njsls_csdt",
+      "standards": [
+        "njsls-csdt:8.2.12.ED.1",
+        "njsls-csdt:8.2.12.ED.2",
+        "njsls-csdt:8.2.12.ED.3",
+        "njsls-csdt:8.2.12.ED.4",
+        "njsls-csdt:8.2.12.ED.5",
+        "njsls-csdt:8.2.12.ED.6",
+        "njsls-csdt:8.2.12.ITH.1",
+        "njsls-csdt:8.2.12.ITH.2",
+        "njsls-csdt:8.2.12.ITH.3",
+        "njsls-csdt:8.2.12.NT.1",
+        "njsls-csdt:8.2.12.NT.2",
+        "njsls-csdt:8.2.12.ETW.1",
+        "njsls-csdt:8.2.12.ETW.2",
+        "njsls-csdt:8.2.12.ETW.3",
+        "njsls-csdt:8.2.12.EC.1",
+        "njsls-csdt:8.2.12.EC.2",
+        "njsls-csdt:8.2.12.EC.3",
+        "njsls-csdt:8.2.12.ETW.4"
+      ],
+      "subject": "Design Thinking",
+      "course": "High School Design Thinking",
+      "source": "2020 NJSLS-CS&DT",
+      "title": "2020 NJSLS Design Thinking — Grades 9-12",
+      "description": "Reusable pool containing every 8.2.12.* Design Thinking Performance Expectation from the 2020 NJSLS-CS&DT framework."
+    }
+  ]
+}

@@ -19,7 +19,8 @@ def test_menu_starter_list_and_back_do_not_create_artifacts(
 
     assert code == 0
     assert "Starter Standards" in out
-    assert "1. 2023 NJSLS ELA High School Starter Standards" in out
+    assert "1. 2020 NJSLS Computer Science and Design Thinking Starter Standards" in out
+    assert "2. 2023 NJSLS ELA High School Starter Standards" in out
     assert "njsls_ela_2023" in out
     assert "Frameworks: 1" in out
     assert "This does not write files." in out
@@ -36,7 +37,7 @@ def test_menu_starter_install_requires_confirmation(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n4\n1\n\n5\n6\n",
+        "5\n4\n2\n\n5\n6\n",
     )
 
     assert code == 0
@@ -58,7 +59,7 @@ def test_menu_starter_install_writes_library_after_confirmation(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n4\n1\nYES\n\n5\n6\n",
+        "5\n4\n2\nYES\n\n5\n6\n",
     )
 
     assert code == 0
@@ -83,13 +84,13 @@ def test_menu_starter_preview_uses_numbered_pack_selection(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n2\n1\n\n5\n6\n",
+        "5\n2\n2\n\n5\n6\n",
     )
 
     assert code == 0
     assert "Preview Starter Standards" in out
     assert "Choose a starter standards pack:" in out
-    assert "1. 2023 NJSLS ELA High School Starter Standards" in out
+    assert "2. 2023 NJSLS ELA High School Starter Standards" in out
     assert "Pack ID: njsls_ela_2023" in out
     assert "Profile IDs: english10_2023_njsls_ela, english12_2023_njsls_ela" in out
     assert "Enter Starter Standards Pack ID" not in out
@@ -106,7 +107,7 @@ def test_menu_starter_validate_can_choose_all_or_one_pack(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n3\n1\n\n3\n2\n1\n\n5\n6\n",
+        "5\n3\n1\n\n3\n2\n2\n\n5\n6\n",
     )
 
     assert code == 0

@@ -466,8 +466,8 @@ English Language Arts
     RI.CR.11-12.1 - Informational Text Evidence
 
 Computer Science
-  Algorithms and Programming
-    AP-AL-01 - Algorithm Design
+  Algorithms & Programming
+    8.1.12.AP.1 - Design Algorithms
 
 Career Readiness / Life Literacies
   Digital Citizenship
