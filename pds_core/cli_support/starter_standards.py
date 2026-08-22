@@ -54,6 +54,8 @@ def handle_starter_standards_preview(
     print(f"Standards: {metadata.standard_count}", file=stdout)
     print(f"Profiles: {metadata.profile_count}", file=stdout)
     print(f"Profile IDs: {', '.join(metadata.profile_ids)}", file=stdout)
+    print(f"Frameworks: {metadata.framework_count}", file=stdout)
+    print(f"Framework IDs: {', '.join(metadata.framework_ids)}", file=stdout)
     print(f"Description: {metadata.description}", file=stdout)
     return 0
 
@@ -79,7 +81,8 @@ def handle_starter_standards_validate(
         print(
             f"Starter standards pack is valid: {pack_id} "
             f"({len(library.standards)} standards, "
-            f"{len(library.profiles)} profiles).",
+            f"{len(library.profiles)} profiles, "
+            f"frameworks: {len(library.frameworks)}).",
             file=stdout,
         )
     return 0
@@ -122,6 +125,13 @@ def handle_starter_standards_install(
         f"{result.profiles_overwritten} overwritten.",
         file=stdout,
     )
+    print(
+        "Frameworks: "
+        f"{result.frameworks_added} added, "
+        f"{result.frameworks_skipped} skipped, "
+        f"{result.frameworks_overwritten} overwritten.",
+        file=stdout,
+    )
     if result.changed_count == 0:
         print("No workspace changes were needed.", file=stdout)
     print("No standards usage events were recorded.", file=stdout)
@@ -137,5 +147,6 @@ def _metadata_row(metadata: StarterStandardsPackMetadata) -> str:
             f"grade bands: {', '.join(metadata.grade_bands)}",
             f"{metadata.standard_count} standards",
             f"{metadata.profile_count} profiles",
+            f"frameworks: {metadata.framework_count}",
         )
     )

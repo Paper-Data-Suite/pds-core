@@ -129,6 +129,36 @@ def _optional_text(value: object, field_name: str) -> str | None:
     return _required_text(value, field_name)
 
 
+def _optional_lifecycle_date(value: object, field_name: str) -> str | None:
+    normalized = _optional_text(value, field_name)
+    if normalized is None:
+        return None
+
+    try:
+        if len(normalized) == 4 and normalized.isdecimal():
+            datetime.fromisoformat(f"{normalized}-01-01")
+        elif (
+            len(normalized) == 7
+            and normalized[4] == "-"
+            and normalized[:4].isdecimal()
+            and normalized[5:].isdecimal()
+        ):
+            datetime.fromisoformat(f"{normalized}-01")
+        elif (
+            len(normalized) == 10
+            and normalized[4] == "-"
+            and normalized[7] == "-"
+        ):
+            datetime.fromisoformat(normalized)
+        else:
+            raise ValueError
+    except ValueError as error:
+        raise StandardsValidationError(
+            f"{field_name} must use YYYY, YYYY-MM, or YYYY-MM-DD."
+        ) from error
+    return normalized
+
+
 def _validate_school_year(value: object) -> str:
     try:
         return validate_school_year(value)
@@ -187,6 +217,28 @@ class StandardDefinition:
 
 
 @dataclass(frozen=True, slots=True)
+class StandardsFrameworkMetadata:
+    """Durable provenance and lifecycle metadata for one standards framework."""
+
+    framework_id: str
+    source: str
+    title: str
+    authority: str
+    publisher: str | None = None
+    source_url: str | None = None
+    version: str | None = None
+    adoption_date: str | None = None
+    implementation_date: str | None = None
+    supersedes: tuple[str, ...] = ()
+    license_name: str | None = None
+    license_url: str | None = None
+    redistribution_notes: str | None = None
+
+    def __post_init__(self) -> None:
+        _normalize_standards_framework(self)
+
+
+@dataclass(frozen=True, slots=True)
 class StandardsProfile:
     """A reusable grouping that references shared standard IDs."""
 
@@ -204,10 +256,11 @@ class StandardsProfile:
 
 @dataclass(frozen=True, slots=True)
 class StandardsLibrary:
-    """An immutable in-memory collection of definitions and profiles."""
+    """An immutable in-memory collection of frameworks, definitions, and profiles."""
 
     standards: tuple[StandardDefinition, ...]
     profiles: tuple[StandardsProfile, ...] = ()
+    frameworks: tuple[StandardsFrameworkMetadata, ...] = ()
 
     def __post_init__(self) -> None:
         _normalize_standards_library(self)
@@ -288,6 +341,45 @@ def _normalize_standard_definition(definition: StandardDefinition) -> None:
         raise StandardsValidationError("active must be a boolean.")
 
 
+def _normalize_standards_framework(framework: StandardsFrameworkMetadata) -> None:
+    for field_name in ("framework_id", "source", "title", "authority"):
+        object.__setattr__(
+            framework,
+            field_name,
+            _required_text(getattr(framework, field_name), field_name),
+        )
+
+    for field_name in (
+        "publisher",
+        "source_url",
+        "version",
+        "license_name",
+        "license_url",
+        "redistribution_notes",
+    ):
+        object.__setattr__(
+            framework,
+            field_name,
+            _optional_text(getattr(framework, field_name), field_name),
+        )
+
+    for field_name in ("adoption_date", "implementation_date"):
+        object.__setattr__(
+            framework,
+            field_name,
+            _optional_lifecycle_date(getattr(framework, field_name), field_name),
+        )
+
+    supersedes = _text_tuple(framework.supersedes, "supersedes")
+    if len(supersedes) != len(set(supersedes)):
+        raise StandardsValidationError(
+            "supersedes must not contain duplicate framework IDs."
+        )
+    if framework.framework_id in supersedes:
+        raise StandardsValidationError("a framework must not supersede itself.")
+    object.__setattr__(framework, "supersedes", supersedes)
+
+
 def _normalize_standards_profile(profile: StandardsProfile) -> None:
     object.__setattr__(
         profile,
@@ -350,8 +442,14 @@ def _normalize_standards_library(library: StandardsLibrary) -> None:
         "profiles",
         StandardsProfile,
     )
+    frameworks = _model_tuple(
+        library.frameworks,
+        "frameworks",
+        StandardsFrameworkMetadata,
+    )
     object.__setattr__(library, "standards", standards)
     object.__setattr__(library, "profiles", profiles)
+    object.__setattr__(library, "frameworks", frameworks)
 
     standard_ids = [definition.standard_id for definition in standards]
     if len(standard_ids) != len(set(standard_ids)):
@@ -363,6 +461,18 @@ def _normalize_standards_library(library: StandardsLibrary) -> None:
     if len(profile_ids) != len(set(profile_ids)):
         raise StandardsValidationError(
             "profiles must not contain duplicate profile IDs."
+        )
+
+    framework_ids = [framework.framework_id for framework in frameworks]
+    if len(framework_ids) != len(set(framework_ids)):
+        raise StandardsValidationError(
+            "frameworks must not contain duplicate framework IDs."
+        )
+
+    framework_sources = [framework.source for framework in frameworks]
+    if len(framework_sources) != len(set(framework_sources)):
+        raise StandardsValidationError(
+            "frameworks must not contain duplicate source values."
         )
 
     known_standard_ids = set(standard_ids)
@@ -447,6 +557,18 @@ def validate_standard_definition(
     return definition
 
 
+def validate_standards_framework(
+    framework: StandardsFrameworkMetadata,
+) -> StandardsFrameworkMetadata:
+    """Validate and return standards-framework provenance metadata."""
+    if not isinstance(framework, StandardsFrameworkMetadata):
+        raise StandardsValidationError(
+            "framework must be a StandardsFrameworkMetadata."
+        )
+    _normalize_standards_framework(framework)
+    return framework
+
+
 def validate_standards_profile(profile: StandardsProfile) -> StandardsProfile:
     """Validate and return a reusable standards profile."""
     if not isinstance(profile, StandardsProfile):
@@ -484,6 +606,7 @@ def add_standard_definition(
         StandardsLibrary(
             standards=validated_library.standards + (validated_definition,),
             profiles=validated_library.profiles,
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -527,6 +650,7 @@ def add_standard_definitions(
         StandardsLibrary(
             standards=validated_library.standards + validated,
             profiles=validated_library.profiles,
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -558,6 +682,7 @@ def replace_standard_definition(
         StandardsLibrary(
             standards=tuple(standards),
             profiles=validated_library.profiles,
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -586,6 +711,7 @@ def upsert_standard_definition(
         StandardsLibrary(
             standards=tuple(standards),
             profiles=validated_library.profiles,
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -611,6 +737,7 @@ def add_standards_profile(
         StandardsLibrary(
             standards=validated_library.standards,
             profiles=validated_library.profiles + (validated_profile,),
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -642,6 +769,7 @@ def replace_standards_profile(
         StandardsLibrary(
             standards=validated_library.standards,
             profiles=tuple(profiles),
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -759,6 +887,7 @@ def upsert_standards_profile(
         StandardsLibrary(
             standards=validated_library.standards,
             profiles=tuple(profiles),
+            frameworks=validated_library.frameworks,
         )
     )
 
@@ -797,6 +926,44 @@ def _require_standards_library(library: StandardsLibrary) -> StandardsLibrary:
     if not isinstance(library, StandardsLibrary):
         raise StandardsValidationError("library must be a StandardsLibrary.")
     return library
+
+
+def find_standards_framework(
+    library: StandardsLibrary,
+    framework_id: str,
+) -> StandardsFrameworkMetadata | None:
+    """Return framework metadata with framework_id, or None."""
+    validated_library = _require_standards_library(library)
+    normalized_framework_id = _required_text(framework_id, "framework_id")
+
+    for framework in validated_library.frameworks:
+        if framework.framework_id == normalized_framework_id:
+            return framework
+    return None
+
+
+def filter_standards_frameworks(
+    library: StandardsLibrary,
+    *,
+    source: str | None = None,
+    authority: str | None = None,
+) -> tuple[StandardsFrameworkMetadata, ...]:
+    """Return framework metadata matching all supplied filters."""
+    validated_library = _require_standards_library(library)
+    normalized_source = _optional_filter_text(source, "source")
+    normalized_authority = _optional_filter_text(authority, "authority")
+
+    matches: list[StandardsFrameworkMetadata] = []
+    for framework in validated_library.frameworks:
+        if normalized_source is not None and framework.source != normalized_source:
+            continue
+        if (
+            normalized_authority is not None
+            and framework.authority != normalized_authority
+        ):
+            continue
+        matches.append(framework)
+    return tuple(matches)
 
 
 def find_standard_definition(
@@ -1258,6 +1425,20 @@ _STANDARD_DEFINITION_KEYS = _STANDARD_DEFINITION_REQUIRED_KEYS | {
     "active",
     "available_modules",
 }
+_STANDARDS_FRAMEWORK_REQUIRED_KEYS = frozenset(
+    {"framework_id", "source", "title", "authority"}
+)
+_STANDARDS_FRAMEWORK_KEYS = _STANDARDS_FRAMEWORK_REQUIRED_KEYS | {
+    "publisher",
+    "source_url",
+    "version",
+    "adoption_date",
+    "implementation_date",
+    "supersedes",
+    "license_name",
+    "license_url",
+    "redistribution_notes",
+}
 _STANDARDS_PROFILE_REQUIRED_KEYS = frozenset({"profile_id", "standards"})
 _STANDARDS_PROFILE_KEYS = _STANDARDS_PROFILE_REQUIRED_KEYS | {
     "subject",
@@ -1267,7 +1448,10 @@ _STANDARDS_PROFILE_KEYS = _STANDARDS_PROFILE_REQUIRED_KEYS | {
     "description",
 }
 _STANDARDS_LIBRARY_REQUIRED_KEYS = frozenset({"standards"})
-_STANDARDS_LIBRARY_KEYS = _STANDARDS_LIBRARY_REQUIRED_KEYS | {"profiles"}
+_STANDARDS_LIBRARY_KEYS = _STANDARDS_LIBRARY_REQUIRED_KEYS | {
+    "profiles",
+    "frameworks",
+}
 _STANDARD_USAGE_EVENT_REQUIRED_KEYS = frozenset(
     {
         "event_id",
@@ -1340,6 +1524,58 @@ def standard_definition_from_dict(
     )
 
 
+def standards_framework_to_dict(
+    framework: StandardsFrameworkMetadata,
+) -> dict[str, object]:
+    """Serialize standards-framework metadata to a JSON-compatible dictionary."""
+    validate_standards_framework(framework)
+    return {
+        "framework_id": framework.framework_id,
+        "source": framework.source,
+        "title": framework.title,
+        "authority": framework.authority,
+        "publisher": framework.publisher,
+        "source_url": framework.source_url,
+        "version": framework.version,
+        "adoption_date": framework.adoption_date,
+        "implementation_date": framework.implementation_date,
+        "supersedes": list(framework.supersedes),
+        "license_name": framework.license_name,
+        "license_url": framework.license_url,
+        "redistribution_notes": framework.redistribution_notes,
+    }
+
+
+def standards_framework_from_dict(
+    data: Mapping[str, object],
+) -> StandardsFrameworkMetadata:
+    """Deserialize and validate standards-framework metadata."""
+    values = _validated_mapping(
+        data,
+        "standards framework",
+        _STANDARDS_FRAMEWORK_REQUIRED_KEYS,
+        _STANDARDS_FRAMEWORK_KEYS,
+    )
+    return StandardsFrameworkMetadata(
+        framework_id=values["framework_id"],  # type: ignore[arg-type]
+        source=values["source"],  # type: ignore[arg-type]
+        title=values["title"],  # type: ignore[arg-type]
+        authority=values["authority"],  # type: ignore[arg-type]
+        publisher=values.get("publisher"),  # type: ignore[arg-type]
+        source_url=values.get("source_url"),  # type: ignore[arg-type]
+        version=values.get("version"),  # type: ignore[arg-type]
+        adoption_date=values.get("adoption_date"),  # type: ignore[arg-type]
+        implementation_date=values.get("implementation_date"),  # type: ignore[arg-type]
+        supersedes=_json_array(
+            values.get("supersedes", []),
+            "supersedes",
+        ),  # type: ignore[arg-type]
+        license_name=values.get("license_name"),  # type: ignore[arg-type]
+        license_url=values.get("license_url"),  # type: ignore[arg-type]
+        redistribution_notes=values.get("redistribution_notes"),  # type: ignore[arg-type]
+    )
+
+
 def standards_profile_to_dict(profile: StandardsProfile) -> dict[str, object]:
     """Serialize a standards profile to a JSON-compatible dictionary."""
     validate_standards_profile(profile)
@@ -1382,6 +1618,10 @@ def standards_library_to_dict(library: StandardsLibrary) -> dict[str, object]:
     """Serialize a standards library to a JSON-compatible dictionary."""
     validate_standards_library(library)
     return {
+        "frameworks": [
+            standards_framework_to_dict(framework)
+            for framework in library.frameworks
+        ],
         "standards": [
             standard_definition_to_dict(definition)
             for definition in library.standards
@@ -1402,6 +1642,19 @@ def standards_library_from_dict(
         _STANDARDS_LIBRARY_REQUIRED_KEYS,
         _STANDARDS_LIBRARY_KEYS,
     )
+
+    frameworks = []
+    for index, entry in enumerate(
+        _json_array(values.get("frameworks", []), "frameworks")
+    ):
+        try:
+            frameworks.append(
+                standards_framework_from_dict(cast(Mapping[str, object], entry))
+            )
+        except StandardsValidationError as error:
+            raise StandardsValidationError(
+                f"frameworks[{index}]: {error}"
+            ) from error
 
     standards = []
     for index, entry in enumerate(
@@ -1434,6 +1687,7 @@ def standards_library_from_dict(
     return StandardsLibrary(
         standards=tuple(standards),
         profiles=tuple(profiles),
+        frameworks=tuple(frameworks),
     )
 
 

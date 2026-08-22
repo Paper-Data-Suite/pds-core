@@ -3,8 +3,8 @@
 `pds-core` ships optional starter standards packs for teachers and developers
 who need a shared standards library before building module assignments.
 
-Starter standards are setup helpers. They install shared
-`StandardDefinition` records and reusable `StandardsProfile` pools into:
+Starter standards are setup helpers. They install shared framework
+provenance, `StandardDefinition` records, and reusable `StandardsProfile` pools into:
 
 ```text
 <PDS workspace root>/standards/library.json
@@ -54,6 +54,26 @@ modules can select either granularity by durable `standard_id`.
 No hierarchy schema is required for this representation. Parent/child rollup
 and mastery aggregation are outside the standards library's scope. Starter
 standards are setup metadata, not grading policy or curriculum guidance.
+
+## Framework Provenance
+
+Starter packs may carry framework-level provenance in the same
+`StandardsLibrary` that contains definitions and profiles. Installing a starter
+pack therefore preserves the framework record in `standards/library.json`; the
+metadata does not disappear after installation.
+
+The `njsls_ela_2023` pack identifies the 2023 New Jersey Student Learning
+Standards for English Language Arts as a framework issued by the New Jersey
+State Board of Education and published by the New Jersey Department of
+Education. The State Board adopted the revised standards on October 4, 2023,
+and the ELA implementation deadline remained September 2024. The framework
+record links to the NJDOE 2023 NJSLS-ELA source page. No explicit
+redistribution license is asserted by the starter data.
+
+Framework lifecycle metadata is descriptive. It does not change the
+`active` flag on individual standards, choose curriculum for a teacher, or
+create standards-usage events. Multiple editions may coexist when an authority
+has adopted a successor before its implementation date.
 
 ## CLI Workflow
 

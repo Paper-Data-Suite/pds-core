@@ -31,6 +31,7 @@ def test_starter_list_and_preview_do_not_touch_workspace(
     assert "grade bands: 9-10, 11-12" in out
     assert "135 standards" in out
     assert "2 profiles" in out
+    assert "frameworks: 1" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -47,6 +48,8 @@ def test_starter_list_and_preview_do_not_touch_workspace(
     assert "English 10" in out
     assert "english10_2023_njsls_ela" in out
     assert "english12_2023_njsls_ela" in out
+    assert "Frameworks: 1" in out
+    assert "Framework IDs: njsls_ela_2023" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -65,7 +68,7 @@ def test_starter_validate_reports_success_without_workspace_writes(
 
     assert code == 0
     assert f"Starter standards pack is valid: {PACK_ID}" in out
-    assert "(135 standards, 2 profiles)" in out
+    assert "(135 standards, 2 profiles, frameworks: 1)" in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
 
@@ -87,12 +90,14 @@ def test_starter_install_writes_expected_library_only(
     assert f"Installed starter standards pack: {PACK_ID}" in out
     assert "Standards: 135 added, 0 skipped, 0 overwritten." in out
     assert "Profiles: 2 added, 0 skipped, 0 overwritten." in out
+    assert "Frameworks: 1 added, 0 skipped, 0 overwritten." in out
     assert "No standards usage events were recorded." in out
     assert err == ""
     assert standards_library_path(tmp_path).is_file()
     library = load_standards_library(standards_library_path(tmp_path))
     assert len(library.standards) == 135
     assert len(library.profiles) == 2
+    assert len(library.frameworks) == 1
     assert not (tmp_path / "standards" / "usage").exists()
     assert not (tmp_path / "classes").exists()
     assert not (tmp_path / "assignments").exists()
@@ -126,9 +131,60 @@ def test_starter_install_repeated_run_is_clear_and_idempotent(
     assert code == 0
     assert "Standards: 0 added, 135 skipped, 0 overwritten." in out
     assert "Profiles: 0 added, 2 skipped, 0 overwritten." in out
+    assert "Frameworks: 0 added, 1 skipped, 0 overwritten." in out
     assert "No workspace changes were needed." in out
     assert err == ""
     assert standards_library_path(tmp_path).read_text(encoding="utf-8") == before
+
+
+def test_starter_framework_metadata_survives_cli_export_import(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    source_workspace = tmp_path / "source"
+    target_workspace = tmp_path / "target"
+    export_path = tmp_path / "exported-library.json"
+
+    code, _out, err = run_cli(
+        source_workspace,
+        "standards",
+        "starter",
+        "install",
+        PACK_ID,
+        capsys=capsys,
+    )
+    assert code == 0
+    assert err == ""
+
+    code, _out, err = run_cli(
+        source_workspace,
+        "standards",
+        "export",
+        str(export_path),
+        capsys=capsys,
+    )
+    assert code == 0
+    assert err == ""
+
+    code, _out, err = run_cli(
+        target_workspace,
+        "standards",
+        "import",
+        str(export_path),
+        "--replace",
+        capsys=capsys,
+    )
+    assert code == 0
+    assert err == ""
+
+    source_library = load_standards_library(
+        standards_library_path(source_workspace)
+    )
+    imported_library = load_standards_library(
+        standards_library_path(target_workspace)
+    )
+    assert imported_library.frameworks == source_library.frameworks
+    assert imported_library.frameworks[0].framework_id == "njsls_ela_2023"
 
 
 def test_starter_install_refuses_conflicts_without_overwrite(

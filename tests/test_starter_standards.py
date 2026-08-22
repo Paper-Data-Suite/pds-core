@@ -49,6 +49,8 @@ def test_njsls_ela_2023_starter_pack_is_discoverable() -> None:
         "english10_2023_njsls_ela",
         "english12_2023_njsls_ela",
     )
+    assert metadata.framework_count == 1
+    assert metadata.framework_ids == ("njsls_ela_2023",)
 
 
 def test_njsls_ela_2023_starter_pack_validates() -> None:
@@ -58,6 +60,17 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
 
     assert len(standard_ids) == len(set(standard_ids)) == 135
     assert len(profile_ids) == len(set(profile_ids)) == 2
+    assert len(library.frameworks) == 1
+    framework = library.frameworks[0]
+    assert framework.framework_id == "njsls_ela_2023"
+    assert framework.source == "2023 NJSLS-ELA"
+    assert framework.authority == "New Jersey State Board of Education"
+    assert framework.publisher == "New Jersey Department of Education"
+    assert framework.version == "2023"
+    assert framework.adoption_date == "2023-10-04"
+    assert framework.implementation_date == "2024-09"
+    assert framework.supersedes == ()
+    assert framework.license_name is None
     assert all(standard_id.startswith("njsls-ela:") for standard_id in standard_ids)
     assert all(definition.active for definition in library.standards)
     assert all(
@@ -164,7 +177,8 @@ def test_install_into_empty_workspace_writes_only_library(tmp_path: Path) -> Non
 
     assert result.standards_added == 135
     assert result.profiles_added == 2
-    assert result.changed_count == 137
+    assert result.frameworks_added == 1
+    assert result.changed_count == 138
     assert standards_library_path(tmp_path).is_file()
     assert load_standards_library(standards_library_path(tmp_path)) == (
         load_starter_standards_library(PACK_ID)
@@ -196,11 +210,13 @@ def test_repeated_install_is_idempotent(tmp_path: Path) -> None:
         load_standards_library(standards_library_path(tmp_path)),
     )
 
-    assert first.changed_count == 137
+    assert first.changed_count == 138
     assert second.standards_added == 0
     assert second.standards_skipped == 135
     assert second.profiles_added == 0
     assert second.profiles_skipped == 2
+    assert second.frameworks_added == 0
+    assert second.frameworks_skipped == 1
     assert second.changed_count == 0
     assert standards_library_path(tmp_path).read_text(encoding="utf-8") == before
 
@@ -247,6 +263,71 @@ def test_install_can_explicitly_overwrite_conflicting_pack_records(
     assert result.standard_conflicts == ()
     installed = load_standards_library(standards_library_path(tmp_path))
     assert installed.standards[0] == starter.standards[0]
+
+
+def test_install_reports_framework_conflict_without_partial_write(
+    tmp_path: Path,
+) -> None:
+    starter = load_starter_standards_library(PACK_ID)
+    conflicting_framework = dataclass_replace(
+        starter.frameworks[0],
+        title="Teacher-edited local framework title.",
+    )
+    existing = StandardsLibrary(
+        standards=(),
+        frameworks=(conflicting_framework,),
+    )
+
+    with pytest.raises(StarterStandardsInstallError) as caught:
+        install_starter_standards_library(tmp_path, PACK_ID, existing)
+
+    assert caught.value.result.framework_conflicts == ("njsls_ela_2023",)
+    assert not standards_library_path(tmp_path).exists()
+
+
+def test_install_can_explicitly_overwrite_conflicting_framework_metadata(
+    tmp_path: Path,
+) -> None:
+    starter = load_starter_standards_library(PACK_ID)
+    conflicting_framework = dataclass_replace(
+        starter.frameworks[0],
+        title="Teacher-edited local framework title.",
+    )
+    existing = StandardsLibrary(
+        standards=(),
+        frameworks=(conflicting_framework,),
+    )
+
+    result = install_starter_standards_library(
+        tmp_path,
+        PACK_ID,
+        existing,
+        overwrite_conflicts=True,
+    )
+
+    assert result.frameworks_overwritten == 1
+    assert result.framework_conflicts == ()
+    installed = load_standards_library(standards_library_path(tmp_path))
+    assert installed.frameworks == starter.frameworks
+
+
+def test_install_rejects_ambiguous_framework_source_identity(
+    tmp_path: Path,
+) -> None:
+    starter = load_starter_standards_library(PACK_ID)
+    source_collision = dataclass_replace(
+        starter.frameworks[0],
+        framework_id="local_njsls_ela_2023",
+    )
+    existing = StandardsLibrary(
+        standards=(),
+        frameworks=(source_collision,),
+    )
+
+    with pytest.raises(StandardsValidationError, match="already belongs"):
+        install_starter_standards_library(tmp_path, PACK_ID, existing)
+
+    assert not standards_library_path(tmp_path).exists()
 
 
 def test_invalid_starter_pack_does_not_write_partial_files(

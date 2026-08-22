@@ -45,7 +45,7 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
                 "4": (self.install_starter_standards, True),
             },
             guidance=(
-                "Starter standards install shared definitions and reusable profiles.",
+                "Starter standards install shared framework metadata, definitions, and reusable profiles.",
                 "Install writes only standards/library.json after confirmation.",
             ),
             pause_context="Starter Standards menu",
@@ -117,6 +117,8 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
                 f"Standards: {pack.standard_count}",
                 f"Profiles: {pack.profile_count}",
                 f"Profile IDs: {', '.join(pack.profile_ids)}",
+                f"Frameworks: {pack.framework_count}",
+                f"Framework IDs: {', '.join(pack.framework_ids)}",
                 "",
                 "Install this starter standards pack into standards/library.json?",
                 "",
@@ -184,4 +186,5 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
                 print(f"   Grade bands: {', '.join(pack.grade_bands)}", file=self.stdout)
                 print(f"   Standards: {pack.standard_count}", file=self.stdout)
                 print(f"   Profiles: {pack.profile_count}", file=self.stdout)
+                print(f"   Frameworks: {pack.framework_count}", file=self.stdout)
             print("", file=self.stdout)

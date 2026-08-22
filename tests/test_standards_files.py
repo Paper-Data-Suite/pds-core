@@ -102,7 +102,7 @@ def test_write_standards_library_writes_readable_json_file(
     content = path.read_text(encoding="utf-8")
     data = json.loads(content)
     assert content.endswith("\n")
-    assert set(data) == {"profiles", "standards"}
+    assert set(data) == {"frameworks", "profiles", "standards"}
     assert isinstance(data["standards"][0]["category_path"], list)
     assert isinstance(data["profiles"][0]["standards"], list)
 

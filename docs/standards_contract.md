@@ -318,8 +318,8 @@ The current implemented standards storage commitments are:
           events.jsonl
 ```
 
-The shared library file at `standards/library.json` stores durable reusable
-standard definitions and reusable standards profiles. Loading a missing
+The shared library file at `standards/library.json` stores durable framework
+provenance, reusable standard definitions, and reusable standards profiles. Loading a missing
 workspace standards library returns an empty `StandardsLibrary` and does not
 create `standards/`, `library.json`, usage ledgers, settings, class folders,
 assignment folders, reports, rosters, or module-specific folders. Writing the
@@ -368,6 +368,46 @@ Storage should remain:
 Standard codes must not be interpolated directly into file paths. Profiles and
 usage partitions may use existing safe `profile_id`, `school_year`, and
 `class_id` path rules after their exact validation contracts are defined.
+
+## Standards Framework Provenance and Lifecycle
+
+`StandardsLibrary` also stores immutable `StandardsFrameworkMetadata` records.
+Framework metadata is durable provenance surrounding a standards edition; it
+is not duplicated onto every `StandardDefinition` and does not replace the
+existing `source`, `standard_id`, or display `code` fields.
+
+The identities have different purposes:
+
+```text
+pack_id       bundled installer/discovery identity
+framework_id  durable standards-framework edition identity
+source        shared label used by definitions and profiles
+standard_id   durable individual-standard identity
+code          teacher-facing authority-defined standard code
+```
+
+Framework records can preserve the issuing authority, publisher, official
+source URL, source-defined version, adoption date, implementation date,
+supersession links, and descriptive licensing or redistribution information.
+Adoption and implementation are separate facts. Lifecycle dates preserve the
+precision supported by the source and may use `YYYY`, `YYYY-MM`, or
+`YYYY-MM-DD`; Core does not invent missing precision.
+
+`supersedes` points from a newer framework record to predecessor
+`framework_id` values. The predecessor does not need to be installed, and two
+editions may coexist in one library during a transition. Core does not
+automatically deactivate standards, select a legally current edition, or infer
+curriculum policy from dates or supersession. `StandardDefinition.active`
+remains a record-level availability flag rather than a framework-currentness
+flag.
+
+Licensing fields record source-supplied facts or curator notes. They are not an
+automated legal determination, and absence of an explicit license must not be
+converted into an invented permission or prohibition.
+
+Framework metadata is serialized inside the canonical
+`standards/library.json`. Legacy libraries without a `frameworks` member remain
+valid and load with an empty framework collection.
 
 ## Shared Concept: Standard Definition
 
