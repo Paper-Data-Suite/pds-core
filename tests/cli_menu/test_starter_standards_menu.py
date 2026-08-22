@@ -21,6 +21,7 @@ def test_menu_starter_list_and_back_do_not_create_artifacts(
     assert "Starter Standards" in out
     assert "1. 2023 NJSLS ELA High School Starter Standards" in out
     assert "njsls_ela_2023" in out
+    assert "Frameworks: 1" in out
     assert "This does not write files." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -42,6 +43,7 @@ def test_menu_starter_install_requires_confirmation(
     assert "Install Starter Standards" in out
     assert "Choose a starter standards pack:" in out
     assert "Pack ID: njsls_ela_2023" in out
+    assert "Framework IDs: njsls_ela_2023" in out
     assert "Cancelled." in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []
@@ -68,6 +70,7 @@ def test_menu_starter_install_writes_library_after_confirmation(
     library = load_standards_library(library_file(tmp_path))
     assert len(library.standards) == 135
     assert len(library.profiles) == 2
+    assert len(library.frameworks) == 1
     assert not (tmp_path / "standards" / "usage").exists()
 
 

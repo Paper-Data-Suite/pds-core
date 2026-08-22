@@ -10,6 +10,7 @@ from typing import Final
 
 from pds_core.standards import (
     StandardDefinition,
+    StandardsFrameworkMetadata,
     StandardsLibrary,
     StandardsProfile,
     StandardsValidationError,
@@ -50,6 +51,8 @@ class StarterStandardsPackMetadata:
     standard_count: int
     profile_count: int
     profile_ids: tuple[str, ...]
+    framework_count: int = 0
+    framework_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,10 +69,18 @@ class StarterStandardsInstallResult:
     profiles_overwritten: int
     standard_conflicts: tuple[str, ...] = ()
     profile_conflicts: tuple[str, ...] = ()
+    frameworks_added: int = 0
+    frameworks_skipped: int = 0
+    frameworks_overwritten: int = 0
+    framework_conflicts: tuple[str, ...] = ()
 
     @property
     def has_conflicts(self) -> bool:
-        return bool(self.standard_conflicts or self.profile_conflicts)
+        return bool(
+            self.standard_conflicts
+            or self.profile_conflicts
+            or self.framework_conflicts
+        )
 
     @property
     def changed_count(self) -> int:
@@ -78,6 +89,8 @@ class StarterStandardsInstallResult:
             + self.standards_overwritten
             + self.profiles_added
             + self.profiles_overwritten
+            + self.frameworks_added
+            + self.frameworks_overwritten
         )
 
 
@@ -132,6 +145,10 @@ def starter_standards_pack_metadata(
         standard_count=len(library.standards),
         profile_count=len(library.profiles),
         profile_ids=tuple(profile.profile_id for profile in library.profiles),
+        framework_count=len(library.frameworks),
+        framework_ids=tuple(
+            framework.framework_id for framework in library.frameworks
+        ),
     )
 
 
@@ -207,6 +224,13 @@ def merge_standards_libraries(
             overwrite_conflicts=overwrite_conflicts,
         )
     )
+    frameworks, frameworks_added, frameworks_skipped, frameworks_overwritten = (
+        _merge_standards_frameworks(
+            existing.frameworks,
+            starter.frameworks,
+            overwrite_conflicts=overwrite_conflicts,
+        )
+    )
 
     standard_conflicts = _conflicting_ids(
         existing.standards,
@@ -218,9 +242,15 @@ def merge_standards_libraries(
         starter.profiles,
         key_name="profile_id",
     )
+    framework_conflicts = _conflicting_ids(
+        existing.frameworks,
+        starter.frameworks,
+        key_name="framework_id",
+    )
     if overwrite_conflicts:
         standard_conflicts = ()
         profile_conflicts = ()
+        framework_conflicts = ()
 
     result = StarterStandardsInstallResult(
         pack_id=pack_id,
@@ -233,11 +263,19 @@ def merge_standards_libraries(
         profiles_overwritten=profiles_overwritten,
         standard_conflicts=standard_conflicts,
         profile_conflicts=profile_conflicts,
+        frameworks_added=frameworks_added,
+        frameworks_skipped=frameworks_skipped,
+        frameworks_overwritten=frameworks_overwritten,
+        framework_conflicts=framework_conflicts,
     )
     if result.has_conflicts:
         return existing, result
 
-    return StandardsLibrary(standards=standards, profiles=profiles), result
+    return StandardsLibrary(
+        standards=standards,
+        profiles=profiles,
+        frameworks=frameworks,
+    ), result
 
 
 def _starter_pack_config(pack_id: str) -> StarterStandardsPackConfig:
@@ -285,6 +323,49 @@ def _merge_standard_definitions(
             skipped += 1
         elif overwrite_conflicts:
             merged[index] = definition
+            overwritten += 1
+
+    return tuple(merged), added, skipped, overwritten
+
+
+def _merge_standards_frameworks(
+    existing: tuple[StandardsFrameworkMetadata, ...],
+    incoming: tuple[StandardsFrameworkMetadata, ...],
+    *,
+    overwrite_conflicts: bool,
+) -> tuple[tuple[StandardsFrameworkMetadata, ...], int, int, int]:
+    added = 0
+    skipped = 0
+    overwritten = 0
+    merged = list(existing)
+    by_id = {
+        framework.framework_id: index
+        for index, framework in enumerate(existing)
+    }
+    by_source = {framework.source: framework for framework in existing}
+
+    for framework in incoming:
+        source_match = by_source.get(framework.source)
+        if (
+            source_match is not None
+            and source_match.framework_id != framework.framework_id
+        ):
+            raise StandardsValidationError(
+                f"framework source {framework.source!r} already belongs to "
+                f"framework_id {source_match.framework_id!r}."
+            )
+
+        framework_id = framework.framework_id
+        index = by_id.get(framework_id)
+        if index is None:
+            by_id[framework_id] = len(merged)
+            by_source[framework.source] = framework
+            merged.append(framework)
+            added += 1
+        elif merged[index] == framework:
+            skipped += 1
+        elif overwrite_conflicts:
+            merged[index] = framework
             overwritten += 1
 
     return tuple(merged), added, skipped, overwritten
@@ -350,6 +431,11 @@ def _install_conflict_message(result: StarterStandardsInstallResult) -> str:
         parts.append(
             "profile_id conflict(s): "
             + ", ".join(result.profile_conflicts)
+        )
+    if result.framework_conflicts:
+        parts.append(
+            "framework_id conflict(s): "
+            + ", ".join(result.framework_conflicts)
         )
     parts.append("rerun with --overwrite to replace conflicting starter records")
     return "; ".join(parts)

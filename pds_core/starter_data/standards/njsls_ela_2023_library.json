@@ -1,4 +1,21 @@
 {
+    "frameworks":  [
+                         {
+                             "framework_id":  "njsls_ela_2023",
+                             "source":  "2023 NJSLS-ELA",
+                             "title":  "2023 New Jersey Student Learning Standards for English Language Arts",
+                             "authority":  "New Jersey State Board of Education",
+                             "publisher":  "New Jersey Department of Education",
+                             "source_url":  "https://www.nj.gov/education/standards/ela/2023/",
+                             "version":  "2023",
+                             "adoption_date":  "2023-10-04",
+                             "implementation_date":  "2024-09",
+                             "supersedes":  [],
+                             "license_name":  null,
+                             "license_url":  null,
+                             "redistribution_notes":  null
+                         }
+                     ],
     "standards":  [
                       {
                           "standard_id":  "njsls-ela:L.SS.9-10.1",
