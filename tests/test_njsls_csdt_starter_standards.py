@@ -31,6 +31,7 @@ from pds_core.starter_standards import (
 
 
 PACK_ID = "njsls_csdt_2020"
+CLKS_PACK_ID = "njsls_clks_2020"
 ELA_PACK_ID = "njsls_ela_2023"
 SOURCE = "2020 NJSLS-CS&DT"
 CS_PROFILE_ID = "computer_science_9_12_2020_njsls_csdt"
@@ -40,7 +41,11 @@ DT_PROFILE_ID = "design_thinking_9_12_2020_njsls_csdt"
 def test_csdt_starter_pack_is_discoverable_with_expected_metadata() -> None:
     packs = list_starter_standards_packs()
 
-    assert [pack.pack_id for pack in packs] == [PACK_ID, ELA_PACK_ID]
+    assert [pack.pack_id for pack in packs] == [
+        CLKS_PACK_ID,
+        PACK_ID,
+        ELA_PACK_ID,
+    ]
     metadata = starter_standards_pack_metadata(PACK_ID)
     assert metadata.title == (
         "2020 NJSLS Computer Science and Design Thinking Starter Standards"

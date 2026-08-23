@@ -38,6 +38,7 @@ def test_njsls_ela_2023_starter_pack_is_discoverable() -> None:
     packs = list_starter_standards_packs()
 
     assert [pack.pack_id for pack in packs] == [
+        "njsls_clks_2020",
         "njsls_csdt_2020",
         PACK_ID,
     ]

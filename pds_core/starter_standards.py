@@ -22,6 +22,7 @@ from pds_core.standards import (
 
 
 _STARTER_STANDARDS_PACKAGE: Final[str] = "pds_core.starter_data.standards"
+_NJSLS_CLKS_2020_PACK_ID: Final[str] = "njsls_clks_2020"
 _NJSLS_CSDT_2020_PACK_ID: Final[str] = "njsls_csdt_2020"
 _NJSLS_ELA_2023_PACK_ID: Final[str] = "njsls_ela_2023"
 
@@ -96,6 +97,26 @@ class StarterStandardsInstallResult:
 
 
 _STARTER_PACKS: Final[dict[str, StarterStandardsPackConfig]] = {
+    _NJSLS_CLKS_2020_PACK_ID: StarterStandardsPackConfig(
+        pack_id=_NJSLS_CLKS_2020_PACK_ID,
+        title=(
+            "2020 NJSLS Career Readiness, Life Literacies and Key Skills "
+            "Starter Standards"
+        ),
+        description=(
+            "Complete coded Performance Expectations from 2020 NJSLS-CLKS "
+            "Standards 9.1, 9.2, and 9.4, with reusable grades 9-12 "
+            "source-area and combined CLKS profiles."
+        ),
+        source="2020 NJSLS-CLKS",
+        grade_bands=("K-2", "3-5", "6-8", "9-12"),
+        courses=(
+            "Personal Financial Literacy",
+            "Career Awareness, Exploration, Preparation and Training",
+            "Life Literacies and Key Skills",
+        ),
+        resource_name="njsls_clks_2020_library.json",
+    ),
     _NJSLS_CSDT_2020_PACK_ID: StarterStandardsPackConfig(
         pack_id=_NJSLS_CSDT_2020_PACK_ID,
         title=(
