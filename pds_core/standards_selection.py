@@ -124,10 +124,21 @@ def list_standards_for_selection(
         available_module=available_module,
     )
     if normalized_course is not None:
+        profile_standard_ids = {
+            standard_id
+            for profile in filter_standards_profiles(
+                library,
+                course=normalized_course,
+            )
+            for standard_id in profile.standards
+        }
         definitions = tuple(
             definition
             for definition in definitions
-            if definition.course == normalized_course
+            if (
+                definition.course == normalized_course
+                or definition.standard_id in profile_standard_ids
+            )
         )
     return tuple(
         _standard_selection_item(definition)

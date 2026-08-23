@@ -96,10 +96,20 @@ pds_core/starter_data/standards/njsls_ela_2023_library.json
 
 The pack contains 64 parent-standard definitions and 71 lettered subskill
 definitions from the 2023 NJSLS-ELA high school grade bands, for 135 standards
-total, plus 2 reusable profiles:
+total, plus 3 reusable profiles:
 
 - `english10_2023_njsls_ela`
+- `english11_2023_njsls_ela`
 - `english12_2023_njsls_ela`
+
+New Jersey publishes the upper high-school expectations as one `11-12` grade
+band. The English 11 and English 12 profiles therefore reuse the same 67 durable
+`njsls-ela:*11-12*` definitions; Core does not duplicate those definitions by
+local course. The original starter data predates the English 11 profile and
+retains `English 12` as legacy definition-level course/category metadata for
+those records. Course-aware selection treats membership in a course profile as
+course applicability, so English 11 works without rewriting previously installed
+definitions or creating starter conflicts.
 
 Each lettered subskill is an ordinary, first-class `StandardDefinition`. Its
 durable `standard_id` and display `code` extend the parent value with the

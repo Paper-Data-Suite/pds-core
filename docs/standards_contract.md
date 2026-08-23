@@ -23,6 +23,14 @@ parent/child rollup, mastery aggregation, grading policy, or curriculum
 guidance. Bundled subskill `short_name` values are concise teacher-readable
 labels derived from each subskill's description.
 
+Source grade bands and local courses are distinct concepts. A reusable course
+profile may expose source-defined standards whose `StandardDefinition.course`
+metadata names another legacy/local course. Course-filtered selection therefore
+considers both direct definition metadata and membership in matching
+`StandardsProfile` records. Profiles are the compatibility-safe way to map one
+source grade band to multiple local courses without duplicating durable standard
+definitions.
+
 For teacher-facing workspace setup, validation, reset, and clean simulation
 workspace workflows, see [`workspace_management.md`](workspace_management.md).
 

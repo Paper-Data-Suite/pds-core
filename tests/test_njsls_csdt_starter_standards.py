@@ -293,7 +293,7 @@ def test_csdt_and_ela_packs_coexist_in_either_install_order(
     combined = load_standards_library(standards_library_path(tmp_path))
 
     assert len(combined.standards) == 135 + 163
-    assert len(combined.profiles) == 2 + 2
+    assert len(combined.profiles) == 2 + 3
     assert len(combined.frameworks) == 2
     assert {framework.framework_id for framework in combined.frameworks} == {
         "njsls_ela_2023",
