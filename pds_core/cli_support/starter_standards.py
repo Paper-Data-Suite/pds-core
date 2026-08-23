@@ -16,6 +16,11 @@ from pds_core.starter_standards import (
 )
 
 
+def starter_grade_bands_text(grade_bands: tuple[str, ...]) -> str:
+    """Return teacher-readable starter grade-band metadata."""
+    return ", ".join(grade_bands) if grade_bands else "not specified"
+
+
 def handle_starter_standards_list(
     _args: argparse.Namespace,
     _library: StandardsLibrary,
@@ -49,7 +54,7 @@ def handle_starter_standards_preview(
     print("", file=stdout)
     print(f"Pack ID: {metadata.pack_id}", file=stdout)
     print(f"Source: {metadata.source}", file=stdout)
-    print(f"Grade bands: {', '.join(metadata.grade_bands)}", file=stdout)
+    print(f"Grade bands: {starter_grade_bands_text(metadata.grade_bands)}", file=stdout)
     print(f"Courses: {', '.join(metadata.courses)}", file=stdout)
     print(f"Standards: {metadata.standard_count}", file=stdout)
     print(f"Profiles: {metadata.profile_count}", file=stdout)
@@ -144,7 +149,7 @@ def _metadata_row(metadata: StarterStandardsPackMetadata) -> str:
             metadata.pack_id,
             metadata.title,
             metadata.source,
-            f"grade bands: {', '.join(metadata.grade_bands)}",
+            f"grade bands: {starter_grade_bands_text(metadata.grade_bands)}",
             f"{metadata.standard_count} standards",
             f"{metadata.profile_count} profiles",
             f"frameworks: {metadata.framework_count}",

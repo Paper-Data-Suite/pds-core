@@ -107,6 +107,7 @@ def test_cli_validate_all_reports_all_bundled_packs(
     )
 
     assert code == 0
+    assert "Starter standards pack is valid: ap_csp_fall_2023" in out
     assert "Starter standards pack is valid: njsls_clks_2020" in out
     assert "Starter standards pack is valid: njsls_csdt_2020" in out
     assert "Starter standards pack is valid: njsls_ela_2023" in out

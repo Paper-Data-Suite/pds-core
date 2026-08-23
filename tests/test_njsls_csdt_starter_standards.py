@@ -30,6 +30,7 @@ from pds_core.starter_standards import (
 )
 
 
+AP_PACK_ID = "ap_csp_fall_2023"
 PACK_ID = "njsls_csdt_2020"
 CLKS_PACK_ID = "njsls_clks_2020"
 ELA_PACK_ID = "njsls_ela_2023"
@@ -42,6 +43,7 @@ def test_csdt_starter_pack_is_discoverable_with_expected_metadata() -> None:
     packs = list_starter_standards_packs()
 
     assert [pack.pack_id for pack in packs] == [
+        AP_PACK_ID,
         CLKS_PACK_ID,
         PACK_ID,
         ELA_PACK_ID,

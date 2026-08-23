@@ -96,7 +96,7 @@ def test_clks_starter_install_reports_expected_counts(
     assert library.frameworks[0].framework_id == "njsls_clks_2020"
 
 
-def test_cli_validate_all_reports_three_bundled_packs(
+def test_cli_validate_all_reports_four_bundled_packs(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -109,6 +109,7 @@ def test_cli_validate_all_reports_three_bundled_packs(
     )
 
     assert code == 0
+    assert "Starter standards pack is valid: ap_csp_fall_2023" in out
     assert "Starter standards pack is valid: njsls_clks_2020" in out
     assert "Starter standards pack is valid: njsls_csdt_2020" in out
     assert "Starter standards pack is valid: njsls_ela_2023" in out

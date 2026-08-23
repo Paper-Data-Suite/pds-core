@@ -22,6 +22,7 @@ from pds_core.standards import (
 
 
 _STARTER_STANDARDS_PACKAGE: Final[str] = "pds_core.starter_data.standards"
+_AP_CSP_FALL_2023_PACK_ID: Final[str] = "ap_csp_fall_2023"
 _NJSLS_CLKS_2020_PACK_ID: Final[str] = "njsls_clks_2020"
 _NJSLS_CSDT_2020_PACK_ID: Final[str] = "njsls_csdt_2020"
 _NJSLS_ELA_2023_PACK_ID: Final[str] = "njsls_ela_2023"
@@ -97,6 +98,20 @@ class StarterStandardsInstallResult:
 
 
 _STARTER_PACKS: Final[dict[str, StarterStandardsPackConfig]] = {
+    _AP_CSP_FALL_2023_PACK_ID: StarterStandardsPackConfig(
+        pack_id=_AP_CSP_FALL_2023_PACK_ID,
+        title="AP Computer Science Principles Fall 2023 Framework References",
+        description=(
+            "Minimal structural references for the College Board AP Computer "
+            "Science Principles Fall 2023 framework: Big Ideas, Learning "
+            "Objective identifiers, Computational Thinking Practices, and skill "
+            "identifiers. Protected College Board framework prose is not bundled."
+        ),
+        source="College Board AP CSP Fall 2023",
+        grade_bands=(),
+        courses=("AP Computer Science Principles",),
+        resource_name="ap_csp_fall_2023_library.json",
+    ),
     _NJSLS_CLKS_2020_PACK_ID: StarterStandardsPackConfig(
         pack_id=_NJSLS_CLKS_2020_PACK_ID,
         title=(

@@ -10,7 +10,7 @@ from pds_core.standards import load_standards_library
 from tests.cli_menu.conftest import library_file, run_menu
 
 
-def test_menu_can_select_and_install_csdt_as_second_sorted_pack(
+def test_menu_can_select_and_install_csdt_as_third_sorted_pack(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -19,12 +19,12 @@ def test_menu_can_select_and_install_csdt_as_second_sorted_pack(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n4\n2\nYES\n\n5\n6\n",
+        "5\n4\n3\nYES\n\n5\n6\n",
     )
 
     assert code == 0
     assert "Choose a starter standards pack:" in out
-    assert "2. 2020 NJSLS Computer Science and Design Thinking Starter Standards" in out
+    assert "3. 2020 NJSLS Computer Science and Design Thinking Starter Standards" in out
     assert "Pack ID: njsls_csdt_2020" in out
     assert "Framework IDs: njsls_csdt_2020" in out
     assert "Installed starter standards pack: njsls_csdt_2020" in out
