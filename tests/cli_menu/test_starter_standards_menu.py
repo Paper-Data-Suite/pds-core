@@ -75,7 +75,7 @@ def test_menu_starter_install_writes_library_after_confirmation(
     assert library_file(tmp_path).is_file()
     library = load_standards_library(library_file(tmp_path))
     assert len(library.standards) == 135
-    assert len(library.profiles) == 2
+    assert len(library.profiles) == 3
     assert len(library.frameworks) == 1
     assert not (tmp_path / "standards" / "usage").exists()
 
@@ -97,7 +97,7 @@ def test_menu_starter_preview_uses_numbered_pack_selection(
     assert "Choose a starter standards pack:" in out
     assert "4. 2023 NJSLS ELA High School Starter Standards" in out
     assert "Pack ID: njsls_ela_2023" in out
-    assert "Profile IDs: english10_2023_njsls_ela, english12_2023_njsls_ela" in out
+    assert "Profile IDs: english10_2023_njsls_ela, english11_2023_njsls_ela, english12_2023_njsls_ela" in out
     assert "Enter Starter Standards Pack ID" not in out
     assert err == ""
     assert list(tmp_path.iterdir()) == []

@@ -154,12 +154,12 @@ _STARTER_PACKS: Final[dict[str, StarterStandardsPackConfig]] = {
         title="2023 NJSLS ELA High School Starter Standards",
         description=(
             "Grades 9-10 and 11-12 English Language Arts standards from the "
-            "2023 New Jersey Student Learning Standards, with English 10 and "
-            "English 12 reusable standards profiles."
+            "2023 New Jersey Student Learning Standards, with English 10, "
+            "English 11, and English 12 reusable standards profiles."
         ),
         source="2023 NJSLS-ELA",
         grade_bands=("9-10", "11-12"),
-        courses=("English 10", "English 12"),
+        courses=("English 10", "English 11", "English 12"),
         resource_name="njsls_ela_2023_library.json",
     ),
 }

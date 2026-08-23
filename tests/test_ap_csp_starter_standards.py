@@ -334,10 +334,10 @@ def test_ap_csp_coexists_with_all_bundled_packs(
         install_starter_standards_library(tmp_path, pack_id, library)
         library = load_standards_library(standards_library_path(tmp_path))
     assert len(library.standards) == 95 + 301 + 163 + 135
-    assert len(library.profiles) == 3 + 4 + 2 + 2
+    assert len(library.profiles) == 3 + 4 + 2 + 3
     assert len(library.frameworks) == 4
     assert len({item.standard_id for item in library.standards}) == 694
-    assert len({item.profile_id for item in library.profiles}) == 11
+    assert len({item.profile_id for item in library.profiles}) == 12
     assert {item.framework_id for item in library.frameworks} == {
         "ap_csp_fall_2023",
         "njsls_clks_2020",

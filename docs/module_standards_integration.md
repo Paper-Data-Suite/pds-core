@@ -207,10 +207,12 @@ profile selection to replace typed entry for `standards_profile_id` and
 `focus_standards`. The teacher-facing workflow should let the teacher select a
 profile and then choose focus standards from that profile.
 
-The bundled `english10_2023_njsls_ela` and `english12_2023_njsls_ela`
-profiles are broad selectable pools. They are not Quillan assignment
-templates, and Quillan still stores the specific focus standards chosen for
-each assignment.
+The bundled `english10_2023_njsls_ela`, `english11_2023_njsls_ela`, and
+`english12_2023_njsls_ela` profiles are broad selectable pools. English 11 and
+English 12 intentionally reuse the same source-defined grades `11-12` durable
+standard IDs; modules must not duplicate those definitions to create a local
+course view. These profiles are not Quillan assignment templates, and Quillan
+still stores the specific focus standards chosen for each assignment.
 
 ### Review Tags and Comments
 

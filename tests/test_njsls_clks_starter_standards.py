@@ -348,7 +348,7 @@ def test_clks_csdt_and_ela_packs_coexist_without_collisions(
         library = load_standards_library(standards_library_path(tmp_path))
 
     assert len(library.standards) == 301 + 163 + 135
-    assert len(library.profiles) == 4 + 2 + 2
+    assert len(library.profiles) == 4 + 2 + 3
     assert len(library.frameworks) == 3
     assert {framework.framework_id for framework in library.frameworks} == {
         "njsls_clks_2020",
@@ -356,7 +356,7 @@ def test_clks_csdt_and_ela_packs_coexist_without_collisions(
         "njsls_ela_2023",
     }
     assert len({definition.standard_id for definition in library.standards}) == 599
-    assert len({profile.profile_id for profile in library.profiles}) == 8
+    assert len({profile.profile_id for profile in library.profiles}) == 9
 
     assert find_standard_definition(library, "njsls-clks:9.4.12.IML.2") is not None
     assert find_standard_definition(library, "njsls-csdt:8.1.12.AP.1") is not None

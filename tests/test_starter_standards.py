@@ -47,11 +47,12 @@ def test_njsls_ela_2023_starter_pack_is_discoverable() -> None:
     assert metadata.title == "2023 NJSLS ELA High School Starter Standards"
     assert metadata.source == "2023 NJSLS-ELA"
     assert metadata.grade_bands == ("9-10", "11-12")
-    assert metadata.courses == ("English 10", "English 12")
+    assert metadata.courses == ("English 10", "English 11", "English 12")
     assert metadata.standard_count == 135
-    assert metadata.profile_count == 2
+    assert metadata.profile_count == 3
     assert metadata.profile_ids == (
         "english10_2023_njsls_ela",
+        "english11_2023_njsls_ela",
         "english12_2023_njsls_ela",
     )
     assert metadata.framework_count == 1
@@ -64,7 +65,7 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
     profile_ids = [profile.profile_id for profile in library.profiles]
 
     assert len(standard_ids) == len(set(standard_ids)) == 135
-    assert len(profile_ids) == len(set(profile_ids)) == 2
+    assert len(profile_ids) == len(set(profile_ids)) == 3
     assert len(library.frameworks) == 1
     framework = library.frameworks[0]
     assert framework.framework_id == "njsls_ela_2023"
@@ -91,6 +92,11 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
         for profile in library.profiles
         if profile.profile_id == "english10_2023_njsls_ela"
     )
+    english11 = next(
+        profile
+        for profile in library.profiles
+        if profile.profile_id == "english11_2023_njsls_ela"
+    )
     english12 = next(
         profile
         for profile in library.profiles
@@ -100,11 +106,16 @@ def test_njsls_ela_2023_starter_pack_validates() -> None:
     assert {by_id[standard_id].grade_band for standard_id in english10.standards} == {
         "9-10"
     }
+    assert {by_id[standard_id].grade_band for standard_id in english11.standards} == {
+        "11-12"
+    }
     assert {by_id[standard_id].grade_band for standard_id in english12.standards} == {
         "11-12"
     }
     assert len(english10.standards) == 68
+    assert len(english11.standards) == 67
     assert len(english12.standards) == 67
+    assert english11.standards == english12.standards
     assert english10.standards[:3] == (
         "njsls-ela:L.SS.9-10.1",
         "njsls-ela:L.SS.9-10.1.A",
@@ -181,9 +192,9 @@ def test_install_into_empty_workspace_writes_only_library(tmp_path: Path) -> Non
     )
 
     assert result.standards_added == 135
-    assert result.profiles_added == 2
+    assert result.profiles_added == 3
     assert result.frameworks_added == 1
-    assert result.changed_count == 138
+    assert result.changed_count == 139
     assert standards_library_path(tmp_path).is_file()
     assert load_standards_library(standards_library_path(tmp_path)) == (
         load_starter_standards_library(PACK_ID)
@@ -215,11 +226,11 @@ def test_repeated_install_is_idempotent(tmp_path: Path) -> None:
         load_standards_library(standards_library_path(tmp_path)),
     )
 
-    assert first.changed_count == 138
+    assert first.changed_count == 139
     assert second.standards_added == 0
     assert second.standards_skipped == 135
     assert second.profiles_added == 0
-    assert second.profiles_skipped == 2
+    assert second.profiles_skipped == 3
     assert second.frameworks_added == 0
     assert second.frameworks_skipped == 1
     assert second.changed_count == 0
@@ -368,6 +379,7 @@ def test_installed_profiles_work_with_module_selection_helpers(tmp_path: Path) -
     profiles = list_profiles_for_selection(library, source="2023 NJSLS-ELA")
     assert [profile.profile_id for profile in profiles] == [
         "english10_2023_njsls_ela",
+        "english11_2023_njsls_ela",
         "english12_2023_njsls_ela",
     ]
 
