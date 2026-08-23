@@ -478,6 +478,15 @@ These grouping fields are for navigation, filtering, reporting, and faster
 assignment construction. They should not determine scoring, mastery, feedback,
 or module-specific interpretation.
 
+A `StandardDefinition` may also be used as a minimal structural reference to an
+external standards-like instructional framework when the issuing authority uses
+different vocabulary or protected prose cannot be redistributed. In that case,
+Core must preserve the authority's public identifier and framework provenance,
+clearly label Core-authored reference metadata, and direct teachers to the
+authoritative source rather than presenting the reference as copied official
+standard text. Framework-reference records remain selectable identifiers; they
+do not imply equivalence to another framework.
+
 Deactivating or replacing a definition must not erase historical usage.
 Changes to official wording, source editions, and local corrections require an
 explicit versioning or revision policy before implementation.

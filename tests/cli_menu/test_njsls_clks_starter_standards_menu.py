@@ -10,7 +10,7 @@ from pds_core.standards import load_standards_library
 from tests.cli_menu.conftest import library_file, run_menu
 
 
-def test_menu_can_select_and_install_clks_as_first_sorted_pack(
+def test_menu_can_select_and_install_clks_as_second_sorted_pack(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -19,13 +19,13 @@ def test_menu_can_select_and_install_clks_as_first_sorted_pack(
         tmp_path,
         monkeypatch,
         capsys,
-        "5\n4\n1\nYES\n\n5\n6\n",
+        "5\n4\n2\nYES\n\n5\n6\n",
     )
 
     assert code == 0
     assert "Choose a starter standards pack:" in out
     assert (
-        "1. 2020 NJSLS Career Readiness, Life Literacies and Key Skills "
+        "2. 2020 NJSLS Career Readiness, Life Literacies and Key Skills "
         "Starter Standards"
     ) in out
     assert "Pack ID: njsls_clks_2020" in out

@@ -25,9 +25,65 @@ create module-specific folders. See
 
 Core currently bundles:
 
+- `ap_csp_fall_2023`
 - `njsls_clks_2020`
 - `njsls_csdt_2020`
 - `njsls_ela_2023`
+
+### AP Computer Science Principles Fall 2023 Framework References
+
+The `ap_csp_fall_2023` pack represents the College Board **AP Computer Science
+Principles Course and Exam Description — Effective Fall 2023** as a minimal
+standards-like reference framework. It is intentionally not a reproduction of
+the College Board framework.
+
+The pack contains **95 reference definitions**:
+
+- 5 Big Idea references: `CRD`, `DAT`, `AAP`, `CSN`, and `IOC`;
+- 64 unique Learning Objective identifiers;
+- 6 Computational Thinking Practice references;
+- 20 published Computational Thinking skill identifiers.
+
+The five Big Idea and six Practice titles are retained as short structural
+labels. Learning Objective and practice-skill records contain only their
+published identifiers plus Core-authored reference text directing teachers to
+the official CED. Essential Knowledge, Learning Objective prose, practice-skill
+descriptions, assessment content, AP Classroom material, Create performance-task
+directions, scoring guidance, and College Board logos are not bundled.
+
+The pack contains three reusable pools:
+
+- `ap_csp_course_content_fall_2023` — 69 course-content references (5 Big Ideas + 64 Learning Objective IDs);
+- `ap_csp_computational_thinking_fall_2023` — 26 computational-thinking references (6 Practices + 20 skill IDs);
+- `ap_csp_fall_2023` — the combined 95-reference pool.
+
+College Board describes the source as effective **Fall 2023**. Core preserves
+that phrase as the framework version instead of inventing a calendar date for
+`adoption_date` or `implementation_date`. AP CSP is not assigned a source grade
+band in this pack, so CLI and menu output display the empty grade-band metadata
+as `not specified` rather than introducing a fictional grade range. College
+Board currently identifies Fall 2023 as the CED to use and has announced an
+updated CED for the 2027-28 school year; a future Core pack should receive a new
+framework identity rather than silently replacing this edition.
+
+Framework metadata links the College Board CED and College Board Educator Legal
+Terms. The legal metadata is descriptive: it records that College Board owns or
+licenses the underlying content and that the starter pack intentionally omits
+protected framework prose. It does not characterize College Board material as
+open source or freely redistributable.
+
+`AP`, `Advanced Placement`, and related marks belong to College Board. Paper
+Data Suite uses the course name only to identify the referenced framework, does
+not bundle College Board branding assets, and is not affiliated with or endorsed
+by College Board. Installing the pack does not represent AP Course Audit
+authorization.
+
+The AP pack installs independently of New Jersey standards. For teachers who
+also use `njsls_csdt_2020`, [`ap_csp_njsls_alignment.md`](ap_csp_njsls_alignment.md)
+provides a Paper Data Suite-curated, non-authoritative instructional crosswalk
+and demonstrates a mixed-source local profile. That document does not claim
+College Board/NJDOE equivalence or endorsement. Generalized first-class
+cross-framework mapping persistence remains future work.
 
 ### 2023 NJSLS ELA
 
@@ -153,8 +209,9 @@ The pack includes two high-school reusable profile pools:
 - `design_thinking_9_12_2020_njsls_csdt` — all 18 `8.2.12.*` Performance Expectations.
 
 These are source-faithful NJSLS pools, not AP Computer Science Principles
-profiles. AP CSP framework identity and cross-framework alignment are separate
-work. Likewise, the 2020 source explicitly moved former Educational Technology
+profiles. AP CSP framework references are available through `ap_csp_fall_2023`,
+and the PDS-curated non-authoritative NJSLS alignment guide is documented
+separately. Likewise, the 2020 source explicitly moved former Educational Technology
 content into NJSLS Career Readiness, Life Literacies & Key Skills `9.4`; those
 expectations are not duplicated in this pack.
 

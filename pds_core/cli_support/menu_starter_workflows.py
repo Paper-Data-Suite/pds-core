@@ -9,6 +9,7 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_install,
     handle_starter_standards_preview,
     handle_starter_standards_validate,
+    starter_grade_bands_text,
 )
 from pds_core.cli_support.menu_import_export_workflows import ImportExportWorkflowMixin
 from pds_core.standards import StandardsLibrary, load_workspace_standards_library
@@ -113,7 +114,7 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
                 "",
                 f"Pack ID: {pack.pack_id}",
                 f"Source: {pack.source}",
-                f"Grade bands: {', '.join(pack.grade_bands)}",
+                f"Grade bands: {starter_grade_bands_text(pack.grade_bands)}",
                 f"Standards: {pack.standard_count}",
                 f"Profiles: {pack.profile_count}",
                 f"Profile IDs: {', '.join(pack.profile_ids)}",
@@ -183,7 +184,7 @@ class StarterStandardsWorkflowMixin(ImportExportWorkflowMixin):
             if detailed:
                 print(f"   Pack ID: {pack.pack_id}", file=self.stdout)
                 print(f"   Source: {pack.source}", file=self.stdout)
-                print(f"   Grade bands: {', '.join(pack.grade_bands)}", file=self.stdout)
+                print(f"   Grade bands: {starter_grade_bands_text(pack.grade_bands)}", file=self.stdout)
                 print(f"   Standards: {pack.standard_count}", file=self.stdout)
                 print(f"   Profiles: {pack.profile_count}", file=self.stdout)
                 print(f"   Frameworks: {pack.framework_count}", file=self.stdout)
