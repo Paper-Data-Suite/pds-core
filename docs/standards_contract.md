@@ -470,8 +470,8 @@ Computer Science
     8.1.12.AP.1 - Design Algorithms
 
 Career Readiness / Life Literacies
-  Digital Citizenship
-    9.4.12.DC.1 - Digital Identity
+  Information and Media Literacy
+    9.4.12.IML.2 - Evaluate Digital Sources
 ```
 
 These grouping fields are for navigation, filtering, reporting, and faster

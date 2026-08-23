@@ -25,6 +25,7 @@ create module-specific folders. See
 
 Core currently bundles:
 
+- `njsls_clks_2020`
 - `njsls_csdt_2020`
 - `njsls_ela_2023`
 
@@ -56,6 +57,70 @@ No hierarchy schema is required for this representation. Parent/child rollup
 and mastery aggregation are outside the standards library's scope. Starter
 standards are setup metadata, not grading policy or curriculum guidance.
 
+
+
+### 2020 NJSLS Career Readiness, Life Literacies and Key Skills
+
+The `njsls_clks_2020` pack is curated from the official June 2020 New Jersey
+Student Learning Standards – Career Readiness, Life Literacies, and Key Skills
+publication:
+
+```text
+https://www.nj.gov/education/standards/clicks/Docs/2020NJSLS-CLKS.pdf
+```
+
+It contains all **301 coded Performance Expectations** in the generally
+applicable portions of the framework: `9.1` Personal Financial Literacy, `9.2`
+Career Awareness, Exploration, Preparation and Training, and `9.4` Life
+Literacies and Key Skills. Standard `9.3` Career and Technical Education is not
+bundled because it describes specialist expectations associated with completion
+of a CTE Program of Study rather than the cross-curricular standards this starter
+pack is intended to provide.
+
+The source's end-of-grade 2, 5, 8, and 12 sections map to Core's reusable
+`K-2`, `3-5`, `6-8`, and `9-12` grade-band labels. Individual standards keep
+`course = null` because CLKS is designed for integration across academic and
+technical content areas rather than one named course.
+
+The pack includes four reusable high-school profile pools:
+
+- `personal_financial_literacy_9_12_2020_njsls_clks` — all 55 grade-12 `9.1` expectations;
+- `career_readiness_9_12_2020_njsls_clks` — all 23 grade-12 `9.2` expectations;
+- `life_literacies_9_12_2020_njsls_clks` — all 29 grade-12 `9.4` expectations;
+- `clks_9_12_2020_njsls_clks` — the source-ordered combined pool of all 107 grade-12 expectations.
+
+The combined profile exists so assignment consumers that select one
+`standards_profile_id` can still choose focus standards across the three CLKS
+areas. It is a selectable pool, not a curriculum sequence or a recommendation
+to teach all 107 expectations together.
+
+Only coded Performance Expectations become `StandardDefinition` records. Core
+Idea prose and the uncoded Career Readiness, Life Literacies, and Key Skills
+Practices remain framework context. Interdisciplinary references printed inside
+9.4 expectations remain part of the source wording; this pack does not convert
+them into first-class cross-framework mappings.
+
+The State Board adopted the 2020 NJSLS on June 3, 2020. Although the original
+schedule called for CLKS implementation in September 2021, the State Board
+extended implementation of the affected 2020 standards during the COVID-19
+public-health emergency, making September 2022 the applicable implementation
+date. A revised CLKS framework was adopted in 2026 for implementation in
+September 2027, so this starter pack intentionally remains the 2020 edition.
+Core does not switch frameworks automatically based on dates.
+
+The framework metadata follows the same State of New Jersey Conditions of Use
+handling as `njsls_csdt_2020`: the State's reuse terms are recorded
+descriptively, not treated as an open-source software license, and third-party
+rights plus State/agency seal and logo restrictions remain outside the pack.
+
+The 2020 publication also contains source-code irregularities that Core
+preserves deliberately. The grade-2 `9.2` Career Awareness section publishes
+its four expectations as `9.1.2.CAP.1` through `9.1.2.CAP.4`, so those display
+codes are retained while their subject/category metadata correctly identifies
+the 9.2 section. Likewise, the grade-2 Global and Cultural Awareness expectation
+is printed as `9.4.2.GCA:1`; the colon is retained. Other glossary-versus-table
+abbreviation variations such as `RMI`/`RM` and `EGI`/`EG` are preserved from the
+actual Performance Expectation codes instead of being silently normalized.
 
 ### 2020 NJSLS Computer Science and Design Thinking
 
