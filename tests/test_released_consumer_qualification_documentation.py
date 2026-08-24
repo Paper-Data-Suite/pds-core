@@ -15,8 +15,8 @@ def test_released_consumer_qualification_documentation_is_explicit() -> None:
         "pds_core.provider_diagnostics",
         "One consumer failure does not erase evidence for the others.",
         "The qualification runner accepts an explicit Core wheel and never rebuilds it.",
-        "pds-paper-data-suite#38",
-        "12b",
+        "Core v0.6.3",
+        "pds-paper-data-suite#44",
     ):
         assert marker in document
 

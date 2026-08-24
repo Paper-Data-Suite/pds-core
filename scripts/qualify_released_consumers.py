@@ -1,4 +1,4 @@
-"""Qualify one explicit Core 0.6.2 wheel against exact released consumers."""
+"""Qualify one explicit Core 0.6.3 wheel against exact released consumers."""
 
 from __future__ import annotations
 
@@ -611,7 +611,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Authenticate exact released PDS consumers and qualify them independently "
-            "against one explicit pds-core 0.6.2 candidate wheel."
+            "against one explicit pds-core 0.6.3 candidate wheel."
         )
     )
     parser.add_argument("--core-wheel", type=Path, required=True)
@@ -636,7 +636,7 @@ def main() -> int:
     evidence_path = (
         args.evidence.resolve()
         if args.evidence is not None
-        else core_wheel.parent / "pds_core-0.6.2-released-consumer-qualification.json"
+        else core_wheel.parent / "pds_core-0.6.3-released-consumer-qualification.json"
     )
 
     try:

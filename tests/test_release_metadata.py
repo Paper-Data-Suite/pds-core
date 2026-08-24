@@ -17,13 +17,13 @@ def project_metadata() -> dict[str, object]:
         return tomllib.load(pyproject_file)
 
 
-def test_release_version_declarations_match_v062() -> None:
+def test_release_version_declarations_match_v063() -> None:
     metadata = project_metadata()
     project = metadata["project"]
 
     assert isinstance(project, dict)
-    assert project["version"] == "0.6.2"
-    assert pds_core.__version__ == "0.6.2"
+    assert project["version"] == "0.6.3"
+    assert pds_core.__version__ == "0.6.3"
     assert pds_core.__version__ == project["version"]
 
 

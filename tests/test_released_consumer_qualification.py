@@ -256,14 +256,14 @@ def test_qualification_evidence_is_deterministic_and_preserves_individual_failur
         },
     ]
     first = qualification_evidence(
-        candidate_filename="pds_core-0.6.2-py3-none-any.whl",
-        candidate_version="0.6.2",
+        candidate_filename="pds_core-0.6.3-py3-none-any.whl",
+        candidate_version="0.6.3",
         candidate_sha256="a" * 64,
         consumers=results,
     )
     second = qualification_evidence(
-        candidate_filename="pds_core-0.6.2-py3-none-any.whl",
-        candidate_version="0.6.2",
+        candidate_filename="pds_core-0.6.3-py3-none-any.whl",
+        candidate_version="0.6.3",
         candidate_sha256="a" * 64,
         consumers=results,
     )
