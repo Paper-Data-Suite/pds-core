@@ -14,6 +14,7 @@ from scripts.released_consumer_compatibility import (
     CandidateWheelError,
     CompatibilityFixtureError,
     EXPECTED_CORE_VERSION,
+    PROVISIONAL_CORE_VERSION,
     REQUIRED_CONSUMERS,
     REQUIRED_QUALIFICATION_PROBES,
     SOURCE_CORE_VERSION,
@@ -75,6 +76,9 @@ def _write_candidate_wheel(
             "pds_core/provider_diagnostics.py",
             "pds_core/module_operations.py",
             "pds_core/cli_support/roster_imports.py",
+            "pds_core/standards.py",
+            "pds_core/starter_standards.py",
+            "pds_core/standards_selection.py",
         ):
             archive.writestr(required, b"# synthetic candidate\n")
         archive.writestr(
@@ -85,7 +89,7 @@ def _write_candidate_wheel(
 
 def test_fixture_contains_exact_released_consumer_matrix() -> None:
     fixture = load_compatibility_fixture(FIXTURE)
-    assert fixture.candidate_core_version == "0.6.2"
+    assert fixture.candidate_core_version == "0.6.3"
     assert frozenset(fixture.by_component_id()) == REQUIRED_CONSUMERS
     assert tuple(item.component_id for item in fixture.consumers) == (
         "concord",
@@ -224,9 +228,9 @@ def test_fixture_rejects_wheel_distribution_mismatch(tmp_path: Path) -> None:
 
 def test_fixture_rejects_core_requirement_that_excludes_candidate(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
-    _consumers(payload)[0]["core_requirement"] = "pds-core>=0.6,<0.6.2"
+    _consumers(payload)[0]["core_requirement"] = "pds-core>=0.6,<0.6.3"
     path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(CompatibilityFixtureError, match="does not accept Core 0.6.2"):
+    with pytest.raises(CompatibilityFixtureError, match="does not accept Core 0.6.3"):
         load_compatibility_fixture(path)
 
 
@@ -241,9 +245,9 @@ def test_fixture_rejects_marker_or_extra_in_core_requirement(tmp_path: Path) -> 
 def test_candidate_wheel_inspection_accepts_expected_identity(tmp_path: Path) -> None:
     wheel = _write_candidate_wheel(tmp_path)
     identity = inspect_candidate_wheel(wheel)
-    assert identity.filename == "pds_core-0.6.2-py3-none-any.whl"
+    assert identity.filename == "pds_core-0.6.3-py3-none-any.whl"
     assert identity.distribution == "pds-core"
-    assert identity.version == "0.6.2"
+    assert identity.version == "0.6.3"
     assert identity.requires_python == ">=3.11"
     assert len(identity.sha256) == 64
     assert dict(identity.console_scripts) == {
@@ -260,7 +264,7 @@ def test_candidate_wheel_rejects_wrong_distribution(tmp_path: Path) -> None:
 
 
 def test_candidate_wheel_rejects_wrong_version(tmp_path: Path) -> None:
-    wheel = _write_candidate_wheel(tmp_path, version="0.6.3")
+    wheel = _write_candidate_wheel(tmp_path, version="0.6.2")
     with pytest.raises(CandidateWheelError, match="filename must be"):
         inspect_candidate_wheel(wheel)
 
@@ -301,7 +305,7 @@ def test_provisional_result_json_is_deterministic_and_bounded(tmp_path: Path) ->
         source_commit="b" * 40,
         source_runtime_tree_sha256="c" * 64,
         source_version=SOURCE_CORE_VERSION,
-        effective_version=EXPECTED_CORE_VERSION,
+        effective_version=PROVISIONAL_CORE_VERSION,
     )
     first = provisional_result_json(result)
     second = provisional_result_json(result)
@@ -351,7 +355,7 @@ def test_provisional_builder_changes_only_temporary_version_metadata(
             build_root / "pds_core" / "__init__.py"
         ).read_text(encoding="utf-8")
         outdir = Path(command[command.index("--outdir") + 1])
-        _write_candidate_wheel(outdir)
+        _write_candidate_wheel(outdir, version=PROVISIONAL_CORE_VERSION)
         return subprocess.CompletedProcess(command, 0, "ok", "")
 
     monkeypatch.setattr("scripts.released_consumer_compatibility._git", fake_git)
@@ -371,8 +375,8 @@ def test_compatibility_documentation_records_release_handoff() -> None:
         encoding="utf-8"
     )
     assert "provisional-non-release" in documentation
-    assert "#196" in documentation
-    assert "pds-paper-data-suite#38" in documentation
+    assert "#219" in documentation
+    assert "pds-paper-data-suite#44" in documentation
     assert "ScoreForm" in documentation
     assert "Meridian" in documentation
     assert "Portia" in documentation

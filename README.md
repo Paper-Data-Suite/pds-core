@@ -171,25 +171,25 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.2 is the supported pre-1.0 Core release once the #196 post-merge
-release gate completes. It preserves the PDS2
-routing, Academic Period, reportable-data publication, compatibility, catalog,
-and `grouping_signal_set_v1` surfaces while adding guarded full-roster import,
-failure-isolating Core provider diagnostics, and the neutral version-1
-`paper_data_suite.module_operations` contract. Pre-1.0 releases may make
-intentional breaking changes, and only the latest supported minor line receives
-fixes unless otherwise documented.
+Version 0.6.3 is the supported pre-1.0 Core release after the #219 post-merge
+release gate completes. It preserves the existing Core 0.6 routing, workspace,
+roster, Academic Period, publication, provider, grouping-signal, and registry
+contracts while expanding the shared standards subsystem with durable framework
+provenance/lifecycle metadata, four bundled starter packs, AP CSP Fall 2023
+framework references, and an English 11 NJSLS ELA profile. Pre-1.0 releases may
+make intentional breaking changes, and only the latest supported minor line
+receives fixes unless otherwise documented.
 
 ## Installation
 
-PDS Core v0.6.2 requires Python 3.11 or newer. See the
-[v0.6.2 release notes](docs/releases/v0.6.2.md) for compatibility details and
+PDS Core v0.6.3 requires Python 3.11 or newer. See the
+[v0.6.3 release notes](docs/releases/v0.6.3.md) for compatibility details and
 release qualification boundaries.
 
 Install the verified wheel attached to the GitHub Release:
 
 ```powershell
-python -m pip install .\pds_core-0.6.2-py3-none-any.whl
+python -m pip install .\pds_core-0.6.3-py3-none-any.whl
 python -m pip check
 ```
 
@@ -212,6 +212,13 @@ module-operations surfaces added in v0.6.2 should declare:
 pds-core>=0.6.2,<0.7
 ```
 
+Consumers that require standards-framework provenance/lifecycle metadata or the
+expanded v0.6.3 starter standards packs should declare:
+
+```text
+pds-core>=0.6.3,<0.7
+```
+
 For local sibling-repository development:
 
 ```powershell
@@ -232,7 +239,7 @@ suite, Ruff, strict mypy, and repository-hygiene checks. A separate bounded job
 builds the wheel and source distribution and verifies the installed wheel from
 outside the source checkout.
 
-Version 0.6.2 is distributed through the GitHub Release after final #196
+Version 0.6.3 is distributed through the GitHub Release after final #219
 qualification. This release does not publish to PyPI.
 
 Active implementation guidance begins with
@@ -284,16 +291,17 @@ See [`docs/workspace_management.md`](docs/workspace_management.md) for
 teacher-facing workspace status, setup, validation, reset, and clean simulation
 workspace workflows.
 
-See [`docs/starter_standards.md`](docs/starter_standards.md) for bundled
-starter standards packs, including the installable 2023 NJSLS-ELA high school
-starter library and English 10 / English 12 reusable profiles.
+See [`docs/starter_standards.md`](docs/starter_standards.md) for the four
+bundled starter standards/framework packs: AP CSP Fall 2023, 2020 NJSLS-CLKS,
+2020 NJSLS-CS&DT, and 2023 NJSLS-ELA, including English 10 / English 11 /
+English 12 reusable ELA profiles.
 
 See [`docs/decisions/README.md`](docs/decisions/README.md) for accepted
 architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
 of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
-See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the Phase 1 suite-shell API audit, evidence-backed v0.6.2 scope reductions, and downstream dependency map. See [`docs/releases/v0.6.2.md`](docs/releases/v0.6.2.md) for the active release scope and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
+See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the historical Phase 1 suite-shell API audit and evidence-backed v0.6.2 scope reductions. See [`docs/releases/v0.6.3.md`](docs/releases/v0.6.3.md) for the active release scope, [`docs/releases/v0.6.2.md`](docs/releases/v0.6.2.md) for the previous release, and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
 
 ## Guarded Roster Import CLI
 

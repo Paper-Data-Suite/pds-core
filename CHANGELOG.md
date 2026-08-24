@@ -11,6 +11,49 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-08-24
+
+### Added
+
+- Added durable `StandardsFrameworkMetadata` provenance, lifecycle,
+  supersession, and descriptive licensing/redistribution metadata to the
+  canonical shared standards library and framework-aware starter merge results.
+- Added the complete coded 2020 NJSLS Computer Science and Design Thinking
+  starter pack with high-school Computer Science and Design Thinking profiles.
+- Added the generally applicable 2020 NJSLS Career Readiness, Life Literacies &
+  Key Skills 9.1, 9.2, and 9.4 starter pack with four high-school profile pools.
+- Added AP Computer Science Principles Fall 2023 framework references for five
+  Big Ideas, 64 Learning Objective identifiers, six Computational Thinking
+  Practices, and 20 practice-skill identifiers without redistributing protected
+  College Board framework prose.
+- Added `english11_2023_njsls_ela`, reusing the existing source-defined grades
+  11-12 ELA durable IDs rather than duplicating standard definitions.
+
+### Changed
+
+- Expanded the bundled starter library to four independently installable packs:
+  AP CSP Fall 2023, 2020 NJSLS-CLKS, 2020 NJSLS-CS&DT, and 2023 NJSLS-ELA.
+- Made course-filtered standards selection profile-aware so one source grade
+  band can support multiple local course profiles without rewriting previously
+  installed definitions.
+- Expanded release artifact and installed-wheel acceptance to require the exact
+  four starter resources and verify the audited 694-definition, 12-profile,
+  four-framework combined release surface.
+
+### Migration
+
+- Upgrading from v0.6.2 requires no automatic workspace, path, or schema
+  migration. Legacy standards libraries without framework metadata continue to
+  load with an empty framework collection.
+- Package installation alone does not install or rewrite starter standards.
+  Explicitly reinstalling the v0.6.3 `njsls_ela_2023` starter into a v0.6.2-era
+  ELA library adds the English 11 profile and ELA framework metadata without
+  rewriting the existing 135 definitions.
+- Existing consumers using established Core 0.6 APIs may continue to declare
+  `pds-core>=0.6,<0.7`; consumers that require the new standards-framework
+  surfaces should use an appropriate `>=0.6.3,<0.7` floor.
+
+
 ## [0.6.2] - 2026-08-21
 
 ### Added

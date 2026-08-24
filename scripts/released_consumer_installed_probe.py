@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import Final, cast
 
-EXPECTED_CORE_VERSION: Final[str] = "0.6.2"
+EXPECTED_CORE_VERSION: Final[str] = "0.6.3"
 _PROVIDER_KINDS: Final[tuple[tuple[str, str], ...]] = (
     ("routing_module", "routing_target"),
     ("publication_producer", "publication_target"),

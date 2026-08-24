@@ -1,3 +1,3 @@
 """Shared contracts and infrastructure for Paper Data Suite modules."""
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"

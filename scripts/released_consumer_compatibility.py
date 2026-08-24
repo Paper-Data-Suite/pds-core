@@ -21,8 +21,9 @@ from packaging.version import InvalidVersion, Version
 
 FIXTURE_RECORD_TYPE: Final[str] = "pds_core_released_consumer_compatibility_fixture"
 FIXTURE_SCHEMA_VERSION: Final[str] = "1"
-EXPECTED_CORE_VERSION: Final[str] = "0.6.2"
+EXPECTED_CORE_VERSION: Final[str] = "0.6.3"
 SOURCE_CORE_VERSION: Final[str] = "0.6.1"
+PROVISIONAL_CORE_VERSION: Final[str] = "0.6.2"
 REQUIRED_CONSUMERS: Final[frozenset[str]] = frozenset(
     {"scoreform", "quillan", "concord", "meridian", "vitrine"}
 )
@@ -46,6 +47,9 @@ REQUIRED_CANDIDATE_FILES: Final[frozenset[str]] = frozenset(
         "pds_core/provider_diagnostics.py",
         "pds_core/module_operations.py",
         "pds_core/cli_support/roster_imports.py",
+        "pds_core/standards.py",
+        "pds_core/starter_standards.py",
+        "pds_core/standards_selection.py",
     }
 )
 _SHA256_RE: Final[re.Pattern[str]] = re.compile(r"^[0-9a-f]{64}$")
@@ -468,7 +472,7 @@ def inspect_candidate_wheel(
             missing = sorted(REQUIRED_CANDIDATE_FILES - names)
             if missing:
                 raise CandidateWheelError(
-                    f"candidate wheel is missing required v0.6.2 files: {missing!r}."
+                    f"candidate wheel is missing required Core files: {missing!r}."
                 )
             if not any(
                 name.startswith("pds_core/starter_data/standards/")
@@ -592,9 +596,9 @@ def _substitute_provisional_version(build_root: Path) -> None:
     pyproject_text = pyproject.read_text(encoding="utf-8")
     init_text = init_file.read_text(encoding="utf-8")
     source_project = f'version = "{SOURCE_CORE_VERSION}"'
-    target_project = f'version = "{EXPECTED_CORE_VERSION}"'
+    target_project = f'version = "{PROVISIONAL_CORE_VERSION}"'
     source_runtime = f'__version__ = "{SOURCE_CORE_VERSION}"'
-    target_runtime = f'__version__ = "{EXPECTED_CORE_VERSION}"'
+    target_runtime = f'__version__ = "{PROVISIONAL_CORE_VERSION}"'
     if pyproject_text.count(source_project) != 1:
         raise ProvisionalCandidateError(
             "source pyproject does not contain exactly one expected Core version field."
@@ -633,7 +637,7 @@ def build_provisional_candidate(
     source_commit = _git(root, "rev-parse", "HEAD")
     source_digest = runtime_tree_sha256(root)
     out.mkdir(parents=True, exist_ok=True)
-    expected_wheel = out / f"pds_core-{EXPECTED_CORE_VERSION}-py3-none-any.whl"
+    expected_wheel = out / f"pds_core-{PROVISIONAL_CORE_VERSION}-py3-none-any.whl"
     if expected_wheel.exists():
         raise ProvisionalCandidateError(
             f"refusing to overwrite existing candidate wheel: {expected_wheel}"
@@ -667,14 +671,17 @@ def build_provisional_candidate(
         raise ProvisionalCandidateError("provisional build modified repository pyproject.toml.")
     if (root / "pds_core" / "__init__.py").read_bytes() != source_init:
         raise ProvisionalCandidateError("provisional build modified pds_core/__init__.py.")
-    identity = inspect_candidate_wheel(expected_wheel)
+    identity = inspect_candidate_wheel(
+        expected_wheel,
+        expected_version=PROVISIONAL_CORE_VERSION,
+    )
     return ProvisionalCandidateResult(
         wheel=identity.path,
         wheel_sha256=identity.sha256,
         source_commit=source_commit,
         source_runtime_tree_sha256=source_digest,
         source_version=SOURCE_CORE_VERSION,
-        effective_version=EXPECTED_CORE_VERSION,
+        effective_version=PROVISIONAL_CORE_VERSION,
     )
 
 
