@@ -89,7 +89,7 @@ def _write_candidate_wheel(
 
 def test_fixture_contains_exact_released_consumer_matrix() -> None:
     fixture = load_compatibility_fixture(FIXTURE)
-    assert fixture.candidate_core_version == "0.6.3"
+    assert fixture.candidate_core_version == "0.6.4"
     assert frozenset(fixture.by_component_id()) == REQUIRED_CONSUMERS
     assert tuple(item.component_id for item in fixture.consumers) == (
         "concord",
@@ -228,9 +228,9 @@ def test_fixture_rejects_wheel_distribution_mismatch(tmp_path: Path) -> None:
 
 def test_fixture_rejects_core_requirement_that_excludes_candidate(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
-    _consumers(payload)[0]["core_requirement"] = "pds-core>=0.6,<0.6.3"
+    _consumers(payload)[0]["core_requirement"] = "pds-core>=0.6,<0.6.4"
     path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(CompatibilityFixtureError, match="does not accept Core 0.6.3"):
+    with pytest.raises(CompatibilityFixtureError, match="does not accept Core 0.6.4"):
         load_compatibility_fixture(path)
 
 
@@ -245,9 +245,9 @@ def test_fixture_rejects_marker_or_extra_in_core_requirement(tmp_path: Path) -> 
 def test_candidate_wheel_inspection_accepts_expected_identity(tmp_path: Path) -> None:
     wheel = _write_candidate_wheel(tmp_path)
     identity = inspect_candidate_wheel(wheel)
-    assert identity.filename == "pds_core-0.6.3-py3-none-any.whl"
+    assert identity.filename == "pds_core-0.6.4-py3-none-any.whl"
     assert identity.distribution == "pds-core"
-    assert identity.version == "0.6.3"
+    assert identity.version == "0.6.4"
     assert identity.requires_python == ">=3.11"
     assert len(identity.sha256) == 64
     assert dict(identity.console_scripts) == {

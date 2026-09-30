@@ -21,7 +21,7 @@ from packaging.version import InvalidVersion, Version
 
 FIXTURE_RECORD_TYPE: Final[str] = "pds_core_released_consumer_compatibility_fixture"
 FIXTURE_SCHEMA_VERSION: Final[str] = "1"
-EXPECTED_CORE_VERSION: Final[str] = "0.6.3"
+EXPECTED_CORE_VERSION: Final[str] = "0.6.4"
 SOURCE_CORE_VERSION: Final[str] = "0.6.1"
 PROVISIONAL_CORE_VERSION: Final[str] = "0.6.2"
 REQUIRED_CONSUMERS: Final[frozenset[str]] = frozenset(

@@ -1,5 +1,5 @@
 {
-  "candidate_core_version": "0.6.3",
+  "candidate_core_version": "0.6.4",
   "consumers": [
     {
       "component_id": "concord",

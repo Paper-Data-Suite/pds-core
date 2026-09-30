@@ -1,6 +1,6 @@
 # Released-consumer compatibility qualification
 
-Core v0.6.3 is an additive release on the existing Core 0.6 compatibility line.
+Core v0.6.4 is a backward-compatible patch on the existing Core 0.6 compatibility line.
 The released-consumer qualification machinery verifies one explicit Core wheel
 against exact authenticated released consumers; it does not change the Paper
 Data Suite exact release composition and does not publish Core itself.
@@ -30,6 +30,8 @@ The suite handoff is downstream of Core publication. Core does not modify the
 suite compatibility manifest.
 
 ## Exact released-consumer matrix
+
+The fixture below is the carried-forward baseline while #226 performs its required current-release refresh. The Core candidate identity is already 0.6.4 so CI remains coherent after the version bump; these consumer pins are not the final v0.6.4 release matrix and must be refreshed before publication.
 
 The normative fixture is:
 
@@ -67,7 +69,7 @@ Portia is not a released installable consumer in this matrix.
 Normal pytest validation remains offline.
 
 The fixture loader uses packaging requirement/specifier semantics to prove that
-every exact consumer accepts candidate Core `0.6.3`. It also validates:
+every exact consumer accepts candidate Core `0.6.4`. It also validates:
 
 - the exact five-member matrix;
 - normalized exact release versions and tags;
@@ -86,9 +88,9 @@ wheel independently proves:
 
 ```text
 distribution == pds-core
-version == 0.6.3
+version == 0.6.4
 Requires-Python == >=3.11
-pds_core.__version__ == 0.6.3
+pds_core.__version__ == 0.6.4
 pds-core console script == pds_core.cli:main
 core console script == pds_core.core_menu:main
 no unconditional runtime dependencies
@@ -96,7 +98,7 @@ required Core public modules are packaged
 starter standards package data is present
 ```
 
-The exact v0.6.3 release-artifact verifier separately requires the complete
+The exact v0.6.4 release-artifact verifier separately requires the complete
 four-resource starter payload and performs the release-specific package-content
 gate.
 
@@ -109,7 +111,7 @@ Use:
 
 ```powershell
 python scripts\qualify_released_consumers.py `
-  --core-wheel "<path>\pds_core-0.6.3-py3-none-any.whl" `
+  --core-wheel "<path>\pds_core-0.6.4-py3-none-any.whl" `
   --evidence "<path>\released-consumer-qualification.json"
 ```
 
@@ -170,7 +172,7 @@ The ordinary validation and package-smoke jobs remain offline with respect to
 sibling release artifacts.
 
 The dedicated `released-consumer-compatibility` job uses the normal tracked-version build
-for the current `0.6.3` source and passes those exact candidate bytes to:
+for the current `0.6.4` source and passes those exact candidate bytes to:
 
 ```text
 scripts/qualify_released_consumers.py
@@ -202,7 +204,7 @@ source version: 0.6.1
 provisional target: 0.6.2
 ```
 
-It is not the current v0.6.3 build path and must not be invoked by active CI.
+It is not the current v0.6.4 build path and must not be invoked by active CI.
 
 The historical evidence status remains:
 
@@ -210,7 +212,7 @@ The historical evidence status remains:
 provisional-non-release
 ```
 
-A historical provisional wheel or its hash is never valid v0.6.3 release
+A historical provisional wheel or its hash is never valid v0.6.4 release
 evidence.
 
 ## Relationship to v0.6.2 release evidence
