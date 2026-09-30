@@ -59,11 +59,23 @@ not the active retained-source contract. Historical preservation belongs to
 
 Every readable selected source is copied before module-specific parsing or
 processing. The external original and retained bytes are never modified.
-Retained filenames use:
+New retained-source writers use a bounded form:
 
 ```text
-<UTC timestamp>__<sanitized-original-stem>__<short-sha256>.<ext>
+<UTC timestamp>__<bounded-source-component>__<short-sha256>.<ext>
 ```
+
+For compatibility with existing Core 0.6 consumers, sanitized source stems up
+to 64 characters keep the established serialization unchanged. Longer stems
+are replaced by `scan_<16-hex-filename-digest>`; the exact original selected
+filename remains in `RetainedSourceScan.source_filename`. Across all supported
+scan extensions, a newly generated retained filename is at most 107 characters
+and its derived `source_scan_id` is also at most 107 characters. Reader-side
+filename validation intentionally does not impose those new writer bounds, so
+existing longer Core 0.6 retained filenames remain readable without migration
+or rename. Application-owned bounds are required even when the host enables
+Windows long-path support because downstream native tooling may impose a
+narrower effective path budget.
 
 The `RetainedSourceScan` result records the source filename, generated scan
 ID, full SHA-256, workspace-relative retained path, intake timestamp, and

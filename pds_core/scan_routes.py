@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import date, datetime, timezone
 from pathlib import Path, PureWindowsPath
@@ -19,6 +20,24 @@ _SAFE_SCAN_EXTENSIONS: Final[frozenset[str]] = frozenset(
     {".jpeg", ".jpg", ".pdf", ".png", ".tif", ".tiff"}
 )
 _DIGEST_PREFIX_LENGTH: Final[int] = 12
+_COMPACTED_STEM_DIGEST_LENGTH: Final[int] = 16
+RETAINED_SOURCE_ORIGINAL_STEM_MAX_LENGTH: Final[int] = 64
+RETAINED_SOURCE_FILENAME_MAX_LENGTH: Final[int] = (
+    len("20000101T000000000000Z")
+    + len("__")
+    + RETAINED_SOURCE_ORIGINAL_STEM_MAX_LENGTH
+    + len("__")
+    + _DIGEST_PREFIX_LENGTH
+    + max(len(extension) for extension in _SAFE_SCAN_EXTENSIONS)
+)
+SOURCE_SCAN_ID_MAX_LENGTH: Final[int] = (
+    len("scan_")
+    + len("20000101T000000000000Z")
+    + len("__")
+    + RETAINED_SOURCE_ORIGINAL_STEM_MAX_LENGTH
+    + len("__")
+    + _DIGEST_PREFIX_LENGTH
+)
 
 
 class ScanRouteError(ValueError):
@@ -80,6 +99,7 @@ def build_retained_source_filename(
     stem = _UNSAFE_STEM_RUN_PATTERN.sub("_", original_path.stem).strip("_")
     if stem == "":
         stem = "scan"
+    stem = _bounded_retained_source_stem(stem, original_filename)
 
     if not isinstance(sha256_hex, str) or not _SHA256_PATTERN.fullmatch(
         sha256_hex
@@ -91,7 +111,25 @@ def build_retained_source_filename(
     utc_timestamp = intake_timestamp.astimezone(timezone.utc)
     timestamp_component = utc_timestamp.strftime("%Y%m%dT%H%M%S%fZ")
     digest_prefix = sha256_hex[:_DIGEST_PREFIX_LENGTH].lower()
-    return f"{timestamp_component}__{stem}__{digest_prefix}{extension}"
+    filename = f"{timestamp_component}__{stem}__{digest_prefix}{extension}"
+    if len(filename) > RETAINED_SOURCE_FILENAME_MAX_LENGTH:
+        raise ScanRouteError(
+            "generated retained source filename exceeds the Core writer bound."
+        )
+    return filename
+
+
+def _bounded_retained_source_stem(
+    sanitized_stem: str,
+    original_filename: str,
+) -> str:
+    if len(sanitized_stem) <= RETAINED_SOURCE_ORIGINAL_STEM_MAX_LENGTH:
+        return sanitized_stem
+
+    filename_digest = hashlib.sha256(
+        original_filename.encode("utf-8", errors="surrogatepass")
+    ).hexdigest()[:_COMPACTED_STEM_DIGEST_LENGTH]
+    return f"scan_{filename_digest}"
 
 
 def retained_source_scan_path(
