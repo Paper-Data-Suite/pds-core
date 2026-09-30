@@ -138,7 +138,7 @@ def retained_source_scan_path(
     intake_date: date | str,
     retained_filename: str,
 ) -> Path:
-    """Return the active source path for an already-built retained filename."""
+    """Return a safe retained path, including for longer Core 0.6 legacy leaves."""
     filename = _validate_retained_filename(retained_filename)
     return scans_source_date_dir(root, intake_date) / filename
 

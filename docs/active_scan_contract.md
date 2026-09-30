@@ -82,6 +82,16 @@ ID, full SHA-256, workspace-relative retained path, intake timestamp, and
 intake date. A repeated intake is a distinct event even when hashes match.
 Writers never silently overwrite retained sources or metadata.
 
+Reader and writer compatibility is intentionally asymmetric. New writers apply
+the bounded naming policy above, while retained-source path readers continue to
+accept safe Core 0.6 legacy filenames that are longer than the current writer
+maximum. Existing retained files and `source_scan_id` values are not renamed,
+shortened, or rewritten. Stored `source_scan_id` and retained-source path values
+are opaque provenance for historical intake events; readers must not reconstruct
+those stored identities from `source_filename`. This keeps historical workspaces
+readable without migration while preventing new external filenames from growing
+Core-owned storage paths.
+
 Failure and resolution provenance uses these fields:
 
 ```text

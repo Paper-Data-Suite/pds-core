@@ -1,0 +1,10 @@
+{
+  "content_text": "%PDF-1.4\nissue226 legacy retained source fixture\n%%EOF\n",
+  "intake_date": "2026-09-30",
+  "intake_timestamp": "2026-09-30T03:18:38.064717+00:00",
+  "retained_filename": "20260930T031838064717Z__issue216_physical_regression_scan_with_deliberately_long_source_filename_for_diagnostic_testing__32cb9cc32500.pdf",
+  "retained_source_relative_path": "scans/source/2026-09-30/20260930T031838064717Z__issue216_physical_regression_scan_with_deliberately_long_source_filename_for_diagnostic_testing__32cb9cc32500.pdf",
+  "source_filename": "issue216_physical_regression_scan_with_deliberately_long_source_filename_for_diagnostic_testing.pdf",
+  "source_scan_id": "scan_20260930T031838064717Z__issue216_physical_regression_scan_with_deliberately_long_source_filename_for_diagnostic_testing__32cb9cc32500",
+  "source_sha256": "32cb9cc325003c1aa767fb08398e11f1481eed7e6e1d995101c768ab819151d7"
+}
