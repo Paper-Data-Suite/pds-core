@@ -11,6 +11,49 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-09-30
+
+### Fixed
+
+- Bounded newly created retained-source filenames independently of external
+  scanner/source filename length. Sanitized stems up to 64 characters preserve
+  the established serialization; longer stems use a bounded digest-derived
+  component.
+- Bounded newly generated `source_scan_id` values to the same documented
+  107-character maximum while preserving the original selected filename in
+  `RetainedSourceScan.source_filename`.
+- Added deterministic deep-workspace path-pressure coverage for the physical
+  Windows/Poppler regression that motivated #226 without relying on or mutating
+  `LongPathsEnabled`.
+
+### Compatibility
+
+- Preserved legacy Core 0.6 retained filenames and source-scan IDs as readable
+  provenance without migration, rename, or record rewriting.
+- Preserved create-only retention, source/copy SHA-256 verification, mutation
+  detection, workspace containment, and repeated-intake semantics.
+- Added installed wheel and Windows acceptance for the bounded writer and frozen
+  Core 0.6.3 retained-source provenance fixture.
+- Added v0.6.4 wheel/sdist artifact inspection, checksum tooling, clean-wheel
+  acceptance, and clean-sdist acceptance.
+- Refreshed the exact published-consumer matrix to ScoreForm 0.11.0, Quillan
+  0.10.4, Concord 0.3.0, Vitrine 0.3.0, Meridian 0.2.0, and the Paper Data
+  Suite 0.1.0 shell, with GitHub Release wheel digests and current provider
+  expectations.
+- Preserved Quillan 0.10.3's historical retained-provenance rejection as release
+  blocker evidence and advanced the active exact-wheel #226 gate to released
+  Quillan 0.10.4, which must validate both fresh Core 0.6.4 compact provenance
+  and historical Core 0.6.3 long-name provenance without migration.
+
+### Migration
+
+- No workspace migration is required. Existing retained source bytes, paths,
+  `source_scan_id` values, Scan Review records, result provenance, route data,
+  registry data, publication data, and module records are not rewritten.
+- Existing Core 0.6 consumers may retain compatible `<0.7` dependency ranges;
+  consumers that specifically require the bounded writer may use an appropriate
+  `>=0.6.4,<0.7` floor.
+
 ## [0.6.3] - 2026-08-24
 
 ### Added

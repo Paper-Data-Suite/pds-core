@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import BinaryIO, Final, Protocol
 
 from pds_core.scan_routes import (
+    SOURCE_SCAN_ID_MAX_LENGTH,
     ScanRouteError,
     build_retained_source_filename,
     retained_source_scan_path,
@@ -69,6 +70,12 @@ def retain_source_scan(
         raise SourceRetentionError(f"Cannot prepare retained source: {error}") from error
 
     _require_contained(workspace_root, retained_path, "retained source path")
+    source_scan_id = f"scan_{retained_path.stem}"
+    if len(source_scan_id) > SOURCE_SCAN_ID_MAX_LENGTH:
+        raise SourceRetentionError(
+            "Generated source_scan_id exceeds the Core writer bound."
+        )
+
     try:
         retained_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
@@ -100,7 +107,7 @@ def retain_source_scan(
     relative_path = _workspace_relative(workspace_root, retained_path)
     normalized_date = retained_path.parent.name
     return RetainedSourceScan(
-        source_scan_id=f"scan_{retained_path.stem}",
+        source_scan_id=source_scan_id,
         source_filename=source_path.name,
         source_sha256=source_sha256,
         retained_source_path=retained_path,

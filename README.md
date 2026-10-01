@@ -171,25 +171,25 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.3 is the supported pre-1.0 Core release after the #219 post-merge
-release gate completes. It preserves the existing Core 0.6 routing, workspace,
-roster, Academic Period, publication, provider, grouping-signal, and registry
-contracts while expanding the shared standards subsystem with durable framework
-provenance/lifecycle metadata, four bundled starter packs, AP CSP Fall 2023
-framework references, and an English 11 NJSLS ELA profile. Pre-1.0 releases may
-make intentional breaking changes, and only the latest supported minor line
-receives fixes unless otherwise documented.
+Version 0.6.4 is the supported pre-1.0 Core release after the #226 release
+gate completes. It preserves the existing Core 0.6 routing, workspace, roster,
+Academic Period, publication, provider, grouping-signal, registry, and standards
+contracts while bounding newly created retained-source filenames and source-scan
+identities independently of external scanner filename length. Existing retained
+sources remain readable without migration or rename. Pre-1.0 releases may make
+intentional breaking changes, and only the latest supported minor line receives
+fixes unless otherwise documented.
 
 ## Installation
 
-PDS Core v0.6.3 requires Python 3.11 or newer. See the
-[v0.6.3 release notes](docs/releases/v0.6.3.md) for compatibility details and
+PDS Core v0.6.4 requires Python 3.11 or newer. See the
+[v0.6.4 release notes](docs/releases/v0.6.4.md) for compatibility details and
 release qualification boundaries.
 
 Install the verified wheel attached to the GitHub Release:
 
 ```powershell
-python -m pip install .\pds_core-0.6.3-py3-none-any.whl
+python -m pip install .\pds_core-0.6.4-py3-none-any.whl
 python -m pip check
 ```
 
@@ -239,7 +239,7 @@ suite, Ruff, strict mypy, and repository-hygiene checks. A separate bounded job
 builds the wheel and source distribution and verifies the installed wheel from
 outside the source checkout.
 
-Version 0.6.3 is distributed through the GitHub Release after final #219
+Version 0.6.4 is distributed through the GitHub Release after final #226
 qualification. This release does not publish to PyPI.
 
 Active implementation guidance begins with
@@ -266,7 +266,7 @@ and provenance contract. Source retention, PDS2 routing and dispatch, immutable
 version 2 failure records, strict loaders, and append-only linked resolutions
 are implemented. Image decoding, PDF splitting, module-owned evidence, and
 downstream Review adoption remain module work; legacy `scans_archive_*`
-behavior is preserved.
+behavior is preserved. Starting with v0.6.4, new retained-source leaves and new `source_scan_id` values have a documented fixed maximum of 107 characters; the original selected filename remains in structured provenance, and legacy Core 0.6 retained names remain readable without migration.
 
 See [`docs/standards_contract.md`](docs/standards_contract.md) for the shared
 standards contract. PDS Core owns durable standard definitions, reusable
@@ -301,7 +301,7 @@ architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
 of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
-See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the historical Phase 1 suite-shell API audit and evidence-backed v0.6.2 scope reductions. See [`docs/releases/v0.6.3.md`](docs/releases/v0.6.3.md) for the active release scope, [`docs/releases/v0.6.2.md`](docs/releases/v0.6.2.md) for the previous release, and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
+See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the historical Phase 1 suite-shell API audit and evidence-backed v0.6.2 scope reductions. See [`docs/releases/v0.6.4.md`](docs/releases/v0.6.4.md) for the active release scope, [`docs/releases/v0.6.3.md`](docs/releases/v0.6.3.md) for the previous release, and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
 
 ## Guarded Roster Import CLI
 

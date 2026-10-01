@@ -49,8 +49,8 @@ def test_v062_release_tooling_remains_historical_while_ci_uses_v063() -> None:
 
     assert (ROOT / "scripts" / "verify_v062_release_artifacts.py").is_file()
     assert (ROOT / "scripts" / "verify_v062_installed_acceptance.py").is_file()
-    assert "scripts/verify_v063_release_artifacts.py" in workflow
-    assert "scripts/verify_v063_installed_acceptance.py" in workflow
+    assert "scripts/verify_v064_release_artifacts.py" in workflow
+    assert "scripts/verify_v064_installed_acceptance.py" in workflow
     assert "scripts/verify_v062_release_artifacts.py" not in workflow
     assert "scripts/verify_v062_installed_acceptance.py" not in workflow
     assert "python -m build --wheel" in workflow

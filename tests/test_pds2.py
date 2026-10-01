@@ -380,7 +380,8 @@ def test_serialize_pds2_payload_enforces_exact_size_boundaries(
 
 
 def test_serialize_pds2_payload_rejects_mapping_and_string() -> None:
-    for value in ({}, CANONICAL_PAYLOAD):  # type: object
+    values: tuple[object, ...] = ({}, CANONICAL_PAYLOAD)
+    for value in values:
         with pytest.raises(Pds2PayloadError, match="RouteLocator"):
             serialize_pds2_payload(value)  # type: ignore[arg-type]
 

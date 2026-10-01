@@ -21,11 +21,18 @@ from packaging.version import InvalidVersion, Version
 
 FIXTURE_RECORD_TYPE: Final[str] = "pds_core_released_consumer_compatibility_fixture"
 FIXTURE_SCHEMA_VERSION: Final[str] = "1"
-EXPECTED_CORE_VERSION: Final[str] = "0.6.3"
+EXPECTED_CORE_VERSION: Final[str] = "0.6.4"
 SOURCE_CORE_VERSION: Final[str] = "0.6.1"
 PROVISIONAL_CORE_VERSION: Final[str] = "0.6.2"
 REQUIRED_CONSUMERS: Final[frozenset[str]] = frozenset(
-    {"scoreform", "quillan", "concord", "meridian", "vitrine"}
+    {
+        "scoreform",
+        "quillan",
+        "concord",
+        "meridian",
+        "vitrine",
+        "paper_data_suite",
+    }
 )
 REQUIRED_QUALIFICATION_PROBES: Final[tuple[str, ...]] = (
     "release_asset_authentication",
@@ -400,7 +407,8 @@ def load_compatibility_fixture(path: Path) -> CompatibilityFixture:
         raise CompatibilityFixtureError("fixture contains duplicate component_id values.")
     if frozenset(ids) != REQUIRED_CONSUMERS:
         raise CompatibilityFixtureError(
-            "fixture must contain exactly ScoreForm, Quillan, Concord, Meridian, and Vitrine."
+            "fixture must contain exactly ScoreForm, Quillan, Concord, Meridian, "
+            "Vitrine, and Paper Data Suite."
         )
     ordered = tuple(sorted(consumers, key=lambda item: item.component_id))
     return CompatibilityFixture(candidate_core_version=candidate_version, consumers=ordered)
