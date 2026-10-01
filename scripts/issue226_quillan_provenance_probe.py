@@ -1,4 +1,4 @@
-"""Installed exact-wheel probe for Issue #226 / Quillan 0.10.3 provenance."""
+"""Installed exact-wheel probe for Issue #226 / Quillan 0.10.4 provenance."""
 
 from __future__ import annotations
 
@@ -23,8 +23,7 @@ from pds_core.scan_routes import (
 )
 
 EXPECTED_CORE_VERSION = "0.6.4"
-EXPECTED_QUILLAN_VERSION = "0.10.3"
-EXPECTED_LEGACY_FAILURE = "retained filename contradicts the Core retention event."
+EXPECTED_QUILLAN_VERSION = "0.10.4"
 
 
 def _mapping(value: object, field: str) -> dict[str, object]:
@@ -67,7 +66,7 @@ def main() -> int:
     if core_version != EXPECTED_CORE_VERSION or pds_core.__version__ != core_version:
         raise RuntimeError("Installed Core identity is not the expected 0.6.4 candidate.")
     if quillan_version != EXPECTED_QUILLAN_VERSION:
-        raise RuntimeError("Installed Quillan identity is not exact release 0.10.3.")
+        raise RuntimeError("Installed Quillan identity is not exact release 0.10.4.")
 
     core_file = Path(pds_core.__file__).resolve()
     _assert_not_under_checkout(core_file, args.source_checkout, "pds_core")
@@ -133,38 +132,26 @@ def main() -> int:
             intake_timestamp=timestamp,
             intake_date=intake_date,
         )
-
-        legacy_status = "pass"
-        legacy_failure: str | None = None
-        try:
-            validate(
-                source_scan_id=legacy.source_scan_id,
-                source_filename=legacy.source_filename,
-                source_sha256=legacy.source_sha256,
-                retained_source_path=legacy.retained_source_path,
-                retained_source_relative_path=legacy.retained_source_relative_path,
-                intake_timestamp=legacy.intake_timestamp,
-                intake_date=legacy.intake_date,
-                workspace_root=workspace,
-            )
-        except ValueError as error:
-            legacy_status = "fail"
-            legacy_failure = str(error)
+        validate(
+            source_scan_id=legacy.source_scan_id,
+            source_filename=legacy.source_filename,
+            source_sha256=legacy.source_sha256,
+            retained_source_path=legacy.retained_source_path,
+            retained_source_relative_path=legacy.retained_source_relative_path,
+            intake_timestamp=legacy.intake_timestamp,
+            intake_date=legacy.intake_date,
+            workspace_root=workspace,
+        )
 
     result = {
         "candidate_core_version": core_version,
         "fresh_bounded_provenance": "pass",
-        "legacy_failure": legacy_failure,
-        "legacy_v063_long_name_provenance": legacy_status,
+        "legacy_failure": None,
+        "legacy_v063_long_name_provenance": "pass",
         "quillan_version": quillan_version,
-        "release_blocker": legacy_status != "pass",
+        "release_blocker": False,
     }
     print(json.dumps(result, sort_keys=True, ensure_ascii=False))
-
-    if legacy_status != "fail" or legacy_failure != EXPECTED_LEGACY_FAILURE:
-        raise RuntimeError(
-            "Exact Quillan 0.10.3 behavior differed from the expected characterization."
-        )
     return 0
 
 

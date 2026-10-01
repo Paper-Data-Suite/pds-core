@@ -18,7 +18,7 @@ def test_released_consumer_qualification_documentation_is_explicit() -> None:
         "Core v0.6.4",
         "#226",
         "Paper Data Suite",
-        "Quillan 0.10.3",
+        "Quillan 0.10.4",
         "pds-paper-data-suite#44",
     ):
         assert marker in document

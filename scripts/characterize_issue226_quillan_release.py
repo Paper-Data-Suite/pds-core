@@ -1,4 +1,4 @@
-"""Authenticate and characterize Quillan 0.10.3 against Core 0.6.4 for #226."""
+"""Authenticate and qualify Quillan 0.10.4 against Core 0.6.4 for #226."""
 
 from __future__ import annotations
 
@@ -26,8 +26,7 @@ from scripts.released_consumer_compatibility import (  # noqa: E402
 )
 
 EXPECTED_CORE_VERSION = "0.6.4"
-EXPECTED_QUILLAN_VERSION = "0.10.3"
-EXPECTED_LEGACY_FAILURE = "retained filename contradicts the Core retention event."
+EXPECTED_QUILLAN_VERSION = "0.10.4"
 
 
 def _mapping(value: object, field: str) -> dict[str, object]:
@@ -134,7 +133,7 @@ def main() -> int:
     matrix = load_compatibility_fixture(args.fixture).by_component_id()
     quillan = matrix.get("quillan")
     if quillan is None or quillan.version != EXPECTED_QUILLAN_VERSION:
-        raise RuntimeError("Fixture does not pin exact Quillan 0.10.3.")
+        raise RuntimeError("Fixture does not pin exact Quillan 0.10.4.")
 
     with tempfile.TemporaryDirectory(prefix="pds-core-issue226-quillan-release-") as temp:
         root = Path(temp)
@@ -193,12 +192,12 @@ def main() -> int:
 
     if probe.get("fresh_bounded_provenance") != "pass":
         raise RuntimeError("Fresh Core 0.6.4 retained provenance did not pass Quillan.")
-    if probe.get("legacy_v063_long_name_provenance") != "fail":
-        raise RuntimeError("Historical Core 0.6.3 long-name provenance unexpectedly passed.")
-    if probe.get("legacy_failure") != EXPECTED_LEGACY_FAILURE:
-        raise RuntimeError("Historical failure message did not match the expected blocker.")
-    if probe.get("release_blocker") is not True:
-        raise RuntimeError("Characterization did not mark the historical rejection as blocking.")
+    if probe.get("legacy_v063_long_name_provenance") != "pass":
+        raise RuntimeError("Historical Core 0.6.3 long-name provenance did not pass.")
+    if probe.get("legacy_failure") is not None:
+        raise RuntimeError("Historical provenance reported an unexpected failure.")
+    if probe.get("release_blocker") is not False:
+        raise RuntimeError("Quillan 0.10.4 did not clear the #226 release blocker.")
 
     evidence = characterization_evidence(
         candidate_filename=candidate.filename,
@@ -213,12 +212,12 @@ def main() -> int:
         args.evidence.resolve()
         if args.evidence is not None
         else candidate.path.parent
-        / "pds_core-0.6.4-issue226-quillan-0.10.3-characterization.json"
+        / "pds_core-0.6.4-issue226-quillan-0.10.4-qualification.json"
     )
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(evidence)
 
-    print("Issue #226 Quillan 0.10.3 characterization: RELEASE BLOCKER CONFIRMED")
+    print("Issue #226 Quillan 0.10.4 qualification: PASS")
     print(f"evidence: {destination}")
     return 0
 

@@ -37,13 +37,13 @@ supported pre-1.0 minor line receives fixes.
 - Added v0.6.4 wheel/sdist artifact inspection, checksum tooling, clean-wheel
   acceptance, and clean-sdist acceptance.
 - Refreshed the exact published-consumer matrix to ScoreForm 0.11.0, Quillan
-  0.10.3, Concord 0.3.0, Vitrine 0.3.0, Meridian 0.2.0, and the Paper Data
+  0.10.4, Concord 0.3.0, Vitrine 0.3.0, Meridian 0.2.0, and the Paper Data
   Suite 0.1.0 shell, with GitHub Release wheel digests and current provider
   expectations.
-- Added exact-wheel Issue #226 characterization for Quillan 0.10.3 so fresh
-  Core 0.6.4 compact provenance and historical Core 0.6.3 long-name provenance
-  are tested separately; a reproduced historical rejection is recorded as a
-  release blocker rather than treated as compatibility.
+- Preserved Quillan 0.10.3's historical retained-provenance rejection as release
+  blocker evidence and advanced the active exact-wheel #226 gate to released
+  Quillan 0.10.4, which must validate both fresh Core 0.6.4 compact provenance
+  and historical Core 0.6.3 long-name provenance without migration.
 
 ### Migration
 

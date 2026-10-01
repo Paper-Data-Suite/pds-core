@@ -103,7 +103,7 @@ def test_fixture_contains_exact_released_consumer_matrix() -> None:
         "concord": "0.3.0",
         "meridian": "0.2.0",
         "paper_data_suite": "0.1.0",
-        "quillan": "0.10.3",
+        "quillan": "0.10.4",
         "scoreform": "0.11.0",
         "vitrine": "0.3.0",
     }
@@ -402,7 +402,7 @@ def test_compatibility_documentation_records_release_handoff() -> None:
     assert "provisional-non-release" in documentation
     assert "#226" in documentation
     assert "Paper Data Suite" in documentation
-    assert "Quillan 0.10.3" in documentation
+    assert "Quillan 0.10.4" in documentation
     assert "Portia" in documentation
     assert "pds-paper-data-suite#44" in documentation
 

@@ -121,15 +121,15 @@
         "routing": "quillan.pds_module:get_module_profile"
       },
       "release": {
-        "download_url": "https://github.com/Paper-Data-Suite/pds-quillan/releases/download/v0.10.3/quillan-0.10.3-py3-none-any.whl",
-        "sha256": "eb8f527d2dd43c3961374ac6a3f34a732827ce0bd3260943667160f8d2bf3e3b",
+        "download_url": "https://github.com/Paper-Data-Suite/pds-quillan/releases/download/v0.10.4/quillan-0.10.4-py3-none-any.whl",
+        "sha256": "038ebf1874fc347707a61b1ae78d04a49579e1869ec99fb833c8fa407e248fe1",
         "sha256_source": "github-release-asset-digest",
-        "tag": "v0.10.3",
-        "wheel": "quillan-0.10.3-py3-none-any.whl"
+        "tag": "v0.10.4",
+        "wheel": "quillan-0.10.4-py3-none-any.whl"
       },
       "repository": "Paper-Data-Suite/pds-quillan",
       "requires_python": ">=3.11",
-      "version": "0.10.3",
+      "version": "0.10.4",
       "qualification_probes": [
         "release_asset_authentication",
         "consumer_wheel_metadata",
