@@ -301,8 +301,11 @@ def _probe_arguments(
     consumer: ConsumerFixture,
     *,
     repository_root: Path,
+    candidate_core_version: str,
 ) -> list[str]:
     arguments = [
+        "--core-version",
+        candidate_core_version,
         "--component-id",
         consumer.component_id,
         "--distribution",
@@ -331,13 +334,18 @@ def _run_installed_probe(
     cwd: Path,
     env: dict[str, str],
     repository_root: Path,
+    candidate_core_version: str,
 ) -> dict[str, object]:
     probe_script = repository_root / "scripts" / "released_consumer_installed_probe.py"
     result = _run_command(
         [
             str(python),
             str(probe_script),
-            *_probe_arguments(consumer, repository_root=repository_root),
+            *_probe_arguments(
+                consumer,
+                repository_root=repository_root,
+                candidate_core_version=candidate_core_version,
+            ),
         ],
         cwd=cwd,
         env=env,
@@ -418,6 +426,7 @@ def qualify_consumer(
     consumer: ConsumerFixture,
     *,
     candidate_wheel: Path,
+    candidate_core_version: str,
     work_root: Path,
     repository_root: Path,
 ) -> dict[str, object]:
@@ -477,6 +486,7 @@ def qualify_consumer(
             cwd=execution_root,
             env=env,
             repository_root=repository_root,
+            candidate_core_version=candidate_core_version,
         )
         completed.append(stage)
 
@@ -578,6 +588,7 @@ def _run_qualification(
         result = qualify_consumer(
             consumer,
             candidate_wheel=candidate.path,
+            candidate_core_version=candidate.version,
             work_root=work_root,
             repository_root=repository_root,
         )

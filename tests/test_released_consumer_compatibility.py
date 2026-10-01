@@ -94,11 +94,19 @@ def test_fixture_contains_exact_released_consumer_matrix() -> None:
     assert tuple(item.component_id for item in fixture.consumers) == (
         "concord",
         "meridian",
+        "paper_data_suite",
         "quillan",
         "scoreform",
         "vitrine",
     )
-
+    assert {item.component_id: item.version for item in fixture.consumers} == {
+        "concord": "0.3.0",
+        "meridian": "0.2.0",
+        "paper_data_suite": "0.1.0",
+        "quillan": "0.10.3",
+        "scoreform": "0.11.0",
+        "vitrine": "0.3.0",
+    }
 
 def test_fixture_core_requirements_accept_candidate_by_packaging_semantics() -> None:
     fixture = load_compatibility_fixture(FIXTURE)
@@ -113,33 +121,48 @@ def test_fixture_records_explicit_probes_and_intentional_exclusions() -> None:
     fixture = load_compatibility_fixture(FIXTURE).by_component_id()
     for consumer in fixture.values():
         assert consumer.qualification_probes == REQUIRED_QUALIFICATION_PROBES
-        assert consumer.intentional_exclusions
-        assert any("module_operations" in item for item in consumer.intentional_exclusions)
+
+    for component_id in ("scoreform", "quillan", "concord"):
+        assert fixture[component_id].intentional_exclusions == ()
+
     for component_id in ("meridian", "vitrine"):
         exclusions = fixture[component_id].intentional_exclusions
         assert any("routing provider" in item for item in exclusions)
         assert any("publication_producers" in item for item in exclusions)
+        assert not any("module_operations" in item for item in exclusions)
 
+    suite_exclusions = fixture["paper_data_suite"].intentional_exclusions
+    assert any("routing provider" in item for item in suite_exclusions)
+    assert any("publication_producers" in item for item in suite_exclusions)
+    assert any("module_operations" in item for item in suite_exclusions)
+    assert any(
+        "suite-owned exact application composition" in item
+        for item in suite_exclusions
+    )
 
 def test_fixture_pins_authenticated_meridian_release_digest() -> None:
     meridian = load_compatibility_fixture(FIXTURE).by_component_id()["meridian"]
     assert meridian.release.sha256 == (
-        "7114cc153f7a884041374f0ad88be8ce871b0f79dbfa7ff4869a03b24257f00a"
+        "28c191e35b4887e30559f7a4d6b29ab2ccaa5be31a8410f890c05ba6b0ac988a"
     )
     assert meridian.release.sha256_source == "github-release-asset-digest"
-
 
 def test_fixture_records_consumer_specific_provider_expectations() -> None:
     fixture = load_compatibility_fixture(FIXTURE).by_component_id()
     for component_id in ("scoreform", "quillan", "concord"):
         assert fixture[component_id].providers.routing is not None
         assert fixture[component_id].providers.publication is not None
-        assert fixture[component_id].providers.module_operations is None
+        assert fixture[component_id].providers.module_operations is not None
+
     for component_id in ("meridian", "vitrine"):
         assert fixture[component_id].providers.routing is None
         assert fixture[component_id].providers.publication is None
-        assert fixture[component_id].providers.module_operations is None
+        assert fixture[component_id].providers.module_operations is not None
 
+    suite = fixture["paper_data_suite"]
+    assert suite.providers.routing is None
+    assert suite.providers.publication is None
+    assert suite.providers.module_operations is None
 
 def test_fixture_rejects_incomplete_probe_sequence(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
@@ -152,8 +175,11 @@ def test_fixture_rejects_incomplete_probe_sequence(tmp_path: Path) -> None:
 
 def test_fixture_rejects_duplicate_intentional_exclusion(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
-    consumer = _consumers(payload)[0]
+    consumer = next(
+        item for item in _consumers(payload) if item["component_id"] == "meridian"
+    )
     exclusions = cast(list[str], consumer["intentional_exclusions"])
+    assert exclusions
     exclusions.append(exclusions[0])
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(CompatibilityFixtureError, match="must not contain duplicates"):
@@ -216,15 +242,14 @@ def test_fixture_rejects_wheel_distribution_mismatch(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
     consumer = _consumers(payload)[0]
     release = cast(dict[str, object], consumer["release"])
-    release["wheel"] = "other-0.2.0-py3-none-any.whl"
+    release["wheel"] = "other-0.3.0-py3-none-any.whl"
     release["download_url"] = (
         "https://github.com/Paper-Data-Suite/pds-concord/releases/download/"
-        "v0.2.0/other-0.2.0-py3-none-any.whl"
+        "v0.3.0/other-0.3.0-py3-none-any.whl"
     )
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(CompatibilityFixtureError, match="wheel distribution"):
         load_compatibility_fixture(path)
-
 
 def test_fixture_rejects_core_requirement_that_excludes_candidate(tmp_path: Path) -> None:
     path, payload = _fixture_payload(tmp_path)
@@ -375,9 +400,9 @@ def test_compatibility_documentation_records_release_handoff() -> None:
         encoding="utf-8"
     )
     assert "provisional-non-release" in documentation
-    assert "#219" in documentation
-    assert "pds-paper-data-suite#44" in documentation
-    assert "ScoreForm" in documentation
-    assert "Meridian" in documentation
+    assert "#226" in documentation
+    assert "Paper Data Suite" in documentation
+    assert "Quillan 0.10.3" in documentation
     assert "Portia" in documentation
+    assert "pds-paper-data-suite#44" in documentation
 

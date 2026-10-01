@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 from typing import Final, cast
 
-EXPECTED_CORE_VERSION: Final[str] = "0.6.3"
 _PROVIDER_KINDS: Final[tuple[tuple[str, str], ...]] = (
     ("routing_module", "routing_target"),
     ("publication_producer", "publication_target"),
@@ -97,11 +96,11 @@ def run_probe(args: argparse.Namespace) -> dict[str, object]:
 
     forbidden_root = args.forbidden_root.resolve()
     _require(
-        importlib.metadata.version("pds-core") == EXPECTED_CORE_VERSION,
+        importlib.metadata.version("pds-core") == args.core_version,
         "installed Core distribution version mismatch.",
     )
     _require(
-        pds_core.__version__ == EXPECTED_CORE_VERSION,
+        pds_core.__version__ == args.core_version,
         "installed pds_core.__version__ mismatch.",
     )
     _outside_checkout(pds_core.__file__, forbidden_root, "pds_core")
@@ -129,7 +128,7 @@ def run_probe(args: argparse.Namespace) -> dict[str, object]:
     return {
         "component_id": args.component_id,
         "consumer_version": args.version,
-        "core_version": EXPECTED_CORE_VERSION,
+        "core_version": args.core_version,
         "consumer_import": "pass",
         "core_import": "pass",
         "providers": provider_results,
@@ -138,6 +137,7 @@ def run_probe(args: argparse.Namespace) -> dict[str, object]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--core-version", required=True)
     parser.add_argument("--component-id", required=True)
     parser.add_argument("--distribution", required=True)
     parser.add_argument("--version", required=True)

@@ -11,15 +11,17 @@ def test_released_consumer_qualification_documentation_is_explicit() -> None:
     )
     for marker in (
         "scripts/qualify_released_consumers.py",
-        "GitHub's `sha256:<hex>` release-asset digest",
+        "GitHub `sha256:<hex>` release-asset digest",
         "pds_core.provider_diagnostics",
         "One consumer failure does not erase evidence for the others.",
         "The qualification runner accepts an explicit Core wheel and never rebuilds it.",
-        "Core v0.6.3",
+        "Core v0.6.4",
+        "#226",
+        "Paper Data Suite",
+        "Quillan 0.10.3",
         "pds-paper-data-suite#44",
     ):
         assert marker in document
-
 
 def test_ci_has_isolated_released_consumer_qualification_job() -> None:
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(

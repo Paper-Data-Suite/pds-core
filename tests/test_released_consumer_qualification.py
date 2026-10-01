@@ -13,6 +13,7 @@ from scripts.qualify_released_consumers import (
     QualificationError,
     ReleaseAssetMetadata,
     _normalize_error,
+    _probe_arguments,
     download_authenticated_consumer_artifact,
     parse_release_asset_metadata,
     qualification_evidence,
@@ -142,38 +143,43 @@ def test_release_metadata_rejects_wrong_asset_url() -> None:
         )
 
 
-def test_consumer_wheel_inspection_accepts_exact_declared_surface(tmp_path: Path) -> None:
+def test_consumer_wheel_inspection_accepts_exact_declared_surface(
+    tmp_path: Path,
+) -> None:
     consumer = _consumer("concord")
-    wheel = _write_consumer_wheel(tmp_path, consumer)
+    wheel = _write_consumer_wheel(
+        tmp_path,
+        consumer,
+        operations_target=consumer.providers.module_operations,
+    )
     identity = inspect_consumer_wheel(wheel, consumer)
     assert identity.distribution == "pds-concord"
-    assert identity.version == "0.2.0"
+    assert identity.version == "0.3.0"
     assert identity.routing_target == consumer.providers.routing
     assert identity.publication_target == consumer.providers.publication
-    assert identity.module_operations_target is None
+    assert identity.module_operations_target == consumer.providers.module_operations
 
-
-def test_consumer_wheel_inspection_accepts_absent_optional_providers(tmp_path: Path) -> None:
-    consumer = _consumer("vitrine")
+def test_consumer_wheel_inspection_accepts_absent_optional_providers(
+    tmp_path: Path,
+) -> None:
+    consumer = _consumer("paper_data_suite")
     wheel = _write_consumer_wheel(tmp_path, consumer)
     identity = inspect_consumer_wheel(wheel, consumer)
     assert identity.routing_target is None
     assert identity.publication_target is None
     assert identity.module_operations_target is None
 
-
 def test_consumer_wheel_rejects_unexpected_module_operations_provider(
     tmp_path: Path,
 ) -> None:
-    consumer = _consumer("scoreform")
+    consumer = _consumer("paper_data_suite")
     wheel = _write_consumer_wheel(
         tmp_path,
         consumer,
-        operations_target="scoreform.operations:get_profile",
+        operations_target="paper_data_suite.synthetic:get_profile",
     )
     with pytest.raises(CandidateWheelError, match="unexpectedly declares"):
         inspect_consumer_wheel(wheel, consumer)
-
 
 def test_consumer_wheel_rejects_core_requirement_mismatch(tmp_path: Path) -> None:
     consumer = _consumer("quillan")
@@ -287,3 +293,21 @@ def test_normalized_failure_redacts_environment_paths(tmp_path: Path) -> None:
     )
     assert str(tmp_path) not in message
     assert "<core-checkout>" in message
+
+def test_installed_probe_receives_inspected_candidate_core_version() -> None:
+    consumer = _consumer("quillan")
+    arguments = _probe_arguments(
+        consumer,
+        repository_root=ROOT,
+        candidate_core_version="0.6.4",
+    )
+    index = arguments.index("--core-version")
+    assert arguments[index + 1] == "0.6.4"
+
+    probe_source = (
+        ROOT / "scripts" / "released_consumer_installed_probe.py"
+    ).read_text(encoding="utf-8")
+    assert 'EXPECTED_CORE_VERSION: Final[str]' not in probe_source
+    assert 'parser.add_argument("--core-version", required=True)' in probe_source
+    assert 'importlib.metadata.version("pds-core") == args.core_version' in probe_source
+    assert 'pds_core.__version__ == args.core_version' in probe_source

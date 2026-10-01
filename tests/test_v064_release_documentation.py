@@ -25,7 +25,11 @@ def test_v064_release_notes_cover_issue226_scope_and_boundaries() -> None:
         "SHA256SUMS.txt",
         "exact merge commit",
         "ScoreForm",
+        "0.11.0",
         "Quillan",
+        "0.10.3",
+        "Paper Data Suite",
+        "release blocker",
         "Portia",
     ):
         assert marker in release
