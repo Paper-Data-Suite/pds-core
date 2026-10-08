@@ -10,6 +10,9 @@ This reference describes the new API on the Core #229 development branch.
 Until a Core release containing it is published, this is **not** an API claim
 about Core 0.6.4 or older released wheels.
 
+Installed-wheel smoke and release qualification boundaries are documented in
+[Issue #229 installed reader-contract qualification](validation/issue-229-installed-reader-contract-qualification.md).
+
 ## Separate identities and authorities
 
 | Identity | Meaning | Owner |
