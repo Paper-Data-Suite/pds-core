@@ -118,7 +118,7 @@ def test_intervention_publication_uses_the_identical_reader_metadata_type() -> N
 )
 def test_invalid_reader_identity_is_rejected(name: str, bad: object) -> None:
     with pytest.raises(PublicationProducerProfileError):
-        replace(reader(), **{name: bad})
+        replace(reader(), **{name: bad})  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(

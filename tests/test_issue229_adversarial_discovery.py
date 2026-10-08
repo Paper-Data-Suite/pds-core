@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import builtins
 import importlib
+import importlib.metadata as importlib_metadata
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -24,6 +26,7 @@ from pds_core.publication_compatibility import (
     discover_publication_producer_profiles,
     lookup_publication_reader_support,
 )
+from pds_core.publication_records import PublicationCapability
 
 
 MANIFEST_1 = "fixture_manifest_v1"
@@ -44,7 +47,7 @@ def publication_support(
     *,
     kind: str = "academic_result_set",
 ) -> PublicationContractSupport:
-    capabilities = (
+    capabilities: frozenset[PublicationCapability] = (
         frozenset({"standards_ratings"})
         if kind == "academic_result_set"
         else frozenset({"intervention_status"})
@@ -196,7 +199,7 @@ def test_discovery_and_lookup_do_not_import_readers_or_access_workspace(
         return profile_provider
 
     monkeypatch.setattr(
-        compatibility.metadata,
+        importlib_metadata,
         "entry_points",
         lambda: EntryPoints((SimpleNamespace(name="fixture", load=load_profile_provider),)),
     )
@@ -207,12 +210,12 @@ def test_discovery_and_lookup_do_not_import_readers_or_access_workspace(
     original_import = builtins.__import__
     original_import_module = importlib.import_module
 
-    def guard_import(name: str, *args: object, **kwargs: object) -> object:
+    def guard_import(name: str, *args: Any, **kwargs: Any) -> Any:
         if name.startswith(("scoreform.academic_result_reader", "quillan.academic_result_reader", "concord.academic_result_reader", "portia.publication_reader")):
             raise AssertionError("A producer reader was imported")
         return original_import(name, *args, **kwargs)
 
-    def guard_import_module(name: str, *args: object, **kwargs: object) -> object:
+    def guard_import_module(name: str, *args: Any, **kwargs: Any) -> Any:
         if name.endswith("reader"):
             raise AssertionError("A producer reader was dynamically imported")
         return original_import_module(name, *args, **kwargs)
@@ -222,7 +225,7 @@ def test_discovery_and_lookup_do_not_import_readers_or_access_workspace(
         scope.setattr(Path, "open", forbidden)
         scope.setattr(Path, "read_text", forbidden)
         scope.setattr(Path, "read_bytes", forbidden)
-        scope.setattr(compatibility.metadata, "version", forbidden)
+        scope.setattr(importlib_metadata, "version", forbidden)
         scope.setattr(builtins, "__import__", guard_import)
         scope.setattr(importlib, "import_module", guard_import_module)
         discovered = discover_publication_producer_profiles()
@@ -241,7 +244,7 @@ def test_invalid_nested_metadata_from_entrypoint_fails_discovery_closed(
         return producer((reader(), reader(contract="other_reader_v1")))
 
     monkeypatch.setattr(
-        compatibility.metadata,
+        importlib_metadata,
         "entry_points",
         lambda: EntryPoints((SimpleNamespace(name="fixture", load=lambda: invalid_provider),)),
     )
@@ -255,7 +258,7 @@ def test_explicit_registry_without_discovery_never_loads_installed_providers(
     def forbidden() -> object:
         raise AssertionError("discover_installed=False used entry_points")
 
-    monkeypatch.setattr(compatibility.metadata, "entry_points", forbidden)
+    monkeypatch.setattr(importlib_metadata, "entry_points", forbidden)
     value = producer((reader(),))
     registry = build_publication_producer_registry(
         explicit_profiles=(value,), discover_installed=False

@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import replace
 from types import SimpleNamespace
 import builtins
+import importlib.metadata as importlib_metadata
+from typing import Any
 
 import pytest
 
@@ -172,8 +174,8 @@ def test_invalid_lookup_arguments_fail_closed(kind: object, manifest: object) ->
 
 def test_invalid_profile_type_rejected_before_lookup() -> None:
     with pytest.raises(PublicationProducerProfileError):
-        lookup_publication_reader_support(  # type: ignore[arg-type]
-            object(), "academic_result_set", "fixture_manifest_v1"
+        lookup_publication_reader_support(
+            object(), "academic_result_set", "fixture_manifest_v1"  # type: ignore[arg-type]
         )
 
 
@@ -194,13 +196,13 @@ def test_installed_discovery_preserves_metadata_and_never_imports_reader(
         SimpleNamespace(name="fixture_producer", load=lambda: profile),
     )
     monkeypatch.setattr(
-        compatibility.metadata,
+        importlib_metadata,
         "entry_points",
         lambda: _EntryPoints(producers),
     )
     original_import = builtins.__import__
 
-    def guarded_import(name: str, *args: object, **kwargs: object) -> object:
+    def guarded_import(name: str, *args: Any, **kwargs: Any) -> Any:
         if name.startswith(
             (
                 "scoreform.academic_result_reader",

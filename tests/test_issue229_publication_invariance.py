@@ -24,6 +24,7 @@ from pds_core.publication_compatibility import (
     validate_publication_producer_profile,
 )
 from pds_core.publication_records import (
+    PublicationCapability,
     PublicationRecord,
     publication_record_to_dict,
 )
@@ -37,7 +38,7 @@ class ProducerCase:
     manifest: str
     reader_contract: str
     academic_work: str | None
-    capabilities: tuple[str, ...]
+    capabilities: tuple[PublicationCapability, ...]
     source_contract: str | None = None
 
 
@@ -81,7 +82,7 @@ def reader(
 
 
 def profile(
-    case: ProducerCase, *, with_reader: bool, capabilities: frozenset[str] | None = None
+    case: ProducerCase, *, with_reader: bool, capabilities: frozenset[PublicationCapability] | None = None
 ) -> PublicationProducerProfile:
     is_academic = case.academic_work is not None
     source = (
@@ -128,7 +129,7 @@ def publication(case: ProducerCase, *, with_source: bool = True) -> PublicationR
         publication_kind=(
             "academic_result_set" if is_academic else "intervention_record_set"
         ),
-        capabilities=case.capabilities,  # type: ignore[arg-type]
+        capabilities=case.capabilities,
         record_set_id="results",
         record_set_revision=1,
         manifest_contract_version=case.manifest,
@@ -170,7 +171,7 @@ def outcome(
     academic_registration: AcademicWorkRegistration | None,
     *,
     with_reader: bool,
-    capabilities: frozenset[str] | None = None,
+    capabilities: frozenset[PublicationCapability] | None = None,
 ) -> tuple[bool, tuple[str, ...]]:
     result = evaluate_publication_compatibility(
         record,
