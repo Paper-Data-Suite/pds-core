@@ -22,6 +22,9 @@ from packaging.version import InvalidVersion, Version
 FIXTURE_RECORD_TYPE: Final[str] = "pds_core_released_consumer_compatibility_fixture"
 FIXTURE_SCHEMA_VERSION: Final[str] = "1"
 EXPECTED_CORE_VERSION: Final[str] = "0.6.4"
+SUPPORTED_RELEASE_CANDIDATE_VERSIONS: Final[frozenset[str]] = frozenset(
+    {"0.6.4", "0.6.5"}
+)
 SOURCE_CORE_VERSION: Final[str] = "0.6.1"
 PROVISIONAL_CORE_VERSION: Final[str] = "0.6.2"
 REQUIRED_CONSUMERS: Final[frozenset[str]] = frozenset(
@@ -394,9 +397,9 @@ def load_compatibility_fixture(path: Path) -> CompatibilityFixture:
         _required_text(root["candidate_core_version"], "candidate_core_version"),
         "candidate_core_version",
     )
-    if candidate_version != EXPECTED_CORE_VERSION:
+    if candidate_version not in SUPPORTED_RELEASE_CANDIDATE_VERSIONS:
         raise CompatibilityFixtureError(
-            f"fixture must target Core {EXPECTED_CORE_VERSION}."
+            "fixture must target Core 0.6.4 or 0.6.5."
         )
     consumers = tuple(
         _parse_consumer(item, candidate_version)

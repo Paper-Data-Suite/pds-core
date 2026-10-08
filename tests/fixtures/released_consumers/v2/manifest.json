@@ -1,0 +1,216 @@
+{
+  "candidate_core_version": "0.6.5",
+  "consumers": [
+    {
+      "component_id": "concord",
+      "console_script": "concord",
+      "core_requirement": "pds-core>=0.6.3,<0.7",
+      "display_name": "Concord",
+      "distribution": "pds-concord",
+      "import_name": "concord",
+      "providers": {
+        "module_operations": "concord.pds_operations:get_module_operations_profile",
+        "publication": "concord.pds_publication:get_publication_producer_profile",
+        "routing": "concord.pds_module:get_module_profile"
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-concord/releases/download/v0.3.0/pds_concord-0.3.0-py3-none-any.whl",
+        "sha256": "dd827f7059c91c79bd69b6190b3c673d6b3bbc02bc25fa666286bbf5883c5e12",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.3.0",
+        "wheel": "pds_concord-0.3.0-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-concord",
+      "requires_python": ">=3.11",
+      "version": "0.3.0",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": []
+    },
+    {
+      "component_id": "meridian",
+      "console_script": "meridian",
+      "core_requirement": "pds-core>=0.6.3,<0.7",
+      "display_name": "Meridian",
+      "distribution": "pds-meridian",
+      "import_name": "meridian",
+      "providers": {
+        "module_operations": "meridian.pds_operations:get_module_operations_profile",
+        "publication": null,
+        "routing": null
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-meridian/releases/download/v0.3.1/pds_meridian-0.3.1-py3-none-any.whl",
+        "sha256": "9238a70a71a6ca41330ac3c33fc445b8028bf5bed501975daebe9ff771290a69",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.3.1",
+        "wheel": "pds_meridian-0.3.1-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-meridian",
+      "requires_python": ">=3.11",
+      "version": "0.3.1",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": [
+        "paper_data_suite.modules routing provider is not declared by this release",
+        "paper_data_suite.publication_producers provider is not declared by this release"
+      ]
+    },
+    {
+      "component_id": "paper_data_suite",
+      "console_script": "pds",
+      "core_requirement": "pds-core>=0.6.3,<0.7",
+      "display_name": "Paper Data Suite",
+      "distribution": "paper-data-suite",
+      "import_name": "paper_data_suite",
+      "providers": {
+        "module_operations": null,
+        "publication": null,
+        "routing": null
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-paper-data-suite/releases/download/v0.1.0/paper_data_suite-0.1.0-py3-none-any.whl",
+        "sha256": "4830a3cbffad7c2a6ad237df8730e8da1acb78c7f462bfef683d8d889ee162b9",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.1.0",
+        "wheel": "paper_data_suite-0.1.0-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-paper-data-suite",
+      "requires_python": ">=3.11",
+      "version": "0.1.0",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": [
+        "paper_data_suite.modules routing provider is not declared by the suite shell",
+        "paper_data_suite.publication_producers provider is not declared by the suite shell",
+        "paper_data_suite.module_operations provider is not declared by the suite shell",
+        "suite-owned exact application composition is not rewritten by Core qualification"
+      ]
+    },
+    {
+      "component_id": "quillan",
+      "console_script": "quillan",
+      "core_requirement": "pds-core>=0.6.2,<0.7",
+      "display_name": "Quillan",
+      "distribution": "quillan",
+      "import_name": "quillan",
+      "providers": {
+        "module_operations": "quillan.pds_operations:get_module_operations_profile",
+        "publication": "quillan.pds_publication:get_publication_producer_profile",
+        "routing": "quillan.pds_module:get_module_profile"
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-quillan/releases/download/v0.10.5/quillan-0.10.5-py3-none-any.whl",
+        "sha256": "031e5a5455c222da6b9a7d8f72e7823dd4c61acde7d90ddce94b49d9bcbe123f",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.10.5",
+        "wheel": "quillan-0.10.5-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-quillan",
+      "requires_python": ">=3.11",
+      "version": "0.10.5",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": []
+    },
+    {
+      "component_id": "scoreform",
+      "console_script": "scoreform",
+      "core_requirement": "pds-core>=0.6.4,<0.7",
+      "display_name": "ScoreForm",
+      "distribution": "scoreform",
+      "import_name": "scoreform",
+      "providers": {
+        "module_operations": "scoreform.pds_operations:get_module_operations_profile",
+        "publication": "scoreform.pds_publication:get_publication_producer_profile",
+        "routing": "scoreform.pds_module:get_module_profile"
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-scoreform/releases/download/v0.12.1/scoreform-0.12.1-py3-none-any.whl",
+        "sha256": "0f71b709eafe351052eac3e4f0d474b7bef36aeec347df05361b0a8995d44d32",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.12.1",
+        "wheel": "scoreform-0.12.1-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-scoreform",
+      "requires_python": ">=3.11",
+      "version": "0.12.1",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": []
+    },
+    {
+      "component_id": "vitrine",
+      "console_script": "vitrine",
+      "core_requirement": "pds-core>=0.6.3,<0.7",
+      "display_name": "Vitrine",
+      "distribution": "pds-vitrine",
+      "import_name": "vitrine",
+      "providers": {
+        "module_operations": "vitrine.pds_operations:get_module_operations_profile",
+        "publication": null,
+        "routing": null
+      },
+      "release": {
+        "download_url": "https://github.com/Paper-Data-Suite/pds-vitrine/releases/download/v0.3.0/pds_vitrine-0.3.0-py3-none-any.whl",
+        "sha256": "69d2d1ea8a90b5d25c813da3c852232a0e0a9e7094e2b4d217f22662022596b8",
+        "sha256_source": "github-release-asset-digest",
+        "tag": "v0.3.0",
+        "wheel": "pds_vitrine-0.3.0-py3-none-any.whl"
+      },
+      "repository": "Paper-Data-Suite/pds-vitrine",
+      "requires_python": ">=3.11",
+      "version": "0.3.0",
+      "qualification_probes": [
+        "release_asset_authentication",
+        "consumer_wheel_metadata",
+        "isolated_installation",
+        "pip_check",
+        "installed_public_contracts",
+        "cli_help",
+        "cli_version"
+      ],
+      "intentional_exclusions": [
+        "paper_data_suite.modules routing provider is not declared by this release",
+        "paper_data_suite.publication_producers provider is not declared by this release"
+      ]
+    }
+  ],
+  "record_type": "pds_core_released_consumer_compatibility_fixture",
+  "schema_version": "1"
+}
