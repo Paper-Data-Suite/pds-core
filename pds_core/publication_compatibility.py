@@ -345,6 +345,32 @@ def validate_publication_producer_profile(value: PublicationProducerProfile) -> 
     )
 
 
+def lookup_publication_reader_support(
+    profile: PublicationProducerProfile,
+    publication_kind: PublicationKind,
+    manifest_contract_version: str,
+) -> PublicationReaderSupport | None:
+    """Find the exact declared reader for a publication contract, if any.
+
+    This is metadata lookup, not consumer compatibility or read authorization.
+    It neither resolves distribution versions nor imports producer readers.
+    """
+    checked = validate_publication_producer_profile(profile)
+    if not is_publication_kind(publication_kind):
+        raise PublicationProducerProfileError("publication_kind is invalid.")
+    manifest_version = _identifier(
+        manifest_contract_version, "manifest_contract_version"
+    )
+    for support in checked.publication_contracts:
+        if support.publication_kind != publication_kind:
+            continue
+        for reader in support.reader_support:
+            if reader.manifest_contract_version == manifest_version:
+                return reader
+        return None
+    return None
+
+
 def evaluate_publication_compatibility(
     publication: PublicationRecord,
     profile: PublicationProducerProfile,
