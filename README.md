@@ -50,6 +50,12 @@ remain non-idempotent, while exact service replay creates no duplicate registry
 entry. Contradictory logical-revision reuse is an integrity failure, and replay
 never restores a withdrawn publication. Producer manifests remain authoritative.
 
+Optional, manifest-specific producer reader-contract metadata is documented in
+[docs/publication_reader_contract_metadata.md](docs/publication_reader_contract_metadata.md). Core validates these
+declarations but never imports readers, authorizes evidence access, or
+decides Meridian/Vitrine compatibility. The same API supports future
+Portia intervention publications without Academic Work Registration.
+
 Core provides a disposable SQLite discovery catalog at `registry/catalog.sqlite`.
 Callers rebuild it explicitly from bounded canonical Core JSON records and use
 typed, read-only queries. It may be deleted at any time and is never authoritative:
