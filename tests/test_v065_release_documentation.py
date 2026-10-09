@@ -52,11 +52,20 @@ def test_v065_release_notes_and_candidate_label_are_accurate() -> None:
     plan = (ROOT / "docs/validation/issue-229-v065-release-plan.md").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     assert "v0.6.5" in notes
-    assert "not yet tagged" in notes.lower() or "not yet tagged, merged or released" in notes.lower()
+    assert "merged to main" in notes.lower()
+    assert "pr #230" in notes.lower()
+    assert "has not yet been tagged or published" in notes.lower()
+    assert "not yet tagged, merged or released" not in notes.lower()
     assert "v0.6.5" in readme and "candidate" in readme.lower()
+    assert "merged onto `main` via #230" in readme
+    assert "on the #229 release-preparation branch" not in readme
     assert "v0.6.5" in changelog or "0.6.5" in changelog
     assert "version is now set to 0.6.5" in plan
     assert "0.6.4" in plan
     assert "No tag or GitHub Release" in plan
+    assert "03246532a6f35b5561729ad377240b9927217f73" in plan
+    compatibility = (ROOT / "docs/released_consumer_compatibility.md").read_text(encoding="utf-8")
+    assert "## Active Core v0.6.5 qualification (#229)" in compatibility
+    assert "tests/fixtures/released_consumers/v2/manifest.json" in compatibility
     assert "**Target version:** v0.6.5 (Core #229)\n" in notes
     assert "**Release date:** Not yet set\n" in notes
