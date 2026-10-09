@@ -1,11 +1,37 @@
 # Released-consumer compatibility qualification
 
+## Active Core v0.6.5 qualification (#229)
+
+The Core v0.6.5 release candidate has merged into `main` through PR #230.
+Its frozen release-qualification fixture is
+`tests/fixtures/released_consumers/v2/manifest.json`, not the historical
+v0.6.4 `v1` fixture. The matrix contains authenticated published wheels for
+ScoreForm 0.12.1, Quillan 0.10.5, Concord 0.3.0, Meridian 0.3.1,
+Vitrine 0.3.0 and the Paper Data Suite 0.1.0 shell.
+
+The current CI gate supplies the v2 fixture explicitly to the generic
+qualifier. For manual qualification of a final v0.6.5 Core wheel:
+
+```powershell
+python scripts\qualify_released_consumers.py `
+  --core-wheel "<path>\pds_core-0.6.5-py3-none-any.whl" `
+  --fixture "tests/fixtures/released_consumers/v2/manifest.json" `
+  --evidence "<path>\released-consumer-qualification.json"
+```
+
+This is a frozen release-time compatibility check, not a package dependency,
+a runtime reader allowlist or a module-release registry. New releases of
+sibling modules do not by themselves require a Core update. The exact final
+release source commit and artifacts are qualified after documentation merges.
+
+## Historical Core v0.6.4 qualification (#226)
+
 Core v0.6.4 is a backward-compatible patch on the existing Core 0.6
 compatibility line. The release gate verifies one explicit Core candidate wheel
 against exact authenticated published consumers. Core does not rewrite the Paper
 Data Suite shell's exact application composition and does not publish itself.
 
-## Current #226 release sequence
+## Historical #226 release sequence
 
 The active release sequence is:
 
@@ -26,7 +52,7 @@ The active release sequence is:
 The normal tracked-version build is the current release path. Historical #195
 provisional machinery remains historical only.
 
-## Exact current published-consumer matrix
+## Historical v0.6.4 released-consumer matrix
 
 The normative fixture is:
 
@@ -133,8 +159,9 @@ current passing gate that clears the Quillan blocker for Core #226.
 
 ## CI boundary
 
-The normal `released-consumer-compatibility` CI job uses the current six-row
-fixture and the tracked Core 0.6.4 candidate.
+For the historical Core 0.6.4 release, the `released-consumer-compatibility`
+CI job used the v1 six-row fixture and tracked Core 0.6.4 candidate. The
+active Core 0.6.5 job uses the v2 fixture and a 0.6.5 candidate instead.
 
 The Quillan retained-provenance qualification remains separate from the generic
 matrix because it exercises #226-specific historical behavior. With released

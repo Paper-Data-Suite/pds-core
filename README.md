@@ -186,10 +186,10 @@ sources remain readable without migration or rename. Pre-1.0 releases may make
 intentional breaking changes, and only the latest supported minor line receives
 fixes unless otherwise documented.
 
-Core v0.6.5 is an **unpublished candidate** on the #229 release-preparation branch.
+Core v0.6.5 is an **unpublished release candidate** merged onto `main` via #230.
 It adds metadata-only public reader declarations without requiring any sibling
 PDS module as a runtime dependency. See the [candidate release notes](docs/releases/v0.6.5.md).
-The published 0.6.4 wheel remains the installation example until v0.6.5 is tagged.
+The published 0.6.4 wheel remains the installation example until v0.6.5 is published.
 
 ## Installation
 
