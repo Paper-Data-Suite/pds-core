@@ -42,7 +42,7 @@ def test_v064_release_notes_cover_issue226_scope_and_boundaries() -> None:
         assert prohibited_claim not in release
 
 
-def test_v064_tracked_version_and_release_tooling_are_active() -> None:
+def test_v064_release_artifacts_and_fixture_are_preserved_historically() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     runtime = (ROOT / "pds_core" / "__init__.py").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
@@ -62,14 +62,14 @@ def test_v064_tracked_version_and_release_tooling_are_active() -> None:
         ).read_text(encoding="utf-8")
     )
 
-    assert project["project"]["version"] == "0.6.4"
-    assert '__version__ = "0.6.4"' in runtime
+    assert project["project"]["version"] == "0.6.5"
+    assert '__version__ = "0.6.5"' in runtime
     assert 'EXPECTED_CORE_VERSION: Final[str] = "0.6.4"' in compatibility
     assert fixture["candidate_core_version"] == "0.6.4"
-    assert "scripts/verify_v064_release_artifacts.py" in workflow
-    assert "scripts/verify_v064_installed_acceptance.py" in workflow
+    assert (ROOT / "scripts/verify_v064_release_artifacts.py").is_file()
+    assert (ROOT / "scripts/verify_v064_installed_acceptance.py").is_file()
     assert "scripts/verify_issue226_installed_acceptance.py" in workflow
-    assert "pds_core-0.6.4-py3-none-any.whl" in workflow
+    assert "pds_core-0.6.5-py3-none-any.whl" in workflow
     assert "PDS_CORE_SDIST_VENV" in workflow
-    assert "Install sdist and run v0.6.4 acceptance" in workflow
+    assert "Install sdist and run v0.6.5 acceptance" in workflow
     assert "python -m build --wheel" in workflow

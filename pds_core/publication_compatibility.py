@@ -29,6 +29,13 @@ PUBLICATION_PRODUCER_ENTRY_POINT_GROUP: Final[str] = (
 _COMPATIBILITY_CODE: Final[re.Pattern[str]] = re.compile(
     r"^contracts\.[a-z][a-z0-9_]*$"
 )
+_READER_CONTRACT_ID: Final[re.Pattern[str]] = re.compile(
+    r"^[a-z][a-z0-9_]*$"
+)
+# Canonical PEP 503 distribution names: lowercase with single hyphens.
+_READER_DISTRIBUTION: Final[re.Pattern[str]] = re.compile(
+    r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
+)
 
 
 class PublicationCompatibilityError(RuntimeError):
@@ -57,6 +64,31 @@ def _identifier(value: object, name: str, *, lowercase: bool = False) -> str:
     if lowercase and result != result.lower():
         raise PublicationProducerProfileError(f"{name} must be lowercase.")
     return result
+
+
+def _reader_contract_id(value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) > 128
+        or _READER_CONTRACT_ID.fullmatch(value) is None
+    ):
+        raise PublicationProducerProfileError(
+            "reader_contract_version must be a lowercase contract identifier."
+        )
+    return value
+
+
+def _reader_distribution(value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) > 128
+        or _READER_DISTRIBUTION.fullmatch(value) is None
+    ):
+        raise PublicationProducerProfileError(
+            "distribution_name must be a canonical lowercase Python "
+            "distribution name (hyphen-separated)."
+        )
+    return value
 
 
 def _versions(
@@ -89,12 +121,40 @@ class SourceRecordContractSupport:
 
 
 @dataclass(frozen=True, slots=True)
+class PublicationReaderSupport:
+    """One manifest-specific, producer-declared public reader contract.
+
+    Metadata only: Core never imports or invokes the described reader.
+    """
+
+    manifest_contract_version: str
+    distribution_name: str
+    reader_contract_version: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "manifest_contract_version",
+            _identifier(self.manifest_contract_version, "manifest_contract_version"),
+        )
+        object.__setattr__(
+            self, "distribution_name",
+            _reader_distribution(self.distribution_name),
+        )
+        object.__setattr__(
+            self, "reader_contract_version",
+            _reader_contract_id(self.reader_contract_version),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class PublicationContractSupport:
     publication_kind: PublicationKind
     manifest_contract_versions: frozenset[str]
     supported_capabilities: frozenset[PublicationCapability]
     source_record_contracts: tuple[SourceRecordContractSupport, ...] = ()
     allows_missing_source_record: bool = True
+    reader_support: tuple[PublicationReaderSupport, ...] = ()
 
     def __post_init__(self) -> None:
         if not is_publication_kind(self.publication_kind):
@@ -125,6 +185,35 @@ class PublicationContractSupport:
         object.__setattr__(self, "source_record_contracts", rows)
         if not isinstance(self.allows_missing_source_record, bool):
             raise PublicationProducerProfileError("allows_missing_source_record must be boolean.")
+        if isinstance(self.reader_support, (str, bytes, Mapping)):
+            raise PublicationProducerProfileError(
+                "reader_support must be an iterable of reader support rows."
+            )
+        try:
+            reader_rows = tuple(self.reader_support)
+        except TypeError as error:
+            raise PublicationProducerProfileError(
+                "reader_support must be iterable."
+            ) from error
+        if any(not isinstance(row, PublicationReaderSupport) for row in reader_rows):
+            raise PublicationProducerProfileError(
+                "reader_support contains an invalid row."
+            )
+        reader_rows = tuple(
+            sorted(reader_rows, key=lambda row: row.manifest_contract_version)
+        )
+        manifest_versions = tuple(
+            row.manifest_contract_version for row in reader_rows
+        )
+        if len(set(manifest_versions)) != len(manifest_versions):
+            raise PublicationProducerProfileError(
+                "reader_support contains duplicate manifest contract bindings."
+            )
+        if not set(manifest_versions).issubset(self.manifest_contract_versions):
+            raise PublicationProducerProfileError(
+                "reader_support references an unsupported manifest contract."
+            )
+        object.__setattr__(self, "reader_support", reader_rows)
 
 
 @dataclass(frozen=True, slots=True)
@@ -254,6 +343,32 @@ def validate_publication_producer_profile(value: PublicationProducerProfile) -> 
         supported_academic_work_contract_versions=value.supported_academic_work_contract_versions,
         publication_contracts=value.publication_contracts,
     )
+
+
+def lookup_publication_reader_support(
+    profile: PublicationProducerProfile,
+    publication_kind: PublicationKind,
+    manifest_contract_version: str,
+) -> PublicationReaderSupport | None:
+    """Find the exact declared reader for a publication contract, if any.
+
+    This is metadata lookup, not consumer compatibility or read authorization.
+    It neither resolves distribution versions nor imports producer readers.
+    """
+    checked = validate_publication_producer_profile(profile)
+    if not is_publication_kind(publication_kind):
+        raise PublicationProducerProfileError("publication_kind is invalid.")
+    manifest_version = _identifier(
+        manifest_contract_version, "manifest_contract_version"
+    )
+    for support in checked.publication_contracts:
+        if support.publication_kind != publication_kind:
+            continue
+        for reader in support.reader_support:
+            if reader.manifest_contract_version == manifest_version:
+                return reader
+        return None
+    return None
 
 
 def evaluate_publication_compatibility(

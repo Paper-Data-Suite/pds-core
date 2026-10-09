@@ -50,6 +50,12 @@ remain non-idempotent, while exact service replay creates no duplicate registry
 entry. Contradictory logical-revision reuse is an integrity failure, and replay
 never restores a withdrawn publication. Producer manifests remain authoritative.
 
+Optional, manifest-specific producer reader-contract metadata is documented in
+[docs/publication_reader_contract_metadata.md](docs/publication_reader_contract_metadata.md). Core validates these
+declarations but never imports readers, authorizes evidence access, or
+decides Meridian/Vitrine compatibility. The same API supports future
+Portia intervention publications without Academic Work Registration.
+
 Core provides a disposable SQLite discovery catalog at `registry/catalog.sqlite`.
 Callers rebuild it explicitly from bounded canonical Core JSON records and use
 typed, read-only queries. It may be deleted at any time and is never authoritative:
@@ -171,7 +177,7 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.4 is the supported pre-1.0 Core release after the #226 release
+Version 0.6.4 is the currently published pre-1.0 Core release after the #226 release
 gate completes. It preserves the existing Core 0.6 routing, workspace, roster,
 Academic Period, publication, provider, grouping-signal, registry, and standards
 contracts while bounding newly created retained-source filenames and source-scan
@@ -179,6 +185,11 @@ identities independently of external scanner filename length. Existing retained
 sources remain readable without migration or rename. Pre-1.0 releases may make
 intentional breaking changes, and only the latest supported minor line receives
 fixes unless otherwise documented.
+
+Core v0.6.5 is an **unpublished candidate** on the #229 release-preparation branch.
+It adds metadata-only public reader declarations without requiring any sibling
+PDS module as a runtime dependency. See the [candidate release notes](docs/releases/v0.6.5.md).
+The published 0.6.4 wheel remains the installation example until v0.6.5 is tagged.
 
 ## Installation
 
