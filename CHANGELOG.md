@@ -11,14 +11,16 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
-### Added (planned for Core 0.6.5 — #229)
+## [0.6.5] - Pending release
+
+### Added (Core 0.6.5 — #229)
 
 - Added immutable, manifest-specific producer reader-contract metadata to shared publication profiles, with deterministic validation and exact metadata lookup.
 - Added synthetic ScoreForm, Quillan, Concord and Portia-shaped qualification for stable reader declarations, optional absent metadata, discovery isolation and unchanged publication compatibility.
 - Added an installed-wheel reader-contract smoke probe and pre-release candidate evidence that keeps installed implementation provenance distinct from reader compatibility.
 - Prepared a separate v0.6.5 released-consumer fixture with authenticated published wheel identities, preserving historical 0.6.4 evidence.
 
-### Compatibility (planned for Core 0.6.5)
+### Compatibility (Core 0.6.5)
 
 - Existing publication profiles and `PublicationRecord` schemas remain valid. No reader declaration is required for legacy producers.
 - Reader declarations do not authorize evidence access or impose policy on Meridian, Vitrine or future Portia. Consumers independently qualify declared APIs and retain exact package provenance.

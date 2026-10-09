@@ -177,7 +177,7 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.4 is the supported pre-1.0 Core release after the #226 release
+Version 0.6.4 is the currently published pre-1.0 Core release after the #226 release
 gate completes. It preserves the existing Core 0.6 routing, workspace, roster,
 Academic Period, publication, provider, grouping-signal, registry, and standards
 contracts while bounding newly created retained-source filenames and source-scan
@@ -185,6 +185,11 @@ identities independently of external scanner filename length. Existing retained
 sources remain readable without migration or rename. Pre-1.0 releases may make
 intentional breaking changes, and only the latest supported minor line receives
 fixes unless otherwise documented.
+
+Core v0.6.5 is an **unpublished candidate** on the #229 release-preparation branch.
+It adds metadata-only public reader declarations without requiring any sibling
+PDS module as a runtime dependency. See the [candidate release notes](docs/releases/v0.6.5.md).
+The published 0.6.4 wheel remains the installation example until v0.6.5 is tagged.
 
 ## Installation
 

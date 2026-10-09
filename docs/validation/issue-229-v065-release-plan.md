@@ -1,6 +1,6 @@
 # Core #229 — v0.6.5 release qualification plan
 
-**State:** Release preparation; **not released**. The Core package remains at 0.6.4 during this slice. No tag or GitHub Release is created.
+**State:** Release preparation; **not released**. The package version is now set to 0.6.5 on the feature branch. No tag or GitHub Release is created.
 
 ## Release authority and identity
 
@@ -14,7 +14,7 @@
 
 Keep `tests/fixtures/released_consumers/v1/manifest.json`, `docs/releases/v0.6.4.md`, historical #226 release checks and pinned Core 0.6.4 SHA-256 evidence unchanged. The old fixture continues to target Core 0.6.4. Its reference SHA is the reviewed Git blob identity.
 
-The new fixture is **separate**: `tests/fixtures/released_consumers/v2/manifest.json`. `load_compatibility_fixture()` now permits the two specifically reviewed candidate versions. The default `EXPECTED_CORE_VERSION` stays 0.6.4 while historical tests depend on it; qualification against 0.6.5 must always pass the fixture target explicitly to wheel inspection. No implicit latest-version inference.
+The new fixture is **separate**: `tests/fixtures/released_consumers/v2/manifest.json`. `load_compatibility_fixture()` now permits the two specifically reviewed candidate versions. The historical default `EXPECTED_CORE_VERSION` remains 0.6.4; qualification against 0.6.5 must always pass the fixture target explicitly to wheel inspection. No implicit latest-version inference.
 
 ## Published released-consumer matrix, verified October 8, 2026
 
