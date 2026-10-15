@@ -23,7 +23,7 @@ FIXTURE_RECORD_TYPE: Final[str] = "pds_core_released_consumer_compatibility_fixt
 FIXTURE_SCHEMA_VERSION: Final[str] = "1"
 EXPECTED_CORE_VERSION: Final[str] = "0.6.4"
 SUPPORTED_RELEASE_CANDIDATE_VERSIONS: Final[frozenset[str]] = frozenset(
-    {"0.6.4", "0.6.5"}
+    {"0.6.4", "0.6.5", "0.6.6"}
 )
 SOURCE_CORE_VERSION: Final[str] = "0.6.1"
 PROVISIONAL_CORE_VERSION: Final[str] = "0.6.2"
@@ -399,7 +399,7 @@ def load_compatibility_fixture(path: Path) -> CompatibilityFixture:
     )
     if candidate_version not in SUPPORTED_RELEASE_CANDIDATE_VERSIONS:
         raise CompatibilityFixtureError(
-            "fixture must target Core 0.6.4 or 0.6.5."
+            "fixture must target Core 0.6.4, 0.6.5, or 0.6.6."
         )
     consumers = tuple(
         _parse_consumer(item, candidate_version)

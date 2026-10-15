@@ -11,7 +11,21 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
-## [0.6.5] - Pending release
+## [0.6.6] - Pending release
+
+### Fixed (Core #232)
+
+- Added viewer-safe Windows local opening for deep PDF, HTML, and folder paths using short, same-source per-user junctions instead of copies.
+- Preserved canonical return values and all source bytes; never treat successful shell dispatch as confirmation of actual viewer display.
+- Added synthetic lifecycle, alias collision, security, installed-wheel and physical Windows acceptance for deep workspace paths.
+
+### Compatibility and release
+
+- Retained the established Core 0.6 local-open signature and non-Windows behavior; no workspace migration or new runtime dependencies.
+- New Core 0.6.6 wheel/sdist qualification and immutable v0.6.5 historical evidence remain separate.
+
+
+## [0.6.5] - 2026-10-09
 
 ### Added (Core 0.6.5 — #229)
 

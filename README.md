@@ -177,64 +177,15 @@ application. The helper rejects URLs and does not create or modify paths.
 
 ## Current Status
 
-Version 0.6.4 is the currently published pre-1.0 Core release after the #226 release
-gate completes. It preserves the existing Core 0.6 routing, workspace, roster,
-Academic Period, publication, provider, grouping-signal, registry, and standards
-contracts while bounding newly created retained-source filenames and source-scan
-identities independently of external scanner filename length. Existing retained
-sources remain readable without migration or rename. Pre-1.0 releases may make
-intentional breaking changes, and only the latest supported minor line receives
-fixes unless otherwise documented.
+Core v0.6.5 is the latest published Core release. Core v0.6.6 is a candidate on Issue #232, not yet tagged or published.
 
-Core v0.6.5 is an **unpublished release candidate** merged onto `main` via #230.
-It adds metadata-only public reader declarations without requiring any sibling
-PDS module as a runtime dependency. See the [candidate release notes](docs/releases/v0.6.5.md).
-The published 0.6.4 wheel remains the installation example until v0.6.5 is published.
+The new Windows local-viewer handoff uses short per-user junctions for deep PDF, HTML and folder paths, preserving canonical source bytes. See [v0.6.6 candidate notes](docs/releases/v0.6.6.md).
 
 ## Installation
 
-PDS Core v0.6.4 requires Python 3.11 or newer. See the
-[v0.6.4 release notes](docs/releases/v0.6.4.md) for compatibility details and
-release qualification boundaries.
+Core v0.6.5 requires Python 3.11 or newer. Install the exact verified wheel from its published GitHub Release; do not install the v0.6.6 candidate as a released artifact.
 
-Install the verified wheel attached to the GitHub Release:
-
-```powershell
-python -m pip install .\pds_core-0.6.4-py3-none-any.whl
-python -m pip check
-```
-
-Existing Core 0.6 consumers may continue to declare:
-
-```text
-pds-core>=0.6,<0.7
-```
-
-Consumers that require `grouping_signal_set_v1` must declare:
-
-```text
-pds-core>=0.6.1,<0.7
-```
-
-Consumers that require the guarded roster-import, provider-diagnostics, or
-module-operations surfaces added in v0.6.2 should declare:
-
-```text
-pds-core>=0.6.2,<0.7
-```
-
-Consumers that require standards-framework provenance/lifecycle metadata or the
-expanded v0.6.3 starter standards packs should declare:
-
-```text
-pds-core>=0.6.3,<0.7
-```
-
-For local sibling-repository development:
-
-```powershell
-python -m pip install -e "../pds-core"
-```
+Existing consumers may retain compatible `pds-core>=0.6,<0.7` dependency ranges. Consumers requiring the corrected long-path Windows opener should adopt `pds-core>=0.6.6,<0.7` after final qualification and release. No file or workspace migration is required.
 
 ## Development Validation
 

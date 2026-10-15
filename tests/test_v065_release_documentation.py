@@ -8,22 +8,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_v065_candidate_version_is_consistent_and_has_no_sibling_dependencies() -> None:
+def test_v065_historical_files_and_active_version_have_no_sibling_dependencies() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     runtime = (ROOT / "pds_core/__init__.py").read_text(encoding="utf-8")
-    assert project["project"]["version"] == "0.6.5"
-    assert '__version__ = "0.6.5"' in runtime
+    assert project["project"]["version"] == "0.6.6"
+    assert '__version__ = "0.6.6"' in runtime
     assert project["project"]["dependencies"] == []
 
 
-def test_v065_active_ci_uses_new_artifacts_and_exact_v2_matrix() -> None:
+def test_v065_historical_artifacts_survive_v066_active_ci() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     for required in (
-        "verify_v065_release_artifacts.py",
-        "verify_v065_installed_acceptance.py",
+        "verify_v066_release_artifacts.py",
+        "verify_v066_installed_acceptance.py",
         "qualify_issue229_reader_metadata_wheel.py",
-        "pds_core-0.6.5-py3-none-any.whl",
-        "tests/fixtures/released_consumers/v2/manifest.json",
+        "pds_core-0.6.6-py3-none-any.whl",
+        "tests/fixtures/released_consumers/v3/manifest.json",
         "scripts/qualify_released_consumers.py",
         "scripts/verify_issue226_installed_acceptance.py",
     ):
@@ -57,10 +57,12 @@ def test_v065_release_notes_and_candidate_label_are_accurate() -> None:
     assert "has not yet been tagged or published" in notes.lower()
     assert "not yet tagged, merged or released" not in notes.lower()
     assert "v0.6.5" in readme and "candidate" in readme.lower()
-    assert "merged onto `main` via #230" in readme
+    assert "Core v0.6.5 is the latest published Core release" in readme
     assert "on the #229 release-preparation branch" not in readme
     assert "v0.6.5" in changelog or "0.6.5" in changelog
     assert "version is now set to 0.6.5" in plan
+    for archived in ("scripts/verify_v065_release_artifacts.py", "scripts/verify_v065_installed_acceptance.py", "scripts/write_v065_release_checksums.py"):
+        assert (ROOT / archived).is_file()
     assert "0.6.4" in plan
     assert "No tag or GitHub Release" in plan
     assert "03246532a6f35b5561729ad377240b9927217f73" in plan
