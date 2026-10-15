@@ -173,17 +173,20 @@ Module-specific scoring, tagging, PDF layout, and reporting logic should remain 
 
 Module wrappers can use `pds_core.local_open.open_local_path(...)` to ask the
 operating system to open an existing local file or directory in its default
-application. The helper rejects URLs and does not create or modify paths.
+application. The helper rejects URLs and never modifies authoritative source paths or bytes.
+On Windows, opening sufficiently deep paths may create a short per-user
+directory junction alias for the default-viewer handoff; see
+[Core v0.6.6 release notes](docs/releases/v0.6.6.md).
 
 ## Current Status
 
-Core v0.6.5 is the latest published Core release. Core v0.6.6 is a candidate on Issue #232, not yet tagged or published.
+Core v0.6.6 is the latest published Core release (Core #232, PR #233). Core v0.6.5 remains an immutable historical release and qualification baseline.
 
-The new Windows local-viewer handoff uses short per-user junctions for deep PDF, HTML and folder paths, preserving canonical source bytes. See [v0.6.6 candidate notes](docs/releases/v0.6.6.md).
+The new Windows local-viewer handoff uses short per-user junctions for deep PDF, HTML and folder paths, preserving canonical source bytes. See [published v0.6.6 release notes](docs/releases/v0.6.6.md).
 
 ## Installation
 
-Core v0.6.5 requires Python 3.11 or newer. Install the exact verified wheel from its published GitHub Release; do not install the v0.6.6 candidate as a released artifact.
+Core v0.6.6 requires Python 3.11 or newer. Install the exact verified wheel from the [published GitHub Release](https://github.com/Paper-Data-Suite/pds-core/releases/tag/v0.6.6); do not substitute a temporary or unpublished candidate wheel.
 
 Existing consumers may retain compatible `pds-core>=0.6,<0.7` dependency ranges. Consumers requiring the corrected long-path Windows opener should adopt `pds-core>=0.6.6,<0.7` after final qualification and release. No file or workspace migration is required.
 
@@ -201,8 +204,8 @@ suite, Ruff, strict mypy, and repository-hygiene checks. A separate bounded job
 builds the wheel and source distribution and verifies the installed wheel from
 outside the source checkout.
 
-Version 0.6.4 is distributed through the GitHub Release after final #226
-qualification. This release does not publish to PyPI.
+Core v0.6.6 is distributed through its verified GitHub Release. This release
+does not publish to PyPI. Earlier v0.6.4 and v0.6.5 assets are preserved.
 
 Active implementation guidance begins with
 [`docs/pds2_module_integration.md`](docs/pds2_module_integration.md). The
@@ -263,7 +266,7 @@ architecture decisions. ADR 0001 establishes PDS2 page-locator routing,
 persisted route registrations, module-qualified work identity, and the removal
 of PDS1 and OMR1 support; it is implemented by v0.5.0.
 
-See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the historical Phase 1 suite-shell API audit and evidence-backed v0.6.2 scope reductions. See [`docs/releases/v0.6.4.md`](docs/releases/v0.6.4.md) for the active release scope, [`docs/releases/v0.6.3.md`](docs/releases/v0.6.3.md) for the previous release, and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
+See [`docs/audits/v0.6.2-suite-shell-api-audit.md`](docs/audits/v0.6.2-suite-shell-api-audit.md) for the historical Phase 1 suite-shell API audit and evidence-backed v0.6.2 scope reductions. See [`docs/releases/v0.6.4.md`](docs/releases/v0.6.4.md) for the historical #226 release, [`docs/releases/v0.6.6.md`](docs/releases/v0.6.6.md) for the current release, and [`docs/released_consumer_compatibility.md`](docs/released_consumer_compatibility.md) for exact released-consumer qualification.
 
 ## Guarded Roster Import CLI
 

@@ -1,6 +1,22 @@
 # Released-consumer compatibility qualification
 
-## Active Core v0.6.5 qualification (#229)
+## Active Core v0.6.6 qualification (#232)
+
+Core v0.6.6 was published on October 14, 2026 (Eastern Time), from
+qualified source commit `35af5d0642e84a625cd143285c4ef6de98dbcca4`
+after PR #233 and post-merge CI passed. The versioned, frozen candidate
+fixture is `tests/fixtures/released_consumers/v3/manifest.json`. The
+current CI gate qualifies the exact v0.6.6 wheel against this v3 fixture.
+The v2 (Core 0.6.5) and v1 (Core 0.6.4) fixtures remain immutable
+historical evidence, not the active candidate matrices. The released
+Core tag, wheel and source distribution are verified separately:
+
+[Core v0.6.6 GitHub Release](https://github.com/Paper-Data-Suite/pds-core/releases/tag/v0.6.6).
+
+The fixture is an exact release-time compatibility check, not a live
+module-version registry or an automatic Suite composition upgrade.
+
+## Historical Core v0.6.5 qualification (#229)
 
 The Core v0.6.5 release candidate has merged into `main` through PR #230.
 Its frozen release-qualification fixture is
@@ -9,7 +25,7 @@ v0.6.4 `v1` fixture. The matrix contains authenticated published wheels for
 ScoreForm 0.12.1, Quillan 0.10.5, Concord 0.3.0, Meridian 0.3.1,
 Vitrine 0.3.0 and the Paper Data Suite 0.1.0 shell.
 
-The current CI gate supplies the v2 fixture explicitly to the generic
+The historical v0.6.5 CI gate supplied the v2 fixture explicitly to the generic
 qualifier. For manual qualification of a final v0.6.5 Core wheel:
 
 ```powershell
