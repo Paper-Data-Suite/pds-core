@@ -11,7 +11,7 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
-## [0.6.6] - Pending release
+## [0.6.6] - 2026-10-14
 
 ### Fixed (Core #232)
 
