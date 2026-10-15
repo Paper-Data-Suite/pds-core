@@ -62,14 +62,14 @@ def test_v064_release_artifacts_and_fixture_are_preserved_historically() -> None
         ).read_text(encoding="utf-8")
     )
 
-    assert project["project"]["version"] == "0.6.5"
-    assert '__version__ = "0.6.5"' in runtime
+    assert project["project"]["version"] == "0.6.6"
+    assert '__version__ = "0.6.6"' in runtime
     assert 'EXPECTED_CORE_VERSION: Final[str] = "0.6.4"' in compatibility
     assert fixture["candidate_core_version"] == "0.6.4"
     assert (ROOT / "scripts/verify_v064_release_artifacts.py").is_file()
     assert (ROOT / "scripts/verify_v064_installed_acceptance.py").is_file()
     assert "scripts/verify_issue226_installed_acceptance.py" in workflow
-    assert "pds_core-0.6.5-py3-none-any.whl" in workflow
+    assert "pds_core-0.6.6-py3-none-any.whl" in workflow
     assert "PDS_CORE_SDIST_VENV" in workflow
-    assert "Install sdist and run v0.6.5 acceptance" in workflow
+    assert "Install sdist and run v0.6.6 acceptance" in workflow
     assert "python -m build --wheel" in workflow

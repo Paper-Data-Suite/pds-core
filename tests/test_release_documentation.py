@@ -64,7 +64,7 @@ def test_required_v064_documents_exist() -> None:
     assert all(path.is_file() for path in REQUIRED_DOCUMENTS)
 
 
-def test_active_release_and_dependency_guidance_is_v064() -> None:
+def test_active_release_and_dependency_guidance_is_v066() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     security = (PROJECT_ROOT / "SECURITY.md").read_text(encoding="utf-8")
     active_text = "\n".join(
@@ -74,8 +74,8 @@ def test_active_release_and_dependency_guidance_is_v064() -> None:
     grouping_contract = (
         PROJECT_ROOT / "docs" / "grouping_signal_set_v1.md"
     ).read_text(encoding="utf-8")
-    assert "Version 0.6.4" in readme
-    assert "docs/releases/v0.6.4.md" in readme
+    assert "Core v0.6.6" in readme
+    assert "docs/releases/v0.6.6.md" in readme
     assert "pds-core>=0.6,<0.7" in readme
     assert "pds-core>=0.6.1,<0.7" in readme
     assert re.search(

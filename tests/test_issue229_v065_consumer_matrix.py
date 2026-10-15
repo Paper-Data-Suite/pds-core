@@ -47,8 +47,8 @@ def test_v064_fixture_is_byte_identical_to_historical_reviewed_git_blob() -> Non
     assert load_compatibility_fixture(OLD).candidate_core_version == "0.6.4"
 
 
-def test_v065_is_explicit_addition_and_both_versions_supported() -> None:
-    assert SUPPORTED_RELEASE_CANDIDATE_VERSIONS == frozenset({"0.6.4", "0.6.5"})
+def test_v065_remains_supported_beside_v066() -> None:
+    assert SUPPORTED_RELEASE_CANDIDATE_VERSIONS == frozenset({"0.6.4", "0.6.5", "0.6.6"})
     assert load_compatibility_fixture(NEW).candidate_core_version == "0.6.5"
     assert load_compatibility_fixture(OLD).candidate_core_version == "0.6.4"
 
@@ -86,7 +86,7 @@ def test_v065_changes_only_explicit_candidate_and_refreshed_release_rows() -> No
     assert older == newer
 
 
-@pytest.mark.parametrize("unsupported", ["0.6.3", "0.6.6", "1.0.0"])
+@pytest.mark.parametrize("unsupported", ["0.6.3", "0.6.7", "1.0.0"])
 def test_version_scope_rejects_unreviewed_candidates(
     tmp_path: Path, unsupported: str
 ) -> None:
