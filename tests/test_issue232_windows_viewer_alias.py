@@ -5,7 +5,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import subprocess
+import sys
 import time
+import uuid
 
 import pytest
 
@@ -40,14 +42,14 @@ def _simulate_windows(
     alias_root: Path,
 ) -> list[Path]:
     opened: list[Path] = []
-    monkeypatch.setattr(local_open.sys, "platform", "win32")
+    monkeypatch.setattr(sys, "platform", "win32")
     monkeypatch.setattr(local_open, "_viewer_alias_root", lambda: alias_root)
     monkeypatch.setattr(local_open, "_create_windows_junction", _simulated_junction)
     if os.name != "nt":
         monkeypatch.setattr(
             local_open, "_remove_viewer_junction", lambda link: link.unlink()
         )
-    monkeypatch.setattr(local_open.os, "startfile", opened.append, raising=False)
+    monkeypatch.setattr(os, "startfile", opened.append, raising=False)
     return opened
 
 
@@ -57,8 +59,8 @@ def test_short_windows_path_keeps_existing_contract(
     target = tmp_path / "short.pdf"
     target.write_bytes(b"short")
     opened: list[Path] = []
-    monkeypatch.setattr(local_open.sys, "platform", "win32")
-    monkeypatch.setattr(local_open.os, "startfile", opened.append, raising=False)
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(os, "startfile", opened.append, raising=False)
     monkeypatch.setattr(
         local_open,
         "_prepare_windows_viewer_alias",
@@ -151,7 +153,7 @@ def test_launch_failure_does_not_claim_viewer_success(
     def fail(unused: Path) -> None:
         raise OSError("shell failed")
 
-    monkeypatch.setattr(local_open.os, "startfile", fail, raising=False)
+    monkeypatch.setattr(os, "startfile", fail, raising=False)
     with pytest.raises(LocalOpenError, match="Could not request"):
         open_local_path(source)
     assert source.is_file()
@@ -176,7 +178,7 @@ def test_old_owned_alias_removed_without_removing_source(
     unrelated.mkdir()
     age = time.time() - local_open._WINDOWS_VIEWER_ALIAS_RETENTION_SECONDS - 200
     os.utime(old, (age, age), follow_symlinks=False)
-    monkeypatch.setattr(local_open.sys, "platform", "linux")
+    monkeypatch.setattr(sys, "platform", "linux")
 
     local_open._prune_stale_aliases(root)
     assert not old.exists()
@@ -254,7 +256,7 @@ def test_alias_collision_including_dangling_link_is_rejected_without_replacement
     class FixedUUID:
         hex = suffix
 
-    monkeypatch.setattr(local_open.uuid, "uuid4", lambda: FixedUUID())
+    monkeypatch.setattr(uuid, "uuid4", lambda: FixedUUID())
     _simulate_windows(monkeypatch, alias_root)
     with pytest.raises(LocalOpenError, match="unexpectedly exists"):
         open_local_path(source)
