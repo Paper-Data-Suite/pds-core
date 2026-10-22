@@ -2,8 +2,8 @@
 
 A capability identifies an implemented Core facility; it does not attest to
 Suite installation, producer adoption, user authorization, or a Core release.
-This initial slice deliberately advertises no capabilities until the concrete
-header and shared-command implementations qualify in later #237 slices.
+This slice advertises only the implemented, tested header renderer/printer.
+The shared-command parser and all Notes/administration services remain absent.
 """
 
 from __future__ import annotations
@@ -17,15 +17,14 @@ __all__ = (
 
 TEACHER_EXPERIENCE_CONTRACT_VERSION: Final[str] = "1"
 
-_IMPLEMENTED_CAPABILITIES: Final[frozenset[str]] = frozenset()
+_IMPLEMENTED_CAPABILITIES: Final[frozenset[str]] = frozenset({"terminal.header.v1"})
 
 
 def get_teacher_experience_capabilities() -> frozenset[str]:
     """Report only teacher-experience capabilities implemented in this Core build.
 
-    The immutable result is intentionally empty in #237 Slice 1. The upcoming
-    header and command slices must add their tokens only after their actual
-    API implementations and conformance tests pass. In particular, the version
-    does not signal that any Notes or classroom administration service exists.
+    This Slice 3 implementation includes safe streamed teacher headers. The
+    :notes parser is not yet installed, and neither a Notes service nor a
+    classroom administration menu is implied by the contract version.
     """
     return _IMPLEMENTED_CAPABILITIES

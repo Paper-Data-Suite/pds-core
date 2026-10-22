@@ -162,6 +162,9 @@ def test_renderer_is_pure_and_writes_nothing_to_global_streams() -> None:
     assert stderr.getvalue() == ""
 
 
-def test_only_pure_public_symbols_are_exported_in_slice_2() -> None:
-    assert set(teacher_ui.__all__) == {"TeacherScreenHeader", "render_teacher_header"}
-    assert not hasattr(teacher_ui, "print_teacher_header")
+def test_public_printer_is_exported_alongside_pure_renderer() -> None:
+    assert set(teacher_ui.__all__) == {
+        "TeacherScreenHeader",
+        "render_teacher_header",
+        "print_teacher_header",
+    }

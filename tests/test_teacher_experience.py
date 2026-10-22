@@ -33,15 +33,13 @@ def test_public_function_has_accepted_immutable_return_type() -> None:
         capabilities.add("terminal.header.v1")  # type: ignore[attr-defined]
 
 
-def test_initial_slice_advertises_no_incomplete_core_facility() -> None:
-    # The header printer and prompt-scoped parser do not exist until later slices.
-    assert get_teacher_experience_capabilities() == frozenset()
+def test_header_qualified_but_command_and_notes_unavailable() -> None:
+    assert get_teacher_experience_capabilities() == frozenset({"terminal.header.v1"})
 
 
 @pytest.mark.parametrize(
     "unqualified",
     [
-        "terminal.header.v1",
         "terminal.notes_command.v1",
         "notes.records.v1",
         "notes.menu.v1",
@@ -74,7 +72,7 @@ def test_clean_process_import_does_not_prompt_print_or_write(tmp_path: Path) -> 
         "TEACHER_EXPERIENCE_CONTRACT_VERSION, "
         "get_teacher_experience_capabilities; "
         "assert TEACHER_EXPERIENCE_CONTRACT_VERSION == '1'; "
-        "assert get_teacher_experience_capabilities() == frozenset()"
+        "assert get_teacher_experience_capabilities() == frozenset({'terminal.header.v1'})"
     )
     result = subprocess.run(  # noqa: S603 - constant interpreter + fixed code
         [sys.executable, "-B", "-c", probe],

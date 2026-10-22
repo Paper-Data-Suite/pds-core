@@ -1,16 +1,23 @@
 """Pure, validated teacher-facing headers under Core's v1 interface contract.
 
-Terminal capability probing and stream output are intentionally deferred to
-Core #237 Slice 3. Importing or rendering does not perform any I/O, terminal
-configuration, workspace lookup, or producer discovery.
+Rendering remains pure; output and ANSI probing are handled explicitly by
+print_teacher_header, with conservative read-only capability checks. Importing
+this module does not inspect terminals, access workspaces, or write output.
 """
 
 from __future__ import annotations
 
 import unicodedata
 from dataclasses import dataclass
+from typing import Literal, TextIO
 
-__all__ = ("TeacherScreenHeader", "render_teacher_header")
+from pds_core._teacher_terminal import supports_teacher_ansi
+
+__all__ = (
+    "TeacherScreenHeader",
+    "render_teacher_header",
+    "print_teacher_header",
+)
 
 _GREEN = "\x1b[32m"
 _RESET = "\x1b[0m"
@@ -74,3 +81,26 @@ def render_teacher_header(
     if header.context_line is not None and header.context_line.strip():
         lines.append(header.context_line)
     return "\n".join(lines)
+
+
+def print_teacher_header(
+    header: TeacherScreenHeader,
+    *,
+    output: TextIO,
+    color: Literal["auto", "never"] = "auto",
+) -> None:
+    """Print one header plus one LF to the supplied stream, with safe fallback.
+
+    Only auto mode consults stream/terminal capabilities. No screen clearing,
+    prompt interception, global output or Windows console-mode mutation occurs.
+    """
+    if not isinstance(header, TeacherScreenHeader):
+        raise TypeError("header must be a TeacherScreenHeader")
+    if type(color) is not str:
+        raise TypeError("color must be 'auto' or 'never'")
+    if color not in ("auto", "never"):
+        raise ValueError("color must be 'auto' or 'never'")
+    if not callable(getattr(output, "write", None)):
+        raise TypeError("output must be a writable TextIO stream")
+    ansi = color == "auto" and supports_teacher_ansi(output)
+    output.write(render_teacher_header(header, ansi=ansi) + "\n")
