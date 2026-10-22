@@ -178,6 +178,22 @@ On Windows, opening sufficiently deep paths may create a short per-user
 directory junction alias for the default-viewer handoff; see
 [Core v0.6.6 release notes](docs/releases/v0.6.6.md).
 
+### Planned Teacher-Experience Public Contract (Core #236)
+
+The [Core teacher-experience contract v1](docs/teacher_experience_contract_v1.md),
+[architecture decision ADR 0005](docs/decisions/0005-adopt-versioned-teacher-experience-public-interfaces.md),
+[conformance vectors](docs/teacher_experience_conformance_v1.md),
+[as-is source audit](docs/audits/issue-236-slice1-teacher-experience-baseline.md),
+and [design traceability/adoption handoff](docs/audits/issue-236-slice4-traceability-and-handoff.md)
+record the **planned** shared header, exact prompt-scoped `:notes` command,
+caller-owned context/revalidation, Core Notes & Tasks, and callable Core
+classroom-management menu. These are **design artifacts**, not implemented,
+importable, release-qualified Core 0.6.6 features. Existing
+`pds_core.menu_navigation` and current `core` / `pds-core` CLI behavior are
+unchanged. ADR 0005 is Accepted as architecture, not implementation; implementing and
+installed-acceptance work belongs to Core #237–#244, Suite #51, and independent
+producer integration issues.
+
 ## Current Status
 
 Core v0.6.6 is the latest published Core release (Core #232, PR #233). Core v0.6.5 remains an immutable historical release and qualification baseline.
