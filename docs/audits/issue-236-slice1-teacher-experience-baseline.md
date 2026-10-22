@@ -1,10 +1,10 @@
 # Core #236 — Slice 1: Teacher-experience baseline and ownership audit
 
-**Status:** Source audit; implementation and cross-module conformance **not** qualified  
-**Recorded:** 2026-10-21 (issue baseline; source refs checked for this slice)  
-**Parent:** [Core #235](https://github.com/Paper-Data-Suite/pds-core/issues/235)  
-**Issue:** [Core #236](https://github.com/Paper-Data-Suite/pds-core/issues/236)  
-**Design authority:** [Suite teacher-experience design specification v0.2](https://github.com/Paper-Data-Suite/pds-paper-data-suite/blob/49-evergreen-launch-and-supported-composition-upgrades/docs/design/teacher-experience-design-specification.md), especially §§3–9 and 11–15  
+**Status:** Source audit; implementation and cross-module conformance **not** qualified
+**Recorded:** 2026-10-21 (issue baseline; source refs checked for this slice)
+**Parent:** [Core #235](https://github.com/Paper-Data-Suite/pds-core/issues/235)
+**Issue:** [Core #236](https://github.com/Paper-Data-Suite/pds-core/issues/236)
+**Design authority:** [Suite teacher-experience design specification v0.2](https://github.com/Paper-Data-Suite/pds-paper-data-suite/blob/49-evergreen-launch-and-supported-composition-upgrades/docs/design/teacher-experience-design-specification.md), especially §§3–9 and 11–15
 **Next work:** #236 Slices 2–4; Core #237–#244; [Suite #51](https://github.com/Paper-Data-Suite/pds-paper-data-suite/issues/51)
 
 ## 1. Purpose, method and evidence limitations

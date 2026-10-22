@@ -2,7 +2,7 @@
 
 **Contract ID:** `pds_core.teacher_experience/1`
 
-**Status:** Proposed technical contract freeze for Core #236, Slice 2; not an implemented or release-qualified API
+**Status:** Proposed Core #236 contract freeze (Slices 2â€“3); not implemented or release-qualified
 
 **Source baseline:** Core `main` `bf3e6c08dd3f51e47cdbe56b11a3873a9d4491b3` (`pds-core` 0.6.6)
 
@@ -192,16 +192,159 @@ A real producer adoption test must additionally exercise local N/W/number/H/B/M/
 6. **CLI parity.** The shared `:notes` command is not a shell command or positional shortcut. Meaningful future Core Notes/admin operations require their own deterministic, explicit noninteractive `pds-core` routes using the same guarded services. Existing `core`, `pds-core`, `pds`, and producer scripts retain their established behavior.
 7. **Qualification.** Source contract acceptance does not grant a feature to an installed component. Reuse exact release artifact/entry-point eligibility and integration gates owned by Suite #49; independently test installed consumer actions before claiming module-level UX conformance.
 
-## 4. Remaining frozen seams in Slice 3 (must not be inferred yet)
+## 4. Planned v1 return/context and in-process shared-menu contract — exact public shapes
 
-This slice **does not** create placeholder importable stubs for the following. Core #236 Slice 3 will append concrete public Python signatures and exact result/error semantics before #239–#242 implement any of them:
+> **Specified only.** The names below are design-frozen targets in `pds_core.teacher_context` and `pds_core.teacher_menus`; **none** is an importable Core 0.6.6 API. Runtime implementation, private-service design and installed-consumer qualification belong to Core #238–#244. This section supplements, and does not supersede, the header/command contract in §2.
 
-- caller-owned active context, opaque return token, process-bound return, revalidation statuses after Notes/admin utilities;
-- Core Notes & Tasks menu public service invocation, Core's stable private workspace/owner association, and cancellation/failure outcomes;
-- shared in-process Workspace & Classroom Management invocation, injected streams and structured changes/revalidation signals;
-- service/CLI/menu parity, partial-commit reporting, privacy and private backup/transfer contract seams.
+### 4.1 `pds_core.teacher_context`: caller hints, not authority
 
-Those seams must **not** infer student identity from context, treat navigation as an authorization proof, claim a cross-producer transaction, or change Core's current workspace/roster/Standards ownership. Core #238 defines private storage and threat-model specifics; #241 defines guarded single-student mutation semantics. The v1 contract must never prescribe their schemas without their subsequent reviews.
+```python
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+
+@dataclass(frozen=True, slots=True)
+class TeacherWorkReference:
+    module_id: str            # installed component label is not trust evidence
+    work_kind: str            # e.g. "assignment", "activity", "portfolio"
+    work_id: str              # exact opaque non-student work reference
+
+@dataclass(frozen=True, slots=True)
+class TeacherContextHint:
+    workspace_root: Path | None = None
+    class_id: str | None = None
+    work: TeacherWorkReference | None = None
+    display_label: str | None = None
+
+@dataclass(frozen=True, slots=True)
+class SharedTeacherMenuRequest:
+    caller_application: str
+    return_token: str
+    context: TeacherContextHint = field(default_factory=TeacherContextHint)
+```
+
+- `TeacherContextHint` is an **ephemeral, process-local navigation hint**. The workspace root is a path to resolve/check, **not** the stable Notes collection identifier, proof of ownership or a request to silently change workspace preferences. `class_id` and `work_id` are exact references, never fuzzy name matches. The caller supplies a permitted display label only after its own currentness/access checks; Core cannot derive student names from a hint.
+- `TeacherWorkReference` accepts only an **eligible non-student work object**. No student ID, student/submission selector, student-specific review, Grade, Score, scan payload, behavior-support case, credentials, record bodies or arbitrary serialized state may be placed here. Semantic suitability is **caller-owned** and must be checked again by Core before any Notes metadata is stored; basic string/type validation alone is not authorization.
+- Context fields are optional. Invalidation is hierarchical: changing workspace invalidates class and work; changing class invalidates incompatible work; a stale/absent/unpermitted work reference cannot be used or guessed. Shared utilities may discard hints without preventing safe standalone operation. No automatic student association is allowed.
+- `caller_application` is a nonblank presentation/routing identifier, not verified installed identity. `return_token` is a nonblank **opaque session-local** string generated and interpreted by the caller (maximum 128 Unicode code points, no control characters or line breaks); it is echoed exactly in the result. Do not place passwords, bearer credentials, serialized page state or student identifiers in a token. Neither Core nor Notes persists/logs this token. Core never executes a token as a command or resolves it as a filesystem path.
+- All strings are checked for correct types, nonblank values where required and terminal controls; `workspace_root` must be a `Path` or `None`; nested dataclasses must be the declared types. Invalid request shapes raise `TypeError`/`ValueError` **before** an interactive prompt or durable mutation. No coercion from arbitrary producer objects. In particular the type constructor cannot be treated as authorization.
+
+The **caller** holds its actual screen controller, local work selection and any safe in-memory draft. It is not passed into Core. A token promises at most return to that caller's still-live process and its own bounded navigation target. It does **not** promise restoring a nested screen after a subprocess or application restart. Suite foreground application launching is an independent qualified process boundary and must not invent a cross-process callback/transaction guarantee.
+
+### 4.2 `pds_core.teacher_context`: orthogonal navigation, durability and revalidation results
+
+```python
+class TeacherMenuExit(str, Enum):
+    BACK = "back"                    # B; return to the caller's saved boundary
+    MAIN_MENU = "main_menu"          # M; caller decides its own main menu
+    QUIT = "quit"                    # Q; caller owns final process exit
+    CANCELLED = "cancelled"          # stopped/EOF/Ctrl-C at a safe boundary
+    UNAVAILABLE = "unavailable"      # required Core capability not qualified
+    FAILED = "failed"                # an operation failed; inspect durability
+
+class TeacherDurability(str, Enum):
+    NO_CHANGE = "no_change"          # no durable writes from this invocation
+    COMMITTED = "committed"          # at least one confirmed change; all reported operations completed
+    PARTIAL = "partial"              # some confirmed durable work, some not
+    INDETERMINATE = "indeterminate"  # safety cannot establish complete write outcome
+
+class TeacherChangeScope(str, Enum):
+    WORKSPACE = "workspace"
+    SCHOOL_YEAR = "school_year"
+    CLASS = "class"
+    ROSTER = "roster"
+    STANDARDS = "standards"
+    NOTES = "notes"
+
+@dataclass(frozen=True, slots=True)
+class SharedTeacherMenuResult:
+    return_token: str
+    exit: TeacherMenuExit
+    durability: TeacherDurability
+    change_scopes: frozenset[TeacherChangeScope]
+    message: str
+```
+
+**Invariant and meaning:** `exit` is a **navigation/error disposition**; `durability` independently reports confirmed persistence and is never inferred from whether the teacher pressed `B`, `M`, or `Q`. A teacher may make a durable change and then return with `BACK` or `QUIT`; `CANCELLED` **after** earlier confirmed work must likewise retain a truthful `COMMITTED` or `PARTIAL` report. For `NO_CHANGE`, `change_scopes` must be empty. After `COMMITTED` or `PARTIAL`, each affected Core domain must appear in `change_scopes`. `INDETERMINATE` must conservatively enumerate plausible affected scopes and direct the teacher to authoritative inspection rather than claim rollback. `UNAVAILABLE` is `NO_CHANGE` for that utility invocation; opening a utility, displaying a header or recognizing a command never silently creates records.
+
+`message` is concise, safe-to-display outcome text: what happened, what is known saved, and the safe next action. It must not include note bodies, student records, credentials, raw private exceptions, or opaque tokens. Canonical service-level error types/revision receipts remain owned by their implementing issues and must **not** be flattened away; this result summarizes a menu invocation, not an audit log or proof of transaction atomicity. An unavailable Notes service must not be represented as an empty Notes collection.
+
+**Navigation mapping:** In the hosted shared-menu controller, `B` produces `BACK`, `M` produces `MAIN_MENU`, `Q` produces `QUIT`; the **caller** performs the corresponding navigation/exit. Existing `parse_navigation_choice` and its `M/Q` exceptions remain unchanged for existing menus: an implementation may catch them **at its own shared-menu boundary** solely to construct this result and must not swallow an unrelated module's unwind. Plain noninteractive `pds-core` command exit codes are separate and remain meaningful to scripts. EOF/Ctrl-C before any write returns `CANCELLED`/`NO_CHANGE`; after a durable change, report it truthfully. A validation refusal before mutation is `FAILED`/`NO_CHANGE`, with the reason and safe remedy.
+
+**Caller-owned revalidation is unconditional before consequential continuation**, even with `NO_CHANGE`: another process may have modified a roster, workspace, assignment, authorization, or revision while Notes was open. Inspect result scopes to prioritize refresh, but do not treat an empty scope set or a matching return token as an authorization or version proof. Core can validate its own workspace/class/roster state. The owning producer must separately reload its work item, student selection and private revision, recheck permission and discard/refresh incompatible local selections. A remembered teacher name or display string never substitutes for exact identity/currentness.
+
+### 4.3 `pds_core.teacher_menus`: callable, bounded in-process entry points
+
+```python
+from collections.abc import Callable
+from typing import TextIO
+from pds_core.teacher_context import SharedTeacherMenuRequest, SharedTeacherMenuResult
+
+def run_notes_tasks_menu(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    interactive: bool,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult: ...
+
+def run_workspace_classroom_menu(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    interactive: bool,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult: ...
+```
+
+Both are **public in-process** Core menu boundaries. `read_line` is injected and takes **no arguments**: Core writes the full prompt to the supplied output stream, flushes it when a response is needed, then reads one line. A producer need not surrender its global `input`, `sys.stdin`, `sys.stdout`, clear-screen helper, session loop, or logging configuration. Tests can inject an iterator-backed `read_line` and `StringIO` streams. `error_output=None` means sanitized failures go to `output`; non-`None` directs sanitized diagnostics there, never secrets. `interactive=False` returns `UNAVAILABLE`/`NO_CHANGE` without calling `read_line`, opening a prompt or mutating private/canonical data. The caller must set `interactive=True` only for a qualified active interactive session (test injection is allowed); this parameter does not grant teacher identity, workspace access or security rights.
+
+Core implementations must obtain **Core-owned, validated services** through their public/service boundaries (including the owner/workspace protection designed in #238 and guarded roster operations in #241); caller-injected I/O is **not** injected authority. Test service substitutes must be wired by the Core implementation under its own test contracts and may not become an undocumented consumer dependency. Importing these functions must not read a workspace, instantiate records, prompt or change global terminal state. These functions do not run `subprocess.run("core")`, call a private Core menu class or import any producer/Suite module.
+
+`run_notes_tasks_menu` becomes callable only when **`notes.menu.v1` and required `notes.records.v1` are qualified** for the installed distribution and current OS-user/workspace association. `run_workspace_classroom_menu` becomes callable only with **`classroom.menu.v1`**, including qualified guarded edit operations before exposing individual-student mutations. A Core implementation may expose the API symbol earlier but must return an honest `UNAVAILABLE` result rather than display unsupported operations. Merely having `terminal.notes_command.v1` or a displayable `Notes & Tasks` label is never sufficient. Each producer and Suite caller separately qualifies its own safe handoff.
+
+The menus own normal Core prompts and Core-side validation, not the caller's producer-specific academic data or screen controller. The Core menu and standalone `core`/`pds-core` menu entry points should compose the **same guarded Core services**, not create a second implementation of workspace, roster, Standards or Notes semantics. The first qualified admin menu covers workspace/year/class/roster/Standards through existing Core authority; roster adds/edits/removals require #241's reviewed preview/commit/freshness checks. Any menu action that is only read-only remains read-only. No automatic rewrite or regeneration of producer-owned artifacts after a roster update.
+
+### 4.4 Caller handoff/resumption, failure and nested navigation
+
+1. The initiating producer first validates its workspace/class/work revision and decides that the current menu-choice prompt is safe. It obtains qualified Core capabilities, creates a short opaque return token for **its own** in-memory continuation, and calls the public Core menu with only minimal permitted hints.
+2. It records how any **uncommitted** local draft will be handled: retained in caller memory if safe, or disclosed as **not preserved** before leaving the screen. **Confirmed durable producer work is never discarded** merely by visiting a shared utility.
+3. Core owns the utility operation. Every consequential write uses its own authoritative preview/confirmation/guarded commit; cancellation before that decision makes no new canonical work. Later partial changes remain real and are truthfully reported. A Core result cannot make a producer revision current, nor does it roll back producer state.
+4. On return, the caller checks that the token belongs to its still-live session. It then **reloads** workspace and school year; validates class and roster; reloads the module work item, any selected student, current revision and permission before consequential continuation; and invalidates subordinate selections after switches. If scope hints are insufficient, **revalidate broadly**.
+5. If the initiating work is stale, missing, moved, ambiguous or unauthorized, the caller presents a bounded refresh/reselect/safe-return path. It must not silently reuse the old submission, student, roster revision or saved authorization. A return result is information, not a command to perform a producer write.
+6. `MAIN_MENU` means the **caller's** main menu. `QUIT` asks the caller to perform its own appropriate shutdown/unwind. The shared Core menu cannot change Suite foreground process-launching guarantees or restore a suspended subprocess by itself.
+
+### 4.5 Private Notes custody and service boundary (Core #238–#240, #243)
+
+- The Core Notes record service is a **single logical collection associated with one PDS workspace and scoped to the qualified local OS user/owner**. Initial categories are **Idea / Task / Reflection**. Core #238 must first choose a stable workspace association across moved/copied/renamed workspaces; the existing workspace marker is not silently promoted into a stable private-store UUID. The caller's `workspace_root` and `caller_application` hints cannot establish ownership.
+- Initial private note bodies reside in an **OS-user-protected application-data location**, not the ordinary shared classroom workspace. Protection, effective owner derivation, read/write isolation and limits for shared OS logins require #238 tests and an explicit threat model. Self-declared `actor_reference` is attribution only. No guarantee of multi-user/shared-login security, cloud synchronization or end-to-end encryption is made here.
+- Automatic Notes context may carry an eligible **validated module/class/non-student work reference only**. It must not persist a structured student identifier or student-linked work, scans, Grades, Scores, review evidence, Portia support case or private producer data in context metadata. Teacher-authored free text may itself contain personal information; it remains protected private data and is never copied into diagnostics or classroom exports by default.
+- Opening a menu or starting a quick capture does not write a Note. Recording an entry requires a Core-authorized explicit save and guarded update/revision semantics. Producer student-specific notes remain in the producer. A personal Task/due date is **not** a notification, producer attention warning, academic decision, delivered response, Grade or published record. No automatic producer mutation or PDS2/registry publication is allowed.
+- Normal Core/Suite whole-workspace backup/restore does **not** include the external teacher-private Notes store. Core #243 owns explicit, owner-reviewed export/transfer/backup/restore with conflict rules and truthful receipts. A failed/partial portability operation cannot be disguised as a complete workspace backup.
+
+### 4.6 Direct-CLI parity and supported-adoption boundary
+
+For **each meaningful Core-owned durable action** exposed via shared menus, the implementation issue must supply an explicit script-safe, noninteractive `pds-core` invocation of the **same guarded Core service** with equivalent validation, access scope, stale-revision handling and useful exit status. Existing `pds-core roster import-preview`/`import-commit` and other direct commands retain their prior public spelling. The planned Notes command family is rooted at `pds-core notes` (#240), with distinct create, read/search, update/status and archive operations; #243 adds qualified portability. The eventual exact argument names, data formats and flags remain **owned by the corresponding implementation issue** and cannot be claimed available under #236. Guarded single-student roster operations under #241 similarly need CLI parity before #242 exposes them in a menu; no duplicate Core roster database is permitted.
+
+The `:notes` token is **not** a new shell alias, argument value, global CLI parser intercept, or unattended data-entry escape sequence. Pure menu navigation, help, display and return paths require **no invented CLI mutation**. No routine menu call or import may cause a non-TTY session to wait for input or silently write anything. The Suite `pds` executable and separate Suite #49 installed-trust/launch/update qualification are unchanged by this interface freeze.
+
+### 4.7 Synthetic successful journey: Quillan review → Notes → Quillan review
+
+1. Quillan is reviewing a *fictional* English 12 assignment, with local student selection, exact submission revision and a confirmed review previously saved. Its next prompt is a declared `MENU_CHOICE`, with `N` = Next Student and `W` = Next Student Needing Review. It has verified `terminal.notes_command.v1`, `notes.menu.v1` and `notes.records.v1` **and consumer-level qualification**.
+2. Teacher enters ` :NoTeS `; only the pure shared parser returns `SharedTeacherCommand.NOTES`. Quillan retains its private submission/student identity **locally**, not in `TeacherContextHint`. It calls `run_notes_tasks_menu` with a fresh caller-local return token and, at most, the permitted class and assignment reference.
+3. Core resolves its own qualified OS-user/workspace Notes scope, receives **Task** plus teacher-entered text, previews/guards and saves a personal Task. Its result contains `exit=BACK`, `durability=COMMITTED`, `change_scopes={NOTES}` and the same opaque return token. The Task has **not** altered Quillan review, student work, a Grade, or a module attention item.
+4. Quillan checks the token and **reloads** workspace, roster, assignment, exact student/submission/revision and permissions. If all are current, it restores its screen and N/W behavior; it did not discard its previously confirmed work. No new Quillan write occurs just because Core returned.
+5. **Stale variation:** while Core was open, another process revises or removes the assignment/submission. Quillan refuses to continue on a stale selection and offers refresh/reselection/safe return. The saved personal Task remains saved; the Quillan workflow does not silently roll it back or impersonate the old submission revision.
+
+### 4.8 Synthetic successful and conflict journeys: caller → Core classroom administration → caller
+
+1. From Suite or a fictional ScoreForm main menu, the teacher invokes `run_workspace_classroom_menu` using a local return token and an optional workspace/class hint, **after** #241–#242 qualify the guarded services and consuming menu. Core shows the same authoritative workspace/class/roster/Standards options as its own menu.
+2. Teacher previews an individual roster update. Core verifies exact student/class identity and freshness, obtains meaningful confirmation, and commits using the guarded Core roster service. The returned `BACK` result has `durability=COMMITTED` and `change_scopes={ROSTER}` (plus another scope if actually changed).
+3. The caller reloads Core workspace/class/roster and its **own** active work and student context before resuming. If the selected student was removed/changed or a prepared assessment references an outdated roster, caller offers refresh/reselect; no implicit regenerated pages, changed student assignment or producer write occurs.
+4. **Workspace-switch variation:** Core changes the selected workspace. Result includes `change_scopes={WORKSPACE}`. On return the caller invalidates class, roster, selected assignment and student context and requires fresh resolution. An old class ID from the previous workspace cannot be carried forward, even if its display name matches.
+5. **Conflict/partial variation:** another process changes a roster after preview. The guarded commit refuses as stale: `FAILED`/`NO_CHANGE`, with refresh/review advice. If separate, explicitly authorized operations had already committed before a later failure, use `FAILED`/`PARTIAL`, list known changed scopes and show exactly what persisted; there is **no** cross-repository atomicity claim.
 
 ## 5. Downstream obligations and evidence
 

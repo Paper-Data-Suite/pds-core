@@ -58,7 +58,15 @@ Core `paper_data_suite.module_operations` remains a distinct readiness/attention
 
 ### 5. Shared utilities return control; caller still owns currentness
 
-Subsequent #236 Slice 3 will freeze exact in-process utility call/result signatures. The architectural boundary is fixed now: Core owns Notes & Tasks and canonical Workspace & Classroom Management, but the **calling module** owns suspension/continuation and revalidation of its own selected student/work/revision/permissions after return. Core's own canonical workspace/class state must also be rechecked. No generic return token proves currentness or permits academic writes; no cross-repository transaction is implied.
+The normative in-process, typed seam is specified in contract v1 §4:
+
+- `pds_core.teacher_context` — immutable `TeacherWorkReference`, `TeacherContextHint`, `SharedTeacherMenuRequest`, `TeacherMenuExit`, `TeacherDurability`, `TeacherChangeScope` and `SharedTeacherMenuResult`. Display/context hints and opaque process-local return tokens **never** constitute teacher identity, currentness or authorization.
+- `pds_core.teacher_menus.run_notes_tasks_menu` and `run_workspace_classroom_menu` — separately qualified public Core entry points with caller-injected `read_line`, `output`, `error_output` and explicit `interactive` gating. They call Core-owned services **in-process** and return a structured result; they never spawn Core as a subprocess, take over the caller's input loop or import Suite/producers.
+- Navigation (`BACK`, `MAIN_MENU`, `QUIT`, cancellation/unavailable/failure) is **orthogonal** to durable changes (`NO_CHANGE`, `COMMITTED`, `PARTIAL`, `INDETERMINATE`). A canceled session may still have earlier confirmed writes, and an error may follow a partial commit. Results truthfully report affected Core domains; they never promise transactional rollback or prove the caller's producer context remains valid.
+
+The **calling module** owns its suspension/continuation and exact revalidation of workspace, class, roster, student/work selection, producer revision and permissions after return. Core resolves its own canonical authority; an empty change scope does not exempt a caller from reload before consequential action. Switching workspaces invalidates subordinate selections, and `M/Q` requests are handled by the caller's existing menu/quit conventions. See the synthetic Quillan→Notes→Quillan and caller→Core administration→caller traces in contract §4.7–4.8.
+
+The shared-menu public signatures are **planned, not importable in Core 0.6.6**. Core #238–#242 must qualify the actual service and menu capabilities before a consumer enables them. Future durable operations also require deterministic direct `pds-core` CLI routes over the same services. No cross-process return or Suite launch trust is implied.
 
 ### 6. Private Notes are not academic records
 
@@ -119,7 +127,7 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 
 ## Required follow-up
 
-1. **Core #236 Slice 3:** freeze typed in-process Notes/admin invocation, caller return/revalidation, outcomes/errors/privacy and CLI parity. Preserve this ADR's ownership and no-global-input invariants.
+1. **Core #236 Slice 3:** Typed context, return/outcome, shared in-process menu and private-custody seams specified; runtime and installed acceptance remain Core #238â€“#244.
 2. **Core #236 Slice 4:** add conformance vectors, traceability, adoption matrix, documentation reconciliation; move ADR from `Proposed` to `Accepted` only after owner review.
 3. **Core #237:** implement and qualify `teacher_experience`, `teacher_ui`, `teacher_commands` as designed, without touching producers.
 4. **Core #238–#244:** independently qualify private Notes ownership/storage, Notes services/menu/CLI/portability, guarded roster editing, callable administration, installed acceptance.
