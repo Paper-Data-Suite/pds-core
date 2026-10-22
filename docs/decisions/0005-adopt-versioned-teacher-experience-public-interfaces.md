@@ -1,6 +1,6 @@
 # ADR 0005: Adopt Versioned Core Teacher-Experience Public Interfaces
 
-**Status:** Proposed — technical detail under review in Core #236, not released or universally adopted
+**Status:** Accepted — public teacher-experience architecture and interface contract; runtime and consumer capabilities not yet qualified
 
 **Date:** October 21, 2026
 
@@ -109,7 +109,7 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 - A future Core capability list needs careful, release-specific maintenance; it cannot substitute for integration or installed-wheel tests.
 - Terminal color capability across Windows/ARM64 and injected streams requires representative runtime qualification.
 - Context handoff, Notes private storage/owner isolation, roster edits and portability need separate threat models and contract/test gates before publication.
-- A proposed ADR must not be represented as an accepted/released implementation until the PR is reviewed and the contract independently qualified.
+- Architectural acceptance must not be represented as an implemented or release-qualified capability. The exact Core APIs and each producer adoption remain separate qualification work.
 
 ## Alternatives considered
 
@@ -128,7 +128,7 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 ## Required follow-up
 
 1. **Core #236 Slice 3:** Typed context, return/outcome, shared in-process menu and private-custody seams specified; runtime and installed acceptance remain Core #238â€“#244.
-2. **Core #236 Slice 4:** add conformance vectors, traceability, adoption matrix, documentation reconciliation; move ADR from `Proposed` to `Accepted` only after owner review.
+2. **Core #236 owner sign-off:** ADR 0005 and the precise technical public interfaces are accepted as D0 architecture. Core #237–#244 still own implementation, runtime and installed-artifact qualification.
 3. **Core #237:** implement and qualify `teacher_experience`, `teacher_ui`, `teacher_commands` as designed, without touching producers.
 4. **Core #238–#244:** independently qualify private Notes ownership/storage, Notes services/menu/CLI/portability, guarded roster editing, callable administration, installed acceptance.
 5. **Suite #51/#15 and producers:** independently adopt qualified Core interfaces, with source and installed-screen collision checks and truthful unavailable states.

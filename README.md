@@ -190,7 +190,7 @@ caller-owned context/revalidation, Core Notes & Tasks, and callable Core
 classroom-management menu. These are **design artifacts**, not implemented,
 importable, release-qualified Core 0.6.6 features. Existing
 `pds_core.menu_navigation` and current `core` / `pds-core` CLI behavior are
-unchanged. ADR 0005 remains Proposed pending owner review; implementing and
+unchanged. ADR 0005 is Accepted as architecture, not implementation; implementing and
 installed-acceptance work belongs to Core #237–#244, Suite #51, and independent
 producer integration issues.
 

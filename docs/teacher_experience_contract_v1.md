@@ -2,7 +2,7 @@
 
 **Contract ID:** `pds_core.teacher_experience/1`
 
-**Status:** Proposed Core #236 contract freeze (Slices 2â€“3); not implemented or release-qualified
+**Status:** Accepted technical interface contract (Core #236, D0); not implemented or release-qualified
 
 **Source baseline:** Core `main` `bf3e6c08dd3f51e47cdbe56b11a3873a9d4491b3` (`pds-core` 0.6.6)
 
@@ -14,7 +14,7 @@
 
 **Implementing issues:** Core #237–#244; consuming Suite #51/#15 and separately qualified producers
 
-> **Specification, not implementation.** Every symbol specified under **Planned v1 public surface** is **absent from Core 0.6.6** unless explicitly marked as an existing API. No producer or Suite release may claim v1 capability on the strength of this document or the proposed ADR. This is the binding proposed shape for subsequent implementation/review, subject to deliberate change control before Core #236 closes.
+> **Specification, not implementation.** Every symbol specified under **Planned v1 public surface** is **absent from Core 0.6.6** unless explicitly marked as an existing API. No producer or Suite release may claim v1 capability on the strength of this document or the accepted ADR. This is the binding accepted shape for subsequent implementation/review, subject to deliberate, versioned change control.
 
 ## 1. Contract identity, authority and release boundaries
 
@@ -365,4 +365,4 @@ The design-level acceptance set is [Core Teacher-Experience Contract v1 — Conf
 
 **Release boundary:** These documents specify **D0 contract-review evidence**; they do not execute the planned APIs or demonstrate a qualified Core wheel, Notes owner/privacy protection, consumer menu integration, complete nested-command collision census, Windows/ARM64 terminal behavior or installed Suite composition. Preserve the distinct D1–D4 implementation/installed gates in downstream issues. In particular, `TEACHER_EXPERIENCE_CONTRACT_VERSION` and each v1 capability token remain **not importable/not advertised by Core 0.6.6**.
 
-**Review and acceptance:** ADR 0005 stays **Proposed** until the project owner approves the precise technical public contract during PR review; only then should it be marked **Accepted** and its ADR index reconciled. Accepted Suite v0.2 design decisions are not by themselves evidence that these exact Python signatures, return-value constraints, privacy controls or runtime capabilities have been accepted or implemented. After source review, owner decision and CI, Core #236 may close as a **documentation/contract freeze**; runtime and consumer UX scenarios remain separate work.
+**Review and acceptance:** The project owner accepted ADR 0005 and this technical contract through Core #236 PR review. This establishes D0 design authority **only**; it does not implement or qualify the new public Python modules, private Notes storage/ownership, roster writes, producer integrations, Windows/ARM64 behavior or exact installed Suite composition. D1–D4 verification remains owned by Core #237–#244, Suite #51 and the affected producer issues.

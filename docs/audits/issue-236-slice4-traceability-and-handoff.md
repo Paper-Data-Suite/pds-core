@@ -4,7 +4,7 @@
 **Core issue:** [#236](https://github.com/Paper-Data-Suite/pds-core/issues/236), under [#235](https://github.com/Paper-Data-Suite/pds-core/issues/235)
 **Contract ID:** `pds_core.teacher_experience/1` — [`teacher_experience_contract_v1.md`](../teacher_experience_contract_v1.md)
 **Conformance:** [`teacher_experience_conformance_v1.md`](../teacher_experience_conformance_v1.md)
-**Architecture:** [ADR 0005 — Proposed pending owner review](../decisions/0005-adopt-versioned-teacher-experience-public-interfaces.md)
+**Architecture:** [ADR 0005 — Accepted architectural decision](../decisions/0005-adopt-versioned-teacher-experience-public-interfaces.md)
 
 ## 1. Source and authority record
 
@@ -85,13 +85,13 @@ Core #236 is a **source-documentation freeze**. The only currently usable baseli
 - [x] D-01–D-08 and Suite §§3,5–15 traceability, successor issue routing and source/install truthfulness.
 - [x] No production feature, new Core record, migrated schema, module changes or falsely qualified public API introduced by documentation slices.
 
-**Must still be verified before considering #236 merged/closed:**
+**Closure gates (architecture approved; PR CI and scope checks remain):**
 
-- [ ] **Owner reviews precise contract and accepts ADR 0005** (change `Proposed` to `Accepted` and reconcile ADR index in a reviewed change, or document a revised decision). Acceptance is of architecture **only**, never installation/security/runtime readiness.
+- [x] **Owner approves the exact public contract and accepts ADR 0005.** The decision establishes architecture/D0 only, not runtime, installation, privacy, or consumer qualification.
 - [ ] CI and the repository's normal full checks pass on the final PR branch/commit (including documentation/hygiene, Python tests, strict mypy and installed artifact checks as appropriate). A focused 55-test slice regression suite is **not** full project qualification.
 - [ ] Reviewer verifies no unintended producer, Suite, release, CLI, private-data or production Core changes; resolve all remaining contract contradictions, if found.
 - [ ] PR records exact reviewed final commit and states that Core #237–#244, Suite #51 and individual consumer acceptance are pending.
 
 **Explicitly outside #236:** runtime H/C/R/P tests, complete nested-producer collision census, private-store threat-model test results, installed-wheel/consumer tests, real Windows/ARM64 color trials, qualified private backup, Suite teacher home and academic producer workflow improvements. Those gates cannot be marked passed based on this source-only audit.
 
-**Suggested PR evidence wording:** “Core #236 freezes a proposed versioned teacher-experience API and architecture, with source-pinned ownership/gap audit, synthetic conformance vectors and cross-repository adoption matrix. Existing Core v0.6.6 runtime and all published PDS consumer release artifacts are unchanged. Focused navigation/menu tests: 55 passing per slice runner; full CI and technical ADR approval pending review. No new capability is installed or advertised.”
+**Owner-signoff PR evidence:** “Core #236 accepts the v1 technical teacher-experience interfaces and ADR 0005 as D0 architecture, with source-pinned gap audit, conformance vectors and owner/consumer handoff. Existing Core 0.6.6 runtime and published consumer releases remain unchanged. Focused menu tests passed in each slice; full PR CI must pass for the final owner-acceptance commit. No future capability is represented as importable, installed, release-qualified or adopted.”
