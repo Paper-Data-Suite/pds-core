@@ -32,6 +32,7 @@ ADR numbers are never reused, including when an ADR is later deprecated, rejecte
 | [0002](0002-adopt-typed-reportable-data-publication-registry.md) | Adopt a Typed Work and Reportable-Data Publication Registry | Accepted; implemented in v0.6.0 |
 | [0003](0003-adopt-hierarchical-academic-period-model.md)         | Adopt a Hierarchical Academic-Period Model                  | Accepted; implemented in v0.6.0 |
 | [0004](0004-adopt-neutral-grouping-signal-interchange.md)        | Adopt a Neutral Grouping-Signal Interchange                 | Accepted; implemented in v0.6.1 |
+| [0005](0005-adopt-versioned-teacher-experience-public-interfaces.md) | Adopt Versioned Core Teacher-Experience Public Interfaces | Proposed; contract not implemented |
 
 ## Standard ADR Structure
 
