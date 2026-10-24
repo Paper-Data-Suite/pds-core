@@ -215,9 +215,9 @@ def test_allow_notes_default_is_off_and_required_flags_not_implicit() -> None:
         is None
     )
     with pytest.raises(TypeError):
-        parse_shared_teacher_command(":notes")
+        parse_shared_teacher_command(":notes")  # type: ignore[call-arg]
     with pytest.raises(TypeError):
-        parse_shared_teacher_command(":notes", PromptKind.MENU_CHOICE, True)  # type: ignore[misc]
+        parse_shared_teacher_command(":notes", PromptKind.MENU_CHOICE, True)  # type: ignore[call-arg]
 
 
 def test_existing_navigation_parser_still_handles_b_m_q_a_without_notes() -> None:

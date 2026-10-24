@@ -275,6 +275,30 @@ jobs:
             Pop-Location
           }
 
+      - name: Qualify Issue #237 installed teacher-terminal candidate (Ubuntu)
+        shell: pwsh
+        run: |
+          $venvPython = Join-Path $env:PDS_CORE_WHEEL_VENV "bin/python"
+          $report = Join-Path $env:RUNNER_TEMP "issue237-installed-terminal-ubuntu.json"
+          Push-Location $env:PDS_CORE_SMOKE_DIR
+          try {
+            & $venvPython -I "$env:GITHUB_WORKSPACE/scripts/verify_issue237_installed_teacher_terminal.py" `
+              --source-checkout "$env:GITHUB_WORKSPACE" `
+              --expected-version "$env:PDS_CORE_SOURCE_VERSION" `
+              --wheel "$env:PDS_CORE_WHEEL" `
+              --report $report
+            if ($LASTEXITCODE -ne 0) { throw "Issue #237 installed Ubuntu acceptance failed." }
+          }
+          finally { Pop-Location }
+
+      - name: Upload Issue #237 Ubuntu installed acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue237-installed-terminal-ubuntu
+          path: ${{ runner.temp }}/issue237-installed-terminal-ubuntu.json
+          if-no-files-found: warn
+
       - name: Run installed v0.6.6 acceptance
         shell: pwsh
         run: |
@@ -664,3 +688,64 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Installed junction probe failed." }
           }
           finally { Pop-Location }
+
+  issue237-installed-windows:
+    name: Issue #237 installed teacher-terminal candidate (Windows, Python 3.11)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build an unmodified candidate wheel
+        shell: pwsh
+        run: |
+          python -m pip install build
+          if ($LASTEXITCODE -ne 0) { throw "Build dependency installation failed." }
+          $dist = Join-Path $env:RUNNER_TEMP "issue237-dist"
+          New-Item -ItemType Directory -Path $dist -Force | Out-Null
+          python -m build --wheel --outdir $dist
+          if ($LASTEXITCODE -ne 0) { throw "Issue #237 candidate wheel build failed." }
+
+      - name: Isolated Windows wheel import, terminal and CLI qualification
+        shell: pwsh
+        run: |
+          $dist = Join-Path $env:RUNNER_TEMP "issue237-dist"
+          $wheelSet = @(Get-ChildItem -LiteralPath $dist -Filter '*.whl' -File)
+          if ($wheelSet.Count -ne 1) { throw "Expected exactly one wheel." }
+          $wheel = $wheelSet[0].FullName
+          $version = (python -c @'
+          import pathlib
+          import tomllib
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          print(data["project"]["version"])
+          '@).Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $version) { throw "Source version missing." }
+          $venv = Join-Path $env:RUNNER_TEMP "issue237-venv"
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { throw "Venv creation failed." }
+          $python = Join-Path $venv 'Scripts/python.exe'
+          & $python -m pip install --no-index --no-deps $wheel
+          if ($LASTEXITCODE -ne 0) { throw "Isolated wheel install failed." }
+          & $python -m pip check
+          if ($LASTEXITCODE -ne 0) { throw "Installed wheel dependency check failed." }
+          $report = Join-Path $env:RUNNER_TEMP "issue237-installed-terminal-windows.json"
+          Push-Location $env:RUNNER_TEMP
+          try {
+            & $python -I "$env:GITHUB_WORKSPACE/scripts/verify_issue237_installed_teacher_terminal.py" `
+              --source-checkout "$env:GITHUB_WORKSPACE" `
+              --expected-version $version `
+              --wheel $wheel `
+              --report $report
+            if ($LASTEXITCODE -ne 0) { throw "Issue #237 installed Windows acceptance failed." }
+          }
+          finally { Pop-Location }
+
+      - name: Upload Issue #237 Windows installed acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue237-installed-terminal-windows
+          path: ${{ runner.temp }}/issue237-installed-terminal-windows.json
+          if-no-files-found: warn
