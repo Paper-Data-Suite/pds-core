@@ -178,21 +178,31 @@ On Windows, opening sufficiently deep paths may create a short per-user
 directory junction alias for the default-viewer handoff; see
 [Core v0.6.6 release notes](docs/releases/v0.6.6.md).
 
-### Planned Teacher-Experience Public Contract (Core #236)
+### Accepted Teacher-Experience Contract and Source APIs (Core #236–#237)
 
-The [Core teacher-experience contract v1](docs/teacher_experience_contract_v1.md),
-[architecture decision ADR 0005](docs/decisions/0005-adopt-versioned-teacher-experience-public-interfaces.md),
+The [accepted Core teacher-experience contract v1](docs/teacher_experience_contract_v1.md),
+[ADR 0005](docs/decisions/0005-adopt-versioned-teacher-experience-public-interfaces.md),
 [conformance vectors](docs/teacher_experience_conformance_v1.md),
-[as-is source audit](docs/audits/issue-236-slice1-teacher-experience-baseline.md),
-and [design traceability/adoption handoff](docs/audits/issue-236-slice4-traceability-and-handoff.md)
-record the **planned** shared header, exact prompt-scoped `:notes` command,
-caller-owned context/revalidation, Core Notes & Tasks, and callable Core
-classroom-management menu. These are **design artifacts**, not implemented,
-importable, release-qualified Core 0.6.6 features. Existing
-`pds_core.menu_navigation` and current `core` / `pds-core` CLI behavior are
-unchanged. ADR 0005 is Accepted as architecture, not implementation; implementing and
-installed-acceptance work belongs to Core #237–#244, Suite #51, and independent
-producer integration issues.
+[baseline audit](docs/audits/issue-236-slice1-teacher-experience-baseline.md),
+and [traceability handoff](docs/audits/issue-236-slice4-traceability-and-handoff.md)
+establish Core's D0 public API and ownership rules. The
+[source integration and release/adoption guide](docs/teacher_experience_adoption_v1.md)
+explains the additive #237 implementation and remaining qualification gates.
+
+The **current source tree** implements `pds_core.teacher_experience`,
+`pds_core.teacher_ui` and `pds_core.teacher_commands`; its only advertised
+capabilities are `terminal.header.v1` (safe streamed headers) and
+`terminal.notes_command.v1` (pure, prompt-scoped `:notes` recognition).
+**These modules are not present in the published Core 0.6.6 wheel.**
+Source-level implementation is not yet candidate-wheel qualification, a new
+Core release, producer/Suite adoption, or a working Notes menu.
+
+Teacher-private Notes records, callable shared menus and classroom management
+remain future Core #238–#243 work; full installed and integrated acceptance
+remains separately gated under #237 Slice 6, Core #244, Suite #51 and each
+producer. Existing `pds_core.menu_navigation` and `core` / `pds-core` menu and
+CLI behavior remain unchanged. Neither the new parser nor importing its module
+intercepts a producer's input loop or creates Notes.
 
 ## Current Status
 
