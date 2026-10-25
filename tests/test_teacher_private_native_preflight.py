@@ -196,6 +196,18 @@ def test_existing_root_on_other_os_remains_unqualified(
         "Synthetic inspection; does not establish security.",
     )
     monkeypatch.setattr(inspection, "inspect_private_root", lambda: synthetic)
+    if platform == "win32":
+        # Synthetic cross-platform test: native Windows ACL checks require
+        # real Windows and must not be inferred from a mocked platform.
+        from pds_core import _teacher_private_windows_preflight as windows
+
+        monkeypatch.setattr(
+            windows,
+            "_native_windows_walk",
+            lambda candidate, current_owner: (
+                preflight.NativePrivatePreflightState.UNSUPPORTED
+            ),
+        )
     result = preflight.inspect_native_private_preflight()
     assert result.state is preflight.NativePrivatePreflightState.UNSUPPORTED
 

@@ -158,9 +158,9 @@ def _native_linux_walk(
 def inspect_native_private_preflight() -> NativePrivatePreflight:
     """Non-mutating native refusal layer on top of Slice 2's inspection.
 
-    Only Linux has a bounded native no-follow/ACL probe here; it still cannot
-    return READY. Windows ACL/security descriptor and macOS ACL verification
-    are deliberately UNSUPPORTED rather than inferred from POSIX-like modes.
+    Linux uses bounded no-follow/ACL checks; Windows uses a read-only native
+    handle/DACL refusal probe. Both are observations only, never READY.
+    macOS native ACL verification remains unsupported.
     """
     try:
         initial = preliminary.inspect_private_root()
@@ -175,6 +175,14 @@ def inspect_native_private_preflight() -> NativePrivatePreflight:
         return _outcome(NativePrivatePreflightState.ACCESS_DENIED)
     if state is not preliminary.PrivateRootState.PRESENT_UNVERIFIED:
         return _outcome(NativePrivatePreflightState.UNSUPPORTED)
-    if sys.platform != "linux" or initial.candidate is None or initial.owner is None:
+    if initial.candidate is None or initial.owner is None:
+        return _outcome(NativePrivatePreflightState.UNSUPPORTED)
+    if sys.platform == "win32":
+        # Imported on demand: this preflight reads handle DACLs but still
+        # cannot qualify a writable Notes store or grant an identity.
+        from pds_core import _teacher_private_windows_preflight as windows
+
+        return _outcome(windows._native_windows_walk(initial.candidate, initial.owner))
+    if sys.platform != "linux":
         return _outcome(NativePrivatePreflightState.UNSUPPORTED)
     return _outcome(_native_linux_walk(initial.candidate, initial.owner))
