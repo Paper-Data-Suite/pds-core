@@ -115,8 +115,8 @@ class _FileStandardInfo(ctypes.Structure):
         ("allocation_size", ctypes.c_int64),
         ("end_of_file", ctypes.c_int64),
         ("number_of_links", wintypes.DWORD),
-        ("delete_pending", wintypes.BOOL),
-        ("directory", wintypes.BOOL),
+        ("delete_pending", ctypes.c_ubyte),
+        ("directory", ctypes.c_ubyte),
     ]
 
 
