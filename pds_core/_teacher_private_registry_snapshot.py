@@ -226,7 +226,7 @@ def _windows_read(root: Path) -> PrivateRegistrySnapshot:
         raw_handle = kernel.CreateFileW(
             str(root / _REGISTRY),
             0x1 | 0x80 | 0x20000,
-            0,
+            0x1,  # FILE_SHARE_READ; compatible with retained native read handles.
             None,
             3,
             0x00200000,
