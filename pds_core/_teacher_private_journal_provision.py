@@ -237,7 +237,7 @@ def _windows_create(
     handle_value: int | None = None
     try:
         handle_value, error = file_provision._create_file_explicit_dacl_windows(
-            kernel, advapi, directory / name, current_owner.value
+            kernel, advapi, directory / name, current_owner.value, write_through=True
         )
         if handle_value is None:
             if error in (80, 183):

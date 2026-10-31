@@ -169,7 +169,12 @@ class _FileAttributeTagInfo(ctypes.Structure):
 
 
 def _create_file_explicit_dacl_windows(
-    kernel: Any, advapi: Any, target: Path, account_sid: str
+    kernel: Any,
+    advapi: Any,
+    target: Path,
+    account_sid: str,
+    *,
+    write_through: bool = False,
 ) -> tuple[int | None, int]:
     """Create-only, no inherited exposure window; return native handle for checks."""
     if wincreate._SID.fullmatch(account_sid) is None:
@@ -194,7 +199,7 @@ def _create_file_explicit_dacl_windows(
             0,
             ctypes.byref(attrs),
             1,
-            0x80,
+            0x80 | (0x80000000 if write_through else 0),  # FILE_FLAG_WRITE_THROUGH
             None,
         )
         value = ctypes.cast(handle, ctypes.c_void_p).value
