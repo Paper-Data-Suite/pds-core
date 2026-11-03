@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import subprocess
 import sys
 from contextlib import contextmanager
 from dataclasses import FrozenInstanceError
@@ -12,7 +13,6 @@ from typing import Iterator, cast
 
 import pytest
 
-from pds_core import _teacher_private_native_journal_anchor as anchor
 from pds_core import _teacher_private_transaction_intent as intents
 from pds_core import _teacher_private_windows_preflight as wincheck
 from pds_core import _teacher_private_windows_registry_replace_attempt as attempt
@@ -297,57 +297,74 @@ def test_backend_does_not_open_cross_directory_or_same_file(
 def test_windows_native_scratch_replacement_preserves_handle_ids(
     tmp_path: Path,
 ) -> None:
-    """Real Win32 FileRenameInfoEx in disposable scratch. No teacher data touched."""
-    source = tmp_path / "stage"
-    target = tmp_path / "registry.json"
-    source.write_bytes(b"synthetic-after")
-    target.write_bytes(b"synthetic-before")
-    kernel, _ = wincheck._bind_api()
-    old_handle = kernel.CreateFileW(
-        str(target),
-        0x80 | 0x20000,
-        7,
-        None,
-        3,
-        0x00200000,
-        None,
+    """Native Windows identity assertions in an independent Python interpreter.
+
+    Earlier synthetic Win32 API tests can contaminate per-process ctypes/native
+    state. This still runs one real FileRenameInfoEx, with original and stage
+    handles held concurrently; failure of ANY assertion fails this test.
+    """
+    program = r"""
+import ctypes
+import sys
+from ctypes import wintypes
+from pathlib import Path
+from pds_core import _teacher_private_native_journal_anchor as anchor
+from pds_core import _teacher_private_windows_preflight as wincheck
+from pds_core import _teacher_private_windows_registry_replace_attempt as attempt
+
+root = Path(sys.argv[1])
+source = root / "stage"
+target = root / "registry.json"
+source.write_bytes(b"synthetic-after")
+target.write_bytes(b"synthetic-before")
+kernel, _ = wincheck._bind_api()
+old_handle = kernel.CreateFileW(
+    str(target), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+)
+stage_handle = kernel.CreateFileW(
+    str(source), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+)
+old_value = ctypes.cast(old_handle, ctypes.c_void_p).value
+stage_value = ctypes.cast(stage_handle, ctypes.c_void_p).value
+bad = ctypes.c_void_p(-1).value
+assert old_value is not None and old_value != bad
+assert stage_value is not None and stage_value != bad
+try:
+    old_id = anchor._windows_id(kernel, old_value)
+    stage_id = anchor._windows_id(kernel, stage_value)
+    assert old_id is not None and stage_id is not None
+    assert old_id != stage_id
+    assert attempt._replace_open_target_posix(source, target)
+    assert target.read_bytes() == b"synthetic-after"
+    assert not source.exists()
+    assert anchor._windows_id(kernel, old_value) == old_id
+    assert anchor._windows_id(kernel, stage_value) == stage_id
+    new_handle = kernel.CreateFileW(
+        str(target), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
     )
-    stage_handle = kernel.CreateFileW(
-        str(source),
-        0x80 | 0x20000,
-        7,
-        None,
-        3,
-        0x00200000,
-        None,
-    )
-    old_value = ctypes.cast(old_handle, ctypes.c_void_p).value
-    stage_value = ctypes.cast(stage_handle, ctypes.c_void_p).value
-    bad = ctypes.c_void_p(-1).value
-    assert old_value is not None and old_value != bad
-    assert stage_value is not None and stage_value != bad
     try:
-        old_id = anchor._windows_id(kernel, old_value)
-        stage_id = anchor._windows_id(kernel, stage_value)
-        assert old_id is not None and stage_id is not None
-        assert old_id != stage_id
-        assert attempt._replace_open_target_posix(source, target)
-        assert target.read_bytes() == b"synthetic-after"
-        assert not source.exists()
-        assert anchor._windows_id(kernel, old_value) == old_id
-        assert anchor._windows_id(kernel, stage_value) == stage_id
-        new_handle = kernel.CreateFileW(
-            str(target), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
-        )
-        try:
-            new_value = ctypes.cast(new_handle, ctypes.c_void_p).value
-            assert new_value is not None and new_value != bad
-            assert anchor._windows_id(kernel, new_value) == stage_id
-        finally:
-            kernel.CloseHandle(new_handle)
+        new_value = ctypes.cast(new_handle, ctypes.c_void_p).value
+        assert new_value is not None and new_value != bad
+        assert anchor._windows_id(kernel, new_value) == stage_id
     finally:
-        kernel.CloseHandle(stage_handle)
-        kernel.CloseHandle(old_handle)
+        kernel.CloseHandle(new_handle)
+finally:
+    kernel.CloseHandle(stage_handle)
+    kernel.CloseHandle(old_handle)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", program, str(tmp_path)],
+        cwd=Path(__file__).resolve().parents[1],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert completed.returncode == 0, (
+        f"Native Windows scratch child failed (exit {completed.returncode}): "
+        + completed.stderr[-1400:]
+    )
 
 
 def test_no_notes_capabilities_or_writer_export() -> None:
