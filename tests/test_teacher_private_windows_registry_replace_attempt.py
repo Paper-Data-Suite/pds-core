@@ -373,6 +373,119 @@ try:
                 reopened_class = "other"
         finally:
             kernel.CloseHandle(reopened)
+    # 3G67 forensic extension. The exact original operation and its assertion
+    # remain untouched. Everything here is within disposable synthetic scratch.
+    def _displaced_stage() -> tuple[str, str]:
+        other = [
+            entry for entry in root.iterdir()
+            if entry.name not in {source.name, target.name}
+        ]
+        matches = False
+        for entry in other:
+            try:
+                if (
+                    not entry.is_symlink()
+                    and entry.is_file()
+                    and entry.read_bytes() == b"synthetic-after"
+                ):
+                    matches = True
+            except OSError:
+                pass
+        bucket = "none" if not other else ("one" if len(other) == 1 else "many")
+        return bucket, ("yes" if matches else "no")
+
+    def _scratch_variant(mode: str) -> str:
+        # Two independent new file pairs, not a retry on the failed stage.
+        # Both modes retain an open destination handle and assert native ID.
+        candidate_source = root / ("candidate-stage-" + mode)
+        candidate_target = root / ("candidate-registry-" + mode)
+        candidate_source.write_bytes(b"variant-after")
+        candidate_target.write_bytes(b"variant-before")
+        old_v = None
+        source_v = None
+        directory_v = None
+        reopened_v = None
+        try:
+            old_v = kernel.CreateFileW(
+                str(candidate_target), 0x80 | 0x20000, 7,
+                None, 3, 0x00200000, None
+            )
+            source_v = kernel.CreateFileW(
+                str(candidate_source), 0x10000 | 0x80 | 0x20000, 7,
+                None, 3, 0x00200000, None
+            )
+            old_n = ctypes.cast(old_v, ctypes.c_void_p).value
+            source_n = ctypes.cast(source_v, ctypes.c_void_p).value
+            if old_n in (None, bad) or source_n in (None, bad):
+                return "open-refused"
+            before_id = anchor._windows_id(kernel, old_n)
+            stage_id_v = anchor._windows_id(kernel, source_n)
+            if before_id is None or stage_id_v is None or before_id == stage_id_v:
+                return "id-unavailable"
+            root_v = None
+            if mode == "relative":
+                directory_v = kernel.CreateFileW(
+                    str(root), 0x80 | 0x20000, 7, None, 3,
+                    0x02000000 | 0x00200000, None
+                )
+                root_v = ctypes.cast(directory_v, ctypes.c_void_p).value
+                if root_v in (None, bad):
+                    return "directory-refused"
+            filename = (
+                candidate_target.name if mode == "relative"
+                else str(candidate_target)
+            )
+            name = filename.encode("utf-16-le", errors="strict")
+            size = max(
+                ctypes.sizeof(attempt._FileRenameInfo),
+                attempt._FileRenameInfo.file_name.offset + len(name) + 2,
+            )
+            raw = ctypes.create_string_buffer(size)
+            header = attempt._FileRenameInfo.from_buffer(raw)
+            header.flags = 3
+            header.root_directory = root_v
+            header.file_name_length = len(name)
+            ctypes.memmove(
+                ctypes.addressof(raw)
+                + attempt._FileRenameInfo.file_name.offset,
+                name, len(name)
+            )
+            returned = bool(kernel.SetFileInformationByHandle(
+                wintypes.HANDLE(source_n), 22, ctypes.byref(raw), size
+            ))
+            if not returned:
+                return "native-refused"
+            try:
+                payload = candidate_target.read_bytes()
+            except OSError:
+                return "target-unreadable"
+            if payload != b"variant-after":
+                return "target-before" if payload == b"variant-before" else "target-other"
+            if candidate_source.exists():
+                return "source-remains"
+            reopened_v = kernel.CreateFileW(
+                str(candidate_target), 0x80 | 0x20000, 7,
+                None, 3, 0x00200000, None
+            )
+            reopened_n = ctypes.cast(reopened_v, ctypes.c_void_p).value
+            if reopened_n in (None, bad):
+                return "reopen-refused"
+            if anchor._windows_id(kernel, reopened_n) != stage_id_v:
+                return "wrong-identity"
+            if anchor._windows_id(kernel, old_n) != before_id:
+                return "old-identity-changed"
+            if anchor._windows_id(kernel, source_n) != stage_id_v:
+                return "stage-identity-changed"
+            return "correct"
+        except (OSError, ValueError, TypeError, AttributeError, OverflowError):
+            return "exception"
+        finally:
+            for opened in (reopened_v, directory_v, source_v, old_v):
+                if opened is not None:
+                    opened_n = ctypes.cast(opened, ctypes.c_void_p).value
+                    if opened_n not in (None, bad):
+                        kernel.CloseHandle(opened)
+
     if (
         not renamed
         or data_state != "after"
@@ -381,13 +494,24 @@ try:
         or not stage_stable
         or reopened_class != "stage"
     ):
+        displaced_count, displaced_payload = _displaced_stage()
+        # Do not suppress the original failure even if a variant succeeds.
+        absolute_variant = _scratch_variant("absolute")
+        relative_variant = _scratch_variant("relative")
         raise AssertionError(
             "NATIVE_SCRATCH_RENAME_POSTCONDITION: "
             f"rename_reported={renamed}; target_data={data_state}; "
             f"source_name_present={source_present}; "
             f"old_handle_stable={old_stable}; "
             f"stage_handle_stable={stage_stable}; "
-            f"reopened_target_identity={reopened_class}"
+            f"reopened_target_identity={reopened_class}; "
+            f"unexpected_names={displaced_count}; "
+            f"displaced_stage_payload={displaced_payload}; "
+            f"absolute_nul_variant={absolute_variant}; "
+            f"relative_parent_variant={relative_variant}; "
+            f"rename_struct_offset={attempt._FileRenameInfo.file_name.offset}; "
+            f"rename_struct_size={ctypes.sizeof(attempt._FileRenameInfo)}; "
+            f"native_wchar_size={ctypes.sizeof(wintypes.WCHAR)}"
         )
     assert renamed
     assert target.read_bytes() == b"synthetic-after"
