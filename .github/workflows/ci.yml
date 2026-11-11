@@ -749,3 +749,93 @@ jobs:
           name: issue237-installed-terminal-windows
           path: ${{ runner.temp }}/issue237-installed-terminal-windows.json
           if-no-files-found: warn
+
+  issue238-installed-native-boundary:
+    name: Issue #238 installed native no-write boundary (${{ matrix.os }}, Python 3.11)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build and install exact Core candidate wheel
+        shell: pwsh
+        run: |
+          python -m pip install build
+          if ($LASTEXITCODE -ne 0) { throw "Build tooling unavailable." }
+          $root = Join-Path $env:RUNNER_TEMP "issue238-installed-native"
+          $dist = Join-Path $root "dist"
+          $venv = Join-Path $root "venv"
+          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          python -m build --wheel --outdir $dist
+          if ($LASTEXITCODE -ne 0) { throw "Candidate wheel build failed." }
+          $wheels = @(Get-ChildItem -LiteralPath $dist -Filter "*.whl" -File)
+          if ($wheels.Count -ne 1) { throw "Expected one candidate wheel." }
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { throw "Isolated venv creation failed." }
+          if ($IsWindows) {
+            $venvPy = Join-Path $venv "Scripts/python.exe"
+          }
+          else {
+            $venvPy = Join-Path $venv "bin/python"
+          }
+          & $venvPy -m pip install --no-index --no-deps $wheels[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw "Candidate wheel installation failed." }
+          & $venvPy -m pip check
+          if ($LASTEXITCODE -ne 0) { throw "Installed dependency check failed." }
+      - name: Qualify installed wheel from native Windows or Linux
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "issue238-installed-native"
+          $dist = Join-Path $root "dist"
+          $venv = Join-Path $root "venv"
+          $scratch = Join-Path $root "scratch"
+          $report = Join-Path $root "issue238-native-no-write.json"
+          New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+          if ($IsWindows) {
+            $venvPy = Join-Path $venv "Scripts/python.exe"
+          }
+          else {
+            $venvPy = Join-Path $venv "bin/python"
+          }
+          $wheels = @(Get-ChildItem -LiteralPath $dist -Filter "*.whl" -File)
+          if ($wheels.Count -ne 1) { throw "Candidate wheel missing." }
+          $probe = Join-Path $env:GITHUB_WORKSPACE "scripts/verify_issue238_installed_native_boundary.py"
+          Push-Location $scratch
+          try {
+            & $venvPy -I $probe `
+              --source-checkout $env:GITHUB_WORKSPACE `
+              --wheel $wheels[0].FullName `
+              --expected-version "0.6.6" `
+              --scratch-root $scratch `
+              --report $report
+            if ($LASTEXITCODE -ne 0) { throw "Native installed no-write boundary failed." }
+          }
+          finally { Pop-Location }
+      - name: Upload sanitized Core #238 native installed smoke
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue238-native-no-write-${{ matrix.os }}
+          path: ${{ runner.temp }}/issue238-installed-native/issue238-native-no-write.json
+          if-no-files-found: warn
+      - name: Remove known build residue and verify repository hygiene
+        if: always()
+        shell: pwsh
+        run: |
+          foreach ($name in @("build", "dist", "pds_core.egg-info")) {
+            if (Test-Path -LiteralPath $name) {
+              Remove-Item -Recurse -Force -LiteralPath $name
+            }
+          }
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { throw "Diff whitespace check failed." }
+          $status = @(git status --porcelain --untracked-files=all)
+          if ($status.Count -gt 0) {
+            $status
+            throw "Installed qualification modified the checkout."
+          }
