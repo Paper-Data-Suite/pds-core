@@ -375,12 +375,14 @@ try:
             kernel.CloseHandle(reopened)
     # 3G67 forensic extension. The exact original operation and its assertion
     # remain untouched. Everything here is within disposable synthetic scratch.
-    def _displaced_stage() -> tuple[str, str]:
+    def _displaced_stage() -> tuple[str, str, str]:
+        # Compare only the leaf of the synthetic scratch entry with the fixed
+        # synthetic target name; never emit a root, owner, or raw filename.
         other = [
             entry for entry in root.iterdir()
             if entry.name not in {source.name, target.name}
         ]
-        matches = False
+        matches = []
         for entry in other:
             try:
                 if (
@@ -388,11 +390,36 @@ try:
                     and entry.is_file()
                     and entry.read_bytes() == b"synthetic-after"
                 ):
-                    matches = True
+                    matches.append(entry.name)
             except OSError:
                 pass
         bucket = "none" if not other else ("one" if len(other) == 1 else "many")
-        return bucket, ("yes" if matches else "no")
+        if len(matches) != 1:
+            shape = "missing" if not matches else "multiple"
+        else:
+            name = matches[0]
+            wanted = target.name
+            prefix = 0
+            while (
+                prefix < min(len(name), len(wanted))
+                and name[prefix] == wanted[prefix]
+            ):
+                prefix += 1
+            tail = 0
+            while (
+                tail < min(len(name), len(wanted)) - prefix
+                and name[len(name) - tail - 1] == wanted[len(wanted) - tail - 1]
+            ):
+                tail += 1
+            difference = name[prefix:len(name) - tail if tail else len(name)]
+            # Disclose only synthetic basename shape and bounded codepoints
+            # at the first mismatch. No filename text or path is printed.
+            units = "_".join(f"{ord(char):04X}" for char in difference[:4])
+            shape = (
+                f"leaf_len={len(name)},prefix={prefix},suffix={tail},"
+                f"delta_len={len(difference)},delta_units={units or 'none'}"
+            )
+        return bucket, ("yes" if matches else "no"), shape
 
     def _scratch_variant(mode: str) -> str:
         # Two independent new file pairs, not a retry on the failed stage.
@@ -486,6 +513,72 @@ try:
                     if opened_n not in (None, bad):
                         kernel.CloseHandle(opened)
 
+    def _movefile_control() -> str:
+        # This is an independent pair of synthetic files, not a fallback on
+        # the original failed stage. Retain open DELETE-sharing target/source
+        # handles and independently recheck actual target bytes and file IDs.
+        src = root / "candidate-stage-movefile"
+        dst = root / "candidate-registry-movefile"
+        src.write_bytes(b"variant-after")
+        dst.write_bytes(b"variant-before")
+        opened_old = None
+        opened_source = None
+        reopened_control = None
+        try:
+            opened_old = kernel.CreateFileW(
+                str(dst), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+            )
+            opened_source = kernel.CreateFileW(
+                str(src), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+            )
+            old_value_c = ctypes.cast(opened_old, ctypes.c_void_p).value
+            stage_value_c = ctypes.cast(opened_source, ctypes.c_void_p).value
+            if old_value_c in (None, bad) or stage_value_c in (None, bad):
+                return "open-refused"
+            old_identity_c = anchor._windows_id(kernel, old_value_c)
+            stage_identity_c = anchor._windows_id(kernel, stage_value_c)
+            if (
+                old_identity_c is None
+                or stage_identity_c is None
+                or old_identity_c == stage_identity_c
+            ):
+                return "identity-unqualified"
+            kernel.MoveFileExW.argtypes = [
+                wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD
+            ]
+            kernel.MoveFileExW.restype = wintypes.BOOL
+            if not kernel.MoveFileExW(str(src), str(dst), 0x00000001):
+                return "native-refused"
+            try:
+                contents = dst.read_bytes()
+            except OSError:
+                return "target-unreadable"
+            if contents != b"variant-after":
+                return "target-not-after"
+            if src.exists():
+                return "source-remains"
+            reopened_control = kernel.CreateFileW(
+                str(dst), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+            )
+            current = ctypes.cast(reopened_control, ctypes.c_void_p).value
+            if current in (None, bad):
+                return "reopen-refused"
+            if anchor._windows_id(kernel, current) != stage_identity_c:
+                return "wrong-target-identity"
+            if anchor._windows_id(kernel, old_value_c) != old_identity_c:
+                return "old-handle-moved"
+            if anchor._windows_id(kernel, stage_value_c) != stage_identity_c:
+                return "stage-handle-moved"
+            return "correct"
+        except (OSError, ValueError, TypeError, AttributeError, OverflowError):
+            return "exception"
+        finally:
+            for opened in (reopened_control, opened_source, opened_old):
+                if opened is not None:
+                    value = ctypes.cast(opened, ctypes.c_void_p).value
+                    if value not in (None, bad):
+                        kernel.CloseHandle(opened)
+
     if (
         not renamed
         or data_state != "after"
@@ -494,10 +587,11 @@ try:
         or not stage_stable
         or reopened_class != "stage"
     ):
-        displaced_count, displaced_payload = _displaced_stage()
+        displaced_count, displaced_payload, displaced_shape = _displaced_stage()
         # Do not suppress the original failure even if a variant succeeds.
         absolute_variant = _scratch_variant("absolute")
         relative_variant = _scratch_variant("relative")
+        legacy_control = _movefile_control()
         raise AssertionError(
             "NATIVE_SCRATCH_RENAME_POSTCONDITION: "
             f"rename_reported={renamed}; target_data={data_state}; "
@@ -507,8 +601,10 @@ try:
             f"reopened_target_identity={reopened_class}; "
             f"unexpected_names={displaced_count}; "
             f"displaced_stage_payload={displaced_payload}; "
+            f"displaced_leaf_shape={displaced_shape}; "
             f"absolute_nul_variant={absolute_variant}; "
             f"relative_parent_variant={relative_variant}; "
+            f"movefileex_control={legacy_control}; "
             f"rename_struct_offset={attempt._FileRenameInfo.file_name.offset}; "
             f"rename_struct_size={ctypes.sizeof(attempt._FileRenameInfo)}; "
             f"native_wchar_size={ctypes.sizeof(wintypes.WCHAR)}"
