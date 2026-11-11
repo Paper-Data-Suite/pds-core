@@ -166,5 +166,6 @@ def review_private_production_write_barrier(
         TypeError,
         AttributeError,
         OverflowError,
+        RuntimeError,
     ):
         return _result(state.DESCRIPTION_UNQUALIFIED)
