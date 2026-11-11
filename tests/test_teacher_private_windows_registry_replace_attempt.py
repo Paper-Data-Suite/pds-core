@@ -249,7 +249,14 @@ def test_backend_uses_only_posix_rename_info_ex_with_delete_handle(
                 ctypes.addressof(info) + attempt._FileRenameInfo.file_name.offset,
                 info.file_name_length,
             )
-            assert size >= attempt._FileRenameInfo.file_name.offset + len(encoded)
+            tail_start = (
+                attempt._FileRenameInfo.file_name.offset + info.file_name_length
+            )
+            assert size >= tail_start + attempt._RENAME_NAME_TAIL_BYTES
+            tail = ctypes.string_at(
+                ctypes.addressof(info) + tail_start, size - tail_start
+            )
+            assert tail == b"\x00" * len(tail)
             renamed.append((cls, info.flags, encoded))
             return int(native_success)
 

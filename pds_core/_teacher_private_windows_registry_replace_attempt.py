@@ -32,6 +32,8 @@ _READ_CONTROL = 0x00020000
 _SHARE_ALL = 0x7
 _OPEN_EXISTING = 3
 _FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000
+# Explicit zero WCHAR tail for Windows variants that read beyond FileNameLength.
+_RENAME_NAME_TAIL_BYTES = 64
 
 
 class _FileRenameInfo(ctypes.Structure):
@@ -137,8 +139,12 @@ def _replace_open_target_posix(source: Path, target: Path) -> bool:
         name = str(target).encode("utf-16-le", errors="strict")
         if not name or len(name) > 32760 or "\x00" in str(target):
             return False
+        # CI Windows 3.12/3.13 appended two variable WCHARs to an exactly
+        # sized target. The protocol permits trailing padding, so preserve
+        # FileNameLength while supplying zeroed extra WCHAR storage.
         size = max(
-            ctypes.sizeof(_FileRenameInfo), _FileRenameInfo.file_name.offset + len(name)
+            ctypes.sizeof(_FileRenameInfo),
+            _FileRenameInfo.file_name.offset + len(name) + _RENAME_NAME_TAIL_BYTES,
         )
         raw = ctypes.create_string_buffer(size)
         header = _FileRenameInfo.from_buffer(raw)
