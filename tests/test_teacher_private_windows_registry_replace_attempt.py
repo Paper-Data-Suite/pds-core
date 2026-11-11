@@ -334,7 +334,62 @@ try:
     stage_id = anchor._windows_id(kernel, stage_value)
     assert old_id is not None and stage_id is not None
     assert old_id != stage_id
-    assert attempt._replace_open_target_posix(source, target)
+    # Slice 3G66: report ONLY fixed classifications of this disposable scratch
+    # experiment when a native replacement postcondition fails. Do not turn a
+    # failed rename into a pass; the original assertions remain below.
+    renamed = attempt._replace_open_target_posix(source, target)
+    try:
+        named_contents = target.read_bytes()
+    except FileNotFoundError:
+        data_state = "missing"
+    except OSError:
+        data_state = "unreadable"
+    else:
+        if named_contents == b"synthetic-after":
+            data_state = "after"
+        elif named_contents == b"synthetic-before":
+            data_state = "before"
+        else:
+            data_state = "unexpected"
+    source_present = source.exists()
+    old_stable = anchor._windows_id(kernel, old_value) == old_id
+    stage_stable = anchor._windows_id(kernel, stage_value) == stage_id
+    reopened = kernel.CreateFileW(
+        str(target), 0x80 | 0x20000, 7, None, 3, 0x00200000, None
+    )
+    reopened_value = ctypes.cast(reopened, ctypes.c_void_p).value
+    if reopened_value is None or reopened_value == bad:
+        reopened_class = "unavailable"
+    else:
+        try:
+            opened_id = anchor._windows_id(kernel, reopened_value)
+            if opened_id == stage_id:
+                reopened_class = "stage"
+            elif opened_id == old_id:
+                reopened_class = "old"
+            elif opened_id is None:
+                reopened_class = "unverified"
+            else:
+                reopened_class = "other"
+        finally:
+            kernel.CloseHandle(reopened)
+    if (
+        not renamed
+        or data_state != "after"
+        or source_present
+        or not old_stable
+        or not stage_stable
+        or reopened_class != "stage"
+    ):
+        raise AssertionError(
+            "NATIVE_SCRATCH_RENAME_POSTCONDITION: "
+            f"rename_reported={renamed}; target_data={data_state}; "
+            f"source_name_present={source_present}; "
+            f"old_handle_stable={old_stable}; "
+            f"stage_handle_stable={stage_stable}; "
+            f"reopened_target_identity={reopened_class}"
+        )
+    assert renamed
     assert target.read_bytes() == b"synthetic-after"
     assert not source.exists()
     assert anchor._windows_id(kernel, old_value) == old_id
