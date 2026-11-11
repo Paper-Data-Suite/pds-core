@@ -220,7 +220,11 @@ def _windows_parent(
         None,
     )
     value = ctypes.cast(opened, ctypes.c_void_p).value
-    error = ctypes.get_last_error() if value in (None, ctypes.c_void_p(-1).value) else 0
+    error = (
+        int(getattr(ctypes, "get_last_error")())
+        if value in (None, ctypes.c_void_p(-1).value)
+        else 0
+    )
     if value == ctypes.c_void_p(-1).value:
         value = None
     if value is None:

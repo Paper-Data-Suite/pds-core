@@ -204,7 +204,7 @@ def _create_file_explicit_dacl_windows(
         )
         value = ctypes.cast(handle, ctypes.c_void_p).value
         if value is None or value == ctypes.c_void_p(-1).value:
-            return None, ctypes.get_last_error()
+            return None, int(getattr(ctypes, "get_last_error")())
         return value, 0
     finally:
         kernel.LocalFree(descriptor)

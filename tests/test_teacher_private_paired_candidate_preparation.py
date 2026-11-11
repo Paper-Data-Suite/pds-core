@@ -30,6 +30,10 @@ def _intent(
     operation: witness.PrivateBindingOperation = witness.PrivateBindingOperation.FORK_COPY,
 ) -> intents.PrivateTransactionIntent:
     item = object.__new__(intents.PrivateTransactionIntent)
+    object.__setattr__(item, "descriptor_before", b"synthetic-fixture")
+    object.__setattr__(item, "descriptor_after", b"synthetic-fixture")
+    object.__setattr__(item, "registry_before", b"synthetic-fixture")
+    object.__setattr__(item, "registry_after", b"synthetic-fixture")
     operation_witness = object.__new__(witness.PrivateTransactionWitness)
     object.__setattr__(operation_witness, "operation", operation)
     object.__setattr__(item, "witness", operation_witness)

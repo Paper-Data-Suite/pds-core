@@ -111,7 +111,7 @@ def _windows_effective_sid() -> str:
         ):
             kernel.CloseHandle(impersonation_token)
             raise _OwnerUnverifiable
-        if ctypes.get_last_error() != 1008:  # ERROR_NO_TOKEN
+        if int(getattr(ctypes, "get_last_error")()) != 1008:  # ERROR_NO_TOKEN
             raise _OwnerUnverifiable
 
         token = wintypes.HANDLE()

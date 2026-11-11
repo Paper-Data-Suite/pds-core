@@ -160,7 +160,7 @@ def _create_directory_explicit_dacl(
             ctypes.sizeof(_SecurityAttributes), descriptor, False
         )
         success = bool(kernel.CreateDirectoryW(str(target), ctypes.byref(attrs)))
-        return success, 0 if success else ctypes.get_last_error()
+        return success, 0 if success else int(getattr(ctypes, "get_last_error")())
     finally:
         kernel.LocalFree(descriptor)
 

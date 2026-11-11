@@ -237,7 +237,7 @@ def _read_windows(
         first = ctypes.cast(raw_handle, ctypes.c_void_p).value
         if first is None or first == ctypes.c_void_p(-1).value:
             first = None
-            code = ctypes.get_last_error()
+            code = int(getattr(ctypes, "get_last_error")())
             if code in (2, 3):
                 return _result(PrivateRegistryStageImageState.MISSING)
             if code in (5, 32):

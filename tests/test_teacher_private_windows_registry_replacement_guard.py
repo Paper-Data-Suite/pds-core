@@ -37,6 +37,7 @@ State = guard.PrivateWindowsRegistryReplacementCode
 
 def _intent() -> intents.PrivateTransactionIntent:
     proposed = object.__new__(intents.PrivateTransactionIntent)
+    object.__setattr__(proposed, "descriptor_after", b"synthetic-fixture")
     operation = object.__new__(witness.PrivateTransactionWitness)
     object.__setattr__(
         operation, "operation", witness.PrivateBindingOperation.FORK_COPY

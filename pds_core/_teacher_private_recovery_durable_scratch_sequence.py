@@ -184,7 +184,7 @@ def _windows_directory_flush(path: Path) -> None:
     kernel: Any = None
     handle: int | None = None
     try:
-        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel = getattr(ctypes, "WinDLL")("kernel32", use_last_error=True)
         create = kernel.CreateFileW
         create.argtypes = [
             wintypes.LPCWSTR,

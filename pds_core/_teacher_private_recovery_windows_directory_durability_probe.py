@@ -89,7 +89,7 @@ class _FileInfo(ctypes.Structure):
 
 
 def _kernel() -> Any:
-    kernel: Any = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel: Any = getattr(ctypes, "WinDLL")("kernel32", use_last_error=True)
     kernel.CreateFileW.argtypes = [
         wintypes.LPCWSTR,
         wintypes.DWORD,
@@ -126,7 +126,7 @@ def _open(kernel: Any, path: Path) -> tuple[int | None, int]:
     )
     value = ctypes.cast(raw, ctypes.c_void_p).value
     if value is None or value == ctypes.c_void_p(-1).value:
-        return None, ctypes.get_last_error()
+        return None, int(getattr(ctypes, "get_last_error")())
     return value, 0
 
 
@@ -166,7 +166,7 @@ def _probe_one(kernel: Any, path: Path) -> PrivateDirectoryFlushObservation:
         if first is None:
             return PrivateDirectoryFlushObservation.HANDLE_UNQUALIFIED
         returned = bool(kernel.FlushFileBuffers(wintypes.HANDLE(handle)))
-        error = ctypes.get_last_error() if not returned else 0
+        error = int(getattr(ctypes, "get_last_error")()) if not returned else 0
         reopened, _ = _open(kernel, path)
         if (
             reopened is None

@@ -224,7 +224,7 @@ def _read_windows(root: Path, stage_name: str) -> _StageRead:
             original = None
             return _StageRead(
                 _ReadState.MISSING
-                if ctypes.get_last_error() in (2, 3)
+                if int(getattr(ctypes, "get_last_error")()) in (2, 3)
                 else _ReadState.REFUSED
             )
         signature = retained._windows_signature(kernel, original, directory=False)

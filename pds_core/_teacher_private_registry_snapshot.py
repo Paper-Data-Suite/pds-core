@@ -234,7 +234,7 @@ def _windows_read(root: Path) -> PrivateRegistrySnapshot:
         )
         handle_value = ctypes.cast(raw_handle, ctypes.c_void_p).value
         if handle_value is None or handle_value == ctypes.c_void_p(-1).value:
-            error = ctypes.get_last_error()
+            error = int(getattr(ctypes, "get_last_error")())
             handle_value = None
             if error in (2, 3):
                 return _outcome(PrivateRegistrySnapshotState.MISSING)

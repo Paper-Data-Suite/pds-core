@@ -37,6 +37,8 @@ TX = "e3ba2e44-3f47-4588-9023-44cbb799d5a8"
 
 def _intent() -> intents.PrivateTransactionIntent:
     value = object.__new__(intents.PrivateTransactionIntent)
+    object.__setattr__(value, "descriptor_after", b"synthetic-fixture")
+    object.__setattr__(value, "registry_after", b"synthetic-fixture")
     object.__setattr__(
         value,
         "witness",

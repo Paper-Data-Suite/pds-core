@@ -112,7 +112,7 @@ def _native_target(
     """
     import msvcrt
 
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel = getattr(ctypes, "WinDLL")("kernel32", use_last_error=True)
     kernel.CreateFileW.argtypes = [
         wintypes.LPCWSTR,
         wintypes.DWORD,
@@ -139,9 +139,12 @@ def _native_target(
     )
     handle = ctypes.cast(raw, ctypes.c_void_p).value
     if handle is None or handle == ctypes.c_void_p(-1).value:
-        raise OSError(ctypes.get_last_error(), "synthetic Windows CreateFileW refused")
+        raise OSError(
+            int(getattr(ctypes, "get_last_error")()),
+            "synthetic Windows CreateFileW refused",
+        )
     try:
-        fd = msvcrt.open_osfhandle(handle, os.O_RDONLY)
+        fd = int(getattr(msvcrt, "open_osfhandle")(handle, os.O_RDONLY))
     except BaseException:
         kernel.CloseHandle(wintypes.HANDLE(handle))
         raise

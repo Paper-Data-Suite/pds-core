@@ -318,6 +318,9 @@ def test_public_derives_fixed_name_and_after_bytes_only(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, platform: str
 ) -> None:
     proposed = object.__new__(intents.PrivateTransactionIntent)
+    object.__setattr__(proposed, "descriptor_before", b"synthetic-fixture")
+    object.__setattr__(proposed, "descriptor_after", b"synthetic-fixture")
+    object.__setattr__(proposed, "registry_before", b"synthetic-fixture")
     operation = witness.PrivateBindingOperation.REBIND_MOVE
     object.__setattr__(
         proposed, "witness", SimpleNamespace(transaction_id=TX, operation=operation)

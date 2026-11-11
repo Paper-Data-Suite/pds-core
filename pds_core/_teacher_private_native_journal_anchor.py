@@ -166,7 +166,7 @@ def _windows_open(kernel: Any, path: Path) -> tuple[int | None, int]:
     )
     value = ctypes.cast(raw, ctypes.c_void_p).value
     if value is None or value == ctypes.c_void_p(-1).value:
-        return None, ctypes.get_last_error()
+        return None, int(getattr(ctypes, "get_last_error")())
     return value, 0
 
 

@@ -36,6 +36,7 @@ State = review.PrivateExclusivePairCheckpointState
 
 def _intent() -> intents.PrivateTransactionIntent:
     candidate = object.__new__(intents.PrivateTransactionIntent)
+    object.__setattr__(candidate, "descriptor_after", b"synthetic-fixture")
     op = object.__new__(witness.PrivateTransactionWitness)
     object.__setattr__(op, "operation", witness.PrivateBindingOperation.FORK_COPY)
     object.__setattr__(op, "transaction_id", TX)
