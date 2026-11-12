@@ -956,6 +956,41 @@ jobs:
           name: issue238-native-recovery-triage-${{ matrix.os }}
           path: ${{ runner.temp }}/issue238-installed-native/issue238-native-recovery-triage.json
           if-no-files-found: warn
+      - name: Qualify installed wheel operation-held pending-journal recovery custody
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "issue238-installed-native"
+          $dist = Join-Path $root "dist"
+          $venv = Join-Path $root "venv"
+          $scratch = Join-Path $root "scratch"
+          $report = Join-Path $root "issue238-native-guarded-recovery.json"
+          if ($IsWindows) {
+            $venvPy = Join-Path $venv "Scripts/python.exe"
+          }
+          else {
+            $venvPy = Join-Path $venv "bin/python"
+          }
+          $wheels = @(Get-ChildItem -LiteralPath $dist -Filter "*.whl" -File)
+          if ($wheels.Count -ne 1) { throw "Candidate wheel missing." }
+          $probe = Join-Path $env:GITHUB_WORKSPACE "scripts/verify_issue238_installed_guarded_recovery_custody.py"
+          Push-Location $scratch
+          try {
+            & $venvPy -I $probe `
+              --source-checkout $env:GITHUB_WORKSPACE `
+              --wheel $wheels[0].FullName `
+              --expected-version "0.6.6" `
+              --scratch-root $scratch `
+              --report $report
+            if ($LASTEXITCODE -ne 0) { throw "Native operation-held recovery custody refused." }
+          }
+          finally { Pop-Location }
+      - name: Upload sanitized Core #238 guarded recovery custody evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue238-native-guarded-recovery-${{ matrix.os }}
+          path: ${{ runner.temp }}/issue238-installed-native/issue238-native-guarded-recovery.json
+          if-no-files-found: warn
       - name: Upload sanitized Core #238 native installed smoke
         if: always()
         uses: actions/upload-artifact@v4
