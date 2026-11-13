@@ -1096,6 +1096,41 @@ jobs:
           name: issue238-native-recovery-reinterruption-${{ matrix.os }}
           path: ${{ runner.temp }}/issue238-installed-native/issue238-native-recovery-reinterruption.json
           if-no-files-found: warn
+      - name: Qualify installed wheel repeated synthetic recovery idempotence
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "issue238-installed-native"
+          $dist = Join-Path $root "dist"
+          $venv = Join-Path $root "venv"
+          $scratch = Join-Path $root "scratch"
+          $report = Join-Path $root "issue238-native-recovery-idempotence.json"
+          if ($IsWindows) {
+            $venvPy = Join-Path $venv "Scripts/python.exe"
+          }
+          else {
+            $venvPy = Join-Path $venv "bin/python"
+          }
+          $wheels = @(Get-ChildItem -LiteralPath $dist -Filter "*.whl" -File)
+          if ($wheels.Count -ne 1) { throw "Candidate wheel missing." }
+          $probe = Join-Path $env:GITHUB_WORKSPACE "scripts/verify_issue238_installed_recovery_idempotence.py"
+          Push-Location $scratch
+          try {
+            & $venvPy -I $probe `
+              --source-checkout $env:GITHUB_WORKSPACE `
+              --wheel $wheels[0].FullName `
+              --expected-version "0.6.6" `
+              --scratch-root $scratch `
+              --report $report
+            if ($LASTEXITCODE -ne 0) { throw "Native recovery idempotence qualification failed." }
+          }
+          finally { Pop-Location }
+      - name: Upload sanitized Core #238 recovery idempotence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue238-native-recovery-idempotence-${{ matrix.os }}
+          path: ${{ runner.temp }}/issue238-installed-native/issue238-native-recovery-idempotence.json
+          if-no-files-found: warn
       - name: Upload sanitized Core #238 native installed smoke
         if: always()
         uses: actions/upload-artifact@v4
