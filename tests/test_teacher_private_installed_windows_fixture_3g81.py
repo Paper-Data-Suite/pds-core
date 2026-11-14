@@ -94,6 +94,50 @@ def test_linux_leg_does_not_create_a_windows_fixture(tmp_path: Path) -> None:
     assert not tuple(tmp_path.iterdir())
 
 
+def test_unsupported_fixture_volume_never_relaxes_backing_requirement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    probe = _probe()
+
+    class RefuseAllBacking:
+        def _known_fixed_local_volume(self, _kernel: object, _path: Path) -> bool:
+            return False
+
+    monkeypatch.delenv("LOCALAPPDATA", raising=False)
+    with pytest.raises(RuntimeError, match="no_qualified_local_fixture_volume"):
+        probe._qualified_windows_fixture_parent(tmp_path, object(), RefuseAllBacking())
+    assert not tuple(tmp_path.iterdir())
+
+
+def test_fallback_guard_explicitly_refuses_unverified_user_root() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    ast.parse(text)
+    for guard in (
+        'os.environ.get("LOCALAPPDATA")',
+        'candidate = local / "Temp"',
+        "candidate.is_relative_to(home)",
+        "segment.is_symlink()",
+        'getattr(info, "st_file_attributes", 0) & 0x400',
+        "provision._known_fixed_local_volume(kernel, candidate)",
+    ):
+        assert guard in text
+    assert any(
+        isinstance(node, ast.Compare)
+        and ast.unparse(node)
+        == "base.parent.resolve(strict=True) != selected.resolve(strict=True)"
+        for node in ast.walk(ast.parse(text))
+    )
+    for forbidden in (
+        "os.mkdir(",
+        "os.makedirs(",
+        "os.chmod(",
+        "os.chown(",
+        "shutil.rmtree(",
+        "retire_private_journal(",
+    ):
+        assert forbidden not in text
+
+
 def test_no_permissive_windows_acl_acceptance_or_production_handle() -> None:
     probe = _probe()
     assert probe._EXPECTED == "retained_private_root_observed_unqualified"

@@ -30,3 +30,17 @@ No production owner/ACL assertion, session-token binding, file handle, transacti
 The stopped local qualification passed 152 focused tests (11 skipped) and Ruff, then strict mypy found two optional `ModuleType.__file__` arguments passed to `Path`. The candidate-wheel provenance check now refuses an absent `__file__` before evaluating either path, preserving the requirement that both modules originate from the isolated wheel installation. Only this source expression and this audit note change. Native Windows token-SID/DACL fixture construction, filesystem custody, tests, and the CI workflow remain unchanged. Repeat Linux and Windows mypy, all focused tests, and all existing installed-wheel gates before commit.
 
 Production binding, Notes, replay, journal retirement, and production mutation authority remain disabled.
+
+## Slice 3G81 CI Repair 2 — hosted Windows scratch backing isolation
+
+GitHub Actions run `43616758310` reached 7,803 passing tests in the Python 3.11 Windows validation job but failed the native fixture check because the hosted runner's `D:` temporary volume was not qualified as fixed NTFS/ReFS. The Windows issue-installed gate was blocked at the same check. This was a **correct fail-closed backing refusal**, not evidence that private-root custody or Windows DACL checks passed in CI.
+
+The fixture now chooses its existing scratch root only if Core's strict fixed NTFS/ReFS test succeeds. Otherwise it may use the *existing* `%LOCALAPPDATA%\Temp` directory under the effective user's home after refusing missing paths, relative or out-of-home paths, symlinks/junctions and unsupported backing. It creates only a unique temporary fixture subtree there with explicit protected DACL children; it does not create a parent, weaken `_known_fixed_local_volume`, edit ACLs on existing objects, access live PDS private storage, or promote synthetic evidence into production admission. If neither location qualifies, the gate must still **fail closed**.
+
+Both the full Windows validation matrix and the installed Windows fixture must pass after this repair before proceeding to 3G82. No production binding, transaction replay, journal retirement or Notes activation is admitted.
+
+## Slice 3G81 CI Repair 5 — formatting-agnostic native containment test
+
+After CI Guard Repair 4 correctly verified the committed baseline and applied the fixture-only fixed NTFS/ReFS fallback, the focused pytest run failed because a test compared a single-line source-code string against a Ruff-formatted multi-line containment expression. The native check itself remains a strict `!=` comparison. This repair removes the brittle string-match member and asserts that the parsed Python AST contains exactly the `base.parent.resolve(strict=True) != selected.resolve(strict=True)` comparison. Neither the fixture implementation, the retained custody module, the production preconditions, nor CI is changed. Full original 3G81 qualification and thirteen isolated installed-wheel checks remain mandatory before commit/push.
+
+Production binding, replay, journal retirement, and Notes activation remain disabled.

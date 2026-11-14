@@ -90,6 +90,51 @@ def _create_explicit_acl_directory(
         raise RuntimeError("scratch_explicit_acl_creation_refused_" + str(error))
 
 
+def _qualified_windows_fixture_parent(
+    scratch: Path, kernel: Any, provision: Any
+) -> Path:
+    """Select only supported fixed NTFS/ReFS scratch, never a production root.
+
+    Hosted CI may place RUNNER_TEMP on an unqualified D: ephemeral volume.
+    Preserve the existing strict backing check; fall back solely to the
+    current OS user's existing, ordinary LOCALAPPDATA/Temp directory. No
+    fallback location is created, repaired, or trusted as a Notes store.
+    """
+    if provision._known_fixed_local_volume(kernel, scratch):
+        return scratch
+    local_text = os.environ.get("LOCALAPPDATA")
+    if not local_text:
+        raise RuntimeError("no_qualified_local_fixture_volume")
+    local = Path(local_text)
+    candidate = local / "Temp"
+    home = Path.home()
+    if (
+        not local.is_absolute()
+        or not candidate.is_relative_to(home)
+        or candidate == home
+        or any(part in {".", ".."} for part in local.parts)
+        or not candidate.is_dir()
+    ):
+        raise RuntimeError("local_fixture_parent_unqualified")
+    # Reject existing junctions, symlinks and untrusted name substitutions.
+    segment = candidate
+    while segment != home:
+        try:
+            info = segment.lstat()
+        except OSError as exc:
+            raise RuntimeError("local_fixture_ancestry_unverifiable") from exc
+        if (
+            not segment.is_dir()
+            or segment.is_symlink()
+            or (getattr(info, "st_file_attributes", 0) & 0x400)
+        ):
+            raise RuntimeError("local_fixture_ancestry_unqualified")
+        segment = segment.parent
+    if not provision._known_fixed_local_volume(kernel, candidate):
+        raise RuntimeError("no_qualified_local_fixture_volume")
+    return candidate
+
+
 def _windows_fixture(scratch: Path) -> dict[str, object]:
     """All native CREATE operations are constrained to one own temp subtree."""
     if sys.platform != "win32":
@@ -103,11 +148,12 @@ def _windows_fixture(scratch: Path) -> dict[str, object]:
     if owner.kind != "windows_token_sid":
         raise RuntimeError("windows_process_token_owner_unavailable")
     kernel, advapi = provision._windows_api()
-    if not provision._known_fixed_local_volume(kernel, scratch):
-        raise RuntimeError("scratch_not_qualified_fixed_ntfs_or_refs")
-    with tempfile.TemporaryDirectory(prefix="core238_3g81_", dir=scratch) as dirname:
+    selected = _qualified_windows_fixture_parent(scratch, kernel, provision)
+    with tempfile.TemporaryDirectory(prefix="core238_3g81_", dir=selected) as dirname:
         base = Path(dirname)
-        if base.is_symlink() or base.parent.resolve(strict=True) != scratch:
+        if base.is_symlink() or base.parent.resolve(strict=True) != selected.resolve(
+            strict=True
+        ):
             raise RuntimeError("scratch_child_scope_refused")
         secure = base
         for name in ("owner", "private", "notes", "v1"):
