@@ -100,7 +100,8 @@ def test_sddl_contains_only_owner_system_and_administrators() -> None:
     )
     assert success and error == 0
     assert len(created) == 1
-    assert created[0].startswith("D:P")
+    # Current token account, not the token default owner (possibly Administrators).
+    assert created[0].startswith(f"O:{_ACCOUNT}D:P")
     assert "(A;OICI;FA;;;SY)" in created[0]
     assert "(A;OICI;FA;;;BA)" in created[0]
     assert f"(A;OICI;FA;;;{_ACCOUNT})" in created[0]

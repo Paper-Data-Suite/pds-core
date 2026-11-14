@@ -44,3 +44,17 @@ Both the full Windows validation matrix and the installed Windows fixture must p
 After CI Guard Repair 4 correctly verified the committed baseline and applied the fixture-only fixed NTFS/ReFS fallback, the focused pytest run failed because a test compared a single-line source-code string against a Ruff-formatted multi-line containment expression. The native check itself remains a strict `!=` comparison. This repair removes the brittle string-match member and asserts that the parsed Python AST contains exactly the `base.parent.resolve(strict=True) != selected.resolve(strict=True)` comparison. Neither the fixture implementation, the retained custody module, the production preconditions, nor CI is changed. Full original 3G81 qualification and thirteen isolated installed-wheel checks remain mandatory before commit/push.
 
 Production binding, replay, journal retirement, and Notes activation remain disabled.
+
+## Slice 3G81 CI Repair 6 — explicit account-SID owner and native refusal classification
+
+GitHub Actions on 3G81 CI Repair 5 (commit `699917a1aa16f8aee932c2fd68a608dd74ddac80`, run `43639721528`) passed 10/15 jobs; the Windows full-matrix and installed fixture failed at the guarded `protected_native_custody_fixture_refused` assertion. The previous repair qualified a fixed NTFS/ReFS fixture volume, so the refusal is downstream of volume selection.
+
+The Windows creation primitive's existing protected DACL specifies owner/SYSTEM/Administrators ACEs but *does not specify the directory owner*. An elevated process token can default new-object ownership to the Administrators group, which the native owner check deliberately rejects. The creation SDDL now includes `O:<current process-token SID>` at the initial `CreateDirectoryW` call before the unchanged protected DACL. If Windows declines that exact-owner request, creation still refuses; no post-creation owner rewrite or ACL relaxation is allowed. The deliberately Everyone-readable control also sets its owner explicitly, ensuring its refusal tests the excessive DACL grant.
+
+The native protected fixture now captures three individual sanitized enum outcomes (read-only preflight, first retained custody, second retained custody) and includes them *only on refusal*, enabling the next diagnosis without exposing SIDs, paths, handles, or ACL content. Production binding, automatic replay, journal retirement and Notes remain disabled; protected fixture acceptance is not durability, commit, or private-store authorization. Original CI remains unchanged.
+
+## Slice 3G81 CI Repair 7 — strict Windows mypy diagnostic enum import
+
+Repair 6 stopped locally after 154 focused tests (11 skipped), Ruff, and strict Linux mypy passed. Strict Windows mypy rejected `wincheck.State` in the fixture verifier because that alias is not explicitly exported by the Windows preflight module (`attr-defined`, line 178). Replace only that diagnostic enumeration with an explicit import of Core's canonical `NativePrivatePreflightState`. This is a type-checkable equivalent enumeration; the actual owner-at-creation SDDL, restrictive DACL policy, Windows native custody checks, fixture selection, and CI workflow are unmodified. Rerun original Slice 3G81 qualification, including both mypy targets, all thirteen installed-wheel gates, before guarded commit and push.
+
+Production binding, automatic replay, journal retirement, and Notes remain disabled.

@@ -147,7 +147,11 @@ def _create_directory_explicit_dacl(
         raise _NativeUnavailable
     # Protected DACL; OI/CI allows future private children to inherit only
     # these three privileged principals. No Everyone/Users/AppPackages ACE.
-    sddl = f"D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;{account_sid})"
+    # Set the actual account SID as owner at creation, not just as an ACE.
+    # Elevated Windows tokens may otherwise default ownership to Administrators.
+    sddl = (
+        f"O:{account_sid}D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;{account_sid})"
+    )
     descriptor = ctypes.c_void_p()
     if not advapi.ConvertStringSecurityDescriptorToSecurityDescriptorW(
         sddl, 1, ctypes.byref(descriptor), None

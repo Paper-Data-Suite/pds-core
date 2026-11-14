@@ -68,7 +68,12 @@ def _create_explicit_acl_directory(
     else:
         # Deliberately unsafe fixture: add Everyone READ in the ORIGINAL DACL,
         # without exposing an inherited-permission interval.
-        sddl = f"D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;{sid})(A;OICI;GR;;;WD)"
+        # Even the negative Everyone-readable control has the correct owner.
+        # Its refusal must result from the extra ACL grant, not owner mismatch.
+        sddl = (
+            f"O:{sid}D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)"
+            f"(A;OICI;FA;;;{sid})(A;OICI;GR;;;WD)"
+        )
         sd = ctypes.c_void_p()
         if (
             not advapi.ConvertStringSecurityDescriptorToSecurityDescriptorW(
@@ -140,6 +145,7 @@ def _windows_fixture(scratch: Path) -> dict[str, object]:
     if sys.platform != "win32":
         raise RuntimeError("windows_fixture_on_unsupported_platform")
     from pds_core import _teacher_private_inspection as inspection
+    from pds_core import _teacher_private_native_preflight as native_preflight
     from pds_core import _teacher_private_retained_root_custody as custody
     from pds_core import _teacher_private_windows_preflight as wincheck
     from pds_core import _teacher_private_windows_provision as provision
@@ -161,13 +167,35 @@ def _windows_fixture(scratch: Path) -> dict[str, object]:
             _create_explicit_acl_directory(
                 kernel, advapi, secure, owner.value, extra_world=False
             )
+        preflight_state = wincheck._native_windows_walk(secure, owner).value
+        first_state = custody._probe_existing(secure, owner).value
+        second_state = custody._probe_existing(secure, owner).value
         if (
-            wincheck._native_windows_walk(secure, owner).value
-            != "restrictive_unqualified"
-            or custody._probe_existing(secure, owner).value != _EXPECTED
-            or custody._probe_existing(secure, owner).value != _EXPECTED
+            preflight_state != "restrictive_unqualified"
+            or first_state != _EXPECTED
+            or second_state != _EXPECTED
         ):
-            raise RuntimeError("protected_native_custody_fixture_refused")
+            # Three enum values only; no SID, private path, handle or ACL bytes.
+            allowed_preflight = {
+                state.value for state in native_preflight.NativePrivatePreflightState
+            }
+            allowed_custody = {
+                state.value for state in custody.PrivateRetainedRootState
+            }
+            if (
+                preflight_state not in allowed_preflight
+                or first_state not in allowed_custody
+                or second_state not in allowed_custody
+            ):
+                raise RuntimeError("protected_native_custody_fixture_unknown_state")
+            raise RuntimeError(
+                "protected_native_custody_fixture_refused:"
+                + preflight_state
+                + "/"
+                + first_state
+                + "/"
+                + second_state
+            )
         if custody._probe_existing(secure / "absent", owner).value != _MISSING:
             raise RuntimeError("missing_native_leaf_not_refused")
         spoofed_owner = inspection.EffectiveOSOwner("windows_token_sid", "S-1-5-999999")
