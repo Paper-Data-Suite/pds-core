@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import ast
+import stat
 import sys
 from pathlib import Path
 from typing import cast
 
 import pytest
 
+from pds_core import _teacher_private_file_lock as locking
 from pds_core import _teacher_private_production_readiness as readiness
 from pds_core import _teacher_private_scratch_checkpoint_protocol as probe
 from pds_core.teacher_experience import get_teacher_experience_capabilities
@@ -144,3 +146,14 @@ def test_public_api_is_closed_and_no_notes_are_exposed() -> None:
     assert get_teacher_experience_capabilities() == frozenset(
         {"terminal.header.v1", "terminal.notes_command.v1"}
     )
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="native Linux owner mode")
+def test_exclusive_scratch_lock_file_owner_mode_at_creation(tmp_path: Path) -> None:
+    # Regression: Path.open("xb") used the process umask and could create a
+    # 0644 file, which the Core existing-lock primitive must refuse.
+    probe._exclusive(tmp_path, "synthetic.lock", b"0")
+    lock = tmp_path / "synthetic.lock"
+    assert stat.S_IMODE(lock.stat().st_mode) == 0o600
+    with locking.hold_existing_private_lock(lock):
+        assert lock.read_bytes() == b"0"

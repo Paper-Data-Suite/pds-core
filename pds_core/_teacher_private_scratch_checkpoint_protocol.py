@@ -125,10 +125,17 @@ def _journal_bytes(phase: str) -> bytes:
 
 
 def _exclusive(parent: Path, name: str, payload: bytes) -> None:
-    with (parent / name).open("xb") as handle:
-        handle.write(payload)
-        handle.flush()
-        os.fsync(handle.fileno())
+    # The existing-file coordination lock requires a 0600 owner-only POSIX
+    # leaf. Set it at exclusive creation rather than chmod after exposure.
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(parent / name, flags, 0o600)
+    try:
+        if os.write(fd, payload) != len(payload):
+            raise _UnsafeScratch
+        os.fsync(fd)
+    finally:
+        os.close(fd)
 
 
 def _entry(parent: Path, name: str) -> bytes | None:

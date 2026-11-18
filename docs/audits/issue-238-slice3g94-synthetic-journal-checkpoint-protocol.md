@@ -77,3 +77,30 @@ gates, strict Linux and Windows mypy, Ruff and conditional exact-scope commit.
 3G95 should add fresh-process interruption and conservative checkpoint
 reclassification, with durable ordering and platform differences explicitly
 separated; never mistake a simulated stop for a crash/power-loss guarantee.
+
+## Slice 3G94 Repair 1 — Linux lock-file creation mode
+
+The original 3G94 Windows local qualification passed, committed and pushed,
+but GitHub Actions Linux runners reported 11 failures in the checkpoint
+scenarios. All returned `scratch_custody_refused` before completing; the
+installed-wheel Linux gate also refused. Investigation of Core's native
+`hold_existing_private_lock` contract isolated a creation-mode defect:
+`Path.open("xb")` uses default mode `0666 & ~umask`, normally `0644` on
+GitHub Linux runners, while the existing-file lock refuses any POSIX mode other
+than owner-only `0600`. This is a concrete regression in the synthetic lock
+fixture, not evidence of an authorized production storage operation.
+
+The repair changes only the synthetic `_exclusive` file creator to use
+`os.open(O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, 0o600)` on POSIX, with
+`O_BINARY` where supported for exact byte images on Windows. It requires
+a full-sized write, fsync request, and descriptor closure. The `0600` mode
+is established **at creation**, not repaired with a delayed chmod. A native
+Linux regression test proves the new lock can be acquired by Core's unchanged
+existing-file lock primitive. No OS ownership or ACL production claims follow
+from the synthetic result.
+
+All checkpoint states, journal transitions, existing installed-wheel
+contracts, and CI workflow steps are unchanged. The original 26 native
+installed-wheel gates, Ruff, dual-platform mypy, focused pytest and
+conditional guarded commit/push must be rerun. All nine production blockers,
+no-auto-replay, no-journal-retirement and no-Notes guarantees remain intact.
