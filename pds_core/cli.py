@@ -79,6 +79,12 @@ def _run(
         StandardsValidationError,
         StandardsWriteError,
     ) as error:
+        if getattr(args, "command", None) == "notes":
+            print(
+                "Selected workspace Notes are unavailable or cannot be read safely.",
+                file=stderr,
+            )
+            return 5
         if getattr(args, "command", None) == "academic":
             if not hasattr(args, "workspace_root"):
                 raw_workspace = getattr(args, "workspace", None)

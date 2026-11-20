@@ -28,6 +28,7 @@ from pds_core.cli_support.academic_registry import (
     handle_registry_validate,
 )
 from pds_core.cli_support.context import ArgumentParser
+from pds_core.cli_support.notes import add_notes_parser
 from pds_core.cli_support.roster_imports import (
     handle_roster_import_commit,
     handle_roster_import_preview,
@@ -128,6 +129,7 @@ def build_parser() -> argparse.ArgumentParser:
     standards_subparsers = standards.add_subparsers(dest="standards_command")
 
     _add_workspace_parser(subparsers)
+    add_notes_parser(subparsers)
     _add_roster_parser(subparsers)
     _add_academic_parser(subparsers)
     _add_validate_parser(standards_subparsers)
