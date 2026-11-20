@@ -11,10 +11,10 @@
 | `pds_core.teacher_experience` | Public contract version `"1"`, immutable capability inquiry | Reports **only** implemented Core functionality | Core #237 |
 | `pds_core.teacher_ui` | `TeacherScreenHeader`, pure `render_teacher_header`, and safe streamed `print_teacher_header` | `terminal.header.v1` | Core #237 |
 | `pds_core.teacher_commands` | Pure typed `PromptKind`, `SharedTeacherCommand` and prompt-scoped parser | `terminal.notes_command.v1` | Core #237 |
-| `pds_core.teacher_context`, `pds_core.teacher_menus` | **Not implemented** by #237 | No menu/context capability | Core #238–#242 |
-| Notes records / Notes menu / Notes CLI | **Not implemented** by #237 | No `notes.records.v1`, `notes.menu.v1`, or `notes.cli.v1` | Core #238–#240 |
+| `pds_core.teacher_context`, `pds_core.teacher_menus` | **Not implemented** by #237 | No menu/context capability | Core #239–#242 |
+| Notes records / Notes menu / Notes CLI | **Not implemented** by #237; #239 workspace-native service is source-only pending release gates | No `notes.records.v1`, `notes.menu.v1`, or `notes.cli.v1` | Core #239–#240, #244 |
 | Individual roster editing / callable classroom menu | **Not implemented** by #237 | No `classroom.roster_edits.v1` or `classroom.menu.v1` | Core #241–#242 |
-| Private Notes export/restore | **Not implemented** by #237 | No `notes.portability.v1` | Core #243 |
+| Workspace Notes backup/restore | Suite behavior requires #244 verification | No `notes.portability.v1` | Core #244 / Suite handoff |
 
 The implemented source module currently reports exactly:
 
@@ -89,4 +89,4 @@ Input provenance matters. Supply `PromptKind.MENU_CHOICE` only for an explicitly
 - **D3 independent consumer:** Each producer must audit *all adopted nested prompts*, preserve its private academic record/selection semantics, verify safe Notes-menu handoff when later available and test exact installed-Core compatibility. Core's synthetic Quillan-like harness **is not** a Quillan test.
 - **D4 Suite/classroom:** Suite #51/#15 and Core #244 coordinate trusted composition, physical Windows ARM64 trials, screen-level usability and unqualified-fallback scenarios. Core #237 tests do not establish these claims.
 
-**Explicit exclusions:** This issue creates no Notes data, no teacher-private Notes ownership, no student link, no roster edit, no `pds-core notes` route, no callable shared admin menu, no new producer imports and no new public Core release number. Core's present `core` and `pds-core` menus and `pds_core.menu_navigation` keep their established behavior. In particular, an overdue personal Task will not become module attention or a Grade.
+**Explicit exclusions:** This issue creates no Notes data, no workspace Notes service, no student link, no roster edit, no `pds-core notes` route, no callable shared admin menu, no new producer imports and no new public Core release number. Core's present `core` and `pds-core` menus and `pds_core.menu_navigation` keep their established behavior. In particular, an overdue personal Task will not become module attention or a Grade.
