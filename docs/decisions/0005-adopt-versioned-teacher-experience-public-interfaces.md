@@ -66,11 +66,11 @@ The normative in-process, typed seam is specified in contract v1 §4:
 
 The **calling module** owns its suspension/continuation and exact revalidation of workspace, class, roster, student/work selection, producer revision and permissions after return. Core resolves its own canonical authority; an empty change scope does not exempt a caller from reload before consequential action. Switching workspaces invalidates subordinate selections, and `M/Q` requests are handled by the caller's existing menu/quit conventions. See the synthetic Quillan→Notes→Quillan and caller→Core administration→caller traces in contract §4.7–4.8.
 
-The shared-menu public signatures are **planned, not importable in Core 0.6.6**. Core #238–#242 must qualify the actual service and menu capabilities before a consumer enables them. Future durable operations also require deterministic direct `pds-core` CLI routes over the same services. No cross-process return or Suite launch trust is implied.
+The shared-menu public signatures are **planned, not importable in Core 0.6.6**. Core #239–#242 must qualify the actual service and menu capabilities before a consumer enables them. Future durable operations also require deterministic direct `pds-core` CLI routes over the same services. No cross-process return or Suite launch trust is implied.
 
-### 6. Private Notes are not academic records
+### 6. Workspace Notes are not academic records
 
-Initial Notes & Tasks types are **Idea / Task / Reflection**. The store is teacher-private, workspace-associated and OS-user protected as qualified in Core #238, with no first-release structured student IDs or automatic student links. Note bodies are not module attention or canonical evidence, an overdue personal Task is not a module warning, and ordinary workspace backup does **not** include teacher-private application-data Notes. Storage, service, menu/CLI, guarded administration and portability remain Core #238–#243; they are not supplied by this ADR.
+Initial Notes & Tasks types are **Idea / Task / Reflection**. Records live in the existing selected PDS workspace at `.pds/notes/v1/`, with no first-release structured student IDs or automatic student links. Note bodies are not module attention or canonical evidence, and an overdue personal Task is not a module warning. Privacy follows workspace/sync access. Suite whole-workspace backup inclusion and real two-computer sync behavior are #244 release gates. Storage and service belong to Core #239; menu/CLI to #240. This ADR supplies none of those implementations.
 
 ### 7. Direct CLI and historical behavior remain compatible
 
@@ -97,7 +97,7 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 ### Benefits
 
 - Reuses accepted Core infrastructure rather than building a second menu system.
-- Lets Core #237 implement header/command primitives independently of later private storage, records, and classroom administration.
+- Lets Core #237 implement header/command primitives independently of later workspace Notes storage, records, and classroom administration.
 - Gives producers a stable opt-in interface without coordinated simultaneous major releases.
 - Prevents shared command interception of consequential literal teacher input and preserves Quillan's review navigation.
 - Makes missing Core capabilities/consumer qualification visible instead of misclassifying an entire producer as unusable.
@@ -108,7 +108,7 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 - Producer modules must audit individual nested menu prompts and add narrow adapters; a source-level shared primitive does not automatically modernize their UI.
 - A future Core capability list needs careful, release-specific maintenance; it cannot substitute for integration or installed-wheel tests.
 - Terminal color capability across Windows/ARM64 and injected streams requires representative runtime qualification.
-- Context handoff, Notes private storage/owner isolation, roster edits and portability need separate threat models and contract/test gates before publication.
+- Context handoff, workspace Notes conflict handling, roster edits, and Suite backup inclusion need contract/test gates before publication.
 - Architectural acceptance must not be represented as an implemented or release-qualified capability. The exact Core APIs and each producer adoption remain separate qualification work.
 
 ## Alternatives considered
@@ -127,10 +127,10 @@ The existing `parse_navigation_choice` signature, flags, `B` enum result and `M/
 
 ## Required follow-up
 
-1. **Core #236 Slice 3:** Typed context, return/outcome, shared in-process menu and private-custody seams specified; runtime and installed acceptance remain Core #238â€“#244.
+1. **Core #236 Slice 3:** Typed context, return/outcome, shared in-process menu and workspace Notes service seams specified; runtime and installed acceptance remain Core #239–#244.
 2. **Core #236 owner sign-off:** ADR 0005 and the precise technical public interfaces are accepted as D0 architecture. Core #237–#244 still own implementation, runtime and installed-artifact qualification.
 3. **Core #237:** implement and qualify `teacher_experience`, `teacher_ui`, `teacher_commands` as designed, without touching producers.
-4. **Core #238–#244:** independently qualify private Notes ownership/storage, Notes services/menu/CLI/portability, guarded roster editing, callable administration, installed acceptance.
+4. **Core #239–#244:** qualify workspace Notes service/menu/CLI, guarded roster editing, callable administration, backup inclusion, and installed acceptance.
 5. **Suite #51/#15 and producers:** independently adopt qualified Core interfaces, with source and installed-screen collision checks and truthful unavailable states.
 
 ## References
