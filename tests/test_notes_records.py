@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from typing import cast
 
 import pytest
 
@@ -46,7 +47,7 @@ def test_rejects_completed_non_task_and_invalid_flags() -> None:
     with pytest.raises(NoteValidationError):
         replace(note, completed=True)
     with pytest.raises(NoteValidationError):
-        replace(note, archived=1)
+        replace(note, archived=cast(bool, 1))
     with pytest.raises(NoteValidationError):
         replace(note, revision=True)
 

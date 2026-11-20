@@ -135,7 +135,7 @@ def test_replace_failure_keeps_original(
     def fail_replace(_src: object, _dst: object) -> None:
         raise OSError("simulated interrupted replacement")
 
-    monkeypatch.setattr(service.os, "replace", fail_replace)
+    monkeypatch.setattr(os, "replace", fail_replace)
     with pytest.raises(service.NotesWriteError):
         service.edit_note(
             first.note_id, "Revised", expected_revision=1, workspace_root=root
@@ -232,7 +232,7 @@ def test_same_revision_sync_change_between_preliminary_reads_refuses(
     root.mkdir()
     note = service.create_note("task", "Original", workspace_root=root)
     target = notes_dir(root) / f"{note.note_id}.json"
-    underlying_get_note = service.get_note
+    underlying_get_note = get_note
     first = True
 
     def read_then_sync(note_id: str, workspace_root: Path) -> object:
@@ -264,7 +264,7 @@ def test_failed_stage_flush_removes_own_temporary_file(
     def fail_fsync(_descriptor: int) -> None:
         raise OSError("simulated flush failure")
 
-    monkeypatch.setattr(service.os, "fsync", fail_fsync)
+    monkeypatch.setattr(os, "fsync", fail_fsync)
     with pytest.raises(service.NotesWriteError):
         service.create_note("idea", "First note", workspace_root=root)
 
