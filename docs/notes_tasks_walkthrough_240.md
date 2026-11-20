@@ -1,9 +1,10 @@
-# Core #240 — Notes & Tasks teacher walkthrough (design freeze, Slice A)
+# Core #240 — Notes & Tasks teacher walkthrough (Slices A–B)
 
-**Status:** UX contract and navigation harness only. Slice A has no functional
-Notes menu, does not persist records and does not advertise `notes.menu.v1`.
-This is the target walkthrough for implementation in Slices B–D, not proof of
-installed or producer adoption.
+**Status:** Slice B source-implements the real Notes menu behind a disabled
+qualification switch. Core/producer menus and capability tokens **do not** yet
+advertise it; direct CLI belongs to Slice C and installed adoption to Slice D.
+The walkthrough is a target for teacher acceptance, not evidence of a shipped
+or consumer-adopted Notes feature.
 
 ## Everyday teacher journey (synthetic data)
 
@@ -15,9 +16,10 @@ installed or producer adoption.
 2. **Quick Capture:** Core shows **Notes & Tasks** with **Quick Capture**, **Open
    Tasks**, **Recent Notes**, **Search/Filter**, and **Archived/Completed**.
    Quick Capture asks **Idea**, **Task**, or **Reflection**. A teacher types a
-   planning Idea and explicitly saves. Core confirms **Saved** only after the
-   #239 service returns a record and revision. `B` before Save cancels the
-   draft without creating a file; navigation after Save does not undo it.
+   planning Idea, finishes with `:save` on its own line, and Core confirms
+   **Saved** only after the #239 service returns a record and revision. Enter `:cancel` to discard an
+   unsaved text draft. Within text entry, `B`, `M`, `Q`, and `:notes` are literal
+   teacher text, not menu navigation. After saving, Back does not undo it.
 3. **Task later:** From a different session in the same *selected workspace*,
    Core shows **Open Tasks** (excluding completed and archived Tasks). A teacher
    selects an understandable preview, opens the Task, marks it complete, and
@@ -51,13 +53,18 @@ Do not show student IDs, note bodies in routine errors, stack traces, raw paths,
 internal tokens, or technical transaction codes. Actual teacher prompts are
 reviewed in Slice D; Core-only harnesses do not qualify a producer adoption.
 
-## Slice A boundary
+## Slices A–B boundary
 
 - `teacher_context.py`: frozen request/result public shapes and validation.
-- `teacher_menus.py`: callable injected-I/O seam; **returns UNAVAILABLE** for
-  real calls until Slice B delivers the actual Notes workflows. A private
-  navigation-only test gate permits Core's own synthetic B/M/Q/EOF tests.
+- `teacher_menus.py`: callable injected-I/O seam; **returns UNAVAILABLE** until
+  Slice D explicitly qualifies/enables the real Notes menu. Its synthetic
+  navigation-preview gate remains for Slice A's existing tests.
+- `notes_menu_controller.py` (Slice B): bounded Quick Capture, browse/search,
+  status/context filters, edit/Task/archiving actions and sanitized errors,
+  reusing only #239 read/write services. It is exercised with explicit Core
+  test enabling, not consumer-advertised.
 - No changes to Core capability tokens, `core` menu options, `pds-core` CLI,
   module repositories, Suite, Notes services or workspace files.
-- Next: Slice B replaces the preview-only implementation, adds persistence and
-  verified durability reporting, then makes the menu genuinely available.
+- Next: Slice C adds noninteractive CLI parity; Slice D performs the installed
+  artifact, navigation adoption and teacher usability gates before enabling
+  the public menu.

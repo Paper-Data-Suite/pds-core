@@ -1,8 +1,8 @@
-"""Callable Notes & Tasks boundary — Core #240-A navigation scaffold.
+"""Callable Notes & Tasks boundary — Core #240-A/B, not yet advertised.
 
-Deliberately feature-gated: Slice A is NOT a functional Notes interface and
-must not advertise notes.menu.v1 or notes.records.v1. Slice B replaces the
-preview screens and turns on the entry point only after service integration.
+The real controller is source-implemented but remains behind a qualification
+switch until Slice D. The Slice A navigation preview is retained for its
+synthetic tests and is never advertised to consumers.
 """
 
 from __future__ import annotations
@@ -27,8 +27,11 @@ from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 __all__ = ("run_notes_tasks_menu",)
 
 # Not a consumer switch. Enabled only in the synthetic Core-owned navigation
-# tests. Production remains unavailable until Slice B implements usable Notes.
+# tests. Production remains unavailable until final acceptance in Slice D.
 _NAVIGATION_PREVIEW_TEST_ONLY = False
+
+# Source-only implementation; turn on only after #240-D qualification.
+_NOTES_MENU_QUALIFIED = False
 
 
 def _result(
@@ -53,7 +56,7 @@ def run_notes_tasks_menu(
     interactive: bool,
     error_output: TextIO | None = None,
 ) -> SharedTeacherMenuResult:
-    """Public in-process seam; not yet a user-available Notes UI in Slice A."""
+    """Public in-process seam; real Notes UI remains gated pending acceptance."""
     if not isinstance(request, SharedTeacherMenuRequest):
         raise TypeError("request must be a SharedTeacherMenuRequest")
     if not callable(read_line):
@@ -65,14 +68,25 @@ def run_notes_tasks_menu(
     if error_output is not None and not callable(getattr(error_output, "write", None)):
         raise TypeError("error_output must be writable or None")
 
-    if not interactive or not _NAVIGATION_PREVIEW_TEST_ONLY:
+    if not interactive:
+        return _result(
+            request,
+            TeacherMenuExit.UNAVAILABLE,
+            "Notes & Tasks requires a qualified interactive session.",
+        )
+    if _NAVIGATION_PREVIEW_TEST_ONLY:
+        return _run_navigation_preview(request, read_line=read_line, output=output)
+    if not _NOTES_MENU_QUALIFIED:
         return _result(
             request,
             TeacherMenuExit.UNAVAILABLE,
             "Notes & Tasks is not available yet. No changes were made.",
         )
+    from pds_core.notes_menu_controller import run_notes_controller
 
-    return _run_navigation_preview(request, read_line=read_line, output=output)
+    return run_notes_controller(
+        request, read_line=read_line, output=output, error_output=error_output
+    )
 
 
 def _run_navigation_preview(
