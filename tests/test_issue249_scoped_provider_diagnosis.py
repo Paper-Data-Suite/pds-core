@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from types import SimpleNamespace
 
 import pytest
@@ -15,6 +14,7 @@ from pds_core.module_operations import (
 )
 from pds_core.provider_diagnostics import (
     ProviderDiagnosticRequestError,
+    ProviderDiagnosticResult,
     ProviderEnumerationError,
     diagnose_core_providers,
     diagnose_selected_core_provider,
@@ -93,7 +93,7 @@ def _install(
 
 def _diagnose(
     *, name: str = "scoreform", distribution: str = "scoreform"
-):
+) -> ProviderDiagnosticResult:
     return diagnose_selected_core_provider(
         provider_kind="module_operations",
         entry_point_name=name,
@@ -121,7 +121,7 @@ def test_one_selected_owner_only_is_loaded_even_with_malicious_neighbors(
     assert result.validated_profile == _profile()
     assert chosen.load_calls == 1
     assert foreign.load_calls == quillan.load_calls == concord.load_calls == 0
-    assert result.validated_profile is not None
+    assert isinstance(result.validated_profile, ModuleOperationsProfile)
     # Diagnosis must not run the separate operations attention capability.
     outcome = invoke_module_attention(
         result.validated_profile, ModuleOperationsRequest()
