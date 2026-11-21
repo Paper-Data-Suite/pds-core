@@ -303,3 +303,74 @@ def test_invalid_provider_kind_fails_before_enumeration(
             expected_distribution="scoreform",
         )
     assert not calls
+
+def test_str_subclass_duplicate_selected_name_is_not_ignored(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class NamedString(str):
+        pass
+
+    chosen = _entry()
+    imposter = _entry(NamedString("scoreform"), owner="foreign-distribution")
+    _install(monkeypatch, (chosen, imposter))
+    result = _diagnose()
+    assert result.code == "provider.entry_point_ambiguous"
+    assert chosen.load_calls == imposter.load_calls == 0
+
+
+def test_single_str_subclass_identity_is_rejected_preload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class NamedString(str):
+        pass
+
+    selected = _entry(NamedString("scoreform"))
+    _install(monkeypatch, (selected,))
+    result = _diagnose()
+    assert result.code == "provider.metadata_invalid"
+    assert selected.load_calls == 0
+
+
+def test_diagnosis_does_not_execute_independent_attention_capability(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+
+    def attention(_request: ModuleOperationsRequest) -> ModuleAttentionReport:
+        calls.append("attention")
+        return ModuleAttentionReport(evaluation="evaluated")
+
+    def factory() -> ModuleOperationsProfile:
+        calls.append("factory")
+        return ModuleOperationsProfile(
+            module_id="scoreform",
+            supported_core_operations_contract_versions=frozenset({"1"}),
+            attention_provider=attention,
+        )
+
+    _install(monkeypatch, (_entry(loaded=factory),))
+    result = _diagnose()
+    assert result.code == "provider.valid"
+    assert calls == ["factory"]
+    assert isinstance(result.validated_profile, ModuleOperationsProfile)
+    outcome = invoke_module_attention(
+        result.validated_profile, ModuleOperationsRequest()
+    )
+    assert outcome.code == "module_operations.evaluated"
+    assert calls == ["factory", "attention"]
+
+
+def test_one_failed_selected_owner_does_not_prevent_next_explicit_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    broken = _entry(loaded=RuntimeError("PRIVATE_FAIL"))
+    good = _entry("quillan", owner="quillan")
+    _install(monkeypatch, (broken, good))
+    first = _diagnose()
+    assert first.code == "provider.load_failed"
+    assert good.load_calls == 0
+    second = _diagnose(name="quillan", distribution="quillan")
+    assert second.code == "provider.valid"
+    assert good.load_calls == 1
+    assert broken.load_calls == 1
+
