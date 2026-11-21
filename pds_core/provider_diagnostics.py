@@ -83,6 +83,10 @@ _DISTRIBUTION_NAME_DISPLAY_LIMIT: Final[int] = 256
 _DISTRIBUTION_IDENTITY_RE: Final = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
 )
+_DOTTED_PYTHON_NAME: Final = r"[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*"
+_ENTRY_POINT_TARGET_RE: Final = re.compile(
+    rf"^{_DOTTED_PYTHON_NAME}:{_DOTTED_PYTHON_NAME}$"
+)
 _METADATA_TRUNCATION_MARKER: Final[str] = "\N{HORIZONTAL ELLIPSIS}"
 
 
@@ -303,10 +307,7 @@ def diagnose_selected_core_provider(
         or not raw_target
         or len(raw_target) > _ENTRY_POINT_TARGET_DISPLAY_LIMIT
         or raw_target != raw_target.strip()
-        or any(
-            unicodedata.category(char) in {"Cc", "Zl", "Zp"}
-            for char in raw_target
-        )
+        or _ENTRY_POINT_TARGET_RE.fullmatch(raw_target) is None
         or raw_target != selected_metadata.entry_point_target
     ):
         return _result(
