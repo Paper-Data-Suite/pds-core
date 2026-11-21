@@ -83,7 +83,7 @@ _DISTRIBUTION_NAME_DISPLAY_LIMIT: Final[int] = 256
 _DISTRIBUTION_IDENTITY_RE: Final = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
 )
-_DOTTED_PYTHON_NAME: Final = r"[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*"
+_DOTTED_PYTHON_NAME: Final = r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*"
 _ENTRY_POINT_TARGET_RE: Final = re.compile(
     rf"^{_DOTTED_PYTHON_NAME}:{_DOTTED_PYTHON_NAME}$"
 )
