@@ -186,6 +186,7 @@ def test_missing_foreign_or_malformed_distribution_refuses_before_load(
     "target",
     [
         None, "", "fake\n:run", "target " + "z" * 1100,
+        "missing_colon", "scoreform..operations:factory",
     ],
 )
 def test_malformed_target_refused_without_loading(
