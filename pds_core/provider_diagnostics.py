@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import unicodedata
 from dataclasses import dataclass, replace
 from importlib import metadata
@@ -46,6 +47,10 @@ ProviderDiagnosticStage: TypeAlias = Literal[
 ProviderCheckOutcome: TypeAlias = Literal["not_attempted", "passed", "failed"]
 ProviderDiagnosticCode: TypeAlias = Literal[
     "provider.entry_point_name_invalid",
+    "provider.entry_point_missing",
+    "provider.entry_point_ambiguous",
+    "provider.metadata_invalid",
+    "provider.distribution_mismatch",
     "provider.load_failed",
     "provider.not_callable",
     "provider.call_failed",
@@ -75,6 +80,9 @@ _PROVIDER_KIND_ORDER: Final[dict[ProviderKind, int]] = {
 _ENTRY_POINT_NAME_DISPLAY_LIMIT: Final[int] = 256
 _ENTRY_POINT_TARGET_DISPLAY_LIMIT: Final[int] = 1024
 _DISTRIBUTION_NAME_DISPLAY_LIMIT: Final[int] = 256
+_DISTRIBUTION_IDENTITY_RE: Final = re.compile(
+    r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
+)
 _METADATA_TRUNCATION_MARKER: Final[str] = "\N{HORIZONTAL ELLIPSIS}"
 
 
@@ -189,6 +197,128 @@ def diagnose_core_providers(
             )
 
     return tuple(results)
+
+
+def diagnose_selected_core_provider(
+    *,
+    provider_kind: ProviderKind,
+    entry_point_name: str,
+    expected_distribution: str,
+) -> ProviderDiagnosticResult:
+    """Diagnose exactly one metadata-selected Core provider without broad loading.
+
+    Selection uses *exact* entry-point identity in one public Core group.
+    Every candidate's metadata is inspected first; no candidate is loaded
+    unless exactly one requested name exists and its declared distribution
+    and target metadata are well formed. A duplicate or foreign declaration
+    of the requested name is a hard refusal, not a "choose first" rule.
+
+    A valid returned profile is only a Core contract result: it does NOT
+    authenticate installed/publisher wheel bytes, authorize a workspace,
+    sandbox optional Python code, or authorize module attention/actions.
+    Callers must separately attest release bytes and explicit teacher scope.
+
+    Unselected entry points are never loaded or called. This function cannot
+    infer claims from their unexecuted factories; a conflicting advertised
+    name, however, is rejected before any load.
+    """
+    if provider_kind not in _PROVIDER_KINDS:
+        raise ProviderDiagnosticRequestError("Unsupported provider kind.")
+    if (
+        type(entry_point_name) is not str
+        or not _entry_point_name_is_valid(entry_point_name)
+        or len(entry_point_name) > _ENTRY_POINT_NAME_DISPLAY_LIMIT
+    ):
+        raise ProviderDiagnosticRequestError("Invalid exact provider identity.")
+    if (
+        type(expected_distribution) is not str
+        or len(expected_distribution) > _DISTRIBUTION_NAME_DISPLAY_LIMIT
+        or _DISTRIBUTION_IDENTITY_RE.fullmatch(expected_distribution) is None
+    ):
+        raise ProviderDiagnosticRequestError("Invalid expected distribution.")
+
+    baseline = ProviderEntryPointMetadata(
+        provider_kind=provider_kind,
+        entry_point_group=_PROVIDER_GROUPS[provider_kind],
+        entry_point_name=entry_point_name,
+        entry_point_target="<unavailable>",
+        distribution_name=None,
+    )
+    candidates = _enumerate_provider_candidates(provider_kind=provider_kind)
+    matches = tuple(
+        candidate
+        for candidate in candidates
+        if type(candidate.raw_entry_point_name) is str
+        and candidate.raw_entry_point_name == entry_point_name
+    )
+    if not matches:
+        return _result(
+            baseline,
+            stage="metadata",
+            code="provider.entry_point_missing",
+            message="Requested provider entry point is not installed.",
+        )
+    if len(matches) != 1:
+        return _result(
+            baseline,
+            stage="registry_conflict",
+            code="provider.entry_point_ambiguous",
+            message="Multiple candidates declare the requested provider identity.",
+            registry_conflict=True,
+        )
+
+    selected = matches[0]
+    selected_metadata = selected.metadata
+    owner = selected_metadata.distribution_name
+    if (
+        owner is None
+        or _DISTRIBUTION_IDENTITY_RE.fullmatch(owner) is None
+        or len(owner) > _DISTRIBUTION_NAME_DISPLAY_LIMIT
+    ):
+        return _result(
+            selected_metadata,
+            stage="metadata",
+            code="provider.metadata_invalid",
+            message="Selected provider metadata is incomplete or malformed.",
+        )
+    if _normalize_distribution(owner) != _normalize_distribution(
+        expected_distribution
+    ):
+        return _result(
+            selected_metadata,
+            stage="metadata",
+            code="provider.distribution_mismatch",
+            message="Selected provider does not belong to expected distribution.",
+        )
+
+    raw_target = _safe_attribute(selected.entry_point, "value")
+    if (
+        type(raw_target) is not str
+        or not raw_target
+        or len(raw_target) > _ENTRY_POINT_TARGET_DISPLAY_LIMIT
+        or raw_target != raw_target.strip()
+        or any(
+            unicodedata.category(char) in {"Cc", "Zl", "Zp"}
+            for char in raw_target
+        )
+        or raw_target != selected_metadata.entry_point_target
+    ):
+        return _result(
+            selected_metadata,
+            stage="metadata",
+            code="provider.metadata_invalid",
+            message="Selected provider metadata is incomplete or malformed.",
+        )
+
+    # Existing Core owns factory loading, profile validation, Core v1
+    # compatibility and fixed, privacy-safe error messages.
+    result, _registry_identity = _diagnose_candidate(selected)
+    return result
+
+
+def _normalize_distribution(value: str) -> str:
+    """PEP 503 owner-name normalization for comparison, not attestation."""
+    return re.sub(r"[-_.]+", "-", value).lower()
 
 
 def _diagnose_candidate(
