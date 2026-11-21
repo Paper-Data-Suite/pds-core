@@ -161,7 +161,9 @@ def _filtered(
     for note in notes:
         if args.category is not None and note.category != args.category:
             continue
-        if args.status == "open" and (note.category != "task" or note.completed):
+        if args.status == "open" and (
+            note.category != "task" or note.completed or note.archived
+        ):
             continue
         if args.status == "completed" and (
             note.category != "task" or not note.completed

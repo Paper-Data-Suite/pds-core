@@ -1,10 +1,9 @@
-# Core #240 — Notes & Tasks teacher walkthrough (Slices A–B)
+# Core #240 — Notes & Tasks teacher walkthrough (Slices A–D)
 
-**Status:** Slice B source-implements the real Notes menu behind a disabled
-qualification switch. Core/producer menus and capability tokens **do not** yet
-advertise it; direct CLI belongs to Slice C and installed adoption to Slice D.
-The walkthrough is a target for teacher acceptance, not evidence of a shipped
-or consumer-adopted Notes feature.
+**Status:** Core candidate implements the callable Notes menu and the Core main-menu
+entry, with direct CLI operations in Slice C. A candidate-wheel smoke test is
+required before acceptance. Core availability is **not** evidence of a published
+Core release, an adopted Suite/producer menu, or actual classroom qualification.
 
 ## Everyday teacher journey (synthetic data)
 
@@ -53,18 +52,23 @@ Do not show student IDs, note bodies in routine errors, stack traces, raw paths,
 internal tokens, or technical transaction codes. Actual teacher prompts are
 reviewed in Slice D; Core-only harnesses do not qualify a producer adoption.
 
-## Slices A–B boundary
+## Core source, installation, and adopter boundaries
 
 - `teacher_context.py`: frozen request/result public shapes and validation.
-- `teacher_menus.py`: callable injected-I/O seam; **returns UNAVAILABLE** until
-  Slice D explicitly qualifies/enables the real Notes menu. Its synthetic
-  navigation-preview gate remains for Slice A's existing tests.
+- `teacher_menus.py`: callable injected-I/O seam; available from this Core
+  candidate in interactive contexts, and `UNAVAILABLE` in noninteractive calls.
+  Synthetic navigation previews remain private test machinery.
 - `notes_menu_controller.py` (Slice B): bounded Quick Capture, browse/search,
   status/context filters, edit/Task/archiving actions and sanitized errors,
   reusing only #239 read/write services. It is exercised with explicit Core
   test enabling, not consumer-advertised.
-- No changes to Core capability tokens, `core` menu options, `pds-core` CLI,
-  module repositories, Suite, Notes services or workspace files.
-- Next: Slice C adds noninteractive CLI parity; Slice D performs the installed
-  artifact, navigation adoption and teacher usability gates before enabling
-  the public menu.
+- `core` main menu preserves 1/2/3/4 semantics; offers 5. Notes & Tasks and
+  opt-in `:notes` at this audited choice prompt only. In text entry, `:notes`
+  stays literal.
+- `pds-core notes` implements read/write/Task/archive operations with stable
+  noninteractive exit codes; see `docs/notes_cli_240.md`.
+- `notes.records.v1`, `notes.menu.v1`, and `notes.cli.v1` identify implemented
+  Core candidate features, **not** adoption by a separately installed producer.
+- Installed-wheel smoke and real teacher interaction review are tracked in
+  `docs/notes_240_acceptance.md`. External producer adoption, two-device
+  OneDrive and actual Suite backup/restore remain later separate gates.

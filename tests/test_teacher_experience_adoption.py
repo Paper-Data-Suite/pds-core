@@ -89,15 +89,18 @@ class SyntheticReviewScreen:
         return response
 
 
-def test_source_contract_and_two_implemented_capabilities_are_separate() -> None:
+def test_source_contract_and_installed_capabilities_are_separate() -> None:
     assert TEACHER_EXPERIENCE_CONTRACT_VERSION == "1"
     assert get_teacher_experience_capabilities() == frozenset(
-        {"terminal.header.v1", "terminal.notes_command.v1"}
+        {
+            "terminal.header.v1",
+            "terminal.notes_command.v1",
+            "notes.records.v1",
+            "notes.menu.v1",
+            "notes.cli.v1",
+        }
     )
     for not_implemented in (
-        "notes.records.v1",
-        "notes.menu.v1",
-        "notes.cli.v1",
         "classroom.roster_edits.v1",
         "classroom.menu.v1",
         "notes.portability.v1",
@@ -122,17 +125,15 @@ def test_header_and_typed_intent_do_not_dispatch_or_mutate(tmp_path: Path) -> No
     assert list(tmp_path.iterdir()) == []
 
 
-def test_actual_unqualified_notes_menu_must_not_be_activated() -> None:
+def test_core_capabilities_do_not_authorize_unadopted_producer_menu() -> None:
     capabilities = get_teacher_experience_capabilities()
     allow_real_menu = all(
         required in capabilities for required in ("notes.records.v1", "notes.menu.v1")
     )
-    assert allow_real_menu is False
-    # A synthetic menu choice cannot produce a callable Notes service.
+    assert allow_real_menu is True
+    # This synthetic producer has NOT adopted the menu despite Core support.
     screen = SyntheticReviewScreen()
-    assert screen.read_choice(":notes", parser_opt_in=allow_real_menu) == (
-        "invalid-choice"
-    )
+    assert screen.read_choice(":notes", parser_opt_in=False) == ("invalid-choice")
     assert "notes-request-only" not in screen.local_events
 
 

@@ -1,8 +1,7 @@
-"""Callable Notes & Tasks boundary — Core #240-A/B, not yet advertised.
+"""Public callable Notes & Tasks menu backed by Core workspace Notes.
 
-The real controller is source-implemented but remains behind a qualification
-switch until Slice D. The Slice A navigation preview is retained for its
-synthetic tests and is never advertised to consumers.
+The Source/Core menu is available in this candidate build; producer/Suite
+adoption and actual classroom qualification remain separate release gates.
 """
 
 from __future__ import annotations
@@ -26,12 +25,13 @@ from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 
 __all__ = ("run_notes_tasks_menu",)
 
-# Not a consumer switch. Enabled only in the synthetic Core-owned navigation
-# tests. Production remains unavailable until final acceptance in Slice D.
+# Navigation-only simulation for synthetic Core tests; not a consumer switch
+# and never offered by the regular Core menu.
 _NAVIGATION_PREVIEW_TEST_ONLY = False
 
-# Source-only implementation; turn on only after #240-D qualification.
-_NOTES_MENU_QUALIFIED = False
+# Runtime feature available in this candidate; tests may disable it explicitly to
+# verify unavailable/fallback behavior without mutating installed capabilities.
+_NOTES_MENU_QUALIFIED = True
 
 
 def _result(
@@ -56,7 +56,7 @@ def run_notes_tasks_menu(
     interactive: bool,
     error_output: TextIO | None = None,
 ) -> SharedTeacherMenuResult:
-    """Public in-process seam; real Notes UI remains gated pending acceptance."""
+    """Public in-process Notes entry; requires an interactive caller session."""
     if not isinstance(request, SharedTeacherMenuRequest):
         raise TypeError("request must be a SharedTeacherMenuRequest")
     if not callable(read_line):

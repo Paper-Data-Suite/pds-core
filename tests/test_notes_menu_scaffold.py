@@ -20,6 +20,14 @@ from pds_core.teacher_experience import get_teacher_experience_capabilities
 from pds_core.teacher_menus import run_notes_tasks_menu
 
 
+@pytest.fixture(autouse=True)
+def _keep_scaffold_in_preview_or_unavailable_mode(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preserve the Slice A test's unavailable case after Notes is enabled."""
+    monkeypatch.setattr(teacher_menus, "_NOTES_MENU_QUALIFIED", False)
+
+
 def _request(tmp_path: Path) -> SharedTeacherMenuRequest:
     return SharedTeacherMenuRequest(
         caller_application="Quillan",
@@ -80,8 +88,8 @@ def test_public_entry_is_unavailable_until_real_notes_menu_qualifies(
     assert result.exit is TeacherMenuExit.UNAVAILABLE
     assert result.durability is TeacherDurability.NO_CHANGE
     assert not (tmp_path / "does-not-exist").exists()
-    assert "notes.menu.v1" not in get_teacher_experience_capabilities()
-    assert "notes.records.v1" not in get_teacher_experience_capabilities()
+    assert "notes.menu.v1" in get_teacher_experience_capabilities()
+    assert "notes.records.v1" in get_teacher_experience_capabilities()
 
 
 def test_noninteractive_refusal_consumes_no_input_even_in_test_preview(
