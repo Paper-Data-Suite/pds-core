@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 from typing import TextIO
 
 from pds_core.cli_support import screen
@@ -18,6 +19,17 @@ from pds_core.menu_navigation import (
     parse_navigation_choice,
     print_navigation_options,
 )
+from pds_core.teacher_commands import (
+    PromptKind,
+    SharedTeacherCommand,
+    parse_shared_teacher_command,
+)
+from pds_core.teacher_context import (
+    SharedTeacherMenuRequest,
+    TeacherContextHint,
+    TeacherMenuExit,
+)
+from pds_core.teacher_menus import run_notes_tasks_menu
 from pds_core.standards import (
     StandardsLibrary,
     StandardsReadError,
@@ -145,6 +157,19 @@ class CoreMenu:
                 self._print_help()
                 self._pause("Main Menu")
                 continue
+            if choice == "5" or (
+                parse_shared_teacher_command(
+                    choice,
+                    prompt_kind=PromptKind.MENU_CHOICE,
+                    interactive=True,
+                    allow_notes=True,
+                )
+                is SharedTeacherCommand.NOTES
+            ):
+                result = self._run_notes_menu()
+                if result is TeacherMenuExit.QUIT:
+                    return 0
+                continue
             print(navigation_hint(), file=self.stdout)
 
     def _run_standards_menu(self) -> int:
@@ -178,6 +203,28 @@ class CoreMenu:
             self.stderr,
         )
 
+    def _run_notes_menu(self) -> TeacherMenuExit:
+        """Return only a navigation disposition; never impersonate a producer."""
+        workspace_hint = (
+            Path(self.args.workspace) if self.args.workspace is not None else None
+        )
+        result = run_notes_tasks_menu(
+            SharedTeacherMenuRequest(
+                caller_application="PDS Core",
+                return_token="core-main-menu-notes",
+                context=TeacherContextHint(workspace_root=workspace_hint),
+            ),
+            read_line=self.stdin.readline,
+            output=self.stdout,
+            interactive=True,
+            error_output=self.stdout,
+        )
+        if result.exit in (TeacherMenuExit.FAILED, TeacherMenuExit.UNAVAILABLE):
+            # Pause before redraw so a teacher can read the safe recovery note.
+            print(result.message, file=self.stdout)
+            self._pause("Main Menu")
+        return result.exit
+
     def _print_help(self) -> None:
         screen.clear_screen(self.stdout)
         screen.print_app_header(self.stdout)
@@ -207,6 +254,8 @@ class CoreMenu:
         print("1. Standards Management", file=self.stdout)
         print("2. Workspace Settings", file=self.stdout)
         print("3. Help", file=self.stdout)
+        print("4. Exit", file=self.stdout)
+        print("5. Notes & Tasks  (:notes)", file=self.stdout)
         print_navigation_options(back=False, main_menu=False, file=self.stdout)
         print("", file=self.stdout)
 

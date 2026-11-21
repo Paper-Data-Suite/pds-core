@@ -246,15 +246,13 @@ def test_c12_local_colon_command_collision_stays_caller_owned() -> None:
     assert local_actions["N"] == "next-student"
 
 
-def test_c13_parser_capability_does_not_imply_a_working_notes_service() -> None:
+def test_c13_shared_parser_does_not_dispatch_even_with_notes_capabilities() -> None:
     capabilities = get_teacher_experience_capabilities()
-    assert capabilities == frozenset(
-        {"terminal.header.v1", "terminal.notes_command.v1"}
-    )
-    assert "notes.records.v1" not in capabilities
-    assert "notes.menu.v1" not in capabilities
-    assert "notes.cli.v1" not in capabilities
-    # Receiving a typed request is not dispatch, persistence, or authorization.
+    assert "terminal.notes_command.v1" in capabilities
+    assert "notes.records.v1" in capabilities
+    assert "notes.menu.v1" in capabilities
+    assert "notes.cli.v1" in capabilities
+    # Parser recognition remains pure; authorization and dispatch are caller-owned.
     assert parse(":notes") is SharedTeacherCommand.NOTES
 
 
