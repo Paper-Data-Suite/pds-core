@@ -1,8 +1,9 @@
 # Core #240 — Notes & Tasks teacher walkthrough (Slices A–D)
 
 **Status:** Core candidate implements the callable Notes menu and the Core main-menu
-entry, with direct CLI operations in Slice C. A candidate-wheel smoke test is
-required before acceptance. Core availability is **not** evidence of a published
+entry, with direct CLI operations in Slice C. The Slice D candidate-wheel
+smoke passed on Windows on 2026-11-21; a post-review rebuild/smoke and a
+teacher usability review are still required. Core availability is **not** evidence of a published
 Core release, an adopted Suite/producer menu, or actual classroom qualification.
 
 ## Everyday teacher journey (synthetic data)

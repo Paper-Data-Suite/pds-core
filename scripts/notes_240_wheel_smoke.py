@@ -45,6 +45,27 @@ def _run(
     return completed.stdout
 
 
+def _expect_exit(command: Sequence[str], *, cwd: Path, expected: int) -> None:
+    """Check nonzero installed CLI statuses without printing private note data."""
+    completed = subprocess.run(
+        list(command),
+        cwd=cwd,
+        input="",
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=90,
+        check=False,
+    )
+    if completed.returncode != expected:
+        raise RuntimeError(
+            f"Installed CLI expected exit {expected}, got {completed.returncode}."
+        )
+    if "Traceback" in completed.stderr or "\x1b[" in completed.stderr:
+        raise RuntimeError("Installed CLI disclosed traceback or ANSI in a failure.")
+
+
 def _record(raw: str) -> dict[str, object]:
     payload: object = json.loads(raw)
     if not isinstance(payload, dict):
@@ -201,6 +222,44 @@ print('synthetic producer-like return: BACK, COMMITTED')
         shortcut = menu(":notes\nB\n4\n")
         if "Notes & Tasks" not in shortcut:
             raise AssertionError("Qualified :notes choice did not open Notes.")
+
+        def fail_cli(expected: int, *args_cli: str) -> None:
+            _expect_exit(
+                [
+                    str(python),
+                    "-I",
+                    "-m",
+                    "pds_core.cli",
+                    "--workspace",
+                    str(workspace),
+                    "notes",
+                    *args_cli,
+                ],
+                cwd=base,
+                expected=expected,
+            )
+
+        bad_text = base / "invalid-utf8.bin"
+        bad_text.write_bytes(b"\xff")
+        fail_cli(2, "create", "--category", "idea", "--text-file", str(bad_text))
+        fail_cli(3, "show", "note_00000000000040008000000000000000")
+        fail_cli(
+            4,
+            "edit",
+            note_id,
+            "--expected-revision",
+            "1",
+            "--text-file",
+            str(source),
+        )
+        conflict = (
+            workspace / ".pds" / "notes" / "v1" / f"{note_id} (conflicted copy).json"
+        )
+        conflict.write_bytes((conflict.parent / f"{note_id}.json").read_bytes())
+        fail_cli(5, "list")
+        if not conflict.exists():
+            raise AssertionError("A sync-conflict file was unexpectedly removed.")
+
         print(f"Candidate wheel SHA-256: {digest}")
         print(f"Installed module: {path}")
         print(
@@ -209,6 +268,7 @@ print('synthetic producer-like return: BACK, COMMITTED')
         print(
             "PASS: synthetic in-process caller return, :notes menu choice, no ANSI in non-TTY"
         )
+        print("PASS: installed CLI error exits 2/3/4/5 and conflict preservation")
         print(
             "LIMITATION: synthetic Core-only test; no real producer adoption or cross-device sync"
         )

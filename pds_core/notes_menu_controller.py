@@ -75,6 +75,10 @@ class _InputEnded(Exception):
     """The owner closed the injected input stream or cancelled the session."""
 
 
+class _WorkspaceSelectionChanged(NotesReadError):
+    """The selected default workspace changed during this Notes session."""
+
+
 @dataclass(slots=True)
 class _Filters:
     category: NoteCategory | None = None
@@ -174,7 +178,13 @@ class _NotesController:
 
     def _note_error(self, exc: Exception, *, writing: bool = False) -> None:
         """Print only fixed teacher-safe diagnostics, never raw exception text."""
-        if isinstance(exc, StaleNoteError):
+        if isinstance(exc, _WorkspaceSelectionChanged):
+            message = (
+                "The selected workspace changed while Notes was open. "
+                "Return to the caller and reopen Notes before saving. "
+                "Nothing was changed by this action."
+            )
+        elif isinstance(exc, StaleNoteError):
             message = "This note changed elsewhere. Reload it before editing."
         elif isinstance(exc, NotesConflictError):
             message = (
@@ -203,6 +213,17 @@ class _NotesController:
     def _workspace(self) -> Path:
         if self.root is None:
             raise RuntimeError("Workspace was not resolved")
+        if self.request.context.workspace_root is None:
+            # An unpinned menu follows the saved/default workspace selection.
+            # Never continue reading or saving against an earlier selection
+            # if the teacher switches workspaces while Notes remains open.
+            try:
+                selected = resolve_workspace_root()
+            except WorkspaceRootError as exc:
+                raise _WorkspaceSelectionChanged from exc
+            if selected != self.root:
+                raise _WorkspaceSelectionChanged
+        # A caller's explicit override is intentionally fixed for this call.
         return self.root
 
     def run(self) -> SharedTeacherMenuResult:
@@ -560,11 +581,13 @@ class _NotesController:
             choice = self._choice("Choose: ")
             if choice == "b":
                 return
+            replacement_draft: str | None = None
             try:
                 if choice == "1":
                     updated = self._enter_text("Edit Note — Replacement Text")
                     if updated is None:
                         continue
+                    replacement_draft = updated
                     edit_note(
                         note.note_id,
                         updated,
@@ -603,6 +626,12 @@ class _NotesController:
                 ValueError,
             ) as exc:
                 self._note_error(exc, writing=True)
+                if replacement_draft is not None:
+                    print(
+                        "Unsaved replacement text follows. Copy it before leaving:",
+                        file=self.output,
+                    )
+                    print(_safe_text(replacement_draft), file=self.output)
                 return
             self.confirmed = True
             print("Saved.", file=self.output)

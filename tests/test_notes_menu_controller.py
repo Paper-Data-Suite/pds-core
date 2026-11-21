@@ -20,6 +20,7 @@ from pds_core.teacher_context import (
     TeacherMenuExit,
     TeacherWorkReference,
 )
+from pds_core.workspace import resolve_workspace_root
 
 
 def _call(
@@ -222,6 +223,8 @@ def test_stale_update_refuses_without_overwrite(
     assert get_note(note.note_id, root).text == "Original"
     assert "confidential internal error" not in transcript
     assert "changed elsewhere" in transcript
+    assert "Unsaved replacement text follows" in transcript
+    assert "Revised" in transcript
     assert result.durability is TeacherDurability.NO_CHANGE
 
 
@@ -323,3 +326,64 @@ def test_notes_with_terminal_controls_are_sanitized_in_display(
     assert result.exit is TeacherMenuExit.BACK
     assert "\x1b[" not in transcript
     assert "red and text" in transcript
+
+
+def test_selected_workspace_change_during_capture_blocks_old_root_write(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    old_root = tmp_path / "first"
+    new_root = tmp_path / "second"
+    old_root.mkdir()
+    new_root.mkdir()
+    selected = [old_root]
+    original_resolve = resolve_workspace_root
+
+    def resolve(explicit: Path | None = None) -> Path:
+        return selected[0] if explicit is None else original_resolve(explicit)
+
+    monkeypatch.setattr(controller, "resolve_workspace_root", resolve)
+    monkeypatch.setattr(menus, "_NOTES_MENU_QUALIFIED", True)
+    choices = iter(("1", "1", "Unsent draft", ":save", "B"))
+
+    def read_line() -> str:
+        value = next(choices)
+        if value == ":save":
+            selected[0] = new_root
+        return value
+
+    output = io.StringIO()
+    result = menus.run_notes_tasks_menu(
+        SharedTeacherMenuRequest("Core", "return", TeacherContextHint()),
+        read_line=read_line,
+        output=output,
+        interactive=True,
+    )
+    assert result.exit is TeacherMenuExit.BACK
+    assert result.durability is TeacherDurability.NO_CHANGE
+    assert "selected workspace changed" in output.getvalue().lower()
+    assert "Unsent draft" in output.getvalue()
+    assert not notes_dir(old_root).exists()
+    assert not notes_dir(new_root).exists()
+
+
+def test_explicit_workspace_override_stays_pinned_when_default_changes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    explicit_root = tmp_path / "explicit"
+    another_root = tmp_path / "saved-choice"
+    explicit_root.mkdir()
+    another_root.mkdir()
+    original_resolve = resolve_workspace_root
+
+    def resolve(explicit: Path | None = None) -> Path:
+        return another_root if explicit is None else original_resolve(explicit)
+
+    monkeypatch.setattr(controller, "resolve_workspace_root", resolve)
+    result, _ = _call(
+        monkeypatch,
+        explicit_root,
+        ["1", "1", "Pinned workspace Idea", ":save", "B"],
+    )
+    assert result.durability is TeacherDurability.COMMITTED
+    assert [n.text for n in list_notes(explicit_root)] == ["Pinned workspace Idea"]
+    assert not notes_dir(another_root).exists()

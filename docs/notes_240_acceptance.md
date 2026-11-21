@@ -13,10 +13,22 @@
 - [x] Opt-in `:notes` at audited `core` main-menu choice prompt, not text entry
 - [x] Quick Capture, browse, search, filters, Task state, archive/unarchive
 - [x] No per-user Notes database, producer mutation, or Notes sync service
-- [ ] Final Windows repository regression, Ruff, mypy, release hygiene
-- [ ] Fresh installed-wheel smoke outside source checkout (run script below)
+- [x] Slice D Windows regression: 3,432 passed, 19 skipped, zero failures;
+  Ruff clean and mypy clean across 328 source files (2026-11-21).
+- [x] Slice D isolated installed-wheel smoke outside the source checkout
+  (2026-11-21); candidate SHA-256 recorded below.
+- [x] Requalify the post-review correction commit: regression, Ruff, mypy,
+  isolated installed-wheel smoke including negative CLI exits.
 - [ ] Teacher review against the actual interaction transcript (see prompts)
 - [ ] Independent source/CI PR review before merging #240
+
+**Qualified Slice D source commit:** `19e353664a15ba87d68a959cb97fc65f5d811208`.
+**Slice D candidate-wheel SHA-256:**
+`dc3486f2ba01ca853c8dd1779cf094b2590f3a3aa4962fd2471a7a8fbac2b822`.
+This hash describes the prior Slice D wheel, not the post-review wheel. The
+post-review candidate must be rebuilt, smoked and its new digest recorded.
+
+**Post-review candidate-wheel SHA-256:** `2f9629add65a2f816fe5ee977ad774e1a9d2b471be22624eabb176bbcd43f0d9`.
 
 **Implementation tokens in the candidate distribution:** `terminal.header.v1`,
 `terminal.notes_command.v1`, `notes.records.v1`, `notes.menu.v1`, `notes.cli.v1`.
@@ -48,8 +60,8 @@ install into the teacher's existing environment, or publish a Core release.
 
 | Surface | Status | Gate/owner |
 | --- | --- | --- |
-| Core source menu + CLI | Implemented in #240 branch | Candidate QA and PR review pending |
-| Clean candidate wheel | Not yet accepted | #240 installed smoke pending |
+| Core source menu + CLI | Implemented in #240 branch | Slice D checks passed; post-review check pending |
+| Clean candidate wheel | Slice D wheel tested, post-review wheel pending | Run repaired installed smoke after review fix |
 | Published consolidated Core release | Not done | #244 and remaining Core work |
 | Suite menu adoption | Not done | Suite #54, with installed artifact qualification |
 | Actual producer-menu return / `N`/`W` preserved | Not done | Independently adopting producer repo |
