@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.metadata
-import importlib.util
 import io
 import json
 import os
@@ -62,21 +61,12 @@ def _exercise_public_imports(expected_version: str, source: Path) -> dict[str, A
     )
     expected_caps = frozenset({"terminal.header.v1", "terminal.notes_command.v1"})
     caps = experience.get_teacher_experience_capabilities()
-    require(type(caps) is frozenset and caps == expected_caps, "capabilities not exact")
-    for absent in (
-        "notes.records.v1",
-        "notes.menu.v1",
-        "notes.cli.v1",
-        "classroom.roster_edits.v1",
-        "classroom.menu.v1",
-        "notes.portability.v1",
-    ):
-        require(absent not in caps, f"premature capability advertisement: {absent}")
-    for nonexistent in ("pds_core.teacher_context", "pds_core.teacher_menus"):
-        require(
-            importlib.util.find_spec(nonexistent) is None,
-            f"premature API: {nonexistent}",
-        )
+    require(
+        type(caps) is frozenset and expected_caps.issubset(caps),
+        "required #237 capabilities missing",
+    )
+    # Later Core issues may legitimately add capabilities and public modules.
+    # This older smoke qualifies the #237 header/command contract only.
 
     require(
         tuple(ui.__all__)
@@ -216,8 +206,14 @@ def _exercise_public_imports(expected_version: str, source: Path) -> dict[str, A
         else:
             raise RuntimeError("untyped prompt kind accepted")
     require(
-        "terminal.header.v1" in caps and "notes.menu.v1" not in caps,
-        "Notes menu inferred from terminal parser",
+        parser(
+            ":notes",
+            prompt_kind=kind.MENU_CHOICE,
+            interactive=True,
+            allow_notes=False,
+        )
+        is None,
+        "Notes token bypassed caller opt-in",
     )
     return {
         "contract": experience.TEACHER_EXPERIENCE_CONTRACT_VERSION,
@@ -234,7 +230,7 @@ def _exercise_public_imports(expected_version: str, source: Path) -> dict[str, A
             "exact-opt-in-parser",
             "literal-fields",
             "legacy-B-M-Q-A-N-W",
-            "Notes-unavailable",
+            "Notes-not-implicitly-enabled",
             "invalid-types",
         ],
     }
