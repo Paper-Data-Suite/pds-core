@@ -10,6 +10,7 @@ from typing import cast
 import pytest
 
 import pds_core.teacher_menus as teacher_menus
+from pds_core.cli_support import screen
 from pds_core.teacher_context import (
     SharedTeacherMenuRequest,
     TeacherContextHint,
@@ -181,3 +182,16 @@ def test_invalid_request_fails_before_io(tmp_path: Path) -> None:
             interactive=True,
         )
     assert out.getvalue() == ""
+
+
+def test_preview_navigation_clears_only_its_interactive_screens(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(screen, "clear_screen", lambda stream: stream.write("\f"))
+    result, transcript = _invoke(monkeypatch, tmp_path, ["1", "B", "B"])
+    screens = [part for part in transcript.split("\f") if part.strip()]
+    assert len(screens) == 3
+    assert "Navigation Preview" in screens[0]
+    assert "Quick Capture — Preview" in screens[1]
+    assert "Navigation Preview" in screens[2]
+    assert result is TeacherMenuExit.BACK

@@ -170,3 +170,30 @@ def test_cli_archived_task_never_appears_as_open_even_with_include_archived(
     assert isinstance(result, dict)
     assert result.get("count") == 0
     assert get_note(note.note_id, root).archived
+
+
+def test_core_to_notes_clear_and_back_render_only_current_menu(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from pds_core.cli_support import screen
+
+    root = tmp_path / "workspace"
+    root.mkdir()
+    monkeypatch.setattr(screen, "clear_screen", lambda stream: stream.write("\f"))
+    code, transcript, errors = _core(root, "5\n1\n1\nSynthetic note\n:save\nB\n4\n")
+    screens = [part for part in transcript.split("\f") if part.strip()]
+    titles = []
+    for part in screens:
+        lines = part.splitlines()
+        titles.append(lines[2] if lines[1] == "" else lines[1])
+    assert titles == [
+        "Main Menu",
+        "Notes & Tasks",
+        "Quick Capture",
+        "New Idea",
+        "Notes & Tasks",
+        "Main Menu",
+    ]
+    assert "Saved. Find it" in screens[4]
+    assert "Quick Capture" not in screens[-1]
+    assert errors == "" and code == 0

@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import pds_core.notes_menu_controller as controller
+from pds_core.cli_support import screen
 import pds_core.teacher_menus as menus
 from pds_core.notes_service import NotesWriteError, StaleNoteError, create_note
 from pds_core.notes_storage import get_note, list_notes, notes_dir
@@ -223,7 +224,7 @@ def test_stale_update_refuses_without_overwrite(
     assert get_note(note.note_id, root).text == "Original"
     assert "confidential internal error" not in transcript
     assert "changed elsewhere" in transcript
-    assert "Unsaved replacement text follows" in transcript
+    assert "Unsaved text — copy" in transcript
     assert "Revised" in transcript
     assert result.durability is TeacherDurability.NO_CHANGE
 
@@ -387,3 +388,69 @@ def test_explicit_workspace_override_stays_pinned_when_default_changes(
     assert result.durability is TeacherDurability.COMMITTED
     assert [n.text for n in list_notes(explicit_root)] == ["Pinned workspace Idea"]
     assert not notes_dir(another_root).exists()
+
+
+def test_notes_transitions_replace_screen_and_keep_confirmation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A simulated clearing terminal never stacks Notes child screens."""
+    root = tmp_path / "workspace"
+    root.mkdir()
+
+    def fake_clear(stream: io.StringIO) -> None:
+        stream.write("\f")
+
+    monkeypatch.setattr(screen, "clear_screen", fake_clear)
+    result, transcript = _call(
+        monkeypatch,
+        root,
+        ["1", "2", "Review synthetic work", ":save", "2", "1", "2", "B", "B", "B"],
+    )
+    screens = [part for part in transcript.split("\f") if part.strip()]
+    titles = [part.splitlines()[1] for part in screens]
+    assert titles == [
+        "Notes & Tasks",
+        "Quick Capture",
+        "New Task",
+        "Notes & Tasks",
+        "Open Tasks",
+        "Task Detail",
+        "Task Detail",
+        "Open Tasks",
+        "Notes & Tasks",
+    ]
+    assert "Saved. Find it" in screens[3]
+    assert "Saved." in screens[6]
+    assert "Task Detail" not in screens[-1]
+    assert "Select a note:" not in screens[-1]
+    assert result.exit is TeacherMenuExit.BACK
+    assert result.durability is TeacherDurability.COMMITTED
+    assert list_notes(root)[0].completed is True
+
+
+def test_failed_edit_draft_survives_transition_on_next_screen(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "workspace"
+    root.mkdir()
+    note = create_note("reflection", "Existing text", workspace_root=root)
+
+    def stale(*_args: object, **_kwargs: object) -> object:
+        raise StaleNoteError("do not expose internal file paths")
+
+    monkeypatch.setattr(controller, "edit_note", stale)
+    monkeypatch.setattr(screen, "clear_screen", lambda stream: stream.write("\f"))
+    result, transcript = _call(
+        monkeypatch,
+        root,
+        ["3", "1", "1", "Replacement draft", ":save", "B", "B"],
+    )
+    screens = [part for part in transcript.split("\f") if part.strip()]
+    recovery = next(part for part in screens if "Unsaved text — copy" in part)
+    assert "Recent Notes" in recovery
+    assert "changed elsewhere" in recovery
+    assert "Replacement draft" in recovery
+    assert "do not expose internal file paths" not in transcript
+    assert "Replacement draft" not in screens[-1]
+    assert result.durability is TeacherDurability.NO_CHANGE
+    assert get_note(note.note_id, root).text == "Existing text"

@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TextIO
 
+from pds_core.cli_support import screen
 from pds_core.menu_navigation import (
     NavigationChoice,
     QuitPDS,
@@ -99,6 +100,7 @@ def _run_navigation_preview(
     # Depth: home, capture category, category preview. No save step exists.
     depth = 0
     category = ""
+    notice: str | None = None
     while True:
         screen_title = (
             "Notes & Tasks — Navigation Preview"
@@ -107,12 +109,16 @@ def _run_navigation_preview(
             if depth == 1
             else f"{category} — Preview"
         )
+        screen.clear_screen(output)
         print_teacher_header(
             TeacherScreenHeader(
                 "PDS Core", screen_title, request.context.display_label
             ),
             output=output,
         )
+        if notice is not None:
+            print(notice, file=output)
+            notice = None
         print("Preview only. Nothing entered here can be saved.", file=output)
         if depth == 0:
             print("1. Quick Capture preview", file=output)
@@ -160,4 +166,4 @@ def _run_navigation_preview(
             category = {"1": "Idea", "2": "Task", "3": "Reflection"}[choice]
             depth = 2
         else:
-            print("Choose a listed option, B, M, or Q.", file=output)
+            notice = "Choose a listed option, B, M, or Q."

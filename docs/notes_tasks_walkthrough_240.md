@@ -73,3 +73,14 @@ reviewed in Slice D; Core-only harnesses do not qualify a producer adoption.
 - Installed-wheel smoke and real teacher interaction review are tracked in
   `docs/notes_240_acceptance.md`. External producer adoption, two-device
   OneDrive and actual Suite backup/restore remain later separate gates.
+
+## Screen transitions and information density
+
+Every new interactive Notes screen (home, capture category, optional context,
+editor, list, filters, detail, parent return, and paginated refresh) replaces
+the previous terminal view. Editing a multiline draft keeps the entry screen
+visible while composing. A successful save or a recoverable error appears on
+the destination screen; when a write fails after composing replacement text,
+the unsaved draft appears there long enough for the teacher to copy it. No
+terminal-clear sequences go to redirected output. The existing Core Standards
+and Workspace menus retain their own established clear-on-transition behavior.

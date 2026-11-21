@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.cli_support import screen
 from pds_core.notes_records import (
     MAX_NOTE_TEXT_LENGTH,
     NoteCategory,
@@ -127,6 +128,10 @@ class _NotesController:
         self.failed_after_save = False
         self.uncertain = False
         self.filters = _Filters()
+        # One-shot feedback belongs to the destination screen, not the
+        # discarded screen beneath it. Never place it in routine logs.
+        self._notice: str | None = None
+        self._unsaved_draft: str | None = None
 
     def _result(
         self, exit_kind: TeacherMenuExit, message: str
@@ -153,10 +158,31 @@ class _NotesController:
         )
 
     def _header(self, title: str) -> None:
+        # Screen transitions replace the previous view on a real terminal.
+        # Redirected/captured streams stay unchanged for scripts and tests.
+        screen.clear_screen(self.output)
         print_teacher_header(
             TeacherScreenHeader("PDS Core", title, self.request.context.display_label),
             output=self.output,
         )
+        if self._notice is not None:
+            print(self._notice, file=self.output)
+            print("", file=self.output)
+            self._notice = None
+        if self._unsaved_draft is not None:
+            print("Unsaved text — copy it before continuing:", file=self.output)
+            print(_safe_text(self._unsaved_draft), file=self.output)
+            print("", file=self.output)
+            self._unsaved_draft = None
+
+    def _feedback(
+        self, message: str | None = None, *, draft: str | None = None
+    ) -> None:
+        """Show feedback on the *next* screen, without losing a draft."""
+        if message is not None:
+            self._notice = message
+        if draft is not None:
+            self._unsaved_draft = draft
 
     def _ask(self, prompt: str) -> str:
         print(prompt, end="", file=self.output, flush=True)
@@ -209,6 +235,7 @@ class _NotesController:
         if writing and self.confirmed:
             self.failed_after_save = True
         print(message, file=self.errors)
+        self._feedback(message)
 
     def _workspace(self) -> Path:
         if self.root is None:
@@ -232,6 +259,7 @@ class _NotesController:
             # A missing/unsafe workspace must not appear as an empty notebook.
             list_notes(self.root, include_archived=True)
         except (NotesReadError, WorkspaceRootError) as exc:
+            self._header("Notes Unavailable")
             self._note_error(exc)
             return self._result(
                 TeacherMenuExit.FAILED,
@@ -261,7 +289,7 @@ class _NotesController:
                 elif choice == "5":
                     self._browse("archive")
                 else:
-                    print("Choose a listed option, B, M, or Q.", file=self.output)
+                    self._feedback("Choose a listed option, B, M, or Q.")
         except _ExitMenu as exit_request:
             return self._result(
                 exit_request.exit_kind,
@@ -287,6 +315,7 @@ class _NotesController:
         eligible = {"assignment", "activity", "portfolio", "project", "unit", "lesson"}
         if work is not None and work.work_kind not in eligible:
             return None
+        self._header("Note Context")
         print("Optional context:", file=self.output)
         if hint.class_id is not None:
             print(f"Class: {hint.class_id}", file=self.output)
@@ -315,7 +344,7 @@ class _NotesController:
         while True:
             line = self._ask("> ")
             if line == ":cancel":
-                print("Draft cancelled. Nothing was saved.", file=self.output)
+                self._feedback("Draft cancelled. Nothing was saved.")
                 return None
             if line == ":save":
                 content = "\n".join(lines)
@@ -348,7 +377,7 @@ class _NotesController:
                 "3": "reflection",
             }
             if choice not in categories:
-                print("Choose Idea, Task, Reflection, or B.", file=self.output)
+                self._feedback("Choose Idea, Task, Reflection, or B.")
                 continue
             try:
                 context = self._candidate_context()
@@ -371,15 +400,10 @@ class _NotesController:
                 ValueError,
             ) as exc:
                 self._note_error(exc, writing=True)
-                print(
-                    "The draft remains below so you can copy it before leaving."
-                    " It has not been confirmed as saved:",
-                    file=self.output,
-                )
-                print(_safe_text(text), file=self.output)
+                self._feedback(draft=text)
                 return
             self.confirmed = True
-            print("Saved. Find it in Recent Notes or Open Tasks.", file=self.output)
+            self._feedback("Saved. Find it in Recent Notes or Open Tasks.")
             return
 
     def _collect(self, mode: str, query: str | None) -> list[NoteRecord]:
@@ -414,7 +438,7 @@ class _NotesController:
         if query == ":cancel":
             return
         if not query.strip() or len(query) > 256:
-            print("Enter 1–256 search characters.", file=self.output)
+            self._feedback("Enter 1–256 search characters.")
             return
         self._browse("search", query=query)
 
@@ -425,13 +449,13 @@ class _NotesController:
         if category == ":cancel":
             return
         if category not in ("idea", "task", "reflection", "*"):
-            print("Invalid category; filters unchanged.", file=self.output)
+            self._feedback("Invalid category; filters unchanged.")
             return
         status = self._ask("Status (all/open/completed/archived): ").strip().casefold()
         if status == ":cancel":
             return
         if status not in ("all", "open", "completed", "archived"):
-            print("Invalid status; filters unchanged.", file=self.output)
+            self._feedback("Invalid status; filters unchanged.")
             return
         ids: list[str | None] = []
         for name in ("class ID", "module ID", "work ID"):
@@ -444,12 +468,10 @@ class _NotesController:
                 or not raw.replace("_", "").replace("-", "").isalnum()
                 or not raw.isascii()
             ):
-                print("Invalid context ID; filters unchanged.", file=self.output)
+                self._feedback("Invalid context ID; filters unchanged.")
                 return
             if name == "module ID" and raw != "*" and raw != raw.lower():
-                print(
-                    "Module ID must be lowercase; filters unchanged.", file=self.output
-                )
+                self._feedback("Module ID must be lowercase; filters unchanged.")
                 return
             ids.append(None if raw == "*" else raw)
         categories: dict[str, NoteCategory] = {
@@ -464,7 +486,7 @@ class _NotesController:
             module_id=ids[1],
             work_id=ids[2],
         )
-        print("Filters updated.", file=self.output)
+        self._feedback("Filters updated.")
 
     def _browse(self, mode: str, *, query: str | None = None) -> None:
         page = 0
@@ -550,7 +572,7 @@ class _NotesController:
                 if 1 <= selected <= len(subset):
                     self._detail(subset[selected - 1].note_id)
                     continue
-            print("Choose a listed number, F, <, >, or B.", file=self.output)
+            self._feedback("Choose a listed number, F, <, >, or B.")
 
     def _detail(self, note_id: str) -> None:
         while True:
@@ -608,7 +630,7 @@ class _NotesController:
                         else "Archive this item? Y/N: "
                     )
                     if self._ask(prompt).strip().casefold() != "y":
-                        print("No changes were made.", file=self.output)
+                        self._feedback("No changes were made.")
                         continue
                     set_archived(
                         note.note_id,
@@ -617,7 +639,7 @@ class _NotesController:
                         workspace_root=self._workspace(),
                     )
                 else:
-                    print("Choose a listed option or B.", file=self.output)
+                    self._feedback("Choose a listed option or B.")
                     continue
             except (
                 NotesReadError,
@@ -627,14 +649,10 @@ class _NotesController:
             ) as exc:
                 self._note_error(exc, writing=True)
                 if replacement_draft is not None:
-                    print(
-                        "Unsaved replacement text follows. Copy it before leaving:",
-                        file=self.output,
-                    )
-                    print(_safe_text(replacement_draft), file=self.output)
+                    self._feedback(draft=replacement_draft)
                 return
             self.confirmed = True
-            print("Saved.", file=self.output)
+            self._feedback("Saved.")
 
 
 def run_notes_controller(
