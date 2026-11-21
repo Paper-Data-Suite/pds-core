@@ -248,8 +248,7 @@ def diagnose_selected_core_provider(
     matches = tuple(
         candidate
         for candidate in candidates
-        if type(candidate.raw_entry_point_name) is str
-        and candidate.raw_entry_point_name == entry_point_name
+        if candidate.metadata.entry_point_name == entry_point_name
     )
     if not matches:
         return _result(
@@ -269,6 +268,13 @@ def diagnose_selected_core_provider(
 
     selected = matches[0]
     selected_metadata = selected.metadata
+    if type(selected.raw_entry_point_name) is not str:
+        return _result(
+            selected_metadata,
+            stage="metadata",
+            code="provider.metadata_invalid",
+            message="Selected provider metadata is incomplete or malformed.",
+        )
     owner = selected_metadata.distribution_name
     if (
         owner is None
