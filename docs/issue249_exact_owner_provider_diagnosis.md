@@ -1,6 +1,6 @@
 # Core #249 — Exact-owner provider diagnosis (source candidate)
 
-**Scope:** additive public Core API to unblock Suite [#21](https://github.com/Paper-Data-Suite/pds-paper-data-suite/issues/21). **Status: source implemented, focused Windows/source and official wheel qualification pending.** Nothing in Core v0.6.6's existing official release wheel has changed.
+**Scope:** additive public Core API to unblock Suite [#21](https://github.com/Paper-Data-Suite/pds-paper-data-suite/issues/21). **Status: source qualified; prior PR CI passed 13/13 before branch reconciliation. Reconciled-branch CI and consolidated installed-release qualification remain pending (#244 for release).** Nothing in Core v0.6.6's existing official release wheel has changed.
 
 ## Public entry point
 
@@ -47,7 +47,7 @@ A public `ProviderDiagnosticResult(code="provider.valid")` only proves that the 
 
 ### Local qualification (Core repository branch)
 
-Use a separate worktree or checked-out clean branch `249-exact-owner-provider-diagnosis`; leave Core #238's active working tree alone.
+Use a separate worktree or checked-out clean branch `249-exact-owner-provider-diagnosis` based on current `main`. Core #238 is superseded and its OS-local private-storage design must not be adopted or merged.
 
 ```powershell
 & {
@@ -68,4 +68,4 @@ Use a separate worktree or checked-out clean branch `249-exact-owner-provider-di
 }
 ```
 
-After source qualification, separately build, hash, test and release a new official Core wheel in accordance with Core's release process. Re-pin Suite #21 official release evidence **only after** publication/installed acceptance. No merge, release, Suite callback or teacher-production integration is authorized by this source branch.
+After source qualification, build and hash an isolated candidate wheel for local smoke testing. The official Core release is deferred to the single consolidated qualification under #244; re-pin Suite #21 only after that published wheel passes installed acceptance. Merging #249 source does not authorize a release, a Suite callback, or production integration.

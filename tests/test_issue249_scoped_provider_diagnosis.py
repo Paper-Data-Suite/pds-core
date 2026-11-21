@@ -65,7 +65,8 @@ def _entry(
     loaded: object | None = None,
 ) -> EntryPoint:
     return EntryPoint(
-        name, target,
+        name,
+        target,
         owner=owner,
         loaded=(lambda: _profile(str(name))) if loaded is None else loaded,
     )
@@ -106,14 +107,13 @@ def test_one_selected_owner_only_is_loaded_even_with_malicious_neighbors(
 ) -> None:
     chosen = _entry()
     foreign = _entry(
-        "foreign", owner="foreign",
+        "foreign",
+        owner="foreign",
         loaded=RuntimeError("PRIVATE_DATA_SHOULD_NEVER_EXECUTE"),
     )
     quillan = _entry("quillan", owner="quillan")
     concord = _entry("concord", owner="pds-concord")
-    observed = _install(
-        monkeypatch, (foreign, quillan, chosen, concord)
-    )
+    observed = _install(monkeypatch, (foreign, quillan, chosen, concord))
 
     result = _diagnose()
     assert observed == ["paper_data_suite.module_operations"]
@@ -185,8 +185,12 @@ def test_missing_foreign_or_malformed_distribution_refuses_before_load(
 @pytest.mark.parametrize(
     "target",
     [
-        None, "", "fake\n:run", "target " + "z" * 1100,
-        "missing_colon", "scoreform..operations:factory",
+        None,
+        "",
+        "fake\n:run",
+        "target " + "z" * 1100,
+        "missing_colon",
+        "scoreform..operations:factory",
     ],
 )
 def test_malformed_target_refused_without_loading(
@@ -255,9 +259,7 @@ def test_selected_load_or_factory_failure_remains_bounded(
         (lambda: {}, "provider.profile_invalid"),
         (lambda: _profile("quillan"), "provider.identity_mismatch"),
         (
-            lambda: _profile(
-                "scoreform", frozenset({"100"})
-            ),
+            lambda: _profile("scoreform", frozenset({"100"})),
             "provider.core_incompatible",
         ),
     ],
@@ -278,9 +280,7 @@ def test_broad_diagnostic_retains_original_all_candidates_semantics(
     other = _entry("quillan", owner="quillan")
     _install(monkeypatch, (other, first))
     results = diagnose_core_providers(provider_kind="module_operations")
-    assert [result.code for result in results] == [
-        "provider.valid", "provider.valid"
-    ]
+    assert [result.code for result in results] == ["provider.valid", "provider.valid"]
     assert first.load_calls == other.load_calls == 1
 
 
@@ -304,6 +304,7 @@ def test_invalid_provider_kind_fails_before_enumeration(
             expected_distribution="scoreform",
         )
     assert not calls
+
 
 def test_str_subclass_duplicate_selected_name_is_not_ignored(
     monkeypatch: pytest.MonkeyPatch,
@@ -374,4 +375,3 @@ def test_one_failed_selected_owner_does_not_prevent_next_explicit_owner(
     assert second.code == "provider.valid"
     assert good.load_calls == 1
     assert broken.load_calls == 1
-

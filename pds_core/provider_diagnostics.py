@@ -80,9 +80,7 @@ _PROVIDER_KIND_ORDER: Final[dict[ProviderKind, int]] = {
 _ENTRY_POINT_NAME_DISPLAY_LIMIT: Final[int] = 256
 _ENTRY_POINT_TARGET_DISPLAY_LIMIT: Final[int] = 1024
 _DISTRIBUTION_NAME_DISPLAY_LIMIT: Final[int] = 256
-_DISTRIBUTION_IDENTITY_RE: Final = re.compile(
-    r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
-)
+_DISTRIBUTION_IDENTITY_RE: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _DOTTED_PYTHON_NAME: Final = r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*"
 _ENTRY_POINT_TARGET_RE: Final = re.compile(
     rf"^{_DOTTED_PYTHON_NAME}:{_DOTTED_PYTHON_NAME}$"
@@ -291,9 +289,7 @@ def diagnose_selected_core_provider(
             code="provider.metadata_invalid",
             message="Selected provider metadata is incomplete or malformed.",
         )
-    if _normalize_distribution(owner) != _normalize_distribution(
-        expected_distribution
-    ):
+    if _normalize_distribution(owner) != _normalize_distribution(expected_distribution):
         return _result(
             selected_metadata,
             stage="metadata",
@@ -341,8 +337,7 @@ def _diagnose_candidate(
                 stage="identity_validation",
                 code="provider.entry_point_name_invalid",
                 message=(
-                    "Entry-point name is not a valid lowercase Core provider "
-                    "identity."
+                    "Entry-point name is not a valid lowercase Core provider identity."
                 ),
             ),
             None,
@@ -420,8 +415,7 @@ def _diagnose_candidate(
                 stage="identity_validation",
                 code="provider.identity_mismatch",
                 message=(
-                    "Entry-point name does not match the validated provider "
-                    "identity."
+                    "Entry-point name does not match the validated provider identity."
                 ),
                 load_attempted=True,
                 load_succeeded=True,
