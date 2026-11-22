@@ -9,6 +9,7 @@ import importlib
 import importlib.util
 from pathlib import Path
 from types import ModuleType
+from typing import cast
 
 import pytest
 
@@ -47,9 +48,11 @@ def _seed(workspace: Path) -> Path:
     return write_class_roster(workspace, roster)
 
 
-def _change(edits: ModuleType, operation: str, student_id: str, **fields: str):
+def _change(
+    edits: ModuleType, operation: str, student_id: str, **fields: str
+) -> object:
     constructor = getattr(edits, "StudentRosterChange")
-    return constructor(operation=operation, student_id=student_id, fields=fields)
+    return cast(object, constructor(operation=operation, student_id=student_id, fields=fields))
 
 
 def test_read_only_preview_does_not_touch_roster_or_create_lock(
@@ -74,8 +77,10 @@ def test_confirmed_commit_only_changes_selected_record(
 ) -> None:
     _seed(tmp_path)
     change = _change(edits, "update", "0007", period="3")
-    preview = edits.plan_student_roster_edit(tmp_path, "english12_p2", change)
-    result = edits.commit_student_roster_edit(
+    preview = getattr(edits, "plan_student_roster_edit")(
+        tmp_path, "english12_p2", change
+    )
+    result = getattr(edits, "commit_student_roster_edit")(
         tmp_path,
         "english12_p2",
         change,
@@ -101,8 +106,8 @@ def test_missing_explicit_confirmation_is_nonmutating(
     change = _change(edits, "update", "0007", period="3")
     preview = edits.plan_student_roster_edit(tmp_path, "english12_p2", change)
 
-    with pytest.raises(edits.StudentRosterEditRequestError):
-        edits.commit_student_roster_edit(
+    with pytest.raises(getattr(edits, "StudentRosterEditRequestError")):
+        getattr(edits, "commit_student_roster_edit")(
             tmp_path,
             "english12_p2",
             change,
@@ -131,8 +136,8 @@ def test_stale_current_roster_refuses_commit_without_overwrite(
     write_class_roster(tmp_path, newer, overwrite=True)
     before = path.read_bytes()
 
-    with pytest.raises(edits.StudentRosterEditConflictError):
-        edits.commit_student_roster_edit(
+    with pytest.raises(getattr(edits, "StudentRosterEditConflictError")):
+        getattr(edits, "commit_student_roster_edit")(
             tmp_path,
             "english12_p2",
             change,
@@ -157,8 +162,8 @@ def test_removing_final_student_is_refused(
     path = class_roster_path(tmp_path, "english12_p2")
     before = path.read_bytes()
 
-    with pytest.raises(edits.StudentRosterEditValidationError):
-        edits.plan_student_roster_edit(
+    with pytest.raises(getattr(edits, "StudentRosterEditValidationError")):
+        getattr(edits, "plan_student_roster_edit")(
             tmp_path, "english12_p2", _change(edits, "remove", "0007")
         )
     assert path.read_bytes() == before
@@ -168,8 +173,8 @@ def test_unknown_class_does_not_create_directories(
     tmp_path: Path, edits: ModuleType
 ) -> None:
     assert not (tmp_path / "classes").exists()
-    with pytest.raises(edits.StudentRosterEditClassNotFoundError):
-        edits.plan_student_roster_edit(
+    with pytest.raises(getattr(edits, "StudentRosterEditClassNotFoundError")):
+        getattr(edits, "plan_student_roster_edit")(
             tmp_path,
             "invented_class",
             _change(

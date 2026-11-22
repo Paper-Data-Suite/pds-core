@@ -8,6 +8,7 @@ import pytest
 
 from pds_core.classes import write_class_roster
 from pds_core.rosters import (
+    Roster,
     RosterValidationError,
     StudentRecord,
     add_student_record,
@@ -18,7 +19,7 @@ from pds_core.rosters import (
 )
 
 
-def _roster():
+def _roster() -> Roster:
     return create_roster(
         "english12_p2",
         [
