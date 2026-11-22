@@ -13,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pds_core
 from pds_core.classes import write_class_roster
@@ -83,7 +83,9 @@ def _preview(root: Path, source: Path) -> dict[str, Any]:
     assert payload["ok"] is True
     assert payload["schema_version"] == "1"
     assert payload["command"] == "roster student-preview"
-    return payload["data"]
+    data = payload["data"]
+    assert isinstance(data, dict), "Preview data is not an object"
+    return cast(dict[str, Any], data)
 
 
 def _commit(
@@ -167,8 +169,7 @@ def main() -> int:
         assert (status, errors) == (0, "")
         assert result["data"]["status"] == "committed"
         assert (
-            result["data"]["committed_state_token"]
-            == preview["candidate_state_token"]
+            result["data"]["committed_state_token"] == preview["candidate_state_token"]
         )
         revised = load_roster(roster_path)
         assert [s.student_id for s in revised.students] == ["0007", "0011"]
