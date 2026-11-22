@@ -167,9 +167,7 @@ def test_stale_current_roster_refuses_commit_without_overwrite(
     assert path.read_bytes() == before
 
 
-def test_removing_final_student_is_refused(
-    tmp_path: Path, edits: ModuleType
-) -> None:
+def test_removing_final_student_is_refused(tmp_path: Path, edits: ModuleType) -> None:
     write_class_roster(
         tmp_path,
         create_roster(
