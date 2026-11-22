@@ -37,8 +37,9 @@ def _assert_installed_package() -> None:
         if entry.group == "console_scripts"
     }
     assert scripts.get("pds-core") == "pds_core.cli:main"
-    assert "classroom.roster_edits.v1" not in get_teacher_experience_capabilities()
-    assert "classroom.menu.v1" not in get_teacher_experience_capabilities()
+    capabilities = get_teacher_experience_capabilities()
+    assert "classroom.roster_edits.v1" in capabilities
+    assert "classroom.menu.v1" not in capabilities
     print(f"Installed Core location: {package_file}")
     print(f"Installed Core version: {distribution.version}")
 

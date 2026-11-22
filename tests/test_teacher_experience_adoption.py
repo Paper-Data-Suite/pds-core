@@ -98,10 +98,10 @@ def test_source_contract_and_installed_capabilities_are_separate() -> None:
             "notes.records.v1",
             "notes.menu.v1",
             "notes.cli.v1",
+            "classroom.roster_edits.v1",
         }
     )
     for not_implemented in (
-        "classroom.roster_edits.v1",
         "classroom.menu.v1",
         "notes.portability.v1",
     ):

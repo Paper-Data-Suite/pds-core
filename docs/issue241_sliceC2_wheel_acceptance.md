@@ -1,6 +1,7 @@
 # Core #241 — Slice C2: isolated installed-wheel acceptance
 
-**Status:** Candidate acceptance harness on feature branch. No release or capability token advertised.
+**Status:** Installed-wheel C2 harness passed at the prior candidate SHA; this
+updated harness verifies final candidate capability advertisement. No release.
 
 ## Objective
 
@@ -26,8 +27,8 @@ that environment, and checks the installed `pds-core` entry-point metadata.
 - No-op commit receipt without rewriting canonical bytes.
 - Duplicate-key change JSON refusal without a write.
 - Legacy `roster import-preview` compatibility.
-- `classroom.roster_edits.v1` and `classroom.menu.v1` remain unadvertised
-  at this staging checkpoint.
+- Final candidate advertises `classroom.roster_edits.v1` while still
+  withholding `classroom.menu.v1` until Core #242.
 
 ## Windows acceptance boundary
 
@@ -41,14 +42,13 @@ is the canonical Windows entry point for these operations.
 
 Passing this harness proves the candidate wheel's tested behavior,
 **not** release readiness. Full Core regression, CI, dependency review,
-and capability advertisement remain gated.
+and final approval remain gated.
 
-## Next after acceptance
+## Next after final-candidate acceptance
 
-After installed-wheel acceptance is confirmed, advertise only
-`classroom.roster_edits.v1` on the development branch and update
-capability contract tests. Continue withholding `classroom.menu.v1`
-until Core #242. Qualify the changed wheel again, including capability
-advertisement, then complete Core #241 review and PR gates.
+Confirm the final wheel advertises exactly the accepted roster-edit
+capability while withholding `classroom.menu.v1`, then complete Core
+#241 full-repository regression, checks, CI and review gates.
+Core #242 owns the later menu and interactive student editing experience.
 
 No official release before Core #244.

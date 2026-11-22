@@ -1,8 +1,8 @@
 # Core #241 — Slice C noninteractive roster-edit CLI contract
 
-**Status:** Candidate implementation on issue branch; awaiting focused Windows CLI,
-static checks, and final #241/#244 release acceptance. No capability token
-is advertised solely by this document.
+**Status:** Service, source CLI, and initial isolated wheel accepted on Windows.
+The final capability-bearing wheel and #241 integrated/CI gates remain pending.
+No release or producer adoption is implied.
 
 ## Commands
 
@@ -84,6 +84,7 @@ This **CLI Slice C** requires its own success evidence for JSON parsing,
 bounds, stdin/TTY refusal, state token replay and mutation, text sanitization,
 legacy import parity, CLI help, candidate-wheel import and statuses.
 
-Only after source/CLI and installed acceptance should
-`classroom.roster_edits.v1` be added to Core's implemented capability set.
+The final candidate advertises `classroom.roster_edits.v1` after source/CLI
+and initial installed-wheel acceptance. Installed-wheel and integration
+qualification must now confirm this specific capability-bearing commit.
 `classroom.menu.v1` stays withheld until #242. No release before #244.
