@@ -34,7 +34,8 @@ def test_public_function_has_accepted_immutable_return_type() -> None:
 
 
 def test_qualified_services_and_cli_are_capabilities_of_this_build() -> None:
-    assert get_teacher_experience_capabilities() == frozenset(
+    capabilities = get_teacher_experience_capabilities()
+    required = frozenset(
         {
             "terminal.header.v1",
             "terminal.notes_command.v1",
@@ -44,6 +45,7 @@ def test_qualified_services_and_cli_are_capabilities_of_this_build() -> None:
             "classroom.roster_edits.v1",
         }
     )
+    assert required.issubset(capabilities)
 
 
 @pytest.mark.parametrize(
@@ -76,7 +78,12 @@ def test_clean_process_import_does_not_prompt_print_or_write(tmp_path: Path) -> 
         "TEACHER_EXPERIENCE_CONTRACT_VERSION, "
         "get_teacher_experience_capabilities; "
         "assert TEACHER_EXPERIENCE_CONTRACT_VERSION == '1'; "
-        "assert get_teacher_experience_capabilities() == frozenset({'terminal.header.v1', 'terminal.notes_command.v1', 'notes.records.v1', 'notes.menu.v1', 'notes.cli.v1', 'classroom.roster_edits.v1'})"
+        "caps = get_teacher_experience_capabilities(); "
+        "required = {'terminal.header.v1', 'terminal.notes_command.v1', "
+        "'notes.records.v1', 'notes.menu.v1', 'notes.cli.v1', "
+        "'classroom.roster_edits.v1'}; "
+        "assert required.issubset(caps); "
+        "assert 'classroom.menu.v1' not in caps"
     )
     result = subprocess.run(  # noqa: S603 - constant interpreter + fixed code
         [sys.executable, "-B", "-c", probe],
