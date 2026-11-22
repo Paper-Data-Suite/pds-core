@@ -266,9 +266,7 @@ def test_stale_candidate_and_current_tokens_are_distinct(tmp_path: Path) -> None
     assert caught.value.reason == "current_state_changed"
 
 
-def test_shared_lock_conflict_preserves_original_roster(
-    tmp_path: Path,
-) -> None:
+def test_shared_lock_conflict_preserves_original_roster(tmp_path: Path) -> None:
     path = _two_students(tmp_path)
     before = path.read_bytes()
     change = _change("update", "0007", period="3")
