@@ -21,6 +21,7 @@ from pds_core.class_metadata import (
 )
 from pds_core.classes import write_class_roster
 from pds_core.rosters import (
+    Roster,
     RosterWriteError,
     _write_roster_unlocked,
     create_roster,
@@ -46,11 +47,15 @@ def _seed(root: Path) -> Path:
     )
 
 
-def _change(operation: edits.RosterEditOperation, **fields: str) -> edits.StudentRosterChange:
+def _change(
+    operation: edits.RosterEditOperation, **fields: str
+) -> edits.StudentRosterChange:
     return edits.StudentRosterChange(operation, "0007", fields)
 
 
-def _preview(root: Path, change: edits.StudentRosterChange) -> edits.StudentRosterEditPreview:
+def _preview(
+    root: Path, change: edits.StudentRosterChange
+) -> edits.StudentRosterEditPreview:
     return edits.plan_student_roster_edit(root, CLASS_ID, change)
 
 
@@ -197,9 +202,9 @@ def test_writer_failure_after_replace_reports_uncertainty(
     before = path.read_bytes()
 
     def replaced_then_error(
-        roster_path: str | Path, roster: object, *, overwrite: bool = False
+        roster_path: str | Path, roster: Roster, *, overwrite: bool = False
     ) -> None:
-        _write_roster_unlocked(roster_path, roster, overwrite=overwrite)  # type: ignore[arg-type]
+        _write_roster_unlocked(roster_path, roster, overwrite=overwrite)
         raise RosterWriteError(roster_path, "SECRET_AFTER_REPLACE")
 
     monkeypatch.setattr(edits, "_write_roster_unlocked", replaced_then_error)
@@ -255,9 +260,7 @@ def test_writer_lock_acquisition_failure_is_bounded(
 
 
 @pytest.mark.parametrize("target", ["classes", "class", "roster", "metadata"])
-def test_redirected_canonical_paths_refused(
-    tmp_path: Path, target: str
-) -> None:
+def test_redirected_canonical_paths_refused(tmp_path: Path, target: str) -> None:
     root = tmp_path / "primary"
     foreign = tmp_path / "foreign"
     foreign.mkdir()
@@ -291,16 +294,18 @@ def test_redirected_canonical_paths_refused(
     try:
         link.symlink_to(dest, target_is_directory=target in {"classes", "class"})
     except (OSError, NotImplementedError) as error:
-        pytest.skip(f"Filesystem does not support this symlink test: {type(error).__name__}")
+        pytest.skip(
+            f"Filesystem does not support symlinks: {type(error).__name__}"
+        )
 
     with pytest.raises(edits.StudentRosterEditWriteError) as caught:
         _preview(root, _change("update", period="3"))
     assert caught.value.reason == "unsafe_path"
     assert dest.exists()
-    if target in {"classes", "class"}:
-        assert (dest / CLASS_ID / "roster.csv").exists() if target == "classes" else (
-            dest / "roster.csv"
-        ).exists()
+    if target == "classes":
+        assert (dest / CLASS_ID / "roster.csv").is_file()
+    if target == "class":
+        assert (dest / "roster.csv").is_file()
     if target == "roster":
         assert dest.read_bytes() == before
     assert link.is_symlink()
