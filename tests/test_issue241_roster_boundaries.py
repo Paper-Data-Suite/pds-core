@@ -93,9 +93,7 @@ def test_stale_absent_roster_appears_before_commit(tmp_path: Path) -> None:
     preview = _preview(tmp_path, change)
     assert preview.current_state_token == "roster-state-v1:absent"
 
-    path = write_class_roster(
-        tmp_path, create_roster(CLASS_ID, [_student("0007")])
-    )
+    path = write_class_roster(tmp_path, create_roster(CLASS_ID, [_student("0007")]))
     before = path.read_bytes()
     with pytest.raises(edits.StudentRosterEditConflictError) as caught:
         _commit(tmp_path, change, preview)
@@ -294,9 +292,7 @@ def test_redirected_canonical_paths_refused(tmp_path: Path, target: str) -> None
     try:
         link.symlink_to(dest, target_is_directory=target in {"classes", "class"})
     except (OSError, NotImplementedError) as error:
-        pytest.skip(
-            f"Filesystem does not support symlinks: {type(error).__name__}"
-        )
+        pytest.skip(f"Filesystem does not support symlinks: {type(error).__name__}")
 
     with pytest.raises(edits.StudentRosterEditWriteError) as caught:
         _preview(root, _change("update", period="3"))
