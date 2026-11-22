@@ -85,8 +85,13 @@ def _change(
 
 def _preview(root: Path, file: Path) -> dict[str, object]:
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", str(file), "--format", "json",
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        str(file),
+        "--format",
+        "json",
     )
     assert status == 0 and errors == ""
     payload: dict[str, object] = json.loads(output)
@@ -164,14 +169,17 @@ def test_cli_add_update_remove_with_exact_service(tmp_path: Path) -> None:
     add = _source(
         tmp_path,
         _change(
-            "add", "0025",
+            "add",
+            "0025",
             {"first_name": "Robin", "last_name": "Stone", "period": "2"},
         ),
     )
     status, payload, _ = _commit(root, add, _preview(root, add))
     assert status == 0 and payload["ok"] is True
     assert [r.student_id for r in load_roster(path).students] == [
-        "0007", "0011", "0025"
+        "0007",
+        "0011",
+        "0025",
     ]
 
     remove = _source(tmp_path, _change("remove", "0007"))
@@ -184,9 +192,7 @@ def test_cli_add_update_remove_with_exact_service(tmp_path: Path) -> None:
     assert preview["after"] is None
     status, payload, _ = _commit(root, remove, preview)
     assert status == 0 and payload["ok"] is True
-    assert [r.student_id for r in load_roster(path).students] == [
-        "0011", "0025"
-    ]
+    assert [r.student_id for r in load_roster(path).students] == ["0011", "0025"]
 
 
 def test_commit_cannot_omit_confirm_or_state_tokens(tmp_path: Path) -> None:
@@ -197,10 +203,15 @@ def test_commit_cannot_omit_confirm_or_state_tokens(tmp_path: Path) -> None:
     preview = _preview(root, source)
 
     status, _output, _errors = _invoke(
-        root, "student-commit", CLASS,
-        "--change-file", str(source),
-        "--expected-current-state-token", str(preview["current_state_token"]),
-        "--expected-candidate-state-token", str(preview["candidate_state_token"]),
+        root,
+        "student-commit",
+        CLASS,
+        "--change-file",
+        str(source),
+        "--expected-current-state-token",
+        str(preview["current_state_token"]),
+        "--expected-candidate-state-token",
+        str(preview["candidate_state_token"]),
     )
     assert status == 2
     status, _output, _errors = _invoke(
@@ -305,8 +316,7 @@ def test_last_student_remove_is_refused_without_write(tmp_path: Path) -> None:
         b'{"schema_version":"1","operation":"remove","student_id":"0007",'
         b'"unexpected":true}',
         b'{"schema_version":"1","operation":"update","student_id":"0007"}',
-        b'{"schema_version":"1","operation":"remove","student_id":"0007",'
-        b'"fields":[]}',
+        b'{"schema_version":"1","operation":"remove","student_id":"0007","fields":[]}',
     ],
 )
 def test_malformed_change_files_are_bounded_and_nonmutating(
@@ -318,8 +328,13 @@ def test_malformed_change_files_are_bounded_and_nonmutating(
     source = tmp_path / "invalid.json"
     source.write_bytes(raw)
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", str(source), "--format", "json",
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        str(source),
+        "--format",
+        "json",
     )
     assert status == 2 and errors == ""
     assert json.loads(output)["error"]["code"] == "roster_student.invalid_change_file"
@@ -336,8 +351,13 @@ def test_redirected_stdin_and_interactive_refusal(
 
     monkeypatch.setattr(sys, "stdin", io.StringIO(change))
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", "-", "--format", "json",
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        "-",
+        "--format",
+        "json",
     )
     assert status == 0 and errors == ""
     assert json.loads(output)["data"]["student_id"] == "0007"
@@ -348,8 +368,13 @@ def test_redirected_stdin_and_interactive_refusal(
 
     monkeypatch.setattr(sys, "stdin", Tty(change))
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", "-", "--format", "json",
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        "-",
+        "--format",
+        "json",
     )
     assert status == 2 and errors == ""
     assert json.loads(output)["error"]["code"] == "roster_student.invalid_change_file"
@@ -361,8 +386,11 @@ def test_text_preview_sanitizes_control_characters(tmp_path: Path) -> None:
     _seed(root)
     source = _source(tmp_path, _change(fields={"preferred_name": "A\x1b[31m"}))
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", str(source),
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        str(source),
     )
     assert status == 0 and errors == ""
     assert "PREVIEW ONLY - NO WRITE" in output
@@ -373,8 +401,13 @@ def test_class_missing_is_nonwriting_and_stable_exit(tmp_path: Path) -> None:
     root = tmp_path / "workspace"
     source = _source(tmp_path, _change())
     status, output, errors = _invoke(
-        root, "student-preview", CLASS,
-        "--change-file", str(source), "--format", "json",
+        root,
+        "student-preview",
+        CLASS,
+        "--change-file",
+        str(source),
+        "--format",
+        "json",
     )
     assert status == 3 and errors == ""
     assert json.loads(output)["error"]["code"] == "roster_student.missing_class"
@@ -389,7 +422,7 @@ def test_indeterminate_write_outcome_uses_distinct_exit(
     source = _source(tmp_path, _change())
     preview = _preview(root, source)
 
-    original = roster_service._write_roster_unlocked
+    original = getattr(roster_service, "_write_roster_unlocked")
 
     def write_then_raise(
         target: str | Path, roster: Roster, *, overwrite: bool = False
@@ -418,7 +451,8 @@ def test_first_add_and_legacy_import_command_compatibility(
     source = _source(
         tmp_path,
         _change(
-            "add", "0007",
+            "add",
+            "0007",
             {"first_name": "Ari", "last_name": "Rivera", "period": "2"},
         ),
     )

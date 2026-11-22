@@ -51,9 +51,7 @@ def _raise_duplicate_key(pairs: list[tuple[str, object]]) -> dict[str, object]:
     result: dict[str, object] = {}
     for key, value in pairs:
         if key in result:
-            raise RosterEditChangeFileError(
-                "Change JSON contains a repeated key."
-            )
+            raise RosterEditChangeFileError("Change JSON contains a repeated key.")
         result[key] = value
     return result
 
@@ -107,9 +105,7 @@ def _read_change_file(path: str) -> StudentRosterChange:
             "Change JSON contains unsupported top-level keys."
         )
     if document.get("schema_version") != "1":
-        raise RosterEditChangeFileError(
-            "Change JSON must use schema_version 1."
-        )
+        raise RosterEditChangeFileError("Change JSON must use schema_version 1.")
     operation = document.get("operation")
     student_id = document.get("student_id")
     if type(operation) is not str or operation not in {"add", "update", "remove"}:
@@ -124,8 +120,9 @@ def _read_change_file(path: str) -> StudentRosterChange:
         raise RosterEditChangeFileError("Change JSON fields must be an object.")
     if len(fields) > MAX_CHANGED_FIELDS:
         raise RosterEditChangeFileError("Too many change fields.")
-    if any(type(key) is not str or type(value) is not str
-           for key, value in fields.items()):
+    if any(
+        type(key) is not str or type(value) is not str for key, value in fields.items()
+    ):
         raise RosterEditChangeFileError("Change JSON fields must map strings.")
 
     return StudentRosterChange(
@@ -137,9 +134,7 @@ def _read_change_file(path: str) -> StudentRosterChange:
 
 def _safe_text(value: str) -> str:
     return "".join(
-        char
-        if not unicodedata.category(char).startswith("C")
-        else "\ufffd"
+        char if not unicodedata.category(char).startswith("C") else "\ufffd"
         for char in value
     )
 
@@ -186,9 +181,7 @@ def _preview_data(preview: StudentRosterEditPreview) -> dict[str, object]:
     }
 
 
-def _emit_preview_text(
-    preview: StudentRosterEditPreview, output: TextIO
-) -> None:
+def _emit_preview_text(preview: StudentRosterEditPreview, output: TextIO) -> None:
     data = _preview_data(preview)
     print("Individual student roster edit preview", file=output)
     print(f"Class: {preview.class_id}", file=output)
@@ -223,9 +216,7 @@ def _commit_data(result: StudentRosterEditCommitResult) -> dict[str, object]:
     }
 
 
-def _emit_commit_text(
-    result: StudentRosterEditCommitResult, output: TextIO
-) -> None:
+def _emit_commit_text(result: StudentRosterEditCommitResult, output: TextIO) -> None:
     print("Individual student roster edit result", file=output)
     print(f"Class: {result.class_id}", file=output)
     print(f"Action: {result.operation}", file=output)
@@ -288,8 +279,10 @@ def _error_code(error: BaseException) -> tuple[int, str, str]:
             status = EXIT_STORAGE
     elif isinstance(error, StudentRosterEditWriteError):
         status = (
-            EXIT_UNCERTAIN if reason == "write_outcome_uncertain"
-            else EXIT_STORAGE if reason in {"read_failed", "path_failed", "unsafe_path"}
+            EXIT_UNCERTAIN
+            if reason == "write_outcome_uncertain"
+            else EXIT_STORAGE
+            if reason in {"read_failed", "path_failed", "unsafe_path"}
             else EXIT_WRITE
         )
     elif isinstance(error, StudentRosterEditRequestError):
@@ -332,9 +325,7 @@ def handle_student_roster_preview(
     """Return one strictly non-mutating student edit preview."""
     try:
         change = _read_change_file(args.change_file)
-        preview = plan_student_roster_edit(
-            args.workspace_root, args.class_id, change
-        )
+        preview = plan_student_roster_edit(args.workspace_root, args.class_id, change)
     except (RosterEditChangeFileError, StudentRosterEditError) as error:
         return _failure(args, "roster student-preview", error, stdout, stderr)
     if args.format == "json":
