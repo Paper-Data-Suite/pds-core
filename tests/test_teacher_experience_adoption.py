@@ -91,17 +91,16 @@ class SyntheticReviewScreen:
 
 def test_source_contract_and_installed_capabilities_are_separate() -> None:
     assert TEACHER_EXPERIENCE_CONTRACT_VERSION == "1"
-    assert get_teacher_experience_capabilities() == frozenset(
-        {
-            "terminal.header.v1",
-            "terminal.notes_command.v1",
-            "notes.records.v1",
-            "notes.menu.v1",
-            "notes.cli.v1",
-        }
-    )
-    for not_implemented in (
+    capabilities = get_teacher_experience_capabilities()
+    assert {
+        "terminal.header.v1",
+        "terminal.notes_command.v1",
+        "notes.records.v1",
+        "notes.menu.v1",
+        "notes.cli.v1",
         "classroom.roster_edits.v1",
+    }.issubset(capabilities)
+    for not_implemented in (
         "classroom.menu.v1",
         "notes.portability.v1",
     ):

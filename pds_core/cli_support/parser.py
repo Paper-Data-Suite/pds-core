@@ -33,6 +33,10 @@ from pds_core.cli_support.roster_imports import (
     handle_roster_import_commit,
     handle_roster_import_preview,
 )
+from pds_core.cli_support.roster_edits import (
+    handle_student_roster_commit,
+    handle_student_roster_preview,
+)
 from pds_core.cli_support.menu import handle_standards_menu
 from pds_core.cli_support.profiles import (
     add_profile_metadata_arguments,
@@ -231,11 +235,11 @@ def _page(parser: argparse.ArgumentParser) -> None:
 def _add_roster_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     roster = subparsers.add_parser(
         "roster",
-        help="Preview or commit guarded complete-roster imports.",
+        help="Guarded full-roster imports and individual-student edits.",
         description=(
-            "Direct non-interactive access to Core guarded complete-roster import. "
-            "Preview first, preserve both opaque reviewed-state tokens, then pass "
-            "both tokens explicitly to import-commit."
+            "Preview changes before committing. Full imports use import-preview "
+            "and import-commit; individual edits use student-preview and "
+            "student-commit. Commit requires both reviewed state tokens."
         ),
     )
     roster_subparsers = roster.add_subparsers(dest="roster_command")
@@ -271,6 +275,56 @@ def _add_roster_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     _format(commit)
     commit.set_defaults(
         handler=handle_roster_import_commit,
+        load_workspace_library=False,
+    )
+
+    student_preview = roster_subparsers.add_parser(
+        "student-preview",
+        help="Read-only preview of one student's roster add/update/remove.",
+    )
+    student_preview.add_argument("class_id", type=_identifier)
+    student_preview.add_argument(
+        "--change-file",
+        required=True,
+        metavar="FILE",
+        help="Bounded versioned JSON change; use - for redirected stdin.",
+    )
+    _format(student_preview)
+    student_preview.set_defaults(
+        handler=handle_student_roster_preview,
+        load_workspace_library=False,
+    )
+
+    student_commit = roster_subparsers.add_parser(
+        "student-commit",
+        help="Commit a reviewed single-student roster change.",
+    )
+    student_commit.add_argument("class_id", type=_identifier)
+    student_commit.add_argument(
+        "--change-file",
+        required=True,
+        metavar="FILE",
+        help="The same reviewed JSON change; use - for redirected stdin.",
+    )
+    student_commit.add_argument(
+        "--expected-current-state-token",
+        required=True,
+        metavar="TOKEN",
+    )
+    student_commit.add_argument(
+        "--expected-candidate-state-token",
+        required=True,
+        metavar="TOKEN",
+    )
+    student_commit.add_argument(
+        "--confirm",
+        action="store_true",
+        required=True,
+        help="Explicitly authorize the exact reviewed change.",
+    )
+    _format(student_commit)
+    student_commit.set_defaults(
+        handler=handle_student_roster_commit,
         load_workspace_library=False,
     )
 
