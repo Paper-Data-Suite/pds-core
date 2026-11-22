@@ -24,7 +24,7 @@ from pds_core.teacher_context import (
 )
 from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 
-__all__ = ("run_notes_tasks_menu",)
+__all__ = ("run_notes_tasks_menu", "run_workspace_classroom_menu")
 
 # Navigation-only simulation for synthetic Core tests; not a consumer switch
 # and never offered by the regular Core menu.
@@ -167,3 +167,68 @@ def _run_navigation_preview(
             depth = 2
         else:
             notice = "Choose a listed option, B, M, or Q."
+
+
+# Core #242 Slice A is intentionally a *test-only* navigation scaffold.
+# Public callers receive UNAVAILABLE until the real service composition,
+# mutation/return semantics, installed candidate and capability qualify.
+_CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY = False
+
+
+def _classroom_unavailable(
+    request: SharedTeacherMenuRequest,
+    *,
+    interactive: bool,
+) -> SharedTeacherMenuResult:
+    message = (
+        "Workspace & Classroom Management requires an interactive session."
+        if not interactive
+        else "Workspace & Classroom Management is not qualified in this Core build."
+    )
+    return SharedTeacherMenuResult(
+        return_token=request.return_token,
+        exit=TeacherMenuExit.UNAVAILABLE,
+        durability=TeacherDurability.NO_CHANGE,
+        change_scopes=frozenset(),
+        message=(
+            f"{message} No changes were made. "
+            "Revalidate workspace, class, roster and work on return."
+        ),
+    )
+
+
+def run_workspace_classroom_menu(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    interactive: bool,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Callable #242 boundary; fail closed until classroom menu is qualified.
+
+    The private navigation-preview switch is only for synthetic tests. It
+    never reads, selects or modifies a real workspace and is not a capability.
+    """
+    if not isinstance(request, SharedTeacherMenuRequest):
+        raise TypeError("request must be a SharedTeacherMenuRequest")
+    if not callable(read_line):
+        raise TypeError("read_line must be callable")
+    if not callable(getattr(output, "write", None)):
+        raise TypeError("output must be writable")
+    if type(interactive) is not bool:
+        raise TypeError("interactive must be a bool")
+    if error_output is not None and not callable(getattr(error_output, "write", None)):
+        raise TypeError("error_output must be writable or None")
+
+    if not interactive:
+        return _classroom_unavailable(request, interactive=False)
+
+    if _CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_navigation import run_classroom_navigation_preview
+
+        return run_classroom_navigation_preview(
+            request, read_line=read_line, output=output
+        )
+
+    return _classroom_unavailable(request, interactive=True)
