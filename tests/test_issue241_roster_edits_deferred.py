@@ -21,7 +21,9 @@ from pds_core.routes import class_roster_path
 @pytest.fixture
 def edits() -> ModuleType:
     if importlib.util.find_spec("pds_core.roster_edits") is None:
-        pytest.skip("Core #241 Slice B service not implemented; future acceptance vector")
+        pytest.skip(
+            "Core #241 Slice B service not implemented; future acceptance vector"
+        )
     return importlib.import_module("pds_core.roster_edits")
 
 
@@ -52,7 +54,10 @@ def _change(
     edits: ModuleType, operation: str, student_id: str, **fields: str
 ) -> object:
     constructor = getattr(edits, "StudentRosterChange")
-    return cast(object, constructor(operation=operation, student_id=student_id, fields=fields))
+    return cast(
+        object,
+        constructor(operation=operation, student_id=student_id, fields=fields),
+    )
 
 
 def test_read_only_preview_does_not_touch_roster_or_create_lock(
@@ -104,7 +109,9 @@ def test_missing_explicit_confirmation_is_nonmutating(
     path = _seed(tmp_path)
     before = path.read_bytes()
     change = _change(edits, "update", "0007", period="3")
-    preview = edits.plan_student_roster_edit(tmp_path, "english12_p2", change)
+    preview = getattr(edits, "plan_student_roster_edit")(
+        tmp_path, "english12_p2", change
+    )
 
     with pytest.raises(getattr(edits, "StudentRosterEditRequestError")):
         getattr(edits, "commit_student_roster_edit")(
@@ -123,14 +130,26 @@ def test_stale_current_roster_refuses_commit_without_overwrite(
 ) -> None:
     path = _seed(tmp_path)
     change = _change(edits, "update", "0007", period="3")
-    preview = edits.plan_student_roster_edit(tmp_path, "english12_p2", change)
+    preview = getattr(edits, "plan_student_roster_edit")(
+        tmp_path, "english12_p2", change
+    )
     newer = create_roster(
         "english12_p2",
         [
-            {"student_id": "0007", "first_name": "Ari", "last_name": "Rivera",
-             "period": "2", "preferred_name": "Ari"},
-            {"student_id": "0011", "first_name": "Casey", "last_name": "Park",
-             "period": "4", "preferred_name": ""},
+            {
+                "student_id": "0007",
+                "first_name": "Ari",
+                "last_name": "Rivera",
+                "period": "2",
+                "preferred_name": "Ari",
+            },
+            {
+                "student_id": "0011",
+                "first_name": "Casey",
+                "last_name": "Park",
+                "period": "4",
+                "preferred_name": "",
+            },
         ],
     )
     write_class_roster(tmp_path, newer, overwrite=True)
@@ -155,8 +174,14 @@ def test_removing_final_student_is_refused(
         tmp_path,
         create_roster(
             "english12_p2",
-            [{"student_id": "0007", "first_name": "Ari",
-              "last_name": "Rivera", "period": "2"}],
+            [
+                {
+                    "student_id": "0007",
+                    "first_name": "Ari",
+                    "last_name": "Rivera",
+                    "period": "2",
+                }
+            ],
         ),
     )
     path = class_roster_path(tmp_path, "english12_p2")
@@ -178,8 +203,12 @@ def test_unknown_class_does_not_create_directories(
             tmp_path,
             "invented_class",
             _change(
-                edits, "add", "0007",
-                first_name="Ari", last_name="Rivera", period="2",
+                edits,
+                "add",
+                "0007",
+                first_name="Ari",
+                last_name="Rivera",
+                period="2",
             ),
         )
     assert not (tmp_path / "classes").exists()
