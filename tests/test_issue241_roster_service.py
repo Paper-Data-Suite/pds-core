@@ -95,9 +95,7 @@ def test_update_preserves_other_students_and_legacy_metadata_absence(
 
 def test_add_to_existing_preserves_columns_and_other_records(tmp_path: Path) -> None:
     path = _two_students(tmp_path)
-    change = _change(
-        "add", "0025", first_name="Robin", last_name="Stone", period="2"
-    )
+    change = _change("add", "0025", first_name="Robin", last_name="Stone", period="2")
     preview = edits.plan_student_roster_edit(tmp_path, CLASS, change)
     assert preview.current_count == 2
     assert preview.proposed_count == 3
@@ -124,8 +122,13 @@ def test_first_student_requires_valid_existing_class_metadata(tmp_path: Path) ->
     _class_metadata(tmp_path)
     path = class_roster_path(tmp_path, CLASS)
     change = _change(
-        "add", "0007", first_name="Ari", last_name="Rivera", period="2",
-        z_column="last", a_column="first",
+        "add",
+        "0007",
+        first_name="Ari",
+        last_name="Rivera",
+        period="2",
+        z_column="last",
+        a_column="first",
     )
     preview = edits.plan_student_roster_edit(tmp_path, CLASS, change)
     assert not path.exists()
@@ -135,8 +138,13 @@ def test_first_student_requires_valid_existing_class_metadata(tmp_path: Path) ->
     roster = load_roster(path)
     assert result.outcome == "committed"
     assert roster.columns == (
-        "class_id", "student_id", "last_name", "first_name", "period",
-        "a_column", "z_column",
+        "class_id",
+        "student_id",
+        "last_name",
+        "first_name",
+        "period",
+        "a_column",
+        "z_column",
     )
     assert roster.students[0].student_id == "0007"
 
@@ -145,9 +153,7 @@ def test_bare_class_dir_without_metadata_cannot_start_roster(tmp_path: Path) -> 
     folder = tmp_path / "classes" / CLASS
     folder.mkdir(parents=True)
     before = set(folder.iterdir())
-    change = _change(
-        "add", "0007", first_name="Ari", last_name="Rivera", period="2"
-    )
+    change = _change("add", "0007", first_name="Ari", last_name="Rivera", period="2")
     with pytest.raises(edits.StudentRosterEditClassNotFoundError) as caught:
         edits.plan_student_roster_edit(tmp_path, CLASS, change)
     assert caught.value.reason == "missing_class_metadata"
@@ -166,8 +172,12 @@ def test_change_fields_are_immutable_and_snapshot_independent() -> None:
 @pytest.mark.parametrize(
     ("operation", "student_id", "fields", "expected"),
     [
-        ("add", "0007", {"first_name": "A", "last_name": "B", "period": "2"},
-         "duplicate_student"),
+        (
+            "add",
+            "0007",
+            {"first_name": "A", "last_name": "B", "period": "2"},
+            "duplicate_student",
+        ),
         ("update", "missing", {"period": "3"}, "missing_student"),
         ("remove", "missing", {}, "missing_student"),
         ("update", "0007", {"unknown_column": "x"}, "unsupported_field"),
@@ -247,10 +257,20 @@ def test_stale_candidate_and_current_tokens_are_distinct(tmp_path: Path) -> None
     fresh = create_roster(
         CLASS,
         [
-            {"student_id": "0007", "first_name": "Ari",
-             "last_name": "Rivera", "period": "2", "preferred_name": "Ari"},
-            {"student_id": "0011", "first_name": "Casey",
-             "last_name": "Park", "period": "4", "preferred_name": ""},
+            {
+                "student_id": "0007",
+                "first_name": "Ari",
+                "last_name": "Rivera",
+                "period": "2",
+                "preferred_name": "Ari",
+            },
+            {
+                "student_id": "0011",
+                "first_name": "Casey",
+                "last_name": "Park",
+                "period": "4",
+                "preferred_name": "",
+            },
         ],
     )
     write_class_roster(tmp_path, fresh, overwrite=True)
