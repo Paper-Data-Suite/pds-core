@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import inspect
 import io
+from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 
@@ -73,9 +74,7 @@ def test_callable_signature_matches_accepted_teacher_contract() -> None:
         "error_output",
     )
     for name in ("read_line", "output", "interactive", "error_output"):
-        assert (
-            signature.parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
-        )
+        assert signature.parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
     assert "run_workspace_classroom_menu" in menus.__all__
 
 
@@ -242,7 +241,7 @@ def test_unqualified_input_validation_is_prior_to_callbacks(tmp_path: Path) -> N
     with pytest.raises(TypeError):
         run_workspace_classroom_menu(
             request,
-            read_line=cast(object, "B"),
+            read_line=cast(Callable[[], str], "B"),
             output=out,
             interactive=True,
         )
@@ -268,9 +267,7 @@ def test_screen_redraws_only_on_navigation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(screen, "clear_screen", lambda stream: stream.write("\f"))
-    result, transcript = _preview(
-        tmp_path, monkeypatch, ["1", "2", "B", "B", "B"]
-    )
+    result, transcript = _preview(tmp_path, monkeypatch, ["1", "2", "B", "B", "B"])
     screens = [part for part in transcript.split("\f") if part.strip()]
     assert len(screens) == 5
     assert "Navigation Preview" in screens[0]
