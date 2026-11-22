@@ -451,9 +451,7 @@ def _check_fresh(
         )
 
 
-def _write_failure_reason(
-    root: Path, class_id: str, previous_token: str
-) -> str:
+def _write_failure_reason(root: Path, class_id: str, previous_token: str) -> str:
     """Classify a writer exception without assuming it implies no replacement.
 
     A differing or unreadable state after a writer exception is not proof of
@@ -531,9 +529,7 @@ def commit_student_roster_edit(
                         if reason == "write_outcome_uncertain"
                         else "Canonical roster could not be persisted."
                     )
-                    raise StudentRosterEditWriteError(
-                        message, reason=reason
-                    ) from error
+                    raise StudentRosterEditWriteError(message, reason=reason) from error
                 outcome = "committed"
 
             return StudentRosterEditCommitResult(
