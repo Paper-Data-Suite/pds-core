@@ -5,7 +5,9 @@ from __future__ import annotations
 import io
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -96,7 +98,7 @@ def _preview(root: Path, file: Path) -> dict[str, object]:
 
 def _commit(
     root: Path, file: Path, preview: dict[str, object]
-) -> tuple[int, dict[str, object], str]:
+) -> tuple[int, dict[str, Any], str]:
     status, output, errors = _invoke(
         root,
         "student-commit",
@@ -111,7 +113,7 @@ def _commit(
         "--format",
         "json",
     )
-    payload: dict[str, object] = json.loads(output)
+    payload: dict[str, Any] = json.loads(output)
     return status, payload, errors
 
 
@@ -410,9 +412,7 @@ def test_first_add_and_legacy_import_command_compatibility(
     metadata = create_class_metadata(
         CLASS,
         "2026-2027",
-        created_at=__import__("datetime").datetime(
-            2026, 9, 1, tzinfo=__import__("datetime").timezone.utc
-        ),
+        created_at=datetime(2026, 9, 1, tzinfo=timezone.utc),
     )
     write_class_metadata_for_class(root, metadata)
     source = _source(

@@ -90,7 +90,12 @@ def _read_change_file(path: str) -> StudentRosterChange:
             object_pairs_hook=_raise_duplicate_key,
             parse_constant=_reject_constant,
         )
-    except (UnicodeError, json.JSONDecodeError) as error:
+    except (
+        UnicodeError,
+        json.JSONDecodeError,
+        RecursionError,
+        ValueError,
+    ) as error:
         raise RosterEditChangeFileError(
             "Change source must contain valid UTF-8 JSON."
         ) from error
