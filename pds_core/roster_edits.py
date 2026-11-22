@@ -195,7 +195,11 @@ def _validated_scope(workspace_root: str | Path, class_id: str) -> tuple[Path, P
         # A symlink used to reach the workspace *root* is resolved by Core.
         for path in (root / "classes", folder, roster_path, metadata_path):
             junction = getattr(path, "is_junction", None)
-            if path.is_symlink() or (junction is not None and junction()):
+            if (
+                path.is_symlink()
+                or (junction is not None and junction())
+                or path.resolve(strict=False) != path
+            ):
                 raise StudentRosterEditWriteError(
                     "Canonical roster path is redirected.", reason="unsafe_path"
                 )
@@ -207,7 +211,7 @@ def _validated_scope(workspace_root: str | Path, class_id: str) -> tuple[Path, P
         raise StudentRosterEditRequestError(
             "Workspace root is invalid.", reason="invalid_workspace"
         ) from error
-    except OSError as error:
+    except (OSError, RuntimeError) as error:
         raise StudentRosterEditWriteError(
             "Canonical class path could not be inspected.", reason="path_failed"
         ) from error
@@ -360,9 +364,22 @@ def _check_columns(fields: Mapping[str, str], columns: tuple[str, ...]) -> None:
 
 
 def _plan(
-    root: Path, roster_path: Path, class_id: str, change: StudentRosterChange
+    root: Path,
+    roster_path: Path,
+    class_id: str,
+    change: StudentRosterChange,
+    *,
+    expected_current_state_token: str | None = None,
 ) -> tuple[StudentRosterEditPreview, Roster]:
     current, current_token = _current_state(root, class_id)
+    if (
+        expected_current_state_token is not None
+        and current_token != expected_current_state_token
+    ):
+        raise StudentRosterEditConflictError(
+            "Canonical roster changed after preview.",
+            reason="current_state_changed",
+        )
     if current is None and change.operation == "add":
         _require_first_enrollment_class(root, class_id)
 
@@ -434,6 +451,24 @@ def _check_fresh(
         )
 
 
+def _write_failure_reason(
+    root: Path, class_id: str, previous_token: str
+) -> str:
+    """Classify a writer exception without assuming it implies no replacement.
+
+    A differing or unreadable state after a writer exception is not proof of
+    success: the caller must review canonical state instead of blind retry.
+    """
+    try:
+        _validated_scope(root, class_id)
+        _current_roster, actual_token = _current_state(root, class_id)
+    except (StudentRosterEditError, OSError, RuntimeError):
+        return "write_outcome_uncertain"
+    if actual_token == previous_token:
+        return "write_failed"
+    return "write_outcome_uncertain"
+
+
 def commit_student_roster_edit(
     workspace_root: str | Path,
     class_id: str,
@@ -455,7 +490,13 @@ def commit_student_roster_edit(
         )
 
     root, path = _validated_scope(workspace_root, class_id)
-    first_preview, _first_candidate = _plan(root, path, class_id, change)
+    first_preview, _first_candidate = _plan(
+        root,
+        path,
+        class_id,
+        change,
+        expected_current_state_token=expected_current_state_token,
+    )
     _check_fresh(
         first_preview, expected_current_state_token, expected_candidate_state_token
     )
@@ -464,7 +505,13 @@ def commit_student_roster_edit(
         with acquire_roster_write_lock(path):
             # Re-read under the same lock used by all canonical roster writers.
             _validated_scope(root, class_id)
-            preview, candidate = _plan(root, path, class_id, change)
+            preview, candidate = _plan(
+                root,
+                path,
+                class_id,
+                change,
+                expected_current_state_token=expected_current_state_token,
+            )
             _check_fresh(
                 preview, expected_current_state_token, expected_candidate_state_token
             )
@@ -475,9 +522,17 @@ def commit_student_roster_edit(
                         path, candidate, overwrite=preview.current_roster_present
                     )
                 except RosterWriteError as error:
+                    reason = _write_failure_reason(
+                        root, class_id, preview.current_state_token
+                    )
+                    message = (
+                        "Canonical roster write outcome is uncertain; inspect "
+                        "the roster before retrying."
+                        if reason == "write_outcome_uncertain"
+                        else "Canonical roster could not be persisted."
+                    )
                     raise StudentRosterEditWriteError(
-                        "Canonical roster could not be persisted.",
-                        reason="write_failed",
+                        message, reason=reason
                     ) from error
                 outcome = "committed"
 
