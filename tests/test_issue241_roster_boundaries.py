@@ -27,7 +27,6 @@ from pds_core.rosters import (
     create_roster,
     load_roster,
 )
-from pds_core.routes import class_roster_path
 
 CLASS_ID = "english12_p2"
 
