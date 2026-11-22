@@ -21,7 +21,9 @@ from pds_core.routes import class_roster_path
 CLASS = "english12_p2"
 
 
-def _change(operation: edits.RosterEditOperation, student_id: str, **fields: str):
+def _change(
+    operation: edits.RosterEditOperation, student_id: str, **fields: str
+) -> edits.StudentRosterChange:
     return edits.StudentRosterChange(
         operation=operation, student_id=student_id, fields=fields
     )
@@ -118,9 +120,7 @@ def test_remove_one_student_does_not_modify_other_files(tmp_path: Path) -> None:
     assert other_file.read_bytes() == b"PRODUCER_WORK_PRESERVED"
 
 
-def test_first_student_requires_valid_existing_class_metadata(
-    tmp_path: Path,
-) -> None:
+def test_first_student_requires_valid_existing_class_metadata(tmp_path: Path) -> None:
     _class_metadata(tmp_path)
     path = class_roster_path(tmp_path, CLASS)
     change = _change(
@@ -141,9 +141,7 @@ def test_first_student_requires_valid_existing_class_metadata(
     assert roster.students[0].student_id == "0007"
 
 
-def test_bare_class_dir_without_metadata_cannot_start_roster(
-    tmp_path: Path,
-) -> None:
+def test_bare_class_dir_without_metadata_cannot_start_roster(tmp_path: Path) -> None:
     folder = tmp_path / "classes" / CLASS
     folder.mkdir(parents=True)
     before = set(folder.iterdir())
@@ -229,9 +227,7 @@ def test_noop_update_does_not_rewrite_roster(tmp_path: Path) -> None:
     assert path.read_bytes() == before
 
 
-def test_stale_candidate_and_current_tokens_are_distinct(
-    tmp_path: Path,
-) -> None:
+def test_stale_candidate_and_current_tokens_are_distinct(tmp_path: Path) -> None:
     path = _two_students(tmp_path)
     change = _change("update", "0007", period="3")
     preview = edits.plan_student_roster_edit(tmp_path, CLASS, change)

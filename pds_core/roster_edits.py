@@ -178,9 +178,7 @@ class StudentRosterEditCommitResult:
     roster_path: Path
 
 
-def _validated_scope(
-    workspace_root: str | Path, class_id: str
-) -> tuple[Path, Path]:
+def _validated_scope(workspace_root: str | Path, class_id: str) -> tuple[Path, Path]:
     try:
         selected_class = validate_identifier(class_id, "class_id")
     except (IdentifierValidationError, TypeError) as error:
