@@ -12,6 +12,12 @@ import pytest
 import pds_core.classroom_menu_readonly as reader
 import pds_core.teacher_menus as menus
 from pds_core.classes import ensure_class_folder, write_class_roster
+from pds_core.classroom_discovery import (
+    ClassroomOverview,
+    ClassroomRosterView,
+    inspect_classroom_overview,
+    inspect_classroom_roster,
+)
 from pds_core.rosters import create_roster
 from pds_core.school_years import open_school_year
 from pds_core.teacher_context import (
@@ -246,10 +252,10 @@ def test_changed_school_year_during_visit_refuses_stale_context(
 ) -> None:
     root = tmp_path / "workspace"
     _seed(root)
-    original = reader.inspect_classroom_overview
+    original = inspect_classroom_overview
     calls = 0
 
-    def shifting(root_hint: Path | None) -> reader.ClassroomOverview:
+    def shifting(root_hint: Path | None) -> ClassroomOverview:
         nonlocal calls
         calls += 1
         found = original(root_hint)
@@ -269,21 +275,19 @@ def test_removed_selected_student_is_not_silently_reassigned(
 ) -> None:
     root = tmp_path / "workspace"
     _seed(root)
-    original = reader.inspect_classroom_roster
+    original = inspect_classroom_roster
     calls = 0
 
     def shifting(
         root_hint: str | Path | None, class_id: str
-    ) -> reader.ClassroomRosterView:
+    ) -> ClassroomRosterView:
         nonlocal calls
         calls += 1
         result = original(root_hint, class_id)
         return replace(result, students=()) if calls > 1 else result
 
     monkeypatch.setattr(reader, "inspect_classroom_roster", shifting)
-    exit_kind, transcript, errors = _invoke(
-        root, monkeypatch, ["2", "1", "1"]
-    )
+    exit_kind, transcript, errors = _invoke(root, monkeypatch, ["2", "1", "1"])
     assert exit_kind is TeacherMenuExit.FAILED
     assert "Previously selected student is no longer enrolled" in errors
     assert "Student enrollment — Read-only" in transcript
@@ -294,9 +298,7 @@ def test_oversized_numeric_choice_is_rejected_without_crashing(
 ) -> None:
     root = tmp_path / "workspace"
     _seed(root)
-    exit_kind, transcript, errors = _invoke(
-        root, monkeypatch, ["9" * 5000, "B"]
-    )
+    exit_kind, transcript, errors = _invoke(root, monkeypatch, ["9" * 5000, "B"])
     assert exit_kind is TeacherMenuExit.BACK
     assert "Choose a listed option" in transcript
     assert errors == ""
@@ -307,10 +309,10 @@ def test_deleted_class_selection_refuses_instead_of_switching(
 ) -> None:
     root = tmp_path / "workspace"
     _seed(root)
-    original = reader.inspect_classroom_overview
+    original = inspect_classroom_overview
     calls = 0
 
-    def shifting(root_hint: Path | None) -> reader.ClassroomOverview:
+    def shifting(root_hint: Path | None) -> ClassroomOverview:
         nonlocal calls
         calls += 1
         found = original(root_hint)

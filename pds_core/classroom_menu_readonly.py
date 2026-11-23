@@ -174,15 +174,16 @@ class _ReadOnlyController:
             if start >= total and self.roster_page:
                 self.roster_page = 0
                 start = 0
-            page_items = roster.students[start : start + _PAGE_SIZE]
-            choices = tuple(item.student_id for item in page_items)
+            roster_page_items = roster.students[start : start + _PAGE_SIZE]
+            choices = tuple(item.student_id for item in roster_page_items)
             if not roster.roster_present:
                 print("No canonical roster exists for this class.", file=self.output)
             else:
                 print(f"Students enrolled: {total}", file=self.output)
-            for number, item in enumerate(page_items, 1):
+            for number, student_item in enumerate(roster_page_items, 1):
                 print(
-                    f"{number}. {_safe(item.label)} — Period {_safe(item.period)}",
+                    f"{number}. {_safe(student_item.label)} — "
+                    f"Period {_safe(student_item.period)}",
                     file=self.output,
                 )
             self._pager(start, total)
@@ -283,17 +284,11 @@ class _ReadOnlyController:
             try:
                 raw = self.read_line()
             except (EOFError, StopIteration, KeyboardInterrupt):
-                return _receipt(
-                    self.request, TeacherMenuExit.CANCELLED, "Input ended."
-                )
+                return _receipt(self.request, TeacherMenuExit.CANCELLED, "Input ended.")
             if type(raw) is not str:
-                return _receipt(
-                    self.request, TeacherMenuExit.FAILED, "Invalid input."
-                )
+                return _receipt(self.request, TeacherMenuExit.FAILED, "Invalid input.")
             if raw == "":
-                return _receipt(
-                    self.request, TeacherMenuExit.CANCELLED, "Input ended."
-                )
+                return _receipt(self.request, TeacherMenuExit.CANCELLED, "Input ended.")
             choice = raw.strip().casefold()
             try:
                 navigation = parse_navigation_choice(choice, allow_all=False)
