@@ -73,6 +73,8 @@ class _ReadOnlyController:
         self.student_id: str | None = None
         self.class_page = 0
         self.roster_page = 0
+        self.class_max_page = 0
+        self.roster_max_page = 0
         self.notice: str | None = None
         self.baseline: tuple[Path, str | None] | None = None
 
@@ -141,6 +143,7 @@ class _ReadOnlyController:
         elif self.page == "classes":
             self._header("Classes — Read-only")
             total = len(overview.classes)
+            self.class_max_page = max(0, (total - 1) // _PAGE_SIZE)
             start = self.class_page * _PAGE_SIZE
             if start >= total and self.class_page:
                 self.class_page = 0
@@ -163,6 +166,7 @@ class _ReadOnlyController:
             self._header("Class roster — Read-only")
             print(f"Class ID: {roster.class_id}", file=self.output)
             total = len(roster.students)
+            self.roster_max_page = max(0, (total - 1) // _PAGE_SIZE)
             start = self.roster_page * _PAGE_SIZE
             if start >= total and self.roster_page:
                 self.roster_page = 0
@@ -228,14 +232,17 @@ class _ReadOnlyController:
     def _select(self, response: str, choices: tuple[str, ...]) -> None:
         if response in {">", "<"} and self.page in {"classes", "roster"}:
             current = self.class_page if self.page == "classes" else self.roster_page
-            next_page = max(0, current + (1 if response == ">" else -1))
+            maximum = (
+                self.class_max_page if self.page == "classes" else self.roster_max_page
+            )
+            next_page = min(maximum, max(0, current + (1 if response == ">" else -1)))
             if self.page == "classes":
                 self.class_page = next_page
             else:
                 self.roster_page = next_page
             return
 
-        if not response.isascii() or not response.isdigit():
+        if len(response) > 3 or not response.isascii() or not response.isdigit():
             self.notice = "Choose a listed option, B, M or Q."
             return
         number = int(response)
