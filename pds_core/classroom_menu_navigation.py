@@ -28,9 +28,7 @@ from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 # The page map explicitly separates navigation from every durable operation.
 # No storage/service imports, selected-state cache, file creation or command
 # execution is allowed in this scaffold.
-_PAGES: Final[
-    dict[str, tuple[str, tuple[tuple[str, str], ...]]]
-] = {
+_PAGES: Final[dict[str, tuple[str, tuple[tuple[str, str], ...]]]] = {
     "home": (
         "Workspace & Classroom Management — Navigation Preview",
         (
