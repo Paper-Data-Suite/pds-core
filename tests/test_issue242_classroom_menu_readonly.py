@@ -287,3 +287,39 @@ def test_removed_selected_student_is_not_silently_reassigned(
     assert exit_kind is TeacherMenuExit.FAILED
     assert "Previously selected student is no longer enrolled" in errors
     assert "Student enrollment — Read-only" in transcript
+
+
+def test_oversized_numeric_choice_is_rejected_without_crashing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "workspace"
+    _seed(root)
+    exit_kind, transcript, errors = _invoke(
+        root, monkeypatch, ["9" * 5000, "B"]
+    )
+    assert exit_kind is TeacherMenuExit.BACK
+    assert "Choose a listed option" in transcript
+    assert errors == ""
+
+
+def test_deleted_class_selection_refuses_instead_of_switching(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "workspace"
+    _seed(root)
+    original = reader.inspect_classroom_overview
+    calls = 0
+
+    def shifting(root_hint: Path | None) -> reader.ClassroomOverview:
+        nonlocal calls
+        calls += 1
+        found = original(root_hint)
+        if calls > 2:
+            return replace(found, classes=())
+        return found
+
+    monkeypatch.setattr(reader, "inspect_classroom_overview", shifting)
+    exit_kind, _transcript, errors = _invoke(root, monkeypatch, ["2", "1"])
+    assert exit_kind is TeacherMenuExit.FAILED
+    assert "Previously selected class is no longer available" in errors
+    assert calls == 3

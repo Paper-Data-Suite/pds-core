@@ -39,7 +39,10 @@ _REVALIDATE = "Revalidate workspace, school year, class, roster and work on retu
 
 def _safe(value: object) -> str:
     return "".join(
-        char if not unicodedata.category(char).startswith("C") else "\ufffd"
+        char
+        if not unicodedata.category(char).startswith("C")
+        and unicodedata.category(char) not in {"Zl", "Zp"}
+        else "\ufffd"
         for char in str(value)[:180]
     )
 
