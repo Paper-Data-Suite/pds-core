@@ -278,9 +278,7 @@ def test_removed_selected_student_is_not_silently_reassigned(
     original = inspect_classroom_roster
     calls = 0
 
-    def shifting(
-        root_hint: str | Path | None, class_id: str
-    ) -> ClassroomRosterView:
+    def shifting(root_hint: str | Path | None, class_id: str) -> ClassroomRosterView:
         nonlocal calls
         calls += 1
         result = original(root_hint, class_id)
