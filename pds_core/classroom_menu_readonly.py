@@ -1,0 +1,321 @@
+"""Core #242 B2: staged read-only classroom screens with injected I/O.
+
+This controller is not the qualified public classroom menu. It reads only
+through Core #242's canonical discovery service and provides no write action.
+"""
+
+from __future__ import annotations
+
+import unicodedata
+from collections.abc import Callable
+from pathlib import Path
+from typing import TextIO
+
+from pds_core.classroom_discovery import (
+    ClassroomDiscoveryError,
+    ClassroomOverview,
+    ClassroomRosterView,
+    inspect_classroom_overview,
+    inspect_classroom_roster,
+)
+from pds_core.cli_support import screen
+from pds_core.menu_navigation import (
+    NavigationChoice,
+    QuitPDS,
+    ReturnToMainMenu,
+    parse_navigation_choice,
+)
+from pds_core.teacher_context import (
+    SharedTeacherMenuRequest,
+    SharedTeacherMenuResult,
+    TeacherDurability,
+    TeacherMenuExit,
+)
+from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
+
+_PAGE_SIZE = 12
+_REVALIDATE = "Revalidate workspace, school year, class, roster and work on return."
+
+
+def _safe(value: object) -> str:
+    return "".join(
+        char if not unicodedata.category(char).startswith("C") else "\ufffd"
+        for char in str(value)[:180]
+    )
+
+
+def _receipt(
+    request: SharedTeacherMenuRequest, kind: TeacherMenuExit, message: str
+) -> SharedTeacherMenuResult:
+    return SharedTeacherMenuResult(
+        return_token=request.return_token,
+        exit=kind,
+        durability=TeacherDurability.NO_CHANGE,
+        change_scopes=frozenset(),
+        message=f"{message} {_REVALIDATE}",
+    )
+
+
+class _ReadOnlyController:
+    def __init__(
+        self,
+        request: SharedTeacherMenuRequest,
+        read_line: Callable[[], str],
+        output: TextIO,
+        error_output: TextIO,
+    ) -> None:
+        self.request = request
+        self.read_line = read_line
+        self.output = output
+        self.errors = error_output
+        self.page = "home"
+        self.class_id: str | None = None
+        self.student_id: str | None = None
+        self.class_page = 0
+        self.roster_page = 0
+        self.notice: str | None = None
+        self.baseline: tuple[Path, str | None] | None = None
+
+    def _overview(self) -> ClassroomOverview:
+        overview = inspect_classroom_overview(self.request.context.workspace_root)
+        observation = (overview.workspace.root, overview.active_school_year)
+        if self.baseline is None:
+            self.baseline = observation
+        elif self.baseline != observation:
+            raise ClassroomDiscoveryError(
+                "context_changed",
+                "Workspace or active school year changed during this visit.",
+            )
+        return overview
+
+    def _roster(self, overview: ClassroomOverview) -> ClassroomRosterView:
+        if self.class_id is None or self.class_id not in {
+            item.class_id for item in overview.classes
+        }:
+            raise ClassroomDiscoveryError(
+                "class_changed",
+                "Previously selected class is no longer available.",
+            )
+        return inspect_classroom_roster(overview.workspace.root, self.class_id)
+
+    def _header(self, title: str) -> None:
+        screen.clear_screen(self.output)
+        print_teacher_header(
+            TeacherScreenHeader("PDS Core", title, self.request.context.display_label),
+            output=self.output,
+            color="never",
+        )
+        if self.notice is not None:
+            print(self.notice, file=self.output)
+            self.notice = None
+        print("Read-only classroom preview. No changes can be saved.", file=self.output)
+
+    def _render(
+        self, overview: ClassroomOverview, roster: ClassroomRosterView | None
+    ) -> tuple[str, ...]:
+        choices: tuple[str, ...] = ()
+        if self.page == "home":
+            self._header("Workspace & Classroom Management — Read-only")
+            print("1. Workspace and school year", file=self.output)
+            print("2. Classes and rosters", file=self.output)
+            print("3. Standards (not available in this preview)", file=self.output)
+        elif self.page == "workspace":
+            self._header("Workspace and school year — Read-only")
+            status = overview.workspace
+            print(f"Workspace: {_safe(status.root)}", file=self.output)
+            print(f"Resolution source: {status.source}", file=self.output)
+            state = (
+                "not present"
+                if not status.exists
+                else "directory"
+                if status.is_dir
+                else "invalid"
+            )
+            print(f"Workspace state: {state}", file=self.output)
+            writable = "yes" if status.is_writable else "no"
+            print(f"Writable: {writable}", file=self.output)
+            print(
+                f"Active school year: {overview.active_school_year or 'none'}",
+                file=self.output,
+            )
+        elif self.page == "classes":
+            self._header("Classes — Read-only")
+            total = len(overview.classes)
+            start = self.class_page * _PAGE_SIZE
+            if start >= total and self.class_page:
+                self.class_page = 0
+                start = 0
+            page_items = overview.classes[start : start + _PAGE_SIZE]
+            choices = tuple(item.class_id for item in page_items)
+            print(f"Classes found: {total}", file=self.output)
+            if not choices:
+                print("No class folders found.", file=self.output)
+            for number, item in enumerate(page_items, 1):
+                year = item.school_year or "year unspecified"
+                enrollment = "roster present" if item.roster_present else "no roster"
+                print(
+                    f"{number}. {_safe(item.display_label)} "
+                    f"[ID: {item.class_id}] — {year}; {enrollment}",
+                    file=self.output,
+                )
+            self._pager(start, total)
+        elif self.page == "roster" and roster is not None:
+            self._header("Class roster — Read-only")
+            print(f"Class ID: {roster.class_id}", file=self.output)
+            total = len(roster.students)
+            start = self.roster_page * _PAGE_SIZE
+            if start >= total and self.roster_page:
+                self.roster_page = 0
+                start = 0
+            page_items = roster.students[start : start + _PAGE_SIZE]
+            choices = tuple(item.student_id for item in page_items)
+            if not roster.roster_present:
+                print("No canonical roster exists for this class.", file=self.output)
+            else:
+                print(f"Students enrolled: {total}", file=self.output)
+            for number, item in enumerate(page_items, 1):
+                print(
+                    f"{number}. {_safe(item.label)} — Period {_safe(item.period)}",
+                    file=self.output,
+                )
+            self._pager(start, total)
+        elif self.page == "student" and roster is not None:
+            self._header("Student enrollment — Read-only")
+            selected = next(
+                (
+                    item
+                    for item in roster.students
+                    if item.student_id == self.student_id
+                ),
+                None,
+            )
+            if selected is None:
+                raise ClassroomDiscoveryError(
+                    "student_changed",
+                    "Previously selected student is no longer enrolled.",
+                )
+            print(f"Class ID: {roster.class_id}", file=self.output)
+            print(f"Student: {_safe(selected.label)}", file=self.output)
+            print(f"Period: {_safe(selected.period)}", file=self.output)
+            print("Editing is not enabled in this preview.", file=self.output)
+        else:
+            self._header("Standards — Not yet available")
+            print("Standards integration belongs to a later slice.", file=self.output)
+        print("B. Back   M. Caller Main Menu   Q. Quit", file=self.output)
+        print("Choose an option: ", end="", file=self.output, flush=True)
+        return choices
+
+    def _pager(self, start: int, total: int) -> None:
+        if start + _PAGE_SIZE < total:
+            print(">. Next page", file=self.output)
+        if start > 0:
+            print("<. Previous page", file=self.output)
+
+    def _back(self) -> TeacherMenuExit | None:
+        if self.page == "home":
+            return TeacherMenuExit.BACK
+        if self.page == "student":
+            self.page = "roster"
+        elif self.page == "roster":
+            self.page = "classes"
+            self.student_id = None
+        else:
+            self.page = "home"
+            self.class_id = None
+            self.student_id = None
+        return None
+
+    def _select(self, response: str, choices: tuple[str, ...]) -> None:
+        if response in {">", "<"} and self.page in {"classes", "roster"}:
+            current = self.class_page if self.page == "classes" else self.roster_page
+            next_page = max(0, current + (1 if response == ">" else -1))
+            if self.page == "classes":
+                self.class_page = next_page
+            else:
+                self.roster_page = next_page
+            return
+
+        if not response.isascii() or not response.isdigit():
+            self.notice = "Choose a listed option, B, M or Q."
+            return
+        number = int(response)
+        if self.page == "home" and number in (1, 2, 3):
+            self.page = {1: "workspace", 2: "classes", 3: "standards"}[number]
+            return
+        if not 1 <= number <= len(choices):
+            self.notice = "Choose a listed option, B, M or Q."
+            return
+        if self.page == "classes":
+            self.class_id = choices[number - 1]
+            self.roster_page = 0
+            self.page = "roster"
+        elif self.page == "roster":
+            self.student_id = choices[number - 1]
+            self.page = "student"
+
+    def run(self) -> SharedTeacherMenuResult:
+        while True:
+            try:
+                overview = self._overview()
+                roster = (
+                    self._roster(overview)
+                    if self.page in {"roster", "student"}
+                    else None
+                )
+                choices = self._render(overview, roster)
+            except ClassroomDiscoveryError as error:
+                print(f"Classroom inspection refused: {error}", file=self.errors)
+                return _receipt(
+                    self.request,
+                    TeacherMenuExit.FAILED,
+                    "Classroom inspection failed safely; no changes were made.",
+                )
+            try:
+                raw = self.read_line()
+            except (EOFError, StopIteration, KeyboardInterrupt):
+                return _receipt(
+                    self.request, TeacherMenuExit.CANCELLED, "Input ended."
+                )
+            if type(raw) is not str:
+                return _receipt(
+                    self.request, TeacherMenuExit.FAILED, "Invalid input."
+                )
+            if raw == "":
+                return _receipt(
+                    self.request, TeacherMenuExit.CANCELLED, "Input ended."
+                )
+            choice = raw.strip().casefold()
+            try:
+                navigation = parse_navigation_choice(choice, allow_all=False)
+            except ReturnToMainMenu:
+                return _receipt(
+                    self.request, TeacherMenuExit.MAIN_MENU, "Caller main menu."
+                )
+            except QuitPDS:
+                return _receipt(
+                    self.request, TeacherMenuExit.QUIT, "Caller handles exit."
+                )
+            if navigation is NavigationChoice.BACK:
+                outcome = self._back()
+                if outcome is not None:
+                    return _receipt(
+                        self.request, outcome, "Returned to the calling screen."
+                    )
+                continue
+            self._select(choice, choices)
+
+
+def run_classroom_readonly_preview(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Staged B2 reader for tests; not the qualified public classroom menu."""
+    return _ReadOnlyController(
+        request=request,
+        read_line=read_line,
+        output=output,
+        error_output=output if error_output is None else error_output,
+    ).run()
