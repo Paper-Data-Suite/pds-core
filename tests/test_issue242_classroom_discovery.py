@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from pds_core import classroom_discovery
 from pds_core.class_metadata import (
     create_class_metadata,
     write_class_metadata_for_class,
@@ -230,17 +231,13 @@ def test_redirected_classes_collection_is_refused(
     assert not protected.exists()
 
 
-def test_roster_size_limit_refuses_before_read(tmp_path: Path) -> None:
+def test_roster_size_limit_refuses_before_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     root = tmp_path / "workspace"
     roster_path = _seed_roster(root)
-    from pds_core import classroom_discovery
-
-    previous = classroom_discovery.MAX_ROSTER_BYTES
-    try:
-        classroom_discovery.MAX_ROSTER_BYTES = 1
-        with pytest.raises(ClassroomDiscoveryError) as raised:
-            inspect_classroom_roster(root, CLASS)
-        assert raised.value.reason == "roster_too_large"
-    finally:
-        classroom_discovery.MAX_ROSTER_BYTES = previous
+    monkeypatch.setattr(classroom_discovery, "MAX_ROSTER_BYTES", 1)
+    with pytest.raises(ClassroomDiscoveryError) as raised:
+        inspect_classroom_roster(root, CLASS)
+    assert raised.value.reason == "roster_too_large"
     assert roster_path.exists()

@@ -165,8 +165,13 @@ def inspect_classroom_overview(
     classes: list[ClassroomClassSummary] = []
     for entry in entries:
         _guard_path(entry)
-        if not entry.is_dir():
-            continue
+        try:
+            if not entry.is_dir():
+                continue
+        except OSError as error:
+            raise ClassroomDiscoveryError(
+                "class_unavailable", "A class directory could not be inspected."
+            ) from error
         try:
             class_id = validate_identifier(entry.name, "class_id")
         except IdentifierValidationError as error:
@@ -196,9 +201,7 @@ def inspect_classroom_overview(
         school_year: str | None = None
         if has_metadata:
             try:
-                school_year = load_class_metadata_for_class(
-                    root, class_id
-                ).school_year
+                school_year = load_class_metadata_for_class(root, class_id).school_year
             except ClassMetadataError as error:
                 raise ClassroomDiscoveryError(
                     "invalid_metadata", "Canonical class metadata is invalid."
