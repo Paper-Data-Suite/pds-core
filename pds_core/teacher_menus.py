@@ -173,6 +173,8 @@ def _run_navigation_preview(
 # Public callers receive UNAVAILABLE until the real service composition,
 # mutation/return semantics, installed candidate and capability qualify.
 _CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY = False
+# Temporary B2 qualification-only switch; public menu remains unavailable.
+_CLASSROOM_READONLY_PREVIEW_TEST_ONLY = False
 
 
 def _classroom_unavailable(
@@ -229,6 +231,16 @@ def run_workspace_classroom_menu(
 
         return run_classroom_navigation_preview(
             request, read_line=read_line, output=output
+        )
+
+    if _CLASSROOM_READONLY_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_readonly_preview
+
+        return run_classroom_readonly_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
         )
 
     return _classroom_unavailable(request, interactive=True)
