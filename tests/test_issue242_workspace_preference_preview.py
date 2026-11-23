@@ -212,9 +212,7 @@ def test_invalid_target_is_refused_without_writes(
     assert not config_path.exists()
 
 
-def test_non_directory_target_refused(
-    tmp_path: Path, config_path: Path
-) -> None:
+def test_non_directory_target_refused(tmp_path: Path, config_path: Path) -> None:
     file_path = tmp_path / "not-a-workspace"
     file_path.write_text("not a directory", encoding="utf-8")
     with pytest.raises(WorkspacePreferencePlanError) as raised:

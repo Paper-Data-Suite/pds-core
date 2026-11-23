@@ -127,6 +127,10 @@ def plan_workspace_preference_change(
 
     if change.operation == "set":
         assert change.target_root is not None
+        if "\x00" in str(change.target_root):
+            raise WorkspacePreferencePlanError(
+                "invalid_target", "The requested workspace root is invalid."
+            )
         try:
             target = workspace.inspect_workspace_root(change.target_root)
         except workspace.WorkspaceRootError as error:
