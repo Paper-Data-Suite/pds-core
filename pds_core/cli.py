@@ -61,6 +61,20 @@ def _run(
         parser.print_help(stdout)
         return 0
 
+    # Guarded preference commands must handle corrupt saved preferences
+    # themselves, without resolving that preference before their handler.
+    # They operate on the per-user config, never on --workspace.
+    if args.command == "workspace" and getattr(args, "workspace_command", None) in {
+        "preference-preview",
+        "preference-commit",
+    }:
+        return handler(
+            args,
+            StandardsLibrary(standards=(), profiles=()),
+            stdout,
+            stderr,
+        )
+
     try:
         workspace_root = resolve_workspace_root(args.workspace)
         if workspace_root.exists() and not workspace_root.is_dir():
