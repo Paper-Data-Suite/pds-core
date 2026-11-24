@@ -61,12 +61,14 @@ def _run(
         parser.print_help(stdout)
         return 0
 
-    # Guarded preference commands must handle corrupt saved preferences
-    # themselves, without resolving that preference before their handler.
-    # They operate on the per-user config, never on --workspace.
+    # Only these guarded commands handle workspace resolution in their
+    # own bounded, structured-error paths. Preference commands are user-
+    # scoped; year commands use normal explicit/env/saved/default precedence.
     if args.command == "workspace" and getattr(args, "workspace_command", None) in {
         "preference-preview",
         "preference-commit",
+        "year-preview",
+        "year-commit",
     }:
         return handler(
             args,
