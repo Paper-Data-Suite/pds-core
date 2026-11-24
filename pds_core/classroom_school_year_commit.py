@@ -97,9 +97,7 @@ def _review_token(proposal: SchoolYearChangePreview, at: datetime) -> str:
     return digest.hexdigest()
 
 
-def _checked_state(
-    preview: SchoolYearChangePreview,
-) -> SchoolYearState | None:
+def _checked_state(preview: SchoolYearChangePreview) -> SchoolYearState | None:
     path = school_year_state_path(preview.workspace_root)
     before = _state_fingerprint(path)
     if before != preview.state_token:
@@ -275,20 +273,14 @@ def commit_guarded_school_year_change(
         raise SchoolYearConflictError(
             "current_state_changed", "School-year state changed; review again."
         )
-    first = plan_guarded_school_year_change(
-        root, change, effective_at=effective_at
-    )
-    _check_review(
-        first, expected_current_state_token, expected_candidate_state_token
-    )
+    first = plan_guarded_school_year_change(root, change, effective_at=effective_at)
+    _check_review(first, expected_current_state_token, expected_candidate_state_token)
     if first.proposal.no_change:
         if _current_fingerprint(root) != expected_current_state_token:
             raise SchoolYearConflictError(
                 "current_state_changed", "School-year state changed; review again."
             )
-        again = plan_guarded_school_year_change(
-            root, change, effective_at=effective_at
-        )
+        again = plan_guarded_school_year_change(root, change, effective_at=effective_at)
         _check_review(
             again, expected_current_state_token, expected_candidate_state_token
         )
@@ -299,9 +291,7 @@ def commit_guarded_school_year_change(
             raise SchoolYearConflictError(
                 "current_state_changed", "School-year state changed; review again."
             )
-        fresh = plan_guarded_school_year_change(
-            root, change, effective_at=effective_at
-        )
+        fresh = plan_guarded_school_year_change(root, change, effective_at=effective_at)
         _check_review(
             fresh, expected_current_state_token, expected_candidate_state_token
         )
