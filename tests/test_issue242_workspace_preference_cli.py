@@ -23,6 +23,11 @@ from pds_core.cli_support.workspace_preference_commands import (
 def private_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     path = tmp_path / "user-settings" / "config.json"
     monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: path)
+    monkeypatch.setattr(
+        workspace,
+        "get_default_workspace_root",
+        lambda: tmp_path / "synthetic-default-workspace",
+    )
     monkeypatch.delenv(workspace.WORKSPACE_ROOT_ENV_VAR, raising=False)
     return path
 
