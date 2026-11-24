@@ -67,8 +67,10 @@ class _ReadOnlyController:
         output: TextIO,
         error_output: TextIO,
         workspace_changes_enabled: bool = False,
+        school_year_changes_enabled: bool = False,
     ) -> None:
         self.workspace_changes_enabled = workspace_changes_enabled
+        self.school_year_changes_enabled = school_year_changes_enabled
         self.request = request
         self.read_line = read_line
         self.output = output
@@ -117,7 +119,7 @@ class _ReadOnlyController:
             self.notice = None
         if self.workspace_changes_enabled:
             print(
-                "Classroom data remains read-only; workspace preferences "
+                "Classroom data remains read-only; administrative changes "
                 "require review and confirmation.",
                 file=self.output,
             )
@@ -141,6 +143,8 @@ class _ReadOnlyController:
             print("3. Standards (not available in this preview)", file=self.output)
             if self.workspace_changes_enabled:
                 print("4. Manage saved workspace preference", file=self.output)
+            if self.school_year_changes_enabled:
+                print("5. Manage school year", file=self.output)
         elif self.page == "workspace":
             self._header("Workspace and school year — Read-only")
             status = overview.workspace
@@ -338,6 +342,26 @@ class _ReadOnlyController:
                 if receipt is not None:
                     return receipt
                 continue
+            if (
+                self.school_year_changes_enabled
+                and self.page == "home"
+                and choice == "5"
+            ):
+                from pds_core.classroom_menu_school_year import (
+                    run_school_year_review,
+                )
+
+                receipt = run_school_year_review(
+                    self.request,
+                    workspace_root=overview.workspace.root,
+                    expected_active_year=overview.active_school_year,
+                    read_line=self.read_line,
+                    output=self.output,
+                    error_output=self.errors,
+                )
+                if receipt is not None:
+                    return receipt
+                continue
             self._select(choice, choices)
 
 
@@ -371,4 +395,21 @@ def run_classroom_workspace_preview(
         output=output,
         error_output=output if error_output is None else error_output,
         workspace_changes_enabled=True,
+    ).run()
+
+def run_classroom_school_year_preview(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """C3B4 private synthetic gate, not a public menu capability."""
+    return _ReadOnlyController(
+        request=request,
+        read_line=read_line,
+        output=output,
+        error_output=output if error_output is None else error_output,
+        workspace_changes_enabled=True,
+        school_year_changes_enabled=True,
     ).run()

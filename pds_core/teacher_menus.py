@@ -177,6 +177,8 @@ _CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY = False
 _CLASSROOM_READONLY_PREVIEW_TEST_ONLY = False
 # C3A confirms saved workspace changes only behind a private synthetic gate.
 _CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY = False
+# C3B4 school-year writes are available only in the private acceptance gate.
+_CLASSROOM_SCHOOL_YEAR_PREVIEW_TEST_ONLY = False
 
 
 def _classroom_unavailable(
@@ -233,6 +235,16 @@ def run_workspace_classroom_menu(
 
         return run_classroom_navigation_preview(
             request, read_line=read_line, output=output
+        )
+
+    if _CLASSROOM_SCHOOL_YEAR_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_school_year_preview
+
+        return run_classroom_school_year_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
         )
 
     if _CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY:
