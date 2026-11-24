@@ -39,14 +39,6 @@ def _open(root: Path) -> None:
     open_school_year(root, YEAR, opened_at=OPENED)
 
 
-def _error(fn: object, reason: str) -> None:
-    assert callable(fn)
-    with pytest.raises(ClassroomAdministrationPreviewError) as raised:
-        fn()
-    assert raised.value.reason == reason
-    assert str(root) not in str(raised.value)
-
-
 def test_initial_open_only_previews_and_does_not_initialize_files(
     root: Path,
 ) -> None:
@@ -208,6 +200,18 @@ def test_malformed_school_year_fails_without_replacement(root: Path) -> None:
     assert target.read_bytes() == before
 
 
+def test_oversized_school_year_state_is_refused_before_json_loading(
+    root: Path,
+) -> None:
+    path = school_year_state_path(root)
+    path.parent.mkdir()
+    path.write_bytes(b"z" * (64 * 1024 + 1))
+    with pytest.raises(ClassroomAdministrationPreviewError) as raised:
+        plan_school_year_change(root, SchoolYearChange("open", YEAR))
+    assert raised.value.reason == "oversized_year_state"
+    assert path.stat().st_size == 64 * 1024 + 1
+
+
 def test_missing_workspace_refuses_without_creating_it(tmp_path: Path) -> None:
     location = tmp_path / "missing-workspace"
     with pytest.raises(ClassroomAdministrationPreviewError) as raised:
@@ -241,13 +245,13 @@ def test_state_snapshot_rejects_mid_read_change(
     def changed(path: Path) -> str:
         nonlocal calls
         calls += 1
-        return original(path) if calls == 1 else "f" * 64
+        return original(path) if calls <= 2 else "f" * 64
 
     monkeypatch.setattr(admin, "_state_fingerprint", changed)
     with pytest.raises(ClassroomAdministrationPreviewError) as raised:
         plan_school_year_change(root, SchoolYearChange("open", YEAR))
     assert raised.value.reason == "stale_year_state"
-    assert calls == 2
+    assert calls == 3
 
 
 def test_invalid_class_identifier_rejected_by_existing_core_validator() -> None:
