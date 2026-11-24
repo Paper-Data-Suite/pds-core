@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import re
 from pathlib import Path
 
 import pytest
@@ -115,6 +116,7 @@ def test_confirmed_set_reports_committed_workspace_scope(
     assert f"Saved preference after: {target.resolve()}" in out
     assert "Selected workspace would be initialized" in out
     assert "PREVIEW ONLY" in out
+    assert re.search(r"\b[0-9a-f]{64}\b", out) is None
     assert "Saved workspace preference changed." in out
     assert workspace.load_workspace_config().workspace_root == target.resolve()
     assert (target / ".pds" / "workspace.json").exists()
@@ -290,3 +292,12 @@ def test_environment_override_stays_effective(
     assert result.exit is TeacherMenuExit.BACK
     assert "Environment override remains in effect." in out
     assert not config.exists()
+
+
+def test_review_path_display_defangs_terminal_controls() -> None:
+    path = Path("synthetic\u202e-root\nname")
+    rendered = flow._display_path(path)
+    assert "\u202e" not in rendered
+    assert "\n" not in rendered
+    assert "\ufffd" in rendered
+    assert "synthetic" in rendered
