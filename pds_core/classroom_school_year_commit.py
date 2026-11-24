@@ -135,9 +135,10 @@ def _review(
                     "class_history_policy_required",
                     "Cannot initialize a first year over existing classes.",
                 )
-            if _state_fingerprint(
-                school_year_state_path(proposal.workspace_root)
-            ) != proposal.state_token:
+            if (
+                _state_fingerprint(school_year_state_path(proposal.workspace_root))
+                != proposal.state_token
+            ):
                 raise SchoolYearConflictError(
                     "current_state_changed", "School-year state changed; review again."
                 )
@@ -236,9 +237,7 @@ def _receipt(
     token: str,
 ) -> SchoolYearCommitResult:
     plan = review.proposal
-    active = (
-        plan.previous_school_year if plan.no_change else plan.proposed_active_year
-    )
+    active = plan.previous_school_year if plan.no_change else plan.proposed_active_year
     return SchoolYearCommitResult(
         action=plan.action,
         outcome=outcome,
