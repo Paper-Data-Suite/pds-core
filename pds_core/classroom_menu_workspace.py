@@ -127,8 +127,7 @@ def _show_review(
         file=output,
     )
     print(
-        "Effective workspace after: "
-        f"{_display_path(plan.proposed_effective_root)}",
+        f"Effective workspace after: {_display_path(plan.proposed_effective_root)}",
         file=output,
     )
     if plan.environment_override_active:

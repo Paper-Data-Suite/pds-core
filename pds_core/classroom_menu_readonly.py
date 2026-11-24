@@ -324,11 +324,7 @@ class _ReadOnlyController:
                         self.request, outcome, "Returned to the calling screen."
                     )
                 continue
-            if (
-                self.workspace_changes_enabled
-                and self.page == "home"
-                and choice == "4"
-            ):
+            if self.workspace_changes_enabled and self.page == "home" and choice == "4":
                 from pds_core.classroom_menu_workspace import (
                     run_workspace_preference_review,
                 )
@@ -359,6 +355,7 @@ def run_classroom_readonly_preview(
         output=output,
         error_output=output if error_output is None else error_output,
     ).run()
+
 
 def run_classroom_workspace_preview(
     request: SharedTeacherMenuRequest,

@@ -11,7 +11,10 @@ import pytest
 import pds_core.classroom_menu_workspace as flow
 import pds_core.teacher_menus as menus
 import pds_core.workspace as workspace
-from pds_core.classroom_workspace_commit import WorkspacePreferenceCommitResult
+from pds_core.classroom_workspace_commit import (
+    WorkspacePreferenceCommitResult,
+    commit_guarded_workspace_preference_change,
+)
 from pds_core.classroom_workspace_preference import WorkspacePreferenceChange
 from pds_core.teacher_context import (
     SharedTeacherMenuRequest,
@@ -215,7 +218,7 @@ def test_changed_reviewed_config_refuses_stale_commit(
     hint, config = isolated
     target = tmp_path / "proposal"
     external = tmp_path / "external-selection"
-    original = flow.commit_guarded_workspace_preference_change
+    original = commit_guarded_workspace_preference_change
 
     def interposed(
         change: WorkspacePreferenceChange,
