@@ -93,6 +93,10 @@ from pds_core.cli_support.workspace_management import (
     handle_workspace_show,
     handle_workspace_validate,
 )
+from pds_core.cli_support.workspace_preference_commands import (
+    handle_workspace_preference_commit,
+    handle_workspace_preference_preview,
+)
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
 from pds_core.publication_records import PUBLICATION_CAPABILITIES
 from pds_core.school_years import SchoolYearValidationError, validate_school_year
@@ -544,6 +548,53 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         handler=handle_workspace_paths,
         load_workspace_library=False,
     )
+
+    for command_name, handler in (
+        ("preference-preview", handle_workspace_preference_preview),
+        ("preference-commit", handle_workspace_preference_commit),
+    ):
+        preference = workspace_subparsers.add_parser(
+            command_name,
+            help=(
+                "Review a saved-workspace preference change without writing."
+                if command_name == "preference-preview"
+                else "Commit one reviewed saved-workspace preference change."
+            ),
+            description=(
+                "Operate on the per-user saved preference, not --workspace. "
+                "Use 'set PATH' or 'reset'. This is noninteractive and never "
+                "alters historical workspace data."
+            ),
+        )
+        actions = preference.add_subparsers(dest="preference_action")
+        for action in ("set", "reset"):
+            command = actions.add_parser(action)
+            if action == "set":
+                command.add_argument(
+                    "path",
+                    help="Destination workspace root to save after confirmation.",
+                )
+            if command_name == "preference-commit":
+                command.add_argument(
+                    "--expected-current-state-token",
+                    required=True,
+                    help="Opaque current-state token from preference-preview.",
+                )
+                command.add_argument(
+                    "--expected-candidate-state-token",
+                    required=True,
+                    help="Opaque candidate-state token from preference-preview.",
+                )
+                command.add_argument(
+                    "--confirm",
+                    action="store_true",
+                    help="Explicitly approve the exact previously reviewed change.",
+                )
+            _format(command)
+            command.set_defaults(
+                handler=handler,
+                load_workspace_library=False,
+            )
 
 
 def _add_validate_parser(
