@@ -141,9 +141,7 @@ def test_same_year_noop_preserves_canonical_record(root: Path) -> None:
     before = years.school_year_state_path(root).read_bytes()
     preview = _preview(root, "open", year=YEAR, timestamp=END)
     assert preview["no_change"] is True
-    code, receipt, err = _commit(
-        root, "open", preview, year=YEAR, timestamp=END
-    )
+    code, receipt, err = _commit(root, "open", preview, year=YEAR, timestamp=END)
     assert code == 0 and err == ""
     assert receipt["data"]["status"] == "no_change"
     assert receipt["data"]["changed_scopes"] == []
@@ -186,9 +184,7 @@ def test_changed_candidate_year_is_refused(root: Path) -> None:
 
 def test_changed_timestamp_is_refused(root: Path) -> None:
     preview = _preview(root, "open", year=YEAR)
-    code, result, err = _commit(
-        root, "open", preview, year=YEAR, timestamp=END
-    )
+    code, result, err = _commit(root, "open", preview, year=YEAR, timestamp=END)
     assert code == EXIT_STALE and err == ""
     assert result["error"]["code"] == "school_year.candidate_changed"
     assert not years.school_year_state_path(root).exists()
@@ -308,9 +304,7 @@ def test_text_preview_is_read_only_and_does_not_prompt(
     assert not years.school_year_state_path(root).exists()
 
 
-def test_parse_rejects_missing_or_naive_timestamp_without_write(
-    root: Path,
-) -> None:
+def test_parse_rejects_missing_or_naive_timestamp_without_write(root: Path) -> None:
     for tail in ([], ["--effective-at", "2026-09-01T08:00:00"]):
         code, _out, _errors = _run_cli(
             "--workspace", str(root), "workspace", "year-preview",
