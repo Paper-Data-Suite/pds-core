@@ -74,9 +74,7 @@ def _navigation(
     return None
 
 
-def _header(
-    request: SharedTeacherMenuRequest, title: str, output: TextIO
-) -> None:
+def _header(request: SharedTeacherMenuRequest, title: str, output: TextIO) -> None:
     screen.clear_screen(output)
     print_teacher_header(
         TeacherScreenHeader("PDS Core", title, request.context.display_label),
