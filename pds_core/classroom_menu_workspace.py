@@ -6,7 +6,9 @@ The public callable menu remains UNAVAILABLE until integrated acceptance.
 
 from __future__ import annotations
 
+import unicodedata
 from collections.abc import Callable
+from pathlib import Path
 from typing import TextIO
 
 from pds_core.classroom_workspace_commit import (
@@ -32,6 +34,18 @@ from pds_core.teacher_context import (
 from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 
 _REVALIDATE = "Revalidate workspace, school year, class, roster and work on return."
+
+
+def _display_path(value: Path | None) -> str:
+    if value is None:
+        return "(none)"
+    return "".join(
+        char
+        if not unicodedata.category(char).startswith("C")
+        and unicodedata.category(char) not in {"Zl", "Zp"}
+        else "\ufffd"
+        for char in str(value)
+    )
 
 
 def _receipt(
@@ -101,15 +115,22 @@ def _show_review(
     _header(request, "Review workspace preference", output)
     print(f"Operation: {plan.operation}", file=output)
     print(
-        f"Saved preference before: {plan.previous_saved_root or '(none)'}",
+        f"Saved preference before: {_display_path(plan.previous_saved_root)}",
         file=output,
     )
     print(
-        f"Saved preference after: {plan.proposed_saved_root or '(none)'}",
+        f"Saved preference after: {_display_path(plan.proposed_saved_root)}",
         file=output,
     )
-    print(f"Effective workspace now: {plan.current_effective_root}", file=output)
-    print(f"Effective workspace after: {plan.proposed_effective_root}", file=output)
+    print(
+        f"Effective workspace now: {_display_path(plan.current_effective_root)}",
+        file=output,
+    )
+    print(
+        "Effective workspace after: "
+        f"{_display_path(plan.proposed_effective_root)}",
+        file=output,
+    )
     if plan.environment_override_active:
         print("Environment override remains in effect.", file=output)
     if plan.target_would_be_created:
