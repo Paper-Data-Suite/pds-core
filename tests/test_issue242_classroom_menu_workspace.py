@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import io
-from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -11,6 +10,8 @@ import pytest
 import pds_core.classroom_menu_workspace as flow
 import pds_core.teacher_menus as menus
 import pds_core.workspace as workspace
+from pds_core.classroom_workspace_commit import WorkspacePreferenceCommitResult
+from pds_core.classroom_workspace_preference import WorkspacePreferenceChange
 from pds_core.teacher_context import (
     SharedTeacherMenuRequest,
     SharedTeacherMenuResult,
@@ -217,10 +218,19 @@ def test_changed_reviewed_config_refuses_stale_commit(
     original = flow.commit_guarded_workspace_preference_change
 
     def interposed(
-        *args: object, **kwargs: object
-    ) -> object:
+        change: WorkspacePreferenceChange,
+        *,
+        expected_current_state_token: str,
+        expected_candidate_state_token: str,
+        confirmed: bool,
+    ) -> WorkspacePreferenceCommitResult:
         workspace.save_workspace_root(external)
-        return original(*args, **kwargs)  # type: ignore[arg-type]
+        return original(
+            change,
+            expected_current_state_token=expected_current_state_token,
+            expected_candidate_state_token=expected_candidate_state_token,
+            confirmed=confirmed,
+        )
 
     monkeypatch.setattr(flow, "commit_guarded_workspace_preference_change", interposed)
     result, _out, errors = _run(hint, monkeypatch, ["4", "1", str(target), "C"])
