@@ -25,9 +25,7 @@ from pds_core.teacher_menus import run_workspace_classroom_menu
 
 
 @pytest.fixture
-def isolated(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> tuple[Path, Path]:
+def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:
     config = tmp_path / "user-config" / "config.json"
     hint = tmp_path / "currently-selected-workspace"
     monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: config)
