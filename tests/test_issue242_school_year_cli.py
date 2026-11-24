@@ -214,8 +214,14 @@ def test_closed_year_record_cannot_be_replaced(root: Path) -> None:
     years.close_school_year(root, closed_at=END_TIME)
     before = years.school_year_state_path(root).read_bytes()
     code, result, err = _json(
-        "--workspace", str(root), "workspace", "year-preview",
-        "open", "2027-2028", "--effective-at", END
+        "--workspace",
+        str(root),
+        "workspace",
+        "year-preview",
+        "open",
+        "2027-2028",
+        "--effective-at",
+        END,
     )
     assert code == EXIT_STALE and err == ""
     assert result["error"]["code"] == "school_year.year_history_policy_required"
@@ -261,8 +267,14 @@ def test_malformed_state_reports_safe_structured_error(root: Path) -> None:
     state.parent.mkdir(parents=True)
     state.write_text("{not-json", encoding="utf-8")
     code, result, err = _json(
-        "--workspace", str(root), "workspace", "year-preview",
-        "open", YEAR, "--effective-at", START
+        "--workspace",
+        str(root),
+        "workspace",
+        "year-preview",
+        "open",
+        YEAR,
+        "--effective-at",
+        START,
     )
     assert code == EXIT_STORAGE and err == ""
     assert result["ok"] is False
@@ -277,8 +289,14 @@ def test_invalid_workspace_is_reported_without_raw_bootstrap_error(
     file = tmp_path / "file-not-directory"
     file.write_text("data", encoding="utf-8")
     code, result, err = _json(
-        "--workspace", str(file), "workspace", "year-preview",
-        "open", YEAR, "--effective-at", START
+        "--workspace",
+        str(file),
+        "workspace",
+        "year-preview",
+        "open",
+        YEAR,
+        "--effective-at",
+        START,
     )
     assert code == EXIT_STORAGE and err == ""
     assert result["error"]["code"] == "school_year.invalid_workspace"
@@ -294,8 +312,14 @@ def test_text_preview_is_read_only_and_does_not_prompt(
 
     monkeypatch.setattr("builtins.input", forbid_prompt)
     code, output, errors = _run_cli(
-        "--workspace", str(root), "workspace", "year-preview",
-        "open", YEAR, "--effective-at", START
+        "--workspace",
+        str(root),
+        "workspace",
+        "year-preview",
+        "open",
+        YEAR,
+        "--effective-at",
+        START,
     )
     assert code == 0 and errors == ""
     assert "PREVIEW ONLY - NO WRITE" in output
@@ -307,8 +331,7 @@ def test_text_preview_is_read_only_and_does_not_prompt(
 def test_parse_rejects_missing_or_naive_timestamp_without_write(root: Path) -> None:
     for tail in ([], ["--effective-at", "2026-09-01T08:00:00"]):
         code, _out, _errors = _run_cli(
-            "--workspace", str(root), "workspace", "year-preview",
-            "open", YEAR, *tail
+            "--workspace", str(root), "workspace", "year-preview", "open", YEAR, *tail
         )
         assert code == 2
         assert not years.school_year_state_path(root).exists()
