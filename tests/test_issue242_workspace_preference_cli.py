@@ -133,9 +133,7 @@ def test_reset_commits_without_deleting_workspace(
     assert not private_config.exists()
 
 
-def test_reset_noop_creates_neither_lock_nor_preference(
-    private_config: Path,
-) -> None:
+def test_reset_noop_creates_neither_lock_nor_preference(private_config: Path) -> None:
     proposal = _preview("reset")
     assert proposal["no_change"] is True
     code, result, errors = _commit("reset", proposal)
@@ -167,9 +165,7 @@ def test_proposed_target_changed_refuses_even_with_valid_current_token(
     assert not private_config.exists()
 
 
-def test_invalid_review_token_refused(
-    tmp_path: Path, private_config: Path
-) -> None:
+def test_invalid_review_token_refused(tmp_path: Path, private_config: Path) -> None:
     proposal = _preview("set", tmp_path / "classroom")
     proposal["current_state_token"] = "invalid"
     code, payload, errors = _commit("set", proposal, tmp_path / "classroom")
