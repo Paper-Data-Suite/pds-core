@@ -50,7 +50,7 @@ class SchoolYearChange:
         if self.action == "open":
             if self.year is None:
                 raise ValueError("An opening year is required.")
-            validate_school_year(self.year)
+            object.__setattr__(self, "year", validate_school_year(self.year))
         elif self.year is not None:
             raise ValueError("Closing cannot select another school year.")
 
@@ -74,7 +74,9 @@ class ClassCreationChange:
 
     def __post_init__(self) -> None:
         validate_identifier(self.class_id, "class_id")
-        validate_school_year(self.school_year)
+        object.__setattr__(
+            self, "school_year", validate_school_year(self.school_year)
+        )
 
 
 @dataclass(frozen=True, slots=True)
