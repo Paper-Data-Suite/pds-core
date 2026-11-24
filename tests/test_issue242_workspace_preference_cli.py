@@ -54,8 +54,9 @@ def _preview(action: str, path: Path | None = None) -> dict[str, Any]:
     assert payload["command"] == "workspace preference-preview"
     assert payload["scope"] == "user_workspace_preference"
     assert payload["ok"] is True
-    assert payload["data"]["saved"] is False
-    return payload["data"]
+    data: dict[str, Any] = payload["data"]
+    assert data["saved"] is False
+    return data
 
 
 def _commit(
