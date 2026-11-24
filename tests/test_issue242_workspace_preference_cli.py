@@ -35,7 +35,8 @@ def _run_cli(*tokens: str) -> tuple[int, str, str]:
 
 def _json(*tokens: str) -> tuple[int, dict[str, Any], str]:
     code, output, errors = _run_cli(*tokens, "--format", "json")
-    return code, json.loads(output), errors
+    payload: dict[str, Any] = json.loads(output)
+    return code, payload, errors
 
 
 def _preview(action: str, path: Path | None = None) -> dict[str, Any]:
