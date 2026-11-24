@@ -175,6 +175,8 @@ def _run_navigation_preview(
 _CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY = False
 # Temporary B2 qualification-only switch; public menu remains unavailable.
 _CLASSROOM_READONLY_PREVIEW_TEST_ONLY = False
+# C3A confirms saved workspace changes only behind a private synthetic gate.
+_CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY = False
 
 
 def _classroom_unavailable(
@@ -231,6 +233,16 @@ def run_workspace_classroom_menu(
 
         return run_classroom_navigation_preview(
             request, read_line=read_line, output=output
+        )
+
+    if _CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_workspace_preview
+
+        return run_classroom_workspace_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
         )
 
     if _CLASSROOM_READONLY_PREVIEW_TEST_ONLY:
