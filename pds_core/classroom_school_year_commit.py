@@ -172,6 +172,15 @@ def plan_guarded_school_year_change(
     return _review(root, change, effective_at)
 
 
+def _current_fingerprint(root: str | Path) -> str:
+    """Check raw canonical state before interpreting a changed proposal."""
+    try:
+        overview = _overview(root)
+        return _state_fingerprint(school_year_state_path(overview.workspace.root))
+    except ClassroomAdministrationPreviewError as error:
+        raise SchoolYearCommitError(error.reason, str(error)) from error
+
+
 def _assert_token(value: str) -> None:
     if type(value) is not str or _TOKEN_PATTERN.fullmatch(value) is None:
         raise SchoolYearCommitError(
@@ -262,6 +271,10 @@ def commit_guarded_school_year_change(
         )
     _assert_token(expected_current_state_token)
     _assert_token(expected_candidate_state_token)
+    if _current_fingerprint(root) != expected_current_state_token:
+        raise SchoolYearConflictError(
+            "current_state_changed", "School-year state changed; review again."
+        )
     first = plan_guarded_school_year_change(
         root, change, effective_at=effective_at
     )
@@ -269,6 +282,10 @@ def commit_guarded_school_year_change(
         first, expected_current_state_token, expected_candidate_state_token
     )
     if first.proposal.no_change:
+        if _current_fingerprint(root) != expected_current_state_token:
+            raise SchoolYearConflictError(
+                "current_state_changed", "School-year state changed; review again."
+            )
         again = plan_guarded_school_year_change(
             root, change, effective_at=effective_at
         )
@@ -278,6 +295,10 @@ def commit_guarded_school_year_change(
         return _receipt(again, "no_change", again.current_state_token)
 
     with _local_year_lock(first.proposal.workspace_root):
+        if _current_fingerprint(root) != expected_current_state_token:
+            raise SchoolYearConflictError(
+                "current_state_changed", "School-year state changed; review again."
+            )
         fresh = plan_guarded_school_year_change(
             root, change, effective_at=effective_at
         )
