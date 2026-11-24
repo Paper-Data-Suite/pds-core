@@ -39,9 +39,7 @@ def _open(root: Path) -> None:
     open_school_year(root, YEAR, opened_at=OPENED)
 
 
-def test_initial_open_only_previews_and_does_not_initialize_files(
-    root: Path,
-) -> None:
+def test_initial_open_only_previews_and_does_not_initialize_files(root: Path) -> None:
     state_path = school_year_state_path(root)
     preview = plan_school_year_change(root, SchoolYearChange("open", YEAR))
     assert preview.workspace_root == root.resolve()
@@ -56,9 +54,7 @@ def test_initial_open_only_previews_and_does_not_initialize_files(
     assert not (root / "settings").exists()
 
 
-def test_same_open_year_previews_a_noop_without_rewriting_state(
-    root: Path,
-) -> None:
+def test_same_open_year_previews_a_noop_without_rewriting_state(root: Path) -> None:
     _open(root)
     path = school_year_state_path(root)
     before = path.read_bytes()
@@ -200,9 +196,7 @@ def test_malformed_school_year_fails_without_replacement(root: Path) -> None:
     assert target.read_bytes() == before
 
 
-def test_oversized_school_year_state_is_refused_before_json_loading(
-    root: Path,
-) -> None:
+def test_oversized_school_year_state_is_refused_before_json_loading(root: Path) -> None:
     path = school_year_state_path(root)
     path.parent.mkdir()
     path.write_bytes(b"z" * (64 * 1024 + 1))

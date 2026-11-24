@@ -168,9 +168,7 @@ def _overview(root: str | Path) -> ClassroomOverview:
     return overview
 
 
-def _year_snapshot(
-    overview: ClassroomOverview,
-) -> tuple[SchoolYearState | None, str]:
+def _year_snapshot(overview: ClassroomOverview) -> tuple[SchoolYearState | None, str]:
     path = school_year_state_path(overview.workspace.root)
     before = _state_fingerprint(path)
     try:
