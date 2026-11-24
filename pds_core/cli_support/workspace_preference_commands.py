@@ -177,7 +177,10 @@ def _commit_text(data: dict[str, object], stdout: TextIO) -> None:
     print(f"Previous token: {data['previous_state_token']}", file=stdout)
     print(f"Committed token: {data['committed_state_token']}", file=stdout)
     print(f"Status: {str(data['status']).upper()}", file=stdout)
-    print("Reload workspace, school year, class and work before continuing.", file=stdout)
+    print(
+        "Reload workspace, school year, class and work before continuing.",
+        file=stdout,
+    )
 
 
 def _failure(
@@ -193,19 +196,24 @@ def _failure(
     elif isinstance(error, WorkspacePreferenceWriteError):
         reason = error.reason
         status = EXIT_UNCERTAIN if reason == "write_outcome_uncertain" else EXIT_WRITE
-    elif isinstance(error, WorkspacePreferenceCommitError):
+    elif isinstance(
+        error, (WorkspacePreferenceCommitError, WorkspacePreferencePlanError)
+    ):
         reason = error.reason
-        status = (
-            EXIT_INPUT
-            if reason in {"invalid_token", "invalid_change", "not_confirmed",
-                          "invalid_action", "explicit_workspace"}
-            else EXIT_STORAGE
-        )
-    elif isinstance(error, WorkspacePreferencePlanError):
-        reason = error.reason
-        status = EXIT_INPUT if reason in {"invalid_target", "unwritable_target"} else EXIT_STORAGE
-        if reason == "stale_config":
+        if reason in {
+            "invalid_token",
+            "invalid_change",
+            "not_confirmed",
+            "invalid_action",
+            "explicit_workspace",
+            "invalid_target",
+            "unwritable_target",
+        }:
+            status = EXIT_INPUT
+        elif reason == "stale_config":
             status = EXIT_STALE
+        else:
+            status = EXIT_STORAGE
     elif isinstance(error, ValueError):
         reason = "invalid_action"
         status = EXIT_INPUT
@@ -215,8 +223,13 @@ def _failure(
     if reason not in _MESSAGES:
         reason, status = "unavailable", EXIT_STORAGE
     return _emit(
-        args, command, data={}, stdout=stdout, stderr=stderr,
-        reason=reason, exit_code=status
+        args,
+        command,
+        data={},
+        stdout=stdout,
+        stderr=stderr,
+        reason=reason,
+        exit_code=status,
     )
 
 
