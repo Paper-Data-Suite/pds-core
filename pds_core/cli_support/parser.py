@@ -86,6 +86,10 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_preview,
     handle_starter_standards_validate,
 )
+from pds_core.cli_support.school_year_commands import (
+    handle_year_commit,
+    handle_year_preview,
+)
 from pds_core.cli_support.workspace_management import (
     handle_workspace_paths,
     handle_workspace_reset,
@@ -589,6 +593,55 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
                     "--confirm",
                     action="store_true",
                     help="Explicitly approve the exact previously reviewed change.",
+                )
+            _format(command)
+            command.set_defaults(
+                handler=handler,
+                load_workspace_library=False,
+            )
+
+    for operation, handler in (
+        ("year-preview", handle_year_preview),
+        ("year-commit", handle_year_commit),
+    ):
+        year_parser = workspace_subparsers.add_parser(
+            operation,
+            help=(
+                "Preview a canonical school-year transition without writing."
+                if operation == "year-preview"
+                else "Commit an exactly reviewed school-year transition."
+            ),
+        )
+        year_actions = year_parser.add_subparsers(dest="year_action")
+        for action in ("open", "close"):
+            command = year_actions.add_parser(action)
+            if action == "open":
+                command.add_argument(
+                    "year",
+                    type=_school_year,
+                    help="Canonical academic school year (YYYY-YYYY).",
+                )
+            command.add_argument(
+                "--effective-at",
+                type=_aware_datetime,
+                required=True,
+                help="Reviewed ISO timestamp with explicit UTC offset.",
+            )
+            if operation == "year-commit":
+                command.add_argument(
+                    "--expected-current-state-token",
+                    required=True,
+                    help="Current-state token from the exact year-preview.",
+                )
+                command.add_argument(
+                    "--expected-candidate-state-token",
+                    required=True,
+                    help="Candidate-state token from the exact year-preview.",
+                )
+                command.add_argument(
+                    "--confirm",
+                    action="store_true",
+                    help="Approve exactly the reviewed transition.",
                 )
             _format(command)
             command.set_defaults(
