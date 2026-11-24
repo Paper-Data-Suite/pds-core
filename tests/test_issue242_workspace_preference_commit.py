@@ -88,9 +88,7 @@ def test_confirmed_reset_preserves_existing_workspace_data(
     assert not isolated_config.exists()
 
 
-def test_noop_reset_does_not_create_config_directory(
-    isolated_config: Path,
-) -> None:
+def test_noop_reset_does_not_create_config_directory(isolated_config: Path) -> None:
     result = _commit(WorkspacePreferenceChange("reset"))
     assert result.outcome == "no_change"
     assert result.previous_state_token == result.committed_state_token
