@@ -66,7 +66,9 @@ class _ReadOnlyController:
         read_line: Callable[[], str],
         output: TextIO,
         error_output: TextIO,
+        workspace_changes_enabled: bool = False,
     ) -> None:
+        self.workspace_changes_enabled = workspace_changes_enabled
         self.request = request
         self.read_line = read_line
         self.output = output
@@ -113,17 +115,32 @@ class _ReadOnlyController:
         if self.notice is not None:
             print(self.notice, file=self.output)
             self.notice = None
-        print("Read-only classroom preview. No changes can be saved.", file=self.output)
+        if self.workspace_changes_enabled:
+            print(
+                "Classroom data remains read-only; workspace preferences "
+                "require review and confirmation.",
+                file=self.output,
+            )
+        else:
+            print(
+                "Read-only classroom preview. No changes can be saved.",
+                file=self.output,
+            )
 
     def _render(
         self, overview: ClassroomOverview, roster: ClassroomRosterView | None
     ) -> tuple[str, ...]:
         choices: tuple[str, ...] = ()
         if self.page == "home":
-            self._header("Workspace & Classroom Management — Read-only")
+            title = "Workspace & Classroom Management"
+            if not self.workspace_changes_enabled:
+                title += " — Read-only"
+            self._header(title)
             print("1. Workspace and school year", file=self.output)
             print("2. Classes and rosters", file=self.output)
             print("3. Standards (not available in this preview)", file=self.output)
+            if self.workspace_changes_enabled:
+                print("4. Manage saved workspace preference", file=self.output)
         elif self.page == "workspace":
             self._header("Workspace and school year — Read-only")
             status = overview.workspace
@@ -307,6 +324,24 @@ class _ReadOnlyController:
                         self.request, outcome, "Returned to the calling screen."
                     )
                 continue
+            if (
+                self.workspace_changes_enabled
+                and self.page == "home"
+                and choice == "4"
+            ):
+                from pds_core.classroom_menu_workspace import (
+                    run_workspace_preference_review,
+                )
+
+                receipt = run_workspace_preference_review(
+                    self.request,
+                    read_line=self.read_line,
+                    output=self.output,
+                    error_output=self.errors,
+                )
+                if receipt is not None:
+                    return receipt
+                continue
             self._select(choice, choices)
 
 
@@ -323,4 +358,20 @@ def run_classroom_readonly_preview(
         read_line=read_line,
         output=output,
         error_output=output if error_output is None else error_output,
+    ).run()
+
+def run_classroom_workspace_preview(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Private C3A integration gate. Public callers remain unavailable."""
+    return _ReadOnlyController(
+        request=request,
+        read_line=read_line,
+        output=output,
+        error_output=output if error_output is None else error_output,
+        workspace_changes_enabled=True,
     ).run()
