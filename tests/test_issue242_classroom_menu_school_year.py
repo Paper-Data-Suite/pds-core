@@ -130,9 +130,7 @@ def test_review_confirm_first_year_returns_committed_scope(
 def test_same_year_noop_never_rewrites(
     root: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    years.open_school_year(
-        root, YEAR, opened_at=datetime.fromisoformat(START)
-    )
+    years.open_school_year(root, YEAR, opened_at=datetime.fromisoformat(START))
     file = years.school_year_state_path(root)
     before = file.read_bytes()
     result, output, error = _run(root, monkeypatch, ["5", "1", YEAR, END, "C"])
@@ -219,9 +217,7 @@ def test_stale_context_refused_before_confirmation(
         *,
         effective_at: datetime,
     ) -> service.GuardedSchoolYearReview:
-        years.open_school_year(
-            root, YEAR, opened_at=datetime.fromisoformat(START)
-        )
+        years.open_school_year(root, YEAR, opened_at=datetime.fromisoformat(START))
         return real(location, change, effective_at=effective_at)
 
     monkeypatch.setattr(flow, "plan_guarded_school_year_change", intervening)
@@ -297,9 +293,7 @@ def test_closed_year_rollover_stays_refused(
     years.open_school_year(root, YEAR, opened_at=datetime.fromisoformat(START))
     years.close_school_year(root, closed_at=datetime.fromisoformat(END))
     old = years.school_year_state_path(root).read_bytes()
-    result, _out, error = _run(
-        root, monkeypatch, ["5", "1", "2027-2028", END, "C"]
-    )
+    result, _out, error = _run(root, monkeypatch, ["5", "1", "2027-2028", END, "C"])
     assert result.exit is TeacherMenuExit.FAILED
     assert result.durability is TeacherDurability.NO_CHANGE
     assert "refused safely" in error

@@ -347,9 +347,7 @@ class _ReadOnlyController:
                 and self.page == "home"
                 and choice == "5"
             ):
-                from pds_core.classroom_menu_school_year import (
-                    run_school_year_review,
-                )
+                from pds_core.classroom_menu_school_year import run_school_year_review
 
                 receipt = run_school_year_review(
                     self.request,
