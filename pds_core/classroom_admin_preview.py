@@ -25,6 +25,7 @@ from pds_core.school_years import (
     school_year_state_path,
     validate_school_year,
 )
+from pds_core.workspace import WorkspaceRootError, inspect_workspace_root
 
 _YEAR_STATE_LIMIT = 64 * 1024
 SchoolYearAction = Literal["open", "close"]
@@ -147,13 +148,21 @@ def _overview(root: str | Path) -> ClassroomOverview:
     if not isinstance(root, (str, Path)):
         raise TypeError("workspace root must be a Path or string")
     try:
-        overview = inspect_classroom_overview(root)
-    except ClassroomDiscoveryError as error:
-        raise ClassroomAdministrationPreviewError(error.reason, str(error)) from error
-    if not overview.workspace.exists or not overview.workspace.is_dir:
+        status = inspect_workspace_root(root)
+    except WorkspaceRootError as error:
+        raise ClassroomAdministrationPreviewError(
+            "invalid_workspace", "Selected workspace root is invalid."
+        ) from error
+    if not status.exists or not status.is_dir:
         raise ClassroomAdministrationPreviewError(
             "missing_workspace", "Select an existing workspace before administration."
         )
+    # Size and reparse-point refusal must precede the existing JSON reader.
+    _state_fingerprint(school_year_state_path(status.root))
+    try:
+        overview = inspect_classroom_overview(status.root)
+    except ClassroomDiscoveryError as error:
+        raise ClassroomAdministrationPreviewError(error.reason, str(error)) from error
     return overview
 
 
