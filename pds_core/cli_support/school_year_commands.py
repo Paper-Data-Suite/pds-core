@@ -19,6 +19,7 @@ from pds_core.classroom_school_year_commit import (
     plan_guarded_school_year_change,
 )
 from pds_core.standards import StandardsLibrary
+from pds_core.workspace import WorkspaceRootError, resolve_workspace_root
 
 EXIT_OK = 0
 EXIT_INPUT = 2
@@ -41,6 +42,7 @@ _MESSAGES = {
     "no_open_year": "There is no active school year to close.",
     "stale_year_state": "School-year state changed during review.",
     "invalid_year_state": "Canonical school-year state is invalid.",
+    "invalid_school_year": "Canonical school-year state is invalid.",
     "oversized_year_state": "School-year record exceeds the review limit.",
     "unavailable_year_state": "School-year state cannot be inspected.",
     "unsafe_path": "A canonical classroom path is redirected.",
@@ -64,6 +66,21 @@ _STALE = {
     "no_open_year",
     "stale_year_state",
 }
+
+
+def _root(args: argparse.Namespace) -> Path:
+    """Apply normal workspace precedence without unstructured bootstrap errors."""
+    try:
+        root = resolve_workspace_root(args.workspace)
+        if root.exists() and not root.is_dir():
+            raise SchoolYearCommitError(
+                "invalid_workspace", "The selected workspace is not a directory."
+            )
+    except (WorkspaceRootError, OSError) as error:
+        raise SchoolYearCommitError(
+            "invalid_workspace", "Selected workspace is invalid."
+        ) from error
+    return root
 
 
 def _change(args: argparse.Namespace) -> SchoolYearChange:
@@ -186,7 +203,7 @@ def handle_year_preview(
     command = "workspace year-preview"
     try:
         review = plan_guarded_school_year_change(
-            args.workspace_root, _change(args), effective_at=args.effective_at
+            _root(args), _change(args), effective_at=args.effective_at
         )
     except SchoolYearCommitError as error:
         return _failure(args, command, error, stdout, stderr)
@@ -204,8 +221,9 @@ def handle_year_commit(
 ) -> int:
     command = "workspace year-commit"
     try:
+        root = _root(args)
         result = commit_guarded_school_year_change(
-            args.workspace_root,
+            root,
             _change(args),
             effective_at=args.effective_at,
             expected_current_state_token=args.expected_current_state_token,
@@ -214,7 +232,7 @@ def handle_year_commit(
         )
     except SchoolYearCommitError as error:
         return _failure(args, command, error, stdout, stderr)
-    data = _commit_data(args.workspace_root, args.effective_at, result)
+    data = _commit_data(root, args.effective_at, result)
     if args.format != "json":
         _display(data, preview=False, stdout=stdout)
     return _emit(args, command, data, stdout, stderr)
