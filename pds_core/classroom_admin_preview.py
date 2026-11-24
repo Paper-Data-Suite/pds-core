@@ -74,9 +74,7 @@ class ClassCreationChange:
 
     def __post_init__(self) -> None:
         validate_identifier(self.class_id, "class_id")
-        object.__setattr__(
-            self, "school_year", validate_school_year(self.school_year)
-        )
+        object.__setattr__(self, "school_year", validate_school_year(self.school_year))
 
 
 @dataclass(frozen=True, slots=True)

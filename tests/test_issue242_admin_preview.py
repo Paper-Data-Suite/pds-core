@@ -164,9 +164,7 @@ def test_class_creation_refuses_missing_active_year(root: Path) -> None:
 def test_class_creation_refuses_mismatched_active_year(root: Path) -> None:
     _open(root)
     with pytest.raises(ClassroomAdministrationPreviewError) as raised:
-        plan_class_creation(
-            root, ClassCreationChange("english10_p2", "2027-2028")
-        )
+        plan_class_creation(root, ClassCreationChange("english10_p2", "2027-2028"))
     assert raised.value.reason == "year_mismatch"
     assert not (root / "classes").exists()
 
