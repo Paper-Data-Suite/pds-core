@@ -87,9 +87,7 @@ def _metadata(change: ClassCreationChange, at: datetime) -> ClassMetadata:
     if re.fullmatch(r"(?i:con|prn|aux|nul|com[0-9]|lpt[0-9])", change.class_id):
         raise ClassCreationError("invalid_class", "Class identifier is reserved.")
     try:
-        return create_class_metadata(
-            change.class_id, change.school_year, created_at=at
-        )
+        return create_class_metadata(change.class_id, change.school_year, created_at=at)
     except ClassMetadataError as error:
         raise ClassCreationError(
             "invalid_timestamp", "A timezone-aware creation time is required."
@@ -183,15 +181,17 @@ def inspect_class_creation_recovery(
             return "conflict"
         if load_class_metadata_for_class(status.root, change.class_id) == expected:
             return "matches_review"
-    except (OSError, WorkspaceRootError, ClassroomAdministrationPreviewError,
-            ClassMetadataError):
+    except (
+        OSError,
+        WorkspaceRootError,
+        ClassroomAdministrationPreviewError,
+        ClassMetadataError,
+    ):
         return "conflict"
     return "conflict"
 
 
-def _check(
-    review: GuardedClassCreationReview, current: str, candidate: str
-) -> None:
+def _check(review: GuardedClassCreationReview, current: str, candidate: str) -> None:
     if review.current_state_token != current:
         raise ClassCreationConflictError(
             "current_state_changed", "School-year state changed; review again."
@@ -241,7 +241,9 @@ def commit_guarded_class_creation(
                 latest = plan_guarded_class_creation(
                     root, change, created_at=created_at
                 )
-                _check(latest, expected_current_state_token, expected_candidate_state_token)
+                _check(
+                    latest, expected_current_state_token, expected_candidate_state_token
+                )
                 _guard(target.parent)
                 target.parent.mkdir(exist_ok=True)
                 _guard(target)
@@ -285,4 +287,6 @@ def commit_guarded_class_creation(
             "Class creation did not finish normally; inspect canonical state before retry.",
             outcome,
         ) from None
-    return ClassCreationResult(canonical_root, change.class_id, change.school_year, path)
+    return ClassCreationResult(
+        canonical_root, change.class_id, change.school_year, path
+    )

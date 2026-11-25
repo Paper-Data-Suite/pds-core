@@ -79,7 +79,9 @@ def test_commit_canonical_empty_class(root: Path) -> None:
     assert not class_roster_path(root, CHANGE.class_id).exists()
     assert not (root / ".school-year.write.lock").exists()
     assert not tuple(root.glob(".core242-class-*"))
-    assert inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "matches_review"
+    assert (
+        inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "matches_review"
+    )
     before = result.metadata_path.read_bytes()
     with pytest.raises(ClassCreationConflictError):
         _commit(root, review)
@@ -146,7 +148,9 @@ def test_reserved_class_id(root: Path) -> None:
     assert raised.value.reason == "invalid_class"
 
 
-def test_stage_failure_leaves_no_class(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_stage_failure_leaves_no_class(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     review = _plan(root)
 
     def fail(*args: object, **kwargs: object) -> None:
@@ -160,7 +164,9 @@ def test_stage_failure_leaves_no_class(root: Path, monkeypatch: pytest.MonkeyPat
     assert not tuple(root.glob(".core242-class-*"))
 
 
-def test_publication_failure_preserves_partial(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_publication_failure_preserves_partial(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     review = _plan(root)
 
     def fail(*args: object, **kwargs: object) -> None:
@@ -172,14 +178,19 @@ def test_publication_failure_preserves_partial(root: Path, monkeypatch: pytest.M
     assert raised.value.outcome == "partial"
     target = class_dir(root, CHANGE.class_id)
     assert target.is_dir()
-    assert inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "empty_directory"
+    assert (
+        inspect_class_creation_recovery(root, CHANGE, created_at=AT)
+        == "empty_directory"
+    )
     with pytest.raises(ClassCreationConflictError):
         _commit(root, review)
     assert target.is_dir()
     assert not (root / ".school-year.write.lock").exists()
 
 
-def test_postpublication_failure_is_indeterminate(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_postpublication_failure_is_indeterminate(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     review = _plan(root)
     actual = os.link
 
@@ -191,11 +202,15 @@ def test_postpublication_failure_is_indeterminate(root: Path, monkeypatch: pytes
     with pytest.raises(ClassCreationWriteError) as raised:
         _commit(root, review)
     assert raised.value.outcome == "indeterminate"
-    assert inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "matches_review"
+    assert (
+        inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "matches_review"
+    )
     assert not (root / ".school-year.write.lock").exists()
 
 
-def test_concurrent_metadata_not_overwritten(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_concurrent_metadata_not_overwritten(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     review = _plan(root)
     actual = os.link
 
@@ -207,14 +222,20 @@ def test_concurrent_metadata_not_overwritten(root: Path, monkeypatch: pytest.Mon
     with pytest.raises(ClassCreationWriteError) as raised:
         _commit(root, review)
     assert raised.value.outcome == "indeterminate"
-    assert class_metadata_path(root, CHANGE.class_id).read_text(encoding="utf-8") == "external"
+    assert (
+        class_metadata_path(root, CHANGE.class_id).read_text(encoding="utf-8")
+        == "external"
+    )
     assert inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "conflict"
 
 
 def test_recovery_never_adopts_unowned_directory(root: Path) -> None:
     target = class_dir(root, CHANGE.class_id)
     target.mkdir(parents=True)
-    assert inspect_class_creation_recovery(root, CHANGE, created_at=AT) == "empty_directory"
+    assert (
+        inspect_class_creation_recovery(root, CHANGE, created_at=AT)
+        == "empty_directory"
+    )
     with pytest.raises(ClassCreationConflictError):
         _plan(root)
     (target / "producer-work.txt").write_text("preserve", encoding="utf-8")
