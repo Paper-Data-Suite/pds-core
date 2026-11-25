@@ -157,6 +157,7 @@ def test_close_preserves_classroom_data_and_reports_year_scope(
     assert "Active year after: (none)" in output
     state = years.load_school_year_state(root)
     assert state is not None
+    assert state.closed_at is not None
     assert state.closed_at.isoformat() == END
     assert artifact.read_text(encoding="utf-8") == "preserved"
     assert error == ""
