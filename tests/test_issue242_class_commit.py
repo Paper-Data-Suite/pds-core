@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -165,7 +166,7 @@ def test_publication_failure_preserves_partial(root: Path, monkeypatch: pytest.M
     def fail(*args: object, **kwargs: object) -> None:
         raise OSError("injected link failure")
 
-    monkeypatch.setattr(guarded.os, "link", fail)
+    monkeypatch.setattr(os, "link", fail)
     with pytest.raises(ClassCreationWriteError) as raised:
         _commit(root, review)
     assert raised.value.outcome == "partial"
@@ -180,13 +181,13 @@ def test_publication_failure_preserves_partial(root: Path, monkeypatch: pytest.M
 
 def test_postpublication_failure_is_indeterminate(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     review = _plan(root)
-    actual = guarded.os.link
+    actual = os.link
 
     def link_then_fail(source: Path, destination: Path) -> None:
         actual(source, destination)
         raise OSError("injected after publication")
 
-    monkeypatch.setattr(guarded.os, "link", link_then_fail)
+    monkeypatch.setattr(os, "link", link_then_fail)
     with pytest.raises(ClassCreationWriteError) as raised:
         _commit(root, review)
     assert raised.value.outcome == "indeterminate"
@@ -196,13 +197,13 @@ def test_postpublication_failure_is_indeterminate(root: Path, monkeypatch: pytes
 
 def test_concurrent_metadata_not_overwritten(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     review = _plan(root)
-    actual = guarded.os.link
+    actual = os.link
 
     def conflict(source: Path, destination: Path) -> None:
         destination.write_text("external", encoding="utf-8")
         actual(source, destination)
 
-    monkeypatch.setattr(guarded.os, "link", conflict)
+    monkeypatch.setattr(os, "link", conflict)
     with pytest.raises(ClassCreationWriteError) as raised:
         _commit(root, review)
     assert raised.value.outcome == "indeterminate"
