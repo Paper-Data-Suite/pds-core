@@ -85,18 +85,24 @@ def main() -> None:
     label: str = args.label
     tests: list[str] = args.tests
     skipped: set[str] = set(args.skip_format)
-    require(all(re.fullmatch("[0-9a-f]{40}", s) for s in (base, candidate)),
-            "Full lowercase SHA-1 commits are required.")
+    require(
+        all(re.fullmatch("[0-9a-f]{40}", s) for s in (base, candidate)),
+        "Full lowercase SHA-1 commits are required.",
+    )
     require(re.fullmatch("[A-Za-z0-9_-]+", label) is not None, "Invalid label.")
     root = Path(git("rev-parse", "--show-toplevel")).resolve()
     require(Path.cwd().resolve() == root, "Run from the repository root.")
     require(git("branch", "--show-current") == branch, "Unexpected branch.")
     origin = git("remote", "get-url", "origin").lower().removesuffix(".git")
-    require(origin in {
-        "https://github.com/paper-data-suite/pds-core",
-        "git@github.com:paper-data-suite/pds-core",
-        "ssh://git@github.com/paper-data-suite/pds-core",
-    }, "Unexpected origin.")
+    require(
+        origin
+        in {
+            "https://github.com/paper-data-suite/pds-core",
+            "git@github.com:paper-data-suite/pds-core",
+            "ssh://git@github.com/paper-data-suite/pds-core",
+        },
+        "Unexpected origin.",
+    )
     head = git("rev-parse", "HEAD")
     require(head in {base, candidate}, "Unexpected local HEAD.")
 
@@ -109,8 +115,10 @@ def main() -> None:
     require(skipped <= python_files, "Unexpected format exclusions.")
     format_files = python_files - skipped
     require(bool(format_files), "No scoped Python files.")
-    require(all(name.startswith("tests/") and name.endswith(".py") for name in tests),
-            "Focused tests must be repository test files.")
+    require(
+        all(name.startswith("tests/") and name.endswith(".py") for name in tests),
+        "Focused tests must be repository test files.",
+    )
 
     print("=== SAFELY RECOVER INTERRUPTED FORMATTING ===", flush=True)
     dirty = status()
@@ -122,8 +130,10 @@ def main() -> None:
     if head == base and head != candidate:
         run("git", "merge", "--ff-only", candidate)
     require(git("rev-parse", "HEAD") == candidate, "Unexpected checkout SHA.")
-    require(all(Path(name).is_file() for name in python_files | set(tests)),
-            "A scoped file does not exist.")
+    require(
+        all(Path(name).is_file() for name in python_files | set(tests)),
+        "A scoped file does not exist.",
+    )
 
     print("=== AUTOMATIC RUFF FORMATTING ===", flush=True)
     scoped = sorted(format_files)
@@ -143,10 +153,14 @@ def main() -> None:
         verify_ruff_only(dirty)
         require(remote_head(branch) == candidate, "Remote advanced; no push.")
         run("git", "add", "--", *sorted(dirty))
-        require(paths("diff", "--cached", "--name-only") == dirty,
-                "Unexpected staged files.")
+        require(
+            paths("diff", "--cached", "--name-only") == dirty,
+            "Unexpected staged files.",
+        )
         run("git", "diff", "--cached", "--check")
-        run("git", "commit", "-m", f"style(core242): autoformat {label} qualified files")
+        run(
+            "git", "commit", "-m", f"style(core242): autoformat {label} qualified files"
+        )
         run("git", "push", "origin", f"HEAD:refs/heads/{branch}")
     else:
         print("No formatting commit required.", flush=True)

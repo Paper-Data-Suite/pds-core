@@ -70,9 +70,7 @@ def run_class_creation_review(
     """B returns to parent; a confirmed write returns immediately to caller."""
     if expected_active_year is None:
         print("Open a school year before creating a class.", file=error_output)
-        return _receipt(
-            request, TeacherMenuExit.FAILED, "No active school year."
-        )
+        return _receipt(request, TeacherMenuExit.FAILED, "No active school year.")
     _header(request, "Create an empty class", output)
     print(f"Active school year: {expected_active_year}", file=output)
     print("Class ID (letters, digits, hyphens, underscores), or B/M/Q:", file=output)
@@ -108,7 +106,10 @@ def run_class_creation_review(
     try:
         review = plan_guarded_class_creation(workspace_root, change, created_at=at)
     except ClassCreationError:
-        print("Class proposal refused; inspect the current classroom state.", file=error_output)
+        print(
+            "Class proposal refused; inspect the current classroom state.",
+            file=error_output,
+        )
         return _receipt(request, TeacherMenuExit.FAILED, "Class creation refused.")
 
     _header(request, "Review new empty class", output)
@@ -148,16 +149,26 @@ def run_class_creation_review(
         observed = inspect_class_creation_recovery(
             workspace_root, change, created_at=at
         )
-        print(f"Class creation incomplete. Recovery observation: {observed}.", file=error_output)
-        print("Inspect canonical state before retry. Do not delete or adopt an incomplete class automatically.", file=error_output)
+        print(
+            f"Class creation incomplete. Recovery observation: {observed}.",
+            file=error_output,
+        )
+        print(
+            "Inspect canonical state before retry. Do not delete or adopt an incomplete class automatically.",
+            file=error_output,
+        )
         return _receipt(
             request, TeacherMenuExit.FAILED, "Class creation incomplete.", durability
         )
     except ClassCreationError:
-        print("Class creation refused; review current classroom state.", file=error_output)
+        print(
+            "Class creation refused; review current classroom state.", file=error_output
+        )
         return _receipt(request, TeacherMenuExit.FAILED, "Class creation refused.")
     print("Class creation committed.", file=output)
     return _receipt(
-        request, TeacherMenuExit.BACK, "Class metadata committed.",
+        request,
+        TeacherMenuExit.BACK,
+        "Class metadata committed.",
         TeacherDurability.COMMITTED,
     )

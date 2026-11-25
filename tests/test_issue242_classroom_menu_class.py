@@ -118,8 +118,10 @@ def test_confirmed_class_creation(root: Path, monkeypatch: pytest.MonkeyPatch) -
     ],
 )
 def test_navigation_never_creates(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
-    answers: list[str], expected: TeacherMenuExit,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    expected: TeacherMenuExit,
 ) -> None:
     result, _, _ = _run(root, monkeypatch, answers)
     assert result.exit is expected
