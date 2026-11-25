@@ -69,6 +69,9 @@ def _run(
         "preference-commit",
         "year-preview",
         "year-commit",
+        "class-preview",
+        "class-commit",
+        "class-recovery",
     }:
         return handler(
             args,
