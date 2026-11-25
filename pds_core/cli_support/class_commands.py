@@ -19,15 +19,38 @@ from pds_core.classroom_class_commit import (
 from pds_core.standards import StandardsLibrary
 from pds_core.workspace import WorkspaceRootError, resolve_workspace_root
 
-_INPUT = {"not_confirmed", "invalid_change", "invalid_class",
-          "invalid_timestamp", "invalid_token"}
-_STALE = {"class_exists", "no_open_year", "year_mismatch", "write_conflict",
-          "current_state_changed", "candidate_changed", "stale_year_state"}
-_STORAGE = {"invalid_workspace", "missing_workspace", "unsafe_path",
-            "unavailable_path", "inspection_failed", "invalid_year_state",
-            "invalid_school_year", "oversized_year_state", "unavailable_year_state",
-            "invalid_metadata", "invalid_classes", "classes_unavailable",
-            "invalid_roster", "lock_failed"}
+_INPUT = {
+    "not_confirmed",
+    "invalid_change",
+    "invalid_class",
+    "invalid_timestamp",
+    "invalid_token",
+}
+_STALE = {
+    "class_exists",
+    "no_open_year",
+    "year_mismatch",
+    "write_conflict",
+    "current_state_changed",
+    "candidate_changed",
+    "stale_year_state",
+}
+_STORAGE = {
+    "invalid_workspace",
+    "missing_workspace",
+    "unsafe_path",
+    "unavailable_path",
+    "inspection_failed",
+    "invalid_year_state",
+    "invalid_school_year",
+    "oversized_year_state",
+    "unavailable_year_state",
+    "invalid_metadata",
+    "invalid_classes",
+    "classes_unavailable",
+    "invalid_roster",
+    "lock_failed",
+}
 
 
 def _root(args: argparse.Namespace) -> Path:
@@ -110,8 +133,14 @@ def _failure(
         code = 5
         message = "Class operation is unavailable."
     return _emit(
-        args, command, data, stdout, stderr,
-        reason=reason, message=message, code=code,
+        args,
+        command,
+        data,
+        stdout,
+        stderr,
+        reason=reason,
+        message=message,
+        code=code,
     )
 
 
@@ -137,16 +166,20 @@ def handle_class_creation(
             review = plan_guarded_class_creation(
                 root, change, created_at=args.created_at
             )
-            data.update({
-                "workspace_root": str(review.proposal.workspace_root),
-                "target_class_directory": str(review.proposal.target_class_directory),
-                "metadata_would_be_created": True,
-                "roster_would_be_created": False,
-                "current_state_token": review.current_state_token,
-                "candidate_state_token": review.candidate_state_token,
-                "status": "preview",
-                "saved": False,
-            })
+            data.update(
+                {
+                    "workspace_root": str(review.proposal.workspace_root),
+                    "target_class_directory": str(
+                        review.proposal.target_class_directory
+                    ),
+                    "metadata_would_be_created": True,
+                    "roster_would_be_created": False,
+                    "current_state_token": review.current_state_token,
+                    "candidate_state_token": review.candidate_state_token,
+                    "status": "preview",
+                    "saved": False,
+                }
+            )
         elif operation == "class-commit":
             result = commit_guarded_class_creation(
                 root,
@@ -156,24 +189,28 @@ def handle_class_creation(
                 expected_candidate_state_token=args.expected_candidate_state_token,
                 confirmed=args.confirm,
             )
-            data.update({
-                "workspace_root": str(result.workspace_root),
-                "metadata_path": str(result.metadata_path),
-                "status": result.outcome,
-                "changed_scopes": ["CLASS"],
-                "revalidation_required": True,
-            })
+            data.update(
+                {
+                    "workspace_root": str(result.workspace_root),
+                    "metadata_path": str(result.metadata_path),
+                    "status": result.outcome,
+                    "changed_scopes": ["CLASS"],
+                    "revalidation_required": True,
+                }
+            )
         elif operation == "class-recovery":
             observed = inspect_class_creation_recovery(
                 root, change, created_at=args.created_at
             )
-            data.update({
-                "status": observed,
-                "saved": False,
-                "ownership_established": False,
-                "revalidation_required": True,
-                "retry_authorized": False,
-            })
+            data.update(
+                {
+                    "status": observed,
+                    "saved": False,
+                    "ownership_established": False,
+                    "revalidation_required": True,
+                    "retry_authorized": False,
+                }
+            )
         else:
             raise ClassCreationError("invalid_change", "Invalid class command.")
     except ClassCreationError as error:

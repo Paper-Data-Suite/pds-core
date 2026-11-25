@@ -48,8 +48,14 @@ def _invoke(*args: str) -> tuple[int, str, str]:
 
 def _args(root: Path, op: str, *, at: str = AT, class_id: str = CLASS) -> list[str]:
     return [
-        "--workspace", str(root), "workspace", op, class_id, YEAR,
-        "--created-at", at,
+        "--workspace",
+        str(root),
+        "workspace",
+        op,
+        class_id,
+        YEAR,
+        "--created-at",
+        at,
     ]
 
 
@@ -78,10 +84,14 @@ def _commit(
     class_id: str = CLASS,
 ) -> tuple[int, dict[str, Any], str]:
     parts = _args(root, "class-commit", at=at, class_id=class_id)
-    parts.extend([
-        "--expected-current-state-token", review["current_state_token"],
-        "--expected-candidate-state-token", review["candidate_state_token"],
-    ])
+    parts.extend(
+        [
+            "--expected-current-state-token",
+            review["current_state_token"],
+            "--expected-candidate-state-token",
+            review["candidate_state_token"],
+        ]
+    )
     if confirm:
         parts.append("--confirm")
     return _json(*parts)
@@ -136,7 +146,8 @@ def test_missing_confirmation(root: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "class_id, at", [
+    "class_id, at",
+    [
         ("another_class", AT),
         (CLASS, "2026-09-03T08:00:00+00:00"),
     ],
@@ -193,7 +204,9 @@ def test_recovery_match_is_not_commit_receipt(root: Path) -> None:
     assert "changed_scopes" not in data
 
 
-def test_partial_publication_reported(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_partial_publication_reported(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     review = _preview(root)
 
     def fail(*args: object, **kwargs: object) -> None:
