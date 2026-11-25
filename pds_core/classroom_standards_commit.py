@@ -11,7 +11,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 from pds_core.classroom_admin_preview import (
     ClassroomAdministrationPreviewError,
@@ -26,9 +26,9 @@ from pds_core.standards import (
     StandardsValidationError,
     add_standards_to_profile,
     find_standards_profile,
-    load_standards_library,
     remove_standards_from_profile,
     set_profile_standards,
+    standards_library_from_dict,
     standards_library_path,
     standards_library_to_dict,
     write_standards_library,
@@ -91,7 +91,7 @@ class ProfileMembershipResult:
     state_token: str
 
 
-def _fingerprint(path: Path) -> tuple[bool, str]:
+def _read_state(path: Path) -> tuple[bytes | None, str]:
     _guard(path.parent)
     _guard(path)
     digest = hashlib.sha256()
@@ -103,7 +103,7 @@ def _fingerprint(path: Path) -> tuple[bool, str]:
                 "invalid_library", "Standards collection is not a directory."
             )
         digest.update(b"\x00missing")
-        return False, digest.hexdigest()
+        return None, digest.hexdigest()
     if not path.is_file():
         raise StandardsReviewError("invalid_library", "Standards library is not a file.")
     with path.open("rb") as stream:
@@ -112,7 +112,12 @@ def _fingerprint(path: Path) -> tuple[bool, str]:
         raise StandardsReviewError("oversized_library", "Standards library exceeds review limit.")
     digest.update(b"\x00present\x00")
     digest.update(raw)
-    return True, digest.hexdigest()
+    return raw, digest.hexdigest()
+
+
+def _fingerprint(path: Path) -> tuple[bool, str]:
+    raw, token = _read_state(path)
+    return raw is not None, token
 
 
 def inspect_standards_snapshot(root: str | Path) -> StandardsSnapshot:
@@ -122,16 +127,19 @@ def inspect_standards_snapshot(root: str | Path) -> StandardsSnapshot:
         if not status.exists or not status.is_dir:
             raise StandardsReviewError("missing_workspace", "Select an existing workspace.")
         path = standards_library_path(status.root)
-        present, token = _fingerprint(path)
-        library = (
-            load_standards_library(path)
-            if present
-            else StandardsLibrary(standards=(), profiles=())
-        )
+        raw, token = _read_state(path)
+        present = raw is not None
+        if raw is None:
+            library = StandardsLibrary(standards=(), profiles=())
+        else:
+            decoded = json.loads(raw.decode("utf-8"))
+            if not isinstance(decoded, dict):
+                raise StandardsReviewError("invalid_library", "Standards library is not an object.")
+            library = standards_library_from_dict(cast(dict[str, object], decoded))
         if _fingerprint(path) != (present, token):
             raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
     except (WorkspaceRootError, ClassroomAdministrationPreviewError, OSError,
-            StandardsValidationError, UnicodeError, RecursionError):
+            StandardsValidationError, UnicodeError, RecursionError, json.JSONDecodeError, KeyError, TypeError):
         raise StandardsReviewError(
             "invalid_library", "Canonical Standards library cannot be inspected safely."
         ) from None
@@ -162,6 +170,7 @@ def plan_profile_membership(
         not isinstance(change, ProfileMembershipChange)
         or change.action not in ("add", "remove", "set")
         or type(change.profile_id) is not str
+        or not change.profile_id.strip()
         or type(change.standard_ids) is not tuple
         or any(type(item) is not str for item in change.standard_ids)
     ):
