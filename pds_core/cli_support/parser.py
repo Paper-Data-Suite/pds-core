@@ -86,6 +86,7 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_preview,
     handle_starter_standards_validate,
 )
+from pds_core.cli_support.class_commands import handle_class_creation
 from pds_core.cli_support.school_year_commands import (
     handle_year_commit,
     handle_year_preview,
@@ -648,6 +649,24 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
                 handler=handler,
                 load_workspace_library=False,
             )
+
+    for operation in ("class-preview", "class-commit", "class-recovery"):
+        command = workspace_subparsers.add_parser(
+            operation,
+            help="Review, create or inspect a canonical empty class.",
+        )
+        command.add_argument("class_id", type=_identifier)
+        command.add_argument("school_year", type=_school_year)
+        command.add_argument("--created-at", type=_aware_datetime, required=True)
+        if operation == "class-commit":
+            command.add_argument("--expected-current-state-token", required=True)
+            command.add_argument("--expected-candidate-state-token", required=True)
+            command.add_argument("--confirm", action="store_true")
+        _format(command)
+        command.set_defaults(
+            handler=handle_class_creation,
+            load_workspace_library=False,
+        )
 
 
 def _add_validate_parser(
