@@ -209,9 +209,7 @@ def run_school_year_review(
 
         plan = review.proposal
         active = (
-            plan.previous_school_year
-            if plan.previous_record_status == "open"
-            else None
+            plan.previous_school_year if plan.previous_record_status == "open" else None
         )
         if active != expected_active_year:
             print("Active year changed while the menu was open.", file=error_output)
