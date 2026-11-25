@@ -74,7 +74,8 @@ def _commit(
 def test_missing_library_is_read_only(root: Path) -> None:
     snapshot = inspect_standards_snapshot(root)
     assert snapshot.present is False
-    assert snapshot.library.standards == snapshot.library.profiles == ()
+    assert snapshot.library.standards == ()
+    assert snapshot.library.profiles == ()
     assert not standards_library_path(root).parent.exists()
     assert not (root / ".school-year.write.lock").exists()
 
