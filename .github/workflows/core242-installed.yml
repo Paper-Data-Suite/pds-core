@@ -1,0 +1,45 @@
+name: Core #242 exact installed acceptance
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  installed-classroom:
+    name: Classroom wheel + sdist (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install qualification tools
+        run: python -m pip install build twine pytest
+      - name: Qualify exact source snapshot
+        shell: pwsh
+        run: |
+          $head = (git rev-parse HEAD).Trim()
+          if ($head -ne "${{ github.event.pull_request.head.sha || github.sha }}") {
+            throw "Unexpected checkout SHA."
+          }
+          python scripts/qualify_issue242_installed_artifacts.py --expected-head $head
+          if ($LASTEXITCODE -ne 0) { throw "Installed qualification failed." }
+      - name: Require all four symlink boundary vectors (Ubuntu)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python -m pytest -q tests/test_issue241_roster_boundaries.py -k test_redirected_canonical_paths_refused --junitxml="$RUNNER_TEMP/core242-symlinks.xml"
+          python -c 'import os, pathlib, xml.etree.ElementTree as ET; root=ET.parse(pathlib.Path(os.environ["RUNNER_TEMP"])/"core242-symlinks.xml"); cases=root.findall(".//testcase"); assert len(cases)==4 and all(c.find("skipped") is None and c.find("failure") is None and c.find("error") is None for c in cases), "All four symlink cases must execute and pass"; print("4/4 symlink boundary vectors passed without skips")'
