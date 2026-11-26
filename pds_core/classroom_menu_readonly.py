@@ -71,12 +71,14 @@ class _ReadOnlyController:
         class_changes_enabled: bool = False,
         standards_changes_enabled: bool = False,
         roster_import_enabled: bool = False,
+        student_edits_enabled: bool = False,
     ) -> None:
         self.workspace_changes_enabled = workspace_changes_enabled
         self.school_year_changes_enabled = school_year_changes_enabled
         self.class_changes_enabled = class_changes_enabled
         self.standards_changes_enabled = standards_changes_enabled
         self.roster_import_enabled = roster_import_enabled
+        self.student_edits_enabled = student_edits_enabled
         self.request = request
         self.read_line = read_line
         self.output = output
@@ -235,8 +237,10 @@ class _ReadOnlyController:
             self._pager(start, total)
             if self.roster_import_enabled:
                 print("I. Import or replace full roster", file=self.output)
+            if self.student_edits_enabled:
+                print("A. Add student enrollment", file=self.output)
         elif self.page == "student" and roster is not None:
-            self._header("Student enrollment — Read-only")
+            self._header("Student enrollment" if self.student_edits_enabled else "Student enrollment — Read-only")
             selected = next(
                 (
                     item
@@ -253,7 +257,10 @@ class _ReadOnlyController:
             print(f"Class ID: {roster.class_id}", file=self.output)
             print(f"Student: {_safe(selected.label)}", file=self.output)
             print(f"Period: {_safe(selected.period)}", file=self.output)
-            print("Editing is not enabled in this preview.", file=self.output)
+            if self.student_edits_enabled:
+                print("E. Edit enrollment   R. Remove enrollment", file=self.output)
+            else:
+                print("Editing is not enabled in this preview.", file=self.output)
         else:
             self._header("Standards — Not yet available")
             print("Standards integration belongs to a later slice.", file=self.output)
@@ -436,6 +443,22 @@ class _ReadOnlyController:
                 if receipt is not None:
                     return receipt
                 continue
+            if self.student_edits_enabled and roster is not None and (
+                (self.page == "roster" and choice == "a")
+                or (self.page == "student" and choice in {"e", "r"})
+            ):
+                from pds_core.classroom_menu_student_edit import run_student_edit_review
+
+                receipt = run_student_edit_review(
+                    self.request, workspace_root=overview.workspace.root,
+                    class_id=roster.class_id, expected_active_year=overview.active_school_year,
+                    operation="add" if choice == "a" else "update" if choice == "e" else "remove",
+                    selected_id=None if choice == "a" else self.student_id,
+                    read_line=self.read_line, output=self.output, error_output=self.errors,
+                )
+                if receipt is not None:
+                    return receipt
+                continue
             self._select(choice, choices)
 
 
@@ -547,4 +570,19 @@ def run_classroom_roster_import_preview(
         class_changes_enabled=True,
         standards_changes_enabled=True,
         roster_import_enabled=True,
+    ).run()
+
+
+def run_classroom_student_edit_preview(
+    request: SharedTeacherMenuRequest,
+    *, read_line: Callable[[], str], output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Private D2 composition gate."""
+    return _ReadOnlyController(
+        request=request, read_line=read_line, output=output,
+        error_output=output if error_output is None else error_output,
+        workspace_changes_enabled=True, school_year_changes_enabled=True,
+        class_changes_enabled=True, standards_changes_enabled=True,
+        roster_import_enabled=True, student_edits_enabled=True,
     ).run()

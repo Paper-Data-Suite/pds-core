@@ -183,6 +183,7 @@ _CLASSROOM_SCHOOL_YEAR_PREVIEW_TEST_ONLY = False
 _CLASSROOM_CLASS_PREVIEW_TEST_ONLY = False
 _CLASSROOM_STANDARDS_PREVIEW_TEST_ONLY = False
 _CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY = False
+_CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY = False
 
 
 def _classroom_unavailable(
@@ -239,6 +240,13 @@ def run_workspace_classroom_menu(
 
         return run_classroom_navigation_preview(
             request, read_line=read_line, output=output
+        )
+
+    if _CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_student_edit_preview
+
+        return run_classroom_student_edit_preview(
+            request, read_line=read_line, output=output, error_output=error_output,
         )
 
     if _CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY:
