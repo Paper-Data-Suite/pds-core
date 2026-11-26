@@ -70,11 +70,13 @@ class _ReadOnlyController:
         school_year_changes_enabled: bool = False,
         class_changes_enabled: bool = False,
         standards_changes_enabled: bool = False,
+        roster_import_enabled: bool = False,
     ) -> None:
         self.workspace_changes_enabled = workspace_changes_enabled
         self.school_year_changes_enabled = school_year_changes_enabled
         self.class_changes_enabled = class_changes_enabled
         self.standards_changes_enabled = standards_changes_enabled
+        self.roster_import_enabled = roster_import_enabled
         self.request = request
         self.read_line = read_line
         self.output = output
@@ -125,6 +127,9 @@ class _ReadOnlyController:
             print(
                 (
                     "Administrative changes require review and confirmation; "
+                    "roster imports require review."
+                    if self.roster_import_enabled
+                    else "Administrative changes require review and confirmation; "
                     "roster browsing remains read-only."
                     if self.class_changes_enabled
                     else "Classroom data remains read-only; administrative changes "
@@ -203,7 +208,7 @@ class _ReadOnlyController:
                 )
             self._pager(start, total)
         elif self.page == "roster" and roster is not None:
-            self._header("Class roster — Read-only")
+            self._header("Class roster" if self.roster_import_enabled else "Class roster — Read-only")
             print(f"Class ID: {roster.class_id}", file=self.output)
             total = len(roster.students)
             self.roster_max_page = max(0, (total - 1) // _PAGE_SIZE)
@@ -224,6 +229,8 @@ class _ReadOnlyController:
                     file=self.output,
                 )
             self._pager(start, total)
+            if self.roster_import_enabled:
+                print("I. Import or replace full roster", file=self.output)
         elif self.page == "student" and roster is not None:
             self._header("Student enrollment — Read-only")
             selected = next(
@@ -403,6 +410,17 @@ class _ReadOnlyController:
                 if receipt is not None:
                     return receipt
                 continue
+            if self.roster_import_enabled and self.page == "roster" and choice == "i" and roster is not None:
+                from pds_core.classroom_menu_roster_import import run_roster_import_review
+
+                receipt = run_roster_import_review(
+                    self.request, workspace_root=overview.workspace.root,
+                    class_id=roster.class_id, expected_active_year=overview.active_school_year,
+                    read_line=self.read_line, output=self.output, error_output=self.errors,
+                )
+                if receipt is not None:
+                    return receipt
+                continue
             self._select(choice, choices)
 
 
@@ -493,4 +511,19 @@ def run_classroom_standards_preview(
         school_year_changes_enabled=True,
         class_changes_enabled=True,
         standards_changes_enabled=True,
+    ).run()
+
+
+def run_classroom_roster_import_preview(
+    request: SharedTeacherMenuRequest,
+    *, read_line: Callable[[], str], output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Private D1 composition gate."""
+    return _ReadOnlyController(
+        request=request, read_line=read_line, output=output,
+        error_output=output if error_output is None else error_output,
+        workspace_changes_enabled=True, school_year_changes_enabled=True,
+        class_changes_enabled=True, standards_changes_enabled=True,
+        roster_import_enabled=True,
     ).run()
