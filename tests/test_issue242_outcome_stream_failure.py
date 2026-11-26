@@ -17,7 +17,13 @@ from pds_core.class_metadata import (
     write_class_metadata_for_class,
 )
 from pds_core.classes import load_class_roster, write_class_roster
-from pds_core.rosters import Roster, RosterWriteError, _write_roster_unlocked, create_roster, write_roster
+from pds_core.rosters import (
+    Roster,
+    RosterWriteError,
+    _write_roster_unlocked,
+    create_roster,
+    write_roster,
+)
 from pds_core.routes import class_dir, class_roster_path
 from pds_core.school_years import load_school_year_state, open_school_year
 from pds_core.standards import (
@@ -47,8 +53,14 @@ TOKEN = "synthetic-output-failure-token"
 
 @pytest.fixture
 def root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.setattr(workspace, "get_workspace_config_path", lambda: tmp_path / "config" / "config.json")
-    monkeypatch.setattr(workspace, "get_default_workspace_root", lambda: tmp_path / "default")
+    monkeypatch.setattr(
+        workspace,
+        "get_workspace_config_path",
+        lambda: tmp_path / "config" / "config.json",
+    )
+    monkeypatch.setattr(
+        workspace, "get_default_workspace_root", lambda: tmp_path / "default"
+    )
     monkeypatch.delenv(workspace.WORKSPACE_ROOT_ENV_VAR, raising=False)
     folder = tmp_path / "workspace"
     folder.mkdir()
@@ -56,12 +68,19 @@ def root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 
 def _row(student_id: str) -> dict[str, str]:
-    return {"student_id": student_id, "first_name": "Ari", "last_name": "Rivera", "period": "2"}
+    return {
+        "student_id": student_id,
+        "first_name": "Ari",
+        "last_name": "Rivera",
+        "period": "2",
+    }
 
 
 def _seed_class(root: Path) -> None:
     open_school_year(root, YEAR, opened_at=START)
-    write_class_metadata_for_class(root, create_class_metadata(CLASS, YEAR, created_at=START))
+    write_class_metadata_for_class(
+        root, create_class_metadata(CLASS, YEAR, created_at=START)
+    )
 
 
 def _candidate(root: Path) -> Path:
@@ -91,8 +110,13 @@ def _invoke(
         return answer
 
     receipt = run_workspace_classroom_menu(
-        SharedTeacherMenuRequest("Synthetic", TOKEN, TeacherContextHint(workspace_root=root)),
-        read_line=read, output=out, error_output=err, interactive=True,
+        SharedTeacherMenuRequest(
+            "Synthetic", TOKEN, TeacherContextHint(workspace_root=root)
+        ),
+        read_line=read,
+        output=out,
+        error_output=err,
+        interactive=True,
     )
     assert receipt.return_token == TOKEN
     assert TOKEN not in out.getvalue() + err.getvalue()
@@ -101,9 +125,14 @@ def _invoke(
 
 
 @pytest.mark.parametrize("failure", [OSError, ValueError, KeyboardInterrupt])
-@pytest.mark.parametrize("operation", ["workspace", "year", "class", "standards", "import", "student"])
+@pytest.mark.parametrize(
+    "operation", ["workspace", "year", "class", "standards", "import", "student"]
+)
 def test_successful_write_receipt_survives_terminal_failure(
-    root: Path, monkeypatch: pytest.MonkeyPatch, operation: str, failure: type[BaseException],
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    operation: str,
+    failure: type[BaseException],
 ) -> None:
     target = root.parent / "new-workspace"
     if operation == "workspace":
@@ -121,10 +150,18 @@ def test_successful_write_receipt_survives_terminal_failure(
             standards_library_path(root),
             StandardsLibrary(
                 standards=(
-                    StandardDefinition("synthetic:one", "ONE", "Synthetic", "One", "First standard"),
-                    StandardDefinition("synthetic:two", "TWO", "Synthetic", "Two", "Second standard"),
+                    StandardDefinition(
+                        "synthetic:one", "ONE", "Synthetic", "One", "First standard"
+                    ),
+                    StandardDefinition(
+                        "synthetic:two", "TWO", "Synthetic", "Two", "Second standard"
+                    ),
                 ),
-                profiles=(StandardsProfile("english12", ("synthetic:one",), title="English 12"),),
+                profiles=(
+                    StandardsProfile(
+                        "english12", ("synthetic:one",), title="English 12"
+                    ),
+                ),
             ),
         )
         answers = ["3", "3", "1", "english12", "synthetic:two", "C"]
@@ -154,7 +191,9 @@ def test_successful_write_receipt_survives_terminal_failure(
         assert load_class_metadata_for_class(root, NEW_CLASS).created_at == START
         assert not class_roster_path(root, NEW_CLASS).exists()
     elif operation == "standards":
-        assert load_standards_library(standards_library_path(root)).profiles[0].standards == ("synthetic:one", "synthetic:two")
+        assert load_standards_library(standards_library_path(root)).profiles[
+            0
+        ].standards == ("synthetic:one", "synthetic:two")
     elif operation == "import":
         assert load_class_roster(root, CLASS).students[0].student_id == "0007"
     else:
@@ -162,12 +201,15 @@ def test_successful_write_receipt_survives_terminal_failure(
 
 
 def test_uncertain_roster_receipt_survives_failed_error_stream(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _seed_class(root)
     candidate = _candidate(root)
 
-    def write_then_fail(path: str | Path, roster: Roster, *, overwrite: bool = False) -> None:
+    def write_then_fail(
+        path: str | Path, roster: Roster, *, overwrite: bool = False
+    ) -> None:
         _write_roster_unlocked(path, roster, overwrite=overwrite)
         raise RosterWriteError(path, "private injected detail")
 
@@ -180,7 +222,8 @@ def test_uncertain_roster_receipt_survives_failed_error_stream(
 
 
 def test_partial_class_receipt_survives_failed_error_stream(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _seed_class(root)
 
@@ -188,7 +231,9 @@ def test_partial_class_receipt_survives_failed_error_stream(
         raise OSError("private injected failure")
 
     monkeypatch.setattr(os, "link", fail)
-    receipt = _invoke(root, monkeypatch, ["6", NEW_CLASS, START.isoformat(), "C"], OSError)
+    receipt = _invoke(
+        root, monkeypatch, ["6", NEW_CLASS, START.isoformat(), "C"], OSError
+    )
     assert receipt.exit is TeacherMenuExit.FAILED
     assert receipt.durability is TeacherDurability.PARTIAL
     assert receipt.change_scopes == frozenset({TeacherChangeScope.CLASS})

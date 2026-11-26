@@ -151,7 +151,9 @@ def _refusal(
 ) -> SharedTeacherMenuResult:
     if isinstance(error, WorkspacePreferenceWriteError):
         if error.reason == "write_outcome_uncertain":
-            _outcome_notice("Write outcome uncertain; inspect before retrying.", file=stderr)
+            _outcome_notice(
+                "Write outcome uncertain; inspect before retrying.", file=stderr
+            )
             return _receipt(
                 request,
                 TeacherMenuExit.FAILED,
