@@ -47,19 +47,39 @@ def status() -> set[str]:
     return modified
 
 
-def verify_ruff_only(files: set[str]) -> None:
+def _normalized(data: bytes) -> bytes:
+    return data.replace(b"\r\n", b"\n")
+
+
+def _ruff_source(name: str, original: bytes, *, lint: bool) -> bytes:
+    command = [sys.executable, "-m", "ruff"]
+    if lint:
+        command.extend(["check", "--fix", "--no-unsafe-fixes", "--exit-zero"])
+    else:
+        command.append("format")
+    command.extend(["--stdin-filename", name, "-"])
+    return subprocess.run(
+        command, input=original, stdout=subprocess.PIPE, check=True
+    ).stdout
+
+
+def ruff_states(name: str, original: bytes) -> tuple[bytes, bytes, bytes]:
+    """Reproduce every permitted stage of the scoped mechanical transform."""
+    formatted = _ruff_source(name, original, lint=False)
+    fixed = _ruff_source(name, formatted, lint=True)
+    final = _ruff_source(name, fixed, lint=False)
+    return formatted, fixed, final
+
+
+def verify_ruff_only(files: set[str], *, recovering: bool = False) -> None:
     for name in sorted(files):
         original = capture("git", "show", f"HEAD:{name}")
-        formatted = subprocess.run(
-            [sys.executable, "-m", "ruff", "format", "--stdin-filename", name, "-"],
-            input=original,
-            stdout=subprocess.PIPE,
-            check=True,
-        ).stdout
-        actual = Path(name).read_bytes()
+        formatted, fixed, final = ruff_states(name, original)
+        permitted = (formatted, fixed, final) if recovering else (final,)
+        actual = _normalized(Path(name).read_bytes())
         require(
-            actual.replace(b"\r\n", b"\n") == formatted.replace(b"\r\n", b"\n"),
-            f"Refused: {name} contains changes beyond Ruff formatting.",
+            any(actual == _normalized(stage) for stage in permitted),
+            f"Refused: {name} contains changes beyond permitted Ruff fixes.",
         )
         print(f"Verified Ruff-only change: {name}", flush=True)
 
@@ -75,6 +95,7 @@ def main() -> None:
     parser.add_argument("--branch", required=True)
     parser.add_argument("--base", required=True)
     parser.add_argument("--candidate", required=True)
+    parser.add_argument("--resume-from", help="Exact interrupted predecessor SHA.")
     parser.add_argument("--label", required=True)
     parser.add_argument("--skip-format", nargs="*", default=[])
     parser.add_argument("--tests", nargs="+", required=True)
@@ -82,6 +103,7 @@ def main() -> None:
     branch: str = args.branch
     base: str = args.base
     candidate: str = args.candidate
+    resume: str | None = args.resume_from
     label: str = args.label
     tests: list[str] = args.tests
     skipped: set[str] = set(args.skip_format)
@@ -89,6 +111,8 @@ def main() -> None:
         all(re.fullmatch("[0-9a-f]{40}", s) for s in (base, candidate)),
         "Full lowercase SHA-1 commits are required.",
     )
+    require(resume is None or re.fullmatch("[0-9a-f]{40}", resume) is not None,
+            "Resume commit must be a full lowercase SHA-1.")
     require(re.fullmatch("[A-Za-z0-9_-]+", label) is not None, "Invalid label.")
     root = Path(git("rev-parse", "--show-toplevel")).resolve()
     require(Path.cwd().resolve() == root, "Run from the repository root.")
@@ -104,12 +128,17 @@ def main() -> None:
         "Unexpected origin.",
     )
     head = git("rev-parse", "HEAD")
-    require(head in {base, candidate}, "Unexpected local HEAD.")
+    require(head in {base, candidate, resume}, "Unexpected local HEAD.")
 
     print("=== VERIFY REMOTE CANDIDATE ===", flush=True)
     run("git", "fetch", "origin", branch)
     require(remote_head(branch) == candidate, "Remote candidate changed.")
     run("git", "merge-base", "--is-ancestor", base, candidate)
+    if resume is not None:
+        run("git", "merge-base", "--is-ancestor", base, resume)
+        run("git", "merge-base", "--is-ancestor", resume, candidate)
+        require(not paths("diff", "--name-only", resume, candidate).intersection({"pyproject.toml", "ruff.toml", ".ruff.toml"}),
+                "Ruff configuration changed across interrupted candidate.")
     changed = paths("diff", "--name-only", base, candidate)
     python_files = {name for name in changed if name.endswith(".py")}
     require(skipped <= python_files, "Unexpected format exclusions.")
@@ -120,14 +149,14 @@ def main() -> None:
         "Focused tests must be repository test files.",
     )
 
-    print("=== SAFELY RECOVER INTERRUPTED FORMATTING ===", flush=True)
+    print("=== SAFELY RECOVER INTERRUPTED RUFF FIXES ===", flush=True)
     dirty = status()
-    require(dirty <= format_files, "Changes outside formatting scope.")
+    require(dirty <= format_files, "Changes outside Ruff fix scope.")
     if dirty:
-        verify_ruff_only(dirty)
+        verify_ruff_only(dirty, recovering=True)
         run("git", "restore", "--", *sorted(dirty))
-    require(not status(), "Checkout not clean after recovery.")
-    if head == base and head != candidate:
+    require(not status(), "Checkout not clean after Ruff recovery.")
+    if head != candidate:
         run("git", "merge", "--ff-only", candidate)
     require(git("rev-parse", "HEAD") == candidate, "Unexpected checkout SHA.")
     require(
@@ -135,10 +164,17 @@ def main() -> None:
         "A scoped file does not exist.",
     )
 
-    print("=== AUTOMATIC RUFF FORMATTING ===", flush=True)
+    print("=== AUTOMATIC SAFE RUFF FIXES AND FORMATTING ===", flush=True)
     scoped = sorted(format_files)
     static = sorted(python_files)
-    run(sys.executable, "-m", "ruff", "format", *scoped)
+    # Use precisely the same per-file transform as the verification path.
+    # Write only the deterministic final output; preserve unmodified bytes.
+    for name in scoped:
+        path = Path(name)
+        original = capture("git", "show", f"HEAD:{name}")
+        _, _, final = ruff_states(name, original)
+        if _normalized(path.read_bytes()) != _normalized(final):
+            path.write_bytes(final)
     run(sys.executable, "-m", "ruff", "format", "--check", *scoped)
     run(sys.executable, "-m", "ruff", "check", *static)
     run(sys.executable, "-m", "mypy", *static)
@@ -159,11 +195,11 @@ def main() -> None:
         )
         run("git", "diff", "--cached", "--check")
         run(
-            "git", "commit", "-m", f"style(core242): autoformat {label} qualified files"
+            "git", "commit", "-m", f"style(core242): safe Ruff fixes for {label} qualified files"
         )
         run("git", "push", "origin", f"HEAD:refs/heads/{branch}")
     else:
-        print("No formatting commit required.", flush=True)
+        print("No Ruff fix commit required.", flush=True)
 
     print("=== FINAL INTEGRITY ===", flush=True)
     final = git("rev-parse", "HEAD")
