@@ -13,7 +13,7 @@ import pds_core.roster_imports as service
 import pds_core.teacher_menus as menus
 from pds_core.class_metadata import create_class_metadata, write_class_metadata_for_class
 from pds_core.classes import load_class_roster, write_class_roster
-from pds_core.rosters import Roster, RosterWriteError, create_roster, write_roster
+from pds_core.rosters import Roster, RosterWriteError, _write_roster_unlocked, create_roster, write_roster
 from pds_core.routes import class_dir, class_roster_path
 from pds_core.school_years import close_school_year, open_school_year
 from pds_core.teacher_context import (
@@ -232,7 +232,7 @@ def test_class_mismatch_refused(root: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
 def test_uncertain_write_receipt(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     path = _csv(root, [_row("0007")])
-    actual = service._write_roster_unlocked
+    actual = _write_roster_unlocked
 
     def write_then_fail(path: str | Path, roster: Roster, *, overwrite: bool = False) -> None:
         actual(path, roster, overwrite=overwrite)
