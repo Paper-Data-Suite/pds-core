@@ -86,12 +86,23 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_preview,
     handle_starter_standards_validate,
 )
+from pds_core.cli_support.class_commands import handle_class_creation
+from pds_core.classroom_entry import handle_classroom_menu
+from pds_core.cli_support.classroom_standards_commands import handle_guarded_standards
+from pds_core.cli_support.school_year_commands import (
+    handle_year_commit,
+    handle_year_preview,
+)
 from pds_core.cli_support.workspace_management import (
     handle_workspace_paths,
     handle_workspace_reset,
     handle_workspace_set,
     handle_workspace_show,
     handle_workspace_validate,
+)
+from pds_core.cli_support.workspace_preference_commands import (
+    handle_workspace_preference_commit,
+    handle_workspace_preference_preview,
 )
 from pds_core.identifiers import IdentifierValidationError, validate_identifier
 from pds_core.publication_records import PUBLICATION_CAPABILITIES
@@ -472,6 +483,11 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     workspace_subparsers = workspace.add_subparsers(dest="workspace_command")
 
+    classroom_menu = workspace_subparsers.add_parser(
+        "menu", help="Open the interactive Workspace & Classroom Management menu.",
+    )
+    classroom_menu.set_defaults(handler=handle_classroom_menu, load_workspace_library=False)
+
     show_parser = workspace_subparsers.add_parser(
         "show",
         help="Show current workspace status without creating files.",
@@ -544,6 +560,135 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         handler=handle_workspace_paths,
         load_workspace_library=False,
     )
+
+    for command_name, handler in (
+        ("preference-preview", handle_workspace_preference_preview),
+        ("preference-commit", handle_workspace_preference_commit),
+    ):
+        preference = workspace_subparsers.add_parser(
+            command_name,
+            help=(
+                "Review a saved-workspace preference change without writing."
+                if command_name == "preference-preview"
+                else "Commit one reviewed saved-workspace preference change."
+            ),
+            description=(
+                "Operate on the per-user saved preference, not --workspace. "
+                "Use 'set PATH' or 'reset'. This is noninteractive and never "
+                "alters historical workspace data."
+            ),
+        )
+        actions = preference.add_subparsers(dest="preference_action")
+        for action in ("set", "reset"):
+            command = actions.add_parser(action)
+            if action == "set":
+                command.add_argument(
+                    "path",
+                    help="Destination workspace root to save after confirmation.",
+                )
+            if command_name == "preference-commit":
+                command.add_argument(
+                    "--expected-current-state-token",
+                    required=True,
+                    help="Opaque current-state token from preference-preview.",
+                )
+                command.add_argument(
+                    "--expected-candidate-state-token",
+                    required=True,
+                    help="Opaque candidate-state token from preference-preview.",
+                )
+                command.add_argument(
+                    "--confirm",
+                    action="store_true",
+                    help="Explicitly approve the exact previously reviewed change.",
+                )
+            _format(command)
+            command.set_defaults(
+                handler=handler,
+                load_workspace_library=False,
+            )
+
+    for operation, handler in (
+        ("year-preview", handle_year_preview),
+        ("year-commit", handle_year_commit),
+    ):
+        year_parser = workspace_subparsers.add_parser(
+            operation,
+            help=(
+                "Preview a canonical school-year transition without writing."
+                if operation == "year-preview"
+                else "Commit an exactly reviewed school-year transition."
+            ),
+        )
+        year_actions = year_parser.add_subparsers(dest="year_action")
+        for action in ("open", "close"):
+            command = year_actions.add_parser(action)
+            if action == "open":
+                command.add_argument(
+                    "year",
+                    type=_school_year,
+                    help="Canonical academic school year (YYYY-YYYY).",
+                )
+            command.add_argument(
+                "--effective-at",
+                type=_aware_datetime,
+                required=True,
+                help="Reviewed ISO timestamp with explicit UTC offset.",
+            )
+            if operation == "year-commit":
+                command.add_argument(
+                    "--expected-current-state-token",
+                    required=True,
+                    help="Current-state token from the exact year-preview.",
+                )
+                command.add_argument(
+                    "--expected-candidate-state-token",
+                    required=True,
+                    help="Candidate-state token from the exact year-preview.",
+                )
+                command.add_argument(
+                    "--confirm",
+                    action="store_true",
+                    help="Approve exactly the reviewed transition.",
+                )
+            _format(command)
+            command.set_defaults(
+                handler=handler,
+                load_workspace_library=False,
+            )
+
+    for operation in ("class-preview", "class-commit", "class-recovery"):
+        command = workspace_subparsers.add_parser(
+            operation,
+            help="Review, create or inspect a canonical empty class.",
+        )
+        command.add_argument("class_id", type=_identifier)
+        command.add_argument("school_year", type=_school_year)
+        command.add_argument("--created-at", type=_aware_datetime, required=True)
+        if operation == "class-commit":
+            command.add_argument("--expected-current-state-token", required=True)
+            command.add_argument("--expected-candidate-state-token", required=True)
+            command.add_argument("--confirm", action="store_true")
+        _format(command)
+        command.set_defaults(
+            handler=handle_class_creation,
+            load_workspace_library=False,
+        )
+
+    for operation in ("standards-inspect", "standards-preview", "standards-commit"):
+        command = workspace_subparsers.add_parser(
+            operation, help="Inspect or review an exact Standards membership change."
+        )
+        if operation != "standards-inspect":
+            command.add_argument("action", choices=("add", "remove", "set"))
+            command.add_argument("profile_id")
+            command.add_argument("standard_ids", nargs="*")
+        if operation == "standards-commit":
+            command.add_argument("--expected-current-state-token", required=True)
+            command.add_argument("--expected-candidate-state-token", required=True)
+            command.add_argument("--confirm", action="store_true")
+        _format(command)
+        command.set_defaults(handler=handle_guarded_standards, load_workspace_library=False)
 
 
 def _add_validate_parser(

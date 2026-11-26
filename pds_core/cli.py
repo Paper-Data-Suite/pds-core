@@ -61,6 +61,29 @@ def _run(
         parser.print_help(stdout)
         return 0
 
+    # Only these guarded commands handle workspace resolution in their
+    # own bounded, structured-error paths. Preference commands are user-
+    # scoped; year commands use normal explicit/env/saved/default precedence.
+    if args.command == "workspace" and getattr(args, "workspace_command", None) in {
+        "menu",
+        "preference-preview",
+        "preference-commit",
+        "year-preview",
+        "year-commit",
+        "class-preview",
+        "class-commit",
+        "class-recovery",
+        "standards-inspect",
+        "standards-preview",
+        "standards-commit",
+    }:
+        return handler(
+            args,
+            StandardsLibrary(standards=(), profiles=()),
+            stdout,
+            stderr,
+        )
+
     try:
         workspace_root = resolve_workspace_root(args.workspace)
         if workspace_root.exists() and not workspace_root.is_dir():

@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TextIO
 
+from pds_core import teacher_experience
 from pds_core.cli_support import screen
 from pds_core.menu_navigation import (
     NavigationChoice,
@@ -24,7 +25,7 @@ from pds_core.teacher_context import (
 )
 from pds_core.teacher_ui import TeacherScreenHeader, print_teacher_header
 
-__all__ = ("run_notes_tasks_menu",)
+__all__ = ("run_notes_tasks_menu", "run_workspace_classroom_menu")
 
 # Navigation-only simulation for synthetic Core tests; not a consumer switch
 # and never offered by the regular Core menu.
@@ -167,3 +168,161 @@ def _run_navigation_preview(
             depth = 2
         else:
             notice = "Choose a listed option, B, M, or Q."
+
+
+# Core #242 Slice A is intentionally a *test-only* navigation scaffold.
+# Public callers receive UNAVAILABLE until the real service composition,
+# mutation/return semantics, installed candidate and capability qualify.
+_CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY = False
+# Temporary B2 qualification-only switch; public menu remains unavailable.
+_CLASSROOM_READONLY_PREVIEW_TEST_ONLY = False
+# C3A confirms saved workspace changes only behind a private synthetic gate.
+_CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY = False
+# C3B4 school-year writes are available only in the private acceptance gate.
+_CLASSROOM_SCHOOL_YEAR_PREVIEW_TEST_ONLY = False
+# C3B7 qualification only; never a consumer capability.
+_CLASSROOM_CLASS_PREVIEW_TEST_ONLY = False
+_CLASSROOM_STANDARDS_PREVIEW_TEST_ONLY = False
+_CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY = False
+_CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY = False
+
+
+def _classroom_menu_available() -> bool:
+    capabilities = teacher_experience.get_teacher_experience_capabilities()
+    return {"classroom.menu.v1", "classroom.roster_edits.v1"}.issubset(capabilities)
+
+
+def _classroom_unavailable(
+    request: SharedTeacherMenuRequest,
+    *,
+    interactive: bool,
+) -> SharedTeacherMenuResult:
+    message = (
+        "Workspace & Classroom Management requires an interactive session."
+        if not interactive
+        else "Workspace & Classroom Management is not qualified in this Core build."
+    )
+    return SharedTeacherMenuResult(
+        return_token=request.return_token,
+        exit=TeacherMenuExit.UNAVAILABLE,
+        durability=TeacherDurability.NO_CHANGE,
+        change_scopes=frozenset(),
+        message=(
+            f"{message} No changes were made. "
+            "Revalidate workspace, class, roster and work on return."
+        ),
+    )
+
+
+def run_workspace_classroom_menu(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    interactive: bool,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Callable #242 boundary; require the installed classroom capabilities.
+
+    The private navigation-preview switch is only for synthetic tests. It
+    never reads, selects or modifies a real workspace and is not a capability.
+    """
+    if not isinstance(request, SharedTeacherMenuRequest):
+        raise TypeError("request must be a SharedTeacherMenuRequest")
+    if not callable(read_line):
+        raise TypeError("read_line must be callable")
+    if not callable(getattr(output, "write", None)):
+        raise TypeError("output must be writable")
+    if type(interactive) is not bool:
+        raise TypeError("interactive must be a bool")
+    if error_output is not None and not callable(getattr(error_output, "write", None)):
+        raise TypeError("error_output must be writable or None")
+
+    if not interactive:
+        return _classroom_unavailable(request, interactive=False)
+
+    if _CLASSROOM_NAVIGATION_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_navigation import run_classroom_navigation_preview
+
+        return run_classroom_navigation_preview(
+            request, read_line=read_line, output=output
+        )
+
+    if _CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_student_edit_preview
+
+        return run_classroom_student_edit_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_roster_import_preview
+
+        return run_classroom_roster_import_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_STANDARDS_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_standards_preview
+
+        return run_classroom_standards_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_CLASS_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_class_preview
+
+        return run_classroom_class_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_SCHOOL_YEAR_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_school_year_preview
+
+        return run_classroom_school_year_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_WORKSPACE_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_workspace_preview
+
+        return run_classroom_workspace_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _CLASSROOM_READONLY_PREVIEW_TEST_ONLY:
+        from pds_core.classroom_menu_readonly import run_classroom_readonly_preview
+
+        return run_classroom_readonly_preview(
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
+        )
+
+    if _classroom_menu_available():
+        from pds_core.classroom_menu_readonly import run_classroom_student_edit_preview
+
+        return run_classroom_student_edit_preview(
+            request, read_line=read_line, output=output, error_output=error_output
+        )
+
+    return _classroom_unavailable(request, interactive=True)

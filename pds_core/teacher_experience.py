@@ -4,6 +4,7 @@ A capability identifies an implemented Core facility; it does not attest to
 Suite installation, producer adoption, user authorization, or a Core release.
 Notes records, menu, and noninteractive CLI are implemented by Core #239–240.
 Core #241 adds guarded individual roster edits and the direct roster CLI.
+Core #242 adds the shared Workspace & Classroom Management menu.
 Tokens make no claim of a release or an adopting consumer.
 """
 
@@ -26,6 +27,7 @@ _IMPLEMENTED_CAPABILITIES: Final[frozenset[str]] = frozenset(
         "notes.menu.v1",
         "notes.cli.v1",
         "classroom.roster_edits.v1",
+        "classroom.menu.v1",
     }
 )
 
