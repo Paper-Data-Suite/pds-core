@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TextIO
 
+from pds_core import teacher_experience
 from pds_core.cli_support import screen
 from pds_core.menu_navigation import (
     NavigationChoice,
@@ -186,6 +187,11 @@ _CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY = False
 _CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY = False
 
 
+def _classroom_menu_available() -> bool:
+    capabilities = teacher_experience.get_teacher_experience_capabilities()
+    return {"classroom.menu.v1", "classroom.roster_edits.v1"}.issubset(capabilities)
+
+
 def _classroom_unavailable(
     request: SharedTeacherMenuRequest,
     *,
@@ -216,7 +222,7 @@ def run_workspace_classroom_menu(
     interactive: bool,
     error_output: TextIO | None = None,
 ) -> SharedTeacherMenuResult:
-    """Callable #242 boundary; fail closed until classroom menu is qualified.
+    """Callable #242 boundary; require the installed classroom capabilities.
 
     The private navigation-preview switch is only for synthetic tests. It
     never reads, selects or modifies a real workspace and is not a capability.
@@ -310,6 +316,13 @@ def run_workspace_classroom_menu(
             read_line=read_line,
             output=output,
             error_output=error_output,
+        )
+
+    if _classroom_menu_available():
+        from pds_core.classroom_menu_readonly import run_classroom_student_edit_preview
+
+        return run_classroom_student_edit_preview(
+            request, read_line=read_line, output=output, error_output=error_output
         )
 
     return _classroom_unavailable(request, interactive=True)

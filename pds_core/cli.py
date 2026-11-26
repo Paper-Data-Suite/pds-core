@@ -65,6 +65,7 @@ def _run(
     # own bounded, structured-error paths. Preference commands are user-
     # scoped; year commands use normal explicit/env/saved/default precedence.
     if args.command == "workspace" and getattr(args, "workspace_command", None) in {
+        "menu",
         "preference-preview",
         "preference-commit",
         "year-preview",

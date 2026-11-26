@@ -87,6 +87,7 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_validate,
 )
 from pds_core.cli_support.class_commands import handle_class_creation
+from pds_core.classroom_entry import handle_classroom_menu
 from pds_core.cli_support.classroom_standards_commands import handle_guarded_standards
 from pds_core.cli_support.school_year_commands import (
     handle_year_commit,
@@ -481,6 +482,11 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         ),
     )
     workspace_subparsers = workspace.add_subparsers(dest="workspace_command")
+
+    classroom_menu = workspace_subparsers.add_parser(
+        "menu", help="Open the interactive Workspace & Classroom Management menu.",
+    )
+    classroom_menu.set_defaults(handler=handle_classroom_menu, load_workspace_library=False)
 
     show_parser = workspace_subparsers.add_parser(
         "show",

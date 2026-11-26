@@ -29,7 +29,11 @@ from pds_core.teacher_context import (
     TeacherContextHint,
     TeacherMenuExit,
 )
-from pds_core.teacher_menus import run_notes_tasks_menu
+from pds_core.teacher_menus import (
+    _classroom_menu_available,
+    run_notes_tasks_menu,
+)
+from pds_core.classroom_entry import run_classroom_entry
 from pds_core.standards import (
     StandardsLibrary,
     StandardsReadError,
@@ -170,6 +174,19 @@ class CoreMenu:
                 if result is TeacherMenuExit.QUIT:
                     return 0
                 continue
+            if choice == "6":
+                receipt = run_classroom_entry(
+                    self.args.workspace, stdin=self.stdin, stdout=self.stdout,
+                    stderr=self.stderr, interactive=True,
+                )
+                # Core holds no subordinate selection or cached workspace/library
+                # at this boundary. Next entry resolves canonical state afresh.
+                if receipt.exit is TeacherMenuExit.QUIT:
+                    return 0
+                if receipt.exit in (TeacherMenuExit.FAILED, TeacherMenuExit.UNAVAILABLE) or receipt.change_scopes:
+                    print(receipt.message, file=self.stdout)
+                    self._pause("Main Menu")
+                continue
             print(navigation_hint(), file=self.stdout)
 
     def _run_standards_menu(self) -> int:
@@ -256,6 +273,8 @@ class CoreMenu:
         print("3. Help", file=self.stdout)
         print("4. Exit", file=self.stdout)
         print("5. Notes & Tasks  (:notes)", file=self.stdout)
+        suffix = "" if _classroom_menu_available() else " (not yet available)"
+        print(f"6. Workspace & Classroom Management{suffix}", file=self.stdout)
         print_navigation_options(back=False, main_menu=False, file=self.stdout)
         print("", file=self.stdout)
 
