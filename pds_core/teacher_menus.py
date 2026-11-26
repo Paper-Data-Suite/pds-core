@@ -244,7 +244,10 @@ def run_workspace_classroom_menu(
         from pds_core.classroom_menu_readonly import run_classroom_standards_preview
 
         return run_classroom_standards_preview(
-            request, read_line=read_line, output=output, error_output=error_output,
+            request,
+            read_line=read_line,
+            output=output,
+            error_output=error_output,
         )
 
     if _CLASSROOM_CLASS_PREVIEW_TEST_ONLY:

@@ -150,7 +150,8 @@ class _ReadOnlyController:
             print("1. Workspace and school year", file=self.output)
             print("2. Classes and rosters", file=self.output)
             print(
-                "3. Standards management" if self.standards_changes_enabled
+                "3. Standards management"
+                if self.standards_changes_enabled
                 else "3. Standards (not available in this preview)",
                 file=self.output,
             )
@@ -484,8 +485,12 @@ def run_classroom_standards_preview(
 ) -> SharedTeacherMenuResult:
     """Private C4B Standards composition gate."""
     return _ReadOnlyController(
-        request=request, read_line=read_line, output=output,
+        request=request,
+        read_line=read_line,
+        output=output,
         error_output=output if error_output is None else error_output,
-        workspace_changes_enabled=True, school_year_changes_enabled=True,
-        class_changes_enabled=True, standards_changes_enabled=True,
+        workspace_changes_enabled=True,
+        school_year_changes_enabled=True,
+        class_changes_enabled=True,
+        standards_changes_enabled=True,
     ).run()

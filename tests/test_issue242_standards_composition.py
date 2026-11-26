@@ -62,7 +62,8 @@ def _cli(root: Path, *args: str) -> tuple[int, dict[str, Any], str]:
     out, err = io.StringIO(), io.StringIO()
     code = _run(
         ["--workspace", str(root), "workspace", *args, "--format", "json"],
-        stdout=out, stderr=err,
+        stdout=out,
+        stderr=err,
     )
     payload: dict[str, Any] = json.loads(out.getvalue())
     return code, payload, err.getvalue()
@@ -79,13 +80,21 @@ def _preview(root: Path, *ids: str, action: str = "add") -> dict[str, Any]:
 
 
 def _commit(
-    root: Path, review: dict[str, Any], *ids: str,
-    action: str = "add", confirmed: bool = True,
+    root: Path,
+    review: dict[str, Any],
+    *ids: str,
+    action: str = "add",
+    confirmed: bool = True,
 ) -> tuple[int, dict[str, Any], str]:
     args = [
-        "standards-commit", action, PROFILE, *ids,
-        "--expected-current-state-token", review["current_state_token"],
-        "--expected-candidate-state-token", review["candidate_state_token"],
+        "standards-commit",
+        action,
+        PROFILE,
+        *ids,
+        "--expected-current-state-token",
+        review["current_state_token"],
+        "--expected-candidate-state-token",
+        review["candidate_state_token"],
     ]
     if confirmed:
         args.append("--confirm")
@@ -93,13 +102,18 @@ def _commit(
 
 
 def _menu(
-    root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[str],
-    *, enabled: bool = True, interactive: bool = True,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    *,
+    enabled: bool = True,
+    interactive: bool = True,
     before_confirm: Callable[[], None] | None = None,
 ) -> tuple[SharedTeacherMenuResult, str, str]:
     monkeypatch.setattr(menus, "_CLASSROOM_STANDARDS_PREVIEW_TEST_ONLY", enabled)
     request = SharedTeacherMenuRequest(
-        caller_application="Quillan", return_token="opaque-standards-return",
+        caller_application="Quillan",
+        return_token="opaque-standards-return",
         context=TeacherContextHint(workspace_root=root, display_label="Synthetic"),
     )
     iterator = iter(answers)
@@ -176,9 +190,12 @@ def test_cli_empty_set_and_noop(populated: Path) -> None:
 
 
 @pytest.mark.parametrize("enabled, interactive", [(False, True), (True, False)])
-def test_public_gate(root: Path, monkeypatch: pytest.MonkeyPatch,
-                     enabled: bool, interactive: bool) -> None:
-    result, out, err = _menu(root, monkeypatch, [], enabled=enabled, interactive=interactive)
+def test_public_gate(
+    root: Path, monkeypatch: pytest.MonkeyPatch, enabled: bool, interactive: bool
+) -> None:
+    result, out, err = _menu(
+        root, monkeypatch, [], enabled=enabled, interactive=interactive
+    )
     assert result.exit is TeacherMenuExit.UNAVAILABLE
     assert result.durability is TeacherDurability.NO_CHANGE
     assert out == err == ""
@@ -188,7 +205,9 @@ def test_public_gate(root: Path, monkeypatch: pytest.MonkeyPatch,
 
 def test_menu_browse_and_back(populated: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     original = standards_library_path(populated).read_bytes()
-    result, out, err = _menu(populated, monkeypatch, ["3", "1", "B", "2", "B", "B", "B"])
+    result, out, err = _menu(
+        populated, monkeypatch, ["3", "1", "B", "2", "B", "B", "B"]
+    )
     assert result.exit is TeacherMenuExit.BACK
     assert result.durability is TeacherDurability.NO_CHANGE
     assert ONE in out and TWO in out and PROFILE in out
@@ -205,7 +224,9 @@ def test_menu_commit(populated: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert f'Before: ["{ONE}"]' in out
     assert f'After: ["{ONE}", "{TWO}"]' in out
     assert err == ""
-    assert load_standards_library(standards_library_path(populated)).profiles[0].standards == (ONE, TWO)
+    assert load_standards_library(standards_library_path(populated)).profiles[
+        0
+    ].standards == (ONE, TWO)
 
 
 @pytest.mark.parametrize(
@@ -220,8 +241,10 @@ def test_menu_commit(populated: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ],
 )
 def test_menu_navigation(
-    populated: Path, monkeypatch: pytest.MonkeyPatch,
-    answers: list[str], expected: TeacherMenuExit,
+    populated: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    expected: TeacherMenuExit,
 ) -> None:
     original = standards_library_path(populated).read_bytes()
     result, _, _ = _menu(populated, monkeypatch, answers)
@@ -248,7 +271,9 @@ def test_menu_stale_preview(populated: Path, monkeypatch: pytest.MonkeyPatch) ->
         path.write_bytes(changed)
 
     result, _, err = _menu(
-        populated, monkeypatch, ["3", "3", "1", PROFILE, TWO, "C"],
+        populated,
+        monkeypatch,
+        ["3", "3", "1", PROFILE, TWO, "C"],
         before_confirm=intervene,
     )
     assert result.exit is TeacherMenuExit.FAILED
@@ -259,17 +284,23 @@ def test_menu_stale_preview(populated: Path, monkeypatch: pytest.MonkeyPatch) ->
 
 @pytest.mark.parametrize("via_menu", [True, False])
 def test_uncertain_write(
-    populated: Path, monkeypatch: pytest.MonkeyPatch, via_menu: bool,
+    populated: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    via_menu: bool,
 ) -> None:
     actual = write_standards_library
 
-    def fail(path: str | Path, library: StandardsLibrary, *, overwrite: bool = False) -> None:
+    def fail(
+        path: str | Path, library: StandardsLibrary, *, overwrite: bool = False
+    ) -> None:
         actual(path, library, overwrite=overwrite)
         raise StandardsWriteError(path, "private injected detail")
 
     monkeypatch.setattr(guarded, "write_standards_library", fail)
     if via_menu:
-        receipt, _, err = _menu(populated, monkeypatch, ["3", "3", "1", PROFILE, TWO, "C"])
+        receipt, _, err = _menu(
+            populated, monkeypatch, ["3", "3", "1", PROFILE, TWO, "C"]
+        )
         assert receipt.exit is TeacherMenuExit.FAILED
         assert receipt.durability is TeacherDurability.INDETERMINATE
         assert receipt.change_scopes == frozenset({TeacherChangeScope.STANDARDS})
@@ -280,4 +311,6 @@ def test_uncertain_write(
         assert result["data"]["status"] == "indeterminate"
         assert result["data"]["changed_scopes"] == ["STANDARDS"]
         assert "private injected detail" not in json.dumps(result)
-    assert load_standards_library(standards_library_path(populated)).profiles[0].standards == (ONE, TWO)
+    assert load_standards_library(standards_library_path(populated)).profiles[
+        0
+    ].standards == (ONE, TWO)

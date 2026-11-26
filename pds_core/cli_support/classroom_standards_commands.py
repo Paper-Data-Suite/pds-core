@@ -68,7 +68,8 @@ def handle_guarded_standards(
                 }
             elif operation == "standards-commit":
                 result = commit_profile_membership(
-                    root, change,
+                    root,
+                    change,
                     expected_current_state_token=args.expected_current_state_token,
                     expected_candidate_state_token=args.expected_candidate_state_token,
                     confirmed=args.confirm,
@@ -80,7 +81,9 @@ def handle_guarded_standards(
                     "after": result.after,
                     "status": result.outcome,
                     "state_token": result.state_token,
-                    "changed_scopes": ["STANDARDS"] if result.outcome == "committed" else [],
+                    "changed_scopes": ["STANDARDS"]
+                    if result.outcome == "committed"
+                    else [],
                     "revalidation_required": True,
                 }
             else:
@@ -96,16 +99,24 @@ def handle_guarded_standards(
             }
         elif isinstance(exc, StandardsReviewConflict):
             code = 4
-        elif reason in {"invalid_change", "invalid_profile", "invalid_membership",
-                        "not_confirmed", "invalid_token"}:
+        elif reason in {
+            "invalid_change",
+            "invalid_profile",
+            "invalid_membership",
+            "not_confirmed",
+            "invalid_token",
+        }:
             code = 2
         else:
             code = 5
         error = {"code": f"standards.{reason}", "message": str(exc)}
     if args.format == "json":
         payload: dict[str, object] = {
-            "schema_version": "1", "command": command, "scope": "standards",
-            "ok": error is None, "data": data,
+            "schema_version": "1",
+            "command": command,
+            "scope": "standards",
+            "ok": error is None,
+            "data": data,
         }
         if error is not None:
             payload["error"] = error
