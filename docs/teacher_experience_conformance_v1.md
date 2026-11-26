@@ -5,6 +5,8 @@
 **Owner:** PDS Core for public primitives and Core-owned services; each consumer owns its own screen adoption
 **Status:** Normative **design acceptance cases** for Core #236. **Not executable runtime tests, a qualified Notes store, a release, or an installed-consumer attestation.**
 
+The November 18 workspace-native decision supersedes the historical #238/#243 local-private storage and separate portability proposals. P01–P12 and UX-10/12 below reflect the corrected architecture; historical audit documents are retained.
+
 These vectors fix observable expectations for the exact public shapes in the contract. Values and scenarios are synthetic. Implementation tickets must turn them into actual tests and include both positive and negative cases. An isolated Core parser test **does not** qualify any real producer's menus.
 
 ## 1. Acceptance evidence levels
@@ -13,9 +15,9 @@ These vectors fix observable expectations for the exact public shapes in the con
 | --- | --- | --- |
 | D0 — contract review | Public symbols and types, owner boundaries, vector consistency, specification traceability | Importability, data protection or actual teacher interaction |
 | D1 — Core source tests | Core API behavior, menu/CLI service parity, test-injected streams, deterministic results | Installed-wheel behavior in each producer |
-| D2 — Core installed-artifact tests | Wheel exports, `core`/`pds-core` CLI, local-private OS protections, supported terminals | Adoption by ScoreForm, Quillan, Concord, Meridian, Vitrine, Portia or Suite |
+| D2 — Core installed-artifact tests | Wheel exports, `core`/`pds-core` CLI, workspace custody, bounded conflict refusal, supported terminals | Adoption by ScoreForm, Quillan, Concord, Meridian, Vitrine, Portia or Suite |
 | D3 — independent consumer tests | An opted-in menu's shortcut collisions, return/revalidation, fallback and installed-Core compatibility | A different producer or release combination |
-| D4 — Suite composition and classroom trials | Exact accepted installed versions, Suite trusted launch/context boundaries, practical Windows/ARM64 and non-ANSI behavior | Future modules, arbitrary shared-OS-login isolation or unqualified feature versions |
+| D4 — Suite composition and classroom trials | Exact accepted installed versions, Suite trusted launch/context boundaries, practical Windows/ARM64 and non-ANSI behavior | Future modules, arbitrary multi-user isolation or unqualified feature versions |
 
 **Gate:** Completing Core #236 establishes **D0 only**. Core #237–#244 must qualify their own D1/D2 gates. Suite #51 and module adoption issues must qualify their own D3/D4 gates. Never infer those from a Markdown checklist or a proposed contract version.
 
@@ -86,15 +88,15 @@ Do not pass a selected student ID or student-specific review into Notes metadata
 
 | ID | Trigger / invariant | Required proof | Gate / owner |
 | --- | --- | --- | --- |
-| P01 | Actor label changed under same OS account | Cannot use self-declared attribution as Notes owner authentication | D1/D2 #238 |
-| P02 | Different OS accounts; unsupported filesystem protections; shared OS login | Test qualified isolation; explicitly refuse to claim secure multi-teacher sharing on one OS login | D2 #238 |
-| P03 | Workspace renamed, moved, copied or same-looking class label reused | Stable association and conflict behavior chosen/tested by #238; do not repurpose present workspace marker without review | D1/D2 #238 |
+| P01 | Actor label changed under same OS account | Cannot use self-declared attribution as Notes owner authentication | D1/D2 #239 |
+| P02 | Shared workspace permissions and sync access | No OS-user isolation or authentication claim; verify selected workspace boundary | D2 #239/#244 |
+| P03 | Workspace renamed, moved, copied or same-looking class label reused | Re-resolve selected workspace, refuse stale context; no association registry or marker rewrite | D1/D2 #239–#240 |
 | P04 | Personal Idea / Task / Reflection save, edit, reopen/complete/archive | Guarded Core revision/history rules, no automatic student link or producer mutation | D1/D2 #239 |
-| P05 | Note free text may contain personal data | Private store/log minimization and authorization tests; never copy bodies into diagnostics by default | D1/D2 #238–#240 |
+| P05 | Note free text may contain personal data | Workspace custody/log minimization; never copy bodies into diagnostics by default | D1/D2 #239–#240 |
 | P06 | Caller attempts student-specific metadata or source evidence copy | Refuse structured student reference and prohibited producer payloads; no automatic Grade/Score/support/publication writes | D1/D3 #239/Suite |
 | P07 | Personal Task due date is overdue | No unimplemented notification; no conversion to producer/provider attention | D1/D3 #239/Suite |
-| P08 | Ordinary whole-workspace backup | Disclose private app-data Notes are **not** included; no false portability assurance | D2/D4 #243/Suite |
-| P09 | Explicit private Notes export/restore | Owner-scoped, intentional, integrity/restore/conflict tests, truthful partial receipts | D2 #243 |
+| P08 | Ordinary whole-workspace backup | Actual Suite backup/restore must preserve .pds/notes/v1/ bytes, including conflict evidence | D2/D4 #244/Suite |
+| P09 | Actual work/home file sync | Bidirectional completed sync, stale edit refusal and conflict evidence preservation; no separate export | D2/D4 #244 |
 | P10 | Core admin menu adds/edits/removes student | Same guarded preview/teacher-confirm/fresh-state/refusal semantics as Core authoritative service, no private roster clone | D1/D2 #241–#242 |
 | P11 | Core Notes/admin meaningful menu mutation | Equivalent noninteractive `pds-core` command invoking same guarded service, compatible failure codes; no `:notes` shell alias | D1/D2 #240–#242 |
 | P12 | `pds`, `core`, `pds-core` direct commands and producer CLIs | Existing options/flags/exit behavior preserved; unattended invocation never prompts or writes unexpectedly | D2/D4 #237–#244/Suite |
@@ -107,16 +109,16 @@ The IDs match Suite specification §12 **exactly**. Rows define eventual owner a
 | --- | --- | --- |
 | UX-01 | Green application identity/title, valid context and plain fallback in main plus three nested screens | Core #237; each producer; Suite #51 |
 | UX-02 | `:notes` from Quillan review, Task save, retained N/W, safe return after revalidation | #237–#240; Quillan consumer; Suite #51 |
-| UX-03 | Idea from Concord, Reflection from Portia, one permitted owner/workspace collection | #238–#240; Concord/Portia adopters |
+| UX-03 | Idea from Concord, Reflection from Portia, one permitted selected workspace collection | #239–#240; Concord/Portia adopters |
 | UX-04 | Concord Create and Use Assessment without hidden attachment or duplicate confirmation | Concord #139 and related producer UX issue; **not** Core #236 |
 | UX-05 | Concord group/packet truth and guarded teacher confirmation | Concord owner; **not** Core #236 |
 | UX-06 | Core-authoritative roster edit from Suite/Core/producer and safe revalidation | Core #241–#242; Suite and producer adopters |
 | UX-07 | `pds` teacher home with qualified launch and explicit CLI parity | Suite #15/#51/#49 (distinct trust scope) |
 | UX-08 | Cancel, stale, partial/restart receipts based on authoritative state | Core #237–#244 and domain producers |
 | UX-09 | Bounded technical-details disclosure, no unrelated data leakage | Each module's adopted screens |
-| UX-10 | Notes owner isolation, attribution limits, workspace moves and no structured student IDs | Core #238–#240, #243 |
+| UX-10 | Workspace access and attribution limits, workspace switching and no structured student IDs | Core #239–#240, #244 |
 | UX-11 | ScoreForm Scores, Quillan writing, Meridian Grades and Portia records remain separate | Respective producers; Suite #51 |
-| UX-12 | Private backup scope and separation of My Tasks vs Module Attention | Core #239/#243; Suite #51 |
+| UX-12 | Workspace backup inclusion and separation of My Tasks vs Module Attention | Core #239/#244; Suite #51 |
 
 ## 7. Minimum acceptance discipline
 

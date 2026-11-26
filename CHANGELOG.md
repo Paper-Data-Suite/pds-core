@@ -11,6 +11,12 @@ supported pre-1.0 minor line receives fixes.
 
 ## [Unreleased]
 
+- Implemented versioned teacher-experience v1 terminal/header and prompt-scoped `:notes` primitives (#236–#237).
+- Added selected-workspace Notes & Tasks records, guarded revisions, callable menu and CLI (#239–#240); actual bidirectional sync and Suite backup/restore remain release gates.
+- Added guarded individual enrollment changes and callable classroom administration with explicit review, CLI parity and truthful durability receipts (#241–#242).
+- Added exact-owner scoped provider diagnosis without loading unrelated factories or invoking attention (#249).
+- Consolidated release qualification tracked by #244; no new version has been published.
+
 ## [0.6.6] - 2026-10-14
 
 ### Fixed (Core #232)

@@ -1,6 +1,6 @@
 # ADR 0005: Adopt Versioned Core Teacher-Experience Public Interfaces
 
-**Status:** Accepted — public teacher-experience architecture and interface contract; runtime and consumer capabilities not yet qualified
+**Status:** Accepted — public teacher-experience architecture and interface contract; merged Core implementation, consolidated release #244 and independent consumer qualification pending.
 
 **Date:** October 21, 2026
 
@@ -36,7 +36,7 @@ The first planned stable import paths are:
 - `pds_core.teacher_ui` — pure header rendering and explicitly streamed printing.
 - `pds_core.teacher_commands` — pure parser of an opt-in shared command on a declared eligible prompt.
 
-The exact signatures, fields, enums, defaults and capability tokens are specified in [`teacher_experience_contract_v1.md`](../teacher_experience_contract_v1.md). All are **planned until individually implemented, tested and published** under Core #237 and later issues. No source documentation, ADR status or import-name choice makes them available in Core 0.6.6.
+The exact signatures, fields, enums, defaults and capability tokens are specified in [`teacher_experience_contract_v1.md`](../teacher_experience_contract_v1.md). The seven non-reserved tokens are implemented in merged Core under #237, #239–#242; official release qualification remains #244. No source documentation, ADR status or import-name choice makes them available in Core 0.6.6.
 
 ### 2. Header is presentation only
 
@@ -70,7 +70,7 @@ The shared-menu public signatures are **planned, not importable in Core 0.6.6**.
 
 ### 6. Workspace Notes are not academic records
 
-Initial Notes & Tasks types are **Idea / Task / Reflection**. Records live in the existing selected PDS workspace at `.pds/notes/v1/`, with no first-release structured student IDs or automatic student links. Note bodies are not module attention or canonical evidence, and an overdue personal Task is not a module warning. Privacy follows workspace/sync access. Suite whole-workspace backup inclusion and real two-computer sync behavior are #244 release gates. Storage and service belong to Core #239; menu/CLI to #240. This ADR supplies none of those implementations.
+Initial Notes & Tasks types are **Idea / Task / Reflection**. Records live in the existing selected PDS workspace at `.pds/notes/v1/`, with no first-release structured student IDs or automatic student links. Note bodies are not module attention or canonical evidence, and an overdue personal Task is not a module warning. Privacy follows workspace/sync access. Suite whole-workspace backup inclusion and real two-computer sync behavior are #244 release gates. Storage and service belong to Core #239; menu/CLI to #240. The ADR records the decision; merged #239/#240 implements it. The superseded #238/#243 design remains historical only.
 
 ### 7. Direct CLI and historical behavior remain compatible
 

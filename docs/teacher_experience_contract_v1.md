@@ -2,7 +2,7 @@
 
 **Contract ID:** `pds_core.teacher_experience/1`
 
-**Status:** Accepted technical interface contract (Core #236, D0); not implemented or release-qualified
+**Status:** Accepted v1 contract (Core #236); non-reserved capabilities implemented and merged by #237, #239–#242. Consolidated official release qualification remains #244.
 
 **Source baseline:** Core `main` `bf3e6c08dd3f51e47cdbe56b11a3873a9d4491b3` (`pds-core` 0.6.6)
 
@@ -14,7 +14,7 @@
 
 **Implementing issues:** Core #237–#244; consuming Suite #51/#15 and separately qualified producers
 
-> **Specification, not implementation.** Every symbol specified under **Planned v1 public surface** is **absent from Core 0.6.6** unless explicitly marked as an existing API. No producer or Suite release may claim v1 capability on the strength of this document or the accepted ADR. This is the binding accepted shape for subsequent implementation/review, subject to deliberate, versioned change control.
+> **Release boundary.** The following v1 public symbols exist in merged source and were tested in development candidates; they are absent from the published Core 0.6.6 wheel. No producer or Suite release may claim adoption on the strength of this document. #244 owns consolidated release qualification, including actual Notes sync and backup/restore. The accepted signatures and ownership boundaries remain normative.
 
 ## 1. Contract identity, authority and release boundaries
 
@@ -31,9 +31,9 @@ Dependency direction stays `Suite -> Core` and `producer -> Core`. Core must not
 
 The existing `parse_navigation_choice(...)` continues to strip/casefold a one-letter value, **return** `NavigationChoice.BACK`, **raise** `ReturnToMainMenu` for enabled `M` and **raise** `QuitPDS` for enabled `Q`; `A` is opt-in. New parsing does **not** insert a value into `NavigationChoice`, wrap its exceptions, or change its default flags.
 
-## 2. Planned v1 public surface — exact symbols and signatures
+## 2. v1 public surface — exact symbols and signatures
 
-These names are normative **design targets**, not importable now. `TextIO`, `Literal`, `Enum`, and `dataclass` have their usual Python 3.11 meanings. Static types below define the API boundary; implementations may use private helpers without changing these public shapes.
+These names are normative **implemented source interfaces**, not importable from the published v0.6.6 wheel. `TextIO`, `Literal`, `Enum`, and `dataclass` have their usual Python 3.11 meanings. Static types below define the API boundary; implementations may use private helpers without changing these public shapes.
 
 ### 2.1 `pds_core.teacher_experience`: version and capability declaration
 
@@ -305,7 +305,7 @@ Core implementations must obtain **Core-owned, validated services** through thei
 
 `run_notes_tasks_menu` becomes callable only when **`notes.menu.v1` and required `notes.records.v1` are qualified** for the installed distribution and selected workspace. `run_workspace_classroom_menu` becomes callable only with **`classroom.menu.v1`**, including qualified guarded edit operations before exposing individual-student mutations. A Core implementation may expose the API symbol earlier but must return an honest `UNAVAILABLE` result rather than display unsupported operations. Merely having `terminal.notes_command.v1` or a displayable `Notes & Tasks` label is never sufficient. Each producer and Suite caller separately qualifies its own safe handoff.
 
-The menus own normal Core prompts and Core-side validation, not the caller's producer-specific academic data or screen controller. The Core menu and standalone `core`/`pds-core` menu entry points should compose the **same guarded Core services**, not create a second implementation of workspace, roster, Standards or Notes semantics. The first qualified admin menu covers workspace/year/class/roster/Standards through existing Core authority; roster adds/edits/removals require #241's reviewed preview/commit/freshness checks. Any menu action that is only read-only remains read-only. No automatic rewrite or regeneration of producer-owned artifacts after a roster update.
+The menus own normal Core prompts and Core-side validation, not the caller's producer-specific academic data or screen controller. The Core menu and standalone `core`/`pds-core` menu entry points should compose the **same guarded Core services**, not create a second implementation of workspace, roster, Standards or Notes semantics. The first admin menu covers workspace/year/class/roster/Standards through existing Core authority (first-year open/active-year close, empty class creation, existing-profile membership; standalone legacy workflows remain separate). It returns immediately after a durable operation so caller context can be refreshed; roster adds/edits/removals require #241's reviewed preview/commit/freshness checks. Any menu action that is only read-only remains read-only. No automatic rewrite or regeneration of producer-owned artifacts after a roster update.
 
 ### 4.4 Caller handoff/resumption, failure and nested navigation
 
@@ -326,7 +326,7 @@ The menus own normal Core prompts and Core-side validation, not the caller's pro
 
 ### 4.6 Direct-CLI parity and supported-adoption boundary
 
-For **each meaningful Core-owned durable action** exposed via shared menus, the implementation issue must supply an explicit script-safe, noninteractive `pds-core` invocation of the **same guarded Core service** with equivalent validation, access scope, stale-revision handling and useful exit status. Existing `pds-core roster import-preview`/`import-commit` and other direct commands retain their prior public spelling. The planned Notes command family is rooted at `pds-core notes` (#240), with distinct create, read/search, update/status and archive operations. The eventual exact argument names, data formats and flags remain **owned by the corresponding implementation issue** and cannot be claimed available under #236. Guarded single-student roster operations under #241 similarly need CLI parity before #242 exposes them in a menu; no duplicate Core roster database is permitted.
+For **each meaningful Core-owned durable action** exposed via shared menus, the implementation issue must supply an explicit script-safe, noninteractive `pds-core` invocation of the **same guarded Core service** with equivalent validation, access scope, stale-revision handling and useful exit status. Existing `pds-core roster import-preview`/`import-commit` and other direct commands retain their prior public spelling. The implemented Notes command family is rooted at `pds-core notes` (#240), with distinct create, read/search, update/status and archive operations; see [exact CLI contract](notes_cli_240.md). Classroom parity is documented in #241/#242 implementation records. These are source capabilities awaiting consolidated publication. Guarded single-student roster operations under #241 similarly need CLI parity before #242 exposes them in a menu; no duplicate Core roster database is permitted.
 
 The `:notes` token is **not** a new shell alias, argument value, global CLI parser intercept, or unattended data-entry escape sequence. Pure menu navigation, help, display and return paths require **no invented CLI mutation**. No routine menu call or import may cause a non-TTY session to wait for input or silently write anything. The Suite `pds` executable and separate Suite #49 installed-trust/launch/update qualification are unchanged by this interface freeze.
 

@@ -1,8 +1,6 @@
 # Core #239 — Workspace-native Notes & Tasks contract
 
-**Status:** Proposed implementation contract for review; no Notes feature is yet
-advertised or released. **Core release policy:** complete all Core work, then one
-consolidated Core release. Do not create additional Git worktrees.
+**Status:** Implemented and merged by #239/#240; candidate source advertises Notes capabilities. Published v0.6.6 does not include them. #244 owns consolidated release and the remaining actual sync and backup/restore gates.
 
 ## Non-negotiable location
 
@@ -11,7 +9,7 @@ already selects the same PDS workspace via Core on work/home machines, typically
 through a OneDrive-synchronized folder. Notes are ordinary UTF-8 files inside
 that workspace, **not** an OS-user-local app-data store.
 
-Proposed layout (no change to the existing `.pds/workspace.json` marker):
+Implemented layout (no change to the existing `.pds/workspace.json` marker):
 
 ```text
 <selected PDS workspace>/
@@ -42,7 +40,7 @@ local-OS-user isolation, or instantaneous synchronization.
 `notes_service` creates, edits, completes/reopens Tasks and archives/unarchives
 Notes using explicit revisions. Core #240 owns the teacher menu and CLI.
 
-## Write and synchronization requirements for next implementation
+## Write and synchronization requirements
 
 - Never accept a filesystem path or caller-provided actor label as an alternate
   Notes root; resolve the selected workspace through existing Core workspace APIs.
