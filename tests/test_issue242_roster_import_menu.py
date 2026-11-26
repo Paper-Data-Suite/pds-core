@@ -11,9 +11,18 @@ import pytest
 
 import pds_core.roster_imports as service
 import pds_core.teacher_menus as menus
-from pds_core.class_metadata import create_class_metadata, write_class_metadata_for_class
+from pds_core.class_metadata import (
+    create_class_metadata,
+    write_class_metadata_for_class,
+)
 from pds_core.classes import load_class_roster, write_class_roster
-from pds_core.rosters import Roster, RosterWriteError, _write_roster_unlocked, create_roster, write_roster
+from pds_core.rosters import (
+    Roster,
+    RosterWriteError,
+    _write_roster_unlocked,
+    create_roster,
+    write_roster,
+)
 from pds_core.routes import class_dir, class_roster_path
 from pds_core.school_years import close_school_year, open_school_year
 from pds_core.teacher_context import (
@@ -46,8 +55,11 @@ def root(tmp_path: Path) -> Path:
 
 def _row(student_id: str, name: str = "Ari", **extra: str) -> dict[str, str]:
     return {
-        "student_id": student_id, "first_name": name, "last_name": "Rivera",
-        "period": "2", **extra,
+        "student_id": student_id,
+        "first_name": name,
+        "last_name": "Rivera",
+        "period": "2",
+        **extra,
     }
 
 
@@ -58,13 +70,18 @@ def _csv(root: Path, rows: list[dict[str, str]], *, class_id: str = CLASS) -> Pa
 
 
 def _invoke(
-    root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[str],
-    *, enabled: bool = True, interactive: bool = True,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    *,
+    enabled: bool = True,
+    interactive: bool = True,
     before_confirm: Callable[[], None] | None = None,
 ) -> tuple[SharedTeacherMenuResult, str, str]:
     monkeypatch.setattr(menus, "_CLASSROOM_ROSTER_IMPORT_PREVIEW_TEST_ONLY", enabled)
     request = SharedTeacherMenuRequest(
-        caller_application="Quillan", return_token="opaque-roster-return",
+        caller_application="Quillan",
+        return_token="opaque-roster-return",
         context=TeacherContextHint(workspace_root=root, display_label="Synthetic"),
     )
     out, err = io.StringIO(), io.StringIO()
@@ -91,9 +108,14 @@ def _go(path: Path, *answers: str) -> list[str]:
 
 @pytest.mark.parametrize("enabled, interactive", [(False, True), (True, False)])
 def test_public_gate(
-    root: Path, monkeypatch: pytest.MonkeyPatch, enabled: bool, interactive: bool,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    enabled: bool,
+    interactive: bool,
 ) -> None:
-    result, out, err = _invoke(root, monkeypatch, [], enabled=enabled, interactive=interactive)
+    result, out, err = _invoke(
+        root, monkeypatch, [], enabled=enabled, interactive=interactive
+    )
     assert result.exit is TeacherMenuExit.UNAVAILABLE
     assert result.durability is TeacherDurability.NO_CHANGE
     assert "classroom.menu.v1" not in get_teacher_experience_capabilities()
@@ -102,7 +124,8 @@ def test_public_gate(
 
 
 def test_first_import_preserves_leading_zero_and_optional_field(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     path = _csv(root, [_row("0007", preferred_name="Ari")])
     result, out, err = _invoke(root, monkeypatch, _go(path, "C"))
@@ -118,11 +141,19 @@ def test_first_import_preserves_leading_zero_and_optional_field(
 
 
 def test_mixed_import_requires_all_pages_and_preserves_producer_data(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    write_class_roster(root, create_roster(CLASS, [
-        _row("0007", note="old"), _row("0008", note="preserve historical work"),
-    ]))
+    write_class_roster(
+        root,
+        create_roster(
+            CLASS,
+            [
+                _row("0007", note="old"),
+                _row("0008", note="preserve historical work"),
+            ],
+        ),
+    )
     artifact = class_dir(root, CLASS) / "producer-work.txt"
     artifact.write_text("historical", encoding="utf-8")
     path = _csv(root, [_row("0007", note="new"), _row("0009", note="added")])
@@ -134,14 +165,20 @@ def test_mixed_import_requires_all_pages_and_preserves_producer_data(
     assert "REMOVE" in out and "0008" in out
     assert "page 2/2" in out
     assert artifact.read_text(encoding="utf-8") == "historical"
-    assert [s.student_id for s in load_class_roster(root, CLASS).students] == ["0007", "0009"]
+    assert [s.student_id for s in load_class_roster(root, CLASS).students] == [
+        "0007",
+        "0009",
+    ]
     assert err == ""
 
 
 def test_early_confirm_cannot_skip_review_pages(
-    root: Path, monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    canonical = write_class_roster(root, create_roster(CLASS, [_row("0007", note="old")]))
+    canonical = write_class_roster(
+        root, create_roster(CLASS, [_row("0007", note="old")])
+    )
     before = canonical.read_bytes()
     path = _csv(root, [_row("0007", note="new")])
     result, _, _ = _invoke(root, monkeypatch, _go(path, "C", "B", "B", "B"))
@@ -161,7 +198,10 @@ def test_early_confirm_cannot_skip_review_pages(
     ],
 )
 def test_cancel_navigation(
-    root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[str], expected: TeacherMenuExit,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    expected: TeacherMenuExit,
 ) -> None:
     path = _csv(root, [_row("0007")])
     result, _, _ = _invoke(root, monkeypatch, _go(path, *answers))
@@ -183,7 +223,9 @@ def test_noop_preserves_bytes(root: Path, monkeypatch: pytest.MonkeyPatch) -> No
 
 
 def test_dropped_column_refused(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    canonical = write_class_roster(root, create_roster(CLASS, [_row("0007", note="keep")]))
+    canonical = write_class_roster(
+        root, create_roster(CLASS, [_row("0007", note="keep")])
+    )
     before = canonical.read_bytes()
     path = _csv(root, [_row("0007")])
     result, _, err = _invoke(root, monkeypatch, _go(path, "C"))
@@ -195,7 +237,9 @@ def test_dropped_column_refused(root: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
 @pytest.mark.parametrize("kind", ["candidate", "canonical", "year", "metadata"])
 def test_stale_review(
-    root: Path, monkeypatch: pytest.MonkeyPatch, kind: str,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    kind: str,
 ) -> None:
     path = _csv(root, [_row("0007")])
 
@@ -208,10 +252,13 @@ def test_stale_review(
             close_school_year(root, closed_at=END)
         else:
             from pds_core.routes import class_metadata_path
+
             target = class_metadata_path(root, CLASS)
             target.write_bytes(target.read_bytes() + b"\n")
 
-    result, _, err = _invoke(root, monkeypatch, _go(path, "C"), before_confirm=intervene)
+    result, _, err = _invoke(
+        root, monkeypatch, _go(path, "C"), before_confirm=intervene
+    )
     assert result.exit is TeacherMenuExit.FAILED
     assert result.durability is TeacherDurability.NO_CHANGE
     assert "review again" in err or "active school year" in err
@@ -234,7 +281,9 @@ def test_uncertain_write_receipt(root: Path, monkeypatch: pytest.MonkeyPatch) ->
     path = _csv(root, [_row("0007")])
     actual = _write_roster_unlocked
 
-    def write_then_fail(path: str | Path, roster: Roster, *, overwrite: bool = False) -> None:
+    def write_then_fail(
+        path: str | Path, roster: Roster, *, overwrite: bool = False
+    ) -> None:
         actual(path, roster, overwrite=overwrite)
         raise RosterWriteError(path, "private injected detail")
 

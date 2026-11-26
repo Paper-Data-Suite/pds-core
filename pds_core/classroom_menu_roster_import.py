@@ -21,7 +21,10 @@ from pds_core.classroom_discovery import (
     inspect_classroom_roster,
 )
 from pds_core.classroom_menu_school_year import _header
-from pds_core.classroom_school_year_commit import SchoolYearCommitError, _local_year_lock
+from pds_core.classroom_school_year_commit import (
+    SchoolYearCommitError,
+    _local_year_lock,
+)
 from pds_core.classes import load_class_roster
 from pds_core.roster_imports import (
     RosterImportPreview,
@@ -71,10 +74,17 @@ def _context(root: Path, class_id: str, year: str | None) -> tuple[str, str]:
     year_path = school_year_state_path(root)
     before = _state_fingerprint(year_path)
     overview = inspect_classroom_overview(root)
-    selected = next((item for item in overview.classes if item.class_id == class_id), None)
-    if (year is None or overview.workspace.root != root
-        or overview.active_school_year != year or selected is None
-        or not selected.metadata_present or selected.school_year != year):
+    selected = next(
+        (item for item in overview.classes if item.class_id == class_id), None
+    )
+    if (
+        year is None
+        or overview.workspace.root != root
+        or overview.active_school_year != year
+        or selected is None
+        or not selected.metadata_present
+        or selected.school_year != year
+    ):
         raise _Refusal("Select a class with metadata in the active school year.")
     metadata = class_metadata_path(root, class_id)
     _guard(metadata)
@@ -98,14 +108,18 @@ def _candidate(path: Path) -> Roster:
 
 
 def _row(record: StudentRecord) -> str:
-    return json.dumps({
-        "name": student_display_name(record),
-        "student_id": record.student_id,
-        "first_name": record.first_name,
-        "last_name": record.last_name,
-        "period": record.period,
-        "optional_fields": dict(record.extra_fields),
-    }, ensure_ascii=True, sort_keys=True)
+    return json.dumps(
+        {
+            "name": student_display_name(record),
+            "student_id": record.student_id,
+            "first_name": record.first_name,
+            "last_name": record.last_name,
+            "period": record.period,
+            "optional_fields": dict(record.extra_fields),
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
 
 
 def _review_lines(preview: RosterImportPreview, current: Roster | None) -> list[str]:
@@ -124,21 +138,29 @@ def _review_lines(preview: RosterImportPreview, current: Roster | None) -> list[
         ids = [record.student_id for record in records]
         lines.append(f"{label}: {len(ids)} students")
         for start in range(0, len(ids), 12):
-            lines.append(json.dumps(ids[start:start + 12], ensure_ascii=True))
+            lines.append(json.dumps(ids[start : start + 12], ensure_ascii=True))
     lines.extend(f"ADD {_row(record)}" for record in preview.additions)
     for change in preview.changes:
         lines.append(f"CHANGE before {_row(change.current)}")
         lines.append(f"CHANGE after  {_row(change.proposed)}")
     lines.extend(f"REMOVE {_row(record)}" for record in preview.removals)
-    if any(len(line) > _MAX_LINE for line in lines) or sum(map(len, lines)) > _MAX_REVIEW_CHARS:
+    if (
+        any(len(line) > _MAX_LINE for line in lines)
+        or sum(map(len, lines)) > _MAX_REVIEW_CHARS
+    ):
         raise _Refusal("Exact review exceeds interactive limits; use the roster CLI.")
     return lines
 
 
 class _ImportFlow:
     def __init__(
-        self, request: SharedTeacherMenuRequest, root: Path, class_id: str,
-        year: str | None, read_line: Callable[[], str], output: TextIO,
+        self,
+        request: SharedTeacherMenuRequest,
+        root: Path,
+        class_id: str,
+        year: str | None,
+        read_line: Callable[[], str],
+        output: TextIO,
         error_output: TextIO,
     ) -> None:
         self.request = request
@@ -149,11 +171,18 @@ class _ImportFlow:
         self.output = output
         self.errors = error_output
 
-    def receipt(self, outcome: TeacherMenuExit, detail: str,
-                durability: TeacherDurability = TeacherDurability.NO_CHANGE) -> SharedTeacherMenuResult:
+    def receipt(
+        self,
+        outcome: TeacherMenuExit,
+        detail: str,
+        durability: TeacherDurability = TeacherDurability.NO_CHANGE,
+    ) -> SharedTeacherMenuResult:
         return SharedTeacherMenuResult(
-            self.request.return_token, outcome, durability,
-            frozenset() if durability is TeacherDurability.NO_CHANGE
+            self.request.return_token,
+            outcome,
+            durability,
+            frozenset()
+            if durability is TeacherDurability.NO_CHANGE
             else frozenset({TeacherChangeScope.ROSTER}),
             f"{detail} Revalidate workspace, school year, class, roster and work on return.",
         )
@@ -182,18 +211,29 @@ class _ImportFlow:
             baseline = _context(self.root, self.class_id, self.year)
             _header(self.request, "Import full roster", self.output)
             print(f"Class: {self.class_id}; school year: {self.year}", file=self.output)
-            print("Select a complete Core-format CSV. Existing enrollments missing from it will be removed.", file=self.output)
+            print(
+                "Select a complete Core-format CSV. Existing enrollments missing from it will be removed.",
+                file=self.output,
+            )
             raw = self.read("Candidate CSV path (or B/M/Q): ")
             if len(raw) > 4096 or not raw:
                 raise _Refusal("Invalid candidate path.")
             path = Path(raw.strip('"')).expanduser().resolve(strict=True)
             if path == class_roster_path(self.root, self.class_id):
-                raise _Refusal("Select an external candidate, not the canonical roster itself.")
+                raise _Refusal(
+                    "Select an external candidate, not the canonical roster itself."
+                )
             candidate = _candidate(path)
             preview = plan_roster_import(self.root, self.class_id, candidate)
-            current = (load_class_roster(self.root, self.class_id)
-                       if preview.current_roster_present else None)
-            if current is not None and _roster_state_token(current) != preview.current_state_token:
+            current = (
+                load_class_roster(self.root, self.class_id)
+                if preview.current_roster_present
+                else None
+            )
+            if (
+                current is not None
+                and _roster_state_token(current) != preview.current_state_token
+            ):
                 raise _Refusal("Canonical roster changed during review.")
             if _context(self.root, self.class_id, self.year) != baseline:
                 raise _Refusal("Class or year changed during review.")
@@ -202,54 +242,111 @@ class _ImportFlow:
             for page in range(pages):
                 _header(self.request, "Review full roster import", self.output)
                 print(f"Workspace: {json.dumps(str(self.root))}", file=self.output)
-                print(f"Class: {self.class_id}; year: {self.year}; page {page+1}/{pages}", file=self.output)
+                print(
+                    f"Class: {self.class_id}; year: {self.year}; page {page + 1}/{pages}",
+                    file=self.output,
+                )
                 print(f"Candidate: {json.dumps(str(path))}", file=self.output)
-                for line in lines[page * _PAGE:(page + 1) * _PAGE]:
+                for line in lines[page * _PAGE : (page + 1) * _PAGE]:
                     print(line, file=self.output)
-                print("Only canonical enrollment changes; historical producer work is preserved.", file=self.output)
+                print(
+                    "Only canonical enrollment changes; historical producer work is preserved.",
+                    file=self.output,
+                )
                 print("PREVIEW ONLY — no write occurred.", file=self.output)
                 if page + 1 < pages:
-                    if self.read("N. Next review page  B. Cancel  M. Main Menu  Q. Quit: ").casefold() != "n":
+                    if (
+                        self.read(
+                            "N. Next review page  B. Cancel  M. Main Menu  Q. Quit: "
+                        ).casefold()
+                        != "n"
+                    ):
                         raise _Back
-                elif self.read("C. Confirm exact import  B. Cancel  M. Main Menu  Q. Quit: ").casefold() != "c":
+                elif (
+                    self.read(
+                        "C. Confirm exact import  B. Cancel  M. Main Menu  Q. Quit: "
+                    ).casefold()
+                    != "c"
+                ):
                     raise _Back
             with _local_year_lock(self.root):
                 if _context(self.root, self.class_id, self.year) != baseline:
                     raise _Refusal("Class or year changed; review again.")
                 fresh = _candidate(path)
                 latest = plan_roster_import(self.root, self.class_id, fresh)
-                if (latest.current_state_token != preview.current_state_token
-                    or latest.candidate_state_token != preview.candidate_state_token):
-                    raise _Refusal("Candidate or canonical roster changed; review again.")
+                if (
+                    latest.current_state_token != preview.current_state_token
+                    or latest.candidate_state_token != preview.candidate_state_token
+                ):
+                    raise _Refusal(
+                        "Candidate or canonical roster changed; review again."
+                    )
                 if latest.current_state_token == latest.candidate_state_token:
-                    return self.receipt(TeacherMenuExit.BACK, "Roster already matched; no write.")
+                    return self.receipt(
+                        TeacherMenuExit.BACK, "Roster already matched; no write."
+                    )
                 try:
                     commit_roster_import(
-                        self.root, self.class_id, fresh,
+                        self.root,
+                        self.class_id,
+                        fresh,
                         expected_current_state_token=preview.current_state_token,
                         expected_candidate_state_token=preview.candidate_state_token,
                     )
                 except (RosterWriteError, RosterImportWriteError):
-                    print("Roster write uncertain; inspect canonical state before retry.", file=self.errors)
-                    return self.receipt(TeacherMenuExit.FAILED, "Roster write outcome uncertain.", TeacherDurability.INDETERMINATE)
+                    print(
+                        "Roster write uncertain; inspect canonical state before retry.",
+                        file=self.errors,
+                    )
+                    return self.receipt(
+                        TeacherMenuExit.FAILED,
+                        "Roster write outcome uncertain.",
+                        TeacherDurability.INDETERMINATE,
+                    )
             print("Roster import committed.", file=self.output)
-            return self.receipt(TeacherMenuExit.BACK, "Roster import committed.", TeacherDurability.COMMITTED)
+            return self.receipt(
+                TeacherMenuExit.BACK,
+                "Roster import committed.",
+                TeacherDurability.COMMITTED,
+            )
         except _Back:
             return None
         except _Return as nav:
             return self.receipt(nav.outcome, "Roster review returned.")
         except _Refusal as error:
             print(str(error), file=self.errors)
-        except (RosterError, ClassroomDiscoveryError, ClassroomAdministrationPreviewError,
-                SchoolYearCommitError, OSError, RuntimeError, ValueError):
-            print("Roster import refused; inspect the class and candidate and review again.", file=self.errors)
+        except (
+            RosterError,
+            ClassroomDiscoveryError,
+            ClassroomAdministrationPreviewError,
+            SchoolYearCommitError,
+            OSError,
+            RuntimeError,
+            ValueError,
+        ):
+            print(
+                "Roster import refused; inspect the class and candidate and review again.",
+                file=self.errors,
+            )
         return self.receipt(TeacherMenuExit.FAILED, "Roster import refused.")
 
 
 def run_roster_import_review(
-    request: SharedTeacherMenuRequest, *, workspace_root: Path, class_id: str,
-    expected_active_year: str | None, read_line: Callable[[], str],
-    output: TextIO, error_output: TextIO,
+    request: SharedTeacherMenuRequest,
+    *,
+    workspace_root: Path,
+    class_id: str,
+    expected_active_year: str | None,
+    read_line: Callable[[], str],
+    output: TextIO,
+    error_output: TextIO,
 ) -> SharedTeacherMenuResult | None:
-    return _ImportFlow(request, workspace_root, class_id, expected_active_year,
-                       read_line, output, error_output).run()
+    return _ImportFlow(
+        request,
+        workspace_root,
+        class_id,
+        expected_active_year,
+        read_line,
+        output,
+        error_output,
+    ).run()

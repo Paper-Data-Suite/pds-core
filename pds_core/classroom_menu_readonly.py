@@ -208,7 +208,11 @@ class _ReadOnlyController:
                 )
             self._pager(start, total)
         elif self.page == "roster" and roster is not None:
-            self._header("Class roster" if self.roster_import_enabled else "Class roster — Read-only")
+            self._header(
+                "Class roster"
+                if self.roster_import_enabled
+                else "Class roster — Read-only"
+            )
             print(f"Class ID: {roster.class_id}", file=self.output)
             total = len(roster.students)
             self.roster_max_page = max(0, (total - 1) // _PAGE_SIZE)
@@ -410,13 +414,24 @@ class _ReadOnlyController:
                 if receipt is not None:
                     return receipt
                 continue
-            if self.roster_import_enabled and self.page == "roster" and choice == "i" and roster is not None:
-                from pds_core.classroom_menu_roster_import import run_roster_import_review
+            if (
+                self.roster_import_enabled
+                and self.page == "roster"
+                and choice == "i"
+                and roster is not None
+            ):
+                from pds_core.classroom_menu_roster_import import (
+                    run_roster_import_review,
+                )
 
                 receipt = run_roster_import_review(
-                    self.request, workspace_root=overview.workspace.root,
-                    class_id=roster.class_id, expected_active_year=overview.active_school_year,
-                    read_line=self.read_line, output=self.output, error_output=self.errors,
+                    self.request,
+                    workspace_root=overview.workspace.root,
+                    class_id=roster.class_id,
+                    expected_active_year=overview.active_school_year,
+                    read_line=self.read_line,
+                    output=self.output,
+                    error_output=self.errors,
                 )
                 if receipt is not None:
                     return receipt
@@ -516,14 +531,20 @@ def run_classroom_standards_preview(
 
 def run_classroom_roster_import_preview(
     request: SharedTeacherMenuRequest,
-    *, read_line: Callable[[], str], output: TextIO,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
     error_output: TextIO | None = None,
 ) -> SharedTeacherMenuResult:
     """Private D1 composition gate."""
     return _ReadOnlyController(
-        request=request, read_line=read_line, output=output,
+        request=request,
+        read_line=read_line,
+        output=output,
         error_output=output if error_output is None else error_output,
-        workspace_changes_enabled=True, school_year_changes_enabled=True,
-        class_changes_enabled=True, standards_changes_enabled=True,
+        workspace_changes_enabled=True,
+        school_year_changes_enabled=True,
+        class_changes_enabled=True,
+        standards_changes_enabled=True,
         roster_import_enabled=True,
     ).run()
