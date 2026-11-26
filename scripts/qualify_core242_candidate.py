@@ -111,8 +111,10 @@ def main() -> None:
         all(re.fullmatch("[0-9a-f]{40}", s) for s in (base, candidate)),
         "Full lowercase SHA-1 commits are required.",
     )
-    require(resume is None or re.fullmatch("[0-9a-f]{40}", resume) is not None,
-            "Resume commit must be a full lowercase SHA-1.")
+    require(
+        resume is None or re.fullmatch("[0-9a-f]{40}", resume) is not None,
+        "Resume commit must be a full lowercase SHA-1.",
+    )
     require(re.fullmatch("[A-Za-z0-9_-]+", label) is not None, "Invalid label.")
     root = Path(git("rev-parse", "--show-toplevel")).resolve()
     require(Path.cwd().resolve() == root, "Run from the repository root.")
@@ -137,8 +139,12 @@ def main() -> None:
     if resume is not None:
         run("git", "merge-base", "--is-ancestor", base, resume)
         run("git", "merge-base", "--is-ancestor", resume, candidate)
-        require(not paths("diff", "--name-only", resume, candidate).intersection({"pyproject.toml", "ruff.toml", ".ruff.toml"}),
-                "Ruff configuration changed across interrupted candidate.")
+        require(
+            not paths("diff", "--name-only", resume, candidate).intersection(
+                {"pyproject.toml", "ruff.toml", ".ruff.toml"}
+            ),
+            "Ruff configuration changed across interrupted candidate.",
+        )
     changed = paths("diff", "--name-only", base, candidate)
     python_files = {name for name in changed if name.endswith(".py")}
     require(skipped <= python_files, "Unexpected format exclusions.")
@@ -195,7 +201,10 @@ def main() -> None:
         )
         run("git", "diff", "--cached", "--check")
         run(
-            "git", "commit", "-m", f"style(core242): safe Ruff fixes for {label} qualified files"
+            "git",
+            "commit",
+            "-m",
+            f"style(core242): safe Ruff fixes for {label} qualified files",
         )
         run("git", "push", "origin", f"HEAD:refs/heads/{branch}")
     else:

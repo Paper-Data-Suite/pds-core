@@ -11,10 +11,18 @@ import pytest
 
 import pds_core.roster_edits as service
 import pds_core.teacher_menus as menus
-from pds_core.class_metadata import create_class_metadata, write_class_metadata_for_class
+from pds_core.class_metadata import (
+    create_class_metadata,
+    write_class_metadata_for_class,
+)
 from pds_core.classes import load_class_roster, write_class_roster
-from pds_core.rosters import Roster, RosterWriteError, _write_roster_unlocked, create_roster
-from pds_core.routes import class_dir, class_roster_path
+from pds_core.rosters import (
+    Roster,
+    RosterWriteError,
+    _write_roster_unlocked,
+    create_roster,
+)
+from pds_core.routes import class_dir
 from pds_core.school_years import close_school_year, open_school_year
 from pds_core.teacher_context import (
     SharedTeacherMenuRequest,
@@ -46,8 +54,12 @@ def root(tmp_path: Path) -> Path:
 
 def _row(student_id: str, **extra: str) -> dict[str, str]:
     return {
-        "student_id": student_id, "first_name": "Ari", "last_name": "Rivera",
-        "period": "2", "preferred_name": "", **extra,
+        "student_id": student_id,
+        "first_name": "Ari",
+        "last_name": "Rivera",
+        "period": "2",
+        "preferred_name": "",
+        **extra,
     }
 
 
@@ -59,13 +71,18 @@ def _seed(root: Path, *, two: bool = True) -> Path:
 
 
 def _invoke(
-    root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[str],
-    *, enabled: bool = True, interactive: bool = True,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    *,
+    enabled: bool = True,
+    interactive: bool = True,
     before: Callable[[str], None] | None = None,
 ) -> tuple[SharedTeacherMenuResult, str, str]:
     monkeypatch.setattr(menus, "_CLASSROOM_STUDENT_EDIT_PREVIEW_TEST_ONLY", enabled)
     request = SharedTeacherMenuRequest(
-        caller_application="Quillan", return_token="opaque-enrollment-return",
+        caller_application="Quillan",
+        return_token="opaque-enrollment-return",
         context=TeacherContextHint(workspace_root=root, display_label="Synthetic"),
     )
     out, err = io.StringIO(), io.StringIO()
@@ -99,8 +116,12 @@ def _remove(*answers: str) -> list[str]:
 
 
 @pytest.mark.parametrize("enabled, interactive", [(False, True), (True, False)])
-def test_public_gate(root: Path, monkeypatch: pytest.MonkeyPatch, enabled: bool, interactive: bool) -> None:
-    receipt, out, err = _invoke(root, monkeypatch, [], enabled=enabled, interactive=interactive)
+def test_public_gate(
+    root: Path, monkeypatch: pytest.MonkeyPatch, enabled: bool, interactive: bool
+) -> None:
+    receipt, out, err = _invoke(
+        root, monkeypatch, [], enabled=enabled, interactive=interactive
+    )
     assert receipt.exit is TeacherMenuExit.UNAVAILABLE
     assert receipt.durability is TeacherDurability.NO_CHANGE
     assert out == err == ""
@@ -118,10 +139,14 @@ def test_first_enrollment(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert err == ""
 
 
-def test_add_preserves_schema_and_existing_records(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_add_preserves_schema_and_existing_records(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     _seed(root)
     original = load_class_roster(root, CLASS)
-    result, _, err = _invoke(root, monkeypatch, _add("preferred_name", "Rob", "note", "new", "DONE", "C"))
+    result, _, err = _invoke(
+        root, monkeypatch, _add("preferred_name", "Rob", "note", "new", "DONE", "C")
+    )
     saved = load_class_roster(root, CLASS)
     assert result.durability is TeacherDurability.COMMITTED
     assert saved.columns == original.columns
@@ -131,10 +156,14 @@ def test_add_preserves_schema_and_existing_records(root: Path, monkeypatch: pyte
     assert err == ""
 
 
-def test_duplicate_names_select_exact_id(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_duplicate_names_select_exact_id(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     _seed(root)
     original = load_class_roster(root, CLASS)
-    result, out, err = _invoke(root, monkeypatch, _edit("period", "3", "note", "CLEAR", "DONE", "C"))
+    result, out, err = _invoke(
+        root, monkeypatch, _edit("period", "3", "note", "CLEAR", "DONE", "C")
+    )
     saved = load_class_roster(root, CLASS)
     assert result.exit is TeacherMenuExit.BACK
     assert result.durability is TeacherDurability.COMMITTED
@@ -148,19 +177,25 @@ def test_duplicate_names_select_exact_id(root: Path, monkeypatch: pytest.MonkeyP
     assert err == ""
 
 
-def test_remove_only_enrollment_preserves_work(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_remove_only_enrollment_preserves_work(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     _seed(root)
     artifact = class_dir(root, CLASS) / "producer-work.txt"
     artifact.write_text("preserve", encoding="utf-8")
     result, out, err = _invoke(root, monkeypatch, _remove("C"))
     assert result.durability is TeacherDurability.COMMITTED
     assert "Enrollment count: 2 -> 1" in out
-    assert [record.student_id for record in load_class_roster(root, CLASS).students] == ["0007"]
+    assert [
+        record.student_id for record in load_class_roster(root, CLASS).students
+    ] == ["0007"]
     assert artifact.read_text(encoding="utf-8") == "preserve"
     assert err == ""
 
 
-def test_final_student_removal_refused(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_final_student_removal_refused(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     path = _seed(root, two=False)
     original = path.read_bytes()
     result, _, err = _invoke(root, monkeypatch, ["2", "1", "1", "R"])
@@ -181,14 +216,22 @@ def test_noop_preserves_bytes(root: Path, monkeypatch: pytest.MonkeyPatch) -> No
     assert err == ""
 
 
-@pytest.mark.parametrize("answers, expected", [
-    (["B", "B", "B", "B", "B"], TeacherMenuExit.BACK),
-    (["M"], TeacherMenuExit.MAIN_MENU),
-    (["Q"], TeacherMenuExit.QUIT),
-    ([], TeacherMenuExit.CANCELLED),
-    (["period", "3", "DONE", ":notes", "B", "B", "B", "B"], TeacherMenuExit.BACK),
-])
-def test_navigation(root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[str], expected: TeacherMenuExit) -> None:
+@pytest.mark.parametrize(
+    "answers, expected",
+    [
+        (["B", "B", "B", "B", "B"], TeacherMenuExit.BACK),
+        (["M"], TeacherMenuExit.MAIN_MENU),
+        (["Q"], TeacherMenuExit.QUIT),
+        ([], TeacherMenuExit.CANCELLED),
+        (["period", "3", "DONE", ":notes", "B", "B", "B", "B"], TeacherMenuExit.BACK),
+    ],
+)
+def test_navigation(
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    answers: list[str],
+    expected: TeacherMenuExit,
+) -> None:
     path = _seed(root)
     before = path.read_bytes()
     result, _, _ = _invoke(root, monkeypatch, _edit(*answers))
@@ -198,16 +241,28 @@ def test_navigation(root: Path, monkeypatch: pytest.MonkeyPatch, answers: list[s
 
 
 @pytest.mark.parametrize("kind", ["entry", "confirm", "year"])
-def test_stale_state_refused(root: Path, monkeypatch: pytest.MonkeyPatch, kind: str) -> None:
+def test_stale_state_refused(
+    root: Path, monkeypatch: pytest.MonkeyPatch, kind: str
+) -> None:
     _seed(root)
 
     def intervene(choice: str) -> None:
-        if (kind == "entry" and choice == "DONE") or (kind == "confirm" and choice == "C"):
-            write_class_roster(root, create_roster(CLASS, [_row("0007", note="external"), _row("0011", note="other")]), overwrite=True)
+        if (kind == "entry" and choice == "DONE") or (
+            kind == "confirm" and choice == "C"
+        ):
+            write_class_roster(
+                root,
+                create_roster(
+                    CLASS, [_row("0007", note="external"), _row("0011", note="other")]
+                ),
+                overwrite=True,
+            )
         elif kind == "year" and choice == "C":
             close_school_year(root, closed_at=END)
 
-    result, _, _ = _invoke(root, monkeypatch, _edit("period", "3", "DONE", "C"), before=intervene)
+    result, _, _ = _invoke(
+        root, monkeypatch, _edit("period", "3", "DONE", "C"), before=intervene
+    )
     assert result.exit is TeacherMenuExit.FAILED
     assert result.durability is TeacherDurability.NO_CHANGE
     saved = load_class_roster(root, CLASS)
@@ -216,7 +271,9 @@ def test_stale_state_refused(root: Path, monkeypatch: pytest.MonkeyPatch, kind: 
         assert saved.students[0].extra_fields["note"] == "external"
 
 
-def test_immutable_identity_refused(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_immutable_identity_refused(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     path = _seed(root)
     before = path.read_bytes()
     result, _, err = _invoke(root, monkeypatch, _edit("student_id", "0099"))
@@ -227,7 +284,9 @@ def test_immutable_identity_refused(root: Path, monkeypatch: pytest.MonkeyPatch)
 
 
 @pytest.mark.parametrize("published", [False, True])
-def test_write_failure_receipt(root: Path, monkeypatch: pytest.MonkeyPatch, published: bool) -> None:
+def test_write_failure_receipt(
+    root: Path, monkeypatch: pytest.MonkeyPatch, published: bool
+) -> None:
     path = _seed(root)
     before = path.read_bytes()
 
@@ -239,8 +298,12 @@ def test_write_failure_receipt(root: Path, monkeypatch: pytest.MonkeyPatch, publ
     monkeypatch.setattr(service, "_write_roster_unlocked", fail)
     result, _, err = _invoke(root, monkeypatch, _edit("period", "3", "DONE", "C"))
     assert result.exit is TeacherMenuExit.FAILED
-    assert result.durability is (TeacherDurability.INDETERMINATE if published else TeacherDurability.NO_CHANGE)
-    assert result.change_scopes == (frozenset({TeacherChangeScope.ROSTER}) if published else frozenset())
+    assert result.durability is (
+        TeacherDurability.INDETERMINATE if published else TeacherDurability.NO_CHANGE
+    )
+    assert result.change_scopes == (
+        frozenset({TeacherChangeScope.ROSTER}) if published else frozenset()
+    )
     assert "private injected detail" not in err
     assert "before retry" in err
     if published:
