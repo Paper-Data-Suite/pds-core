@@ -115,7 +115,10 @@ def test_remove_or_replace_preserves_definitions(
     review = plan_profile_membership(populated, change)
     result = _commit(populated, review, change=change)
     assert result.after == after
-    assert inspect_standards_snapshot(populated).library.standards == review.snapshot.library.standards
+    assert (
+        inspect_standards_snapshot(populated).library.standards
+        == review.snapshot.library.standards
+    )
 
 
 def test_same_membership_is_noop(populated: Path) -> None:
@@ -135,7 +138,9 @@ def test_unconfirmed_and_changed_candidate(populated: Path) -> None:
         _commit(populated, review, confirmed=False)
     assert error.value.reason == "not_confirmed"
     with pytest.raises(StandardsReviewConflict) as error2:
-        _commit(populated, review, change=ProfileMembershipChange("set", PROFILE, (TWO,)))
+        _commit(
+            populated, review, change=ProfileMembershipChange("set", PROFILE, (TWO,))
+        )
     assert error2.value.reason == "candidate_changed"
     assert standards_library_path(populated).read_bytes() == raw
 

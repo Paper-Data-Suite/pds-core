@@ -105,11 +105,15 @@ def _read_state(path: Path) -> tuple[bytes | None, str]:
         digest.update(b"\x00missing")
         return None, digest.hexdigest()
     if not path.is_file():
-        raise StandardsReviewError("invalid_library", "Standards library is not a file.")
+        raise StandardsReviewError(
+            "invalid_library", "Standards library is not a file."
+        )
     with path.open("rb") as stream:
         raw = stream.read(_MAX_BYTES + 1)
     if len(raw) > _MAX_BYTES:
-        raise StandardsReviewError("oversized_library", "Standards library exceeds review limit.")
+        raise StandardsReviewError(
+            "oversized_library", "Standards library exceeds review limit."
+        )
     digest.update(b"\x00present\x00")
     digest.update(raw)
     return raw, digest.hexdigest()
@@ -125,7 +129,9 @@ def inspect_standards_snapshot(root: str | Path) -> StandardsSnapshot:
     try:
         status = inspect_workspace_root(root)
         if not status.exists or not status.is_dir:
-            raise StandardsReviewError("missing_workspace", "Select an existing workspace.")
+            raise StandardsReviewError(
+                "missing_workspace", "Select an existing workspace."
+            )
         path = standards_library_path(status.root)
         raw, token = _read_state(path)
         present = raw is not None
@@ -134,20 +140,36 @@ def inspect_standards_snapshot(root: str | Path) -> StandardsSnapshot:
         else:
             decoded = json.loads(raw.decode("utf-8"))
             if not isinstance(decoded, dict):
-                raise StandardsReviewError("invalid_library", "Standards library is not an object.")
+                raise StandardsReviewError(
+                    "invalid_library", "Standards library is not an object."
+                )
             library = standards_library_from_dict(cast(dict[str, object], decoded))
         if _fingerprint(path) != (present, token):
-            raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
-    except (WorkspaceRootError, ClassroomAdministrationPreviewError, OSError,
-            StandardsValidationError, UnicodeError, RecursionError, json.JSONDecodeError, KeyError, TypeError):
+            raise StandardsReviewConflict(
+                "state_changed", "Standards library changed; review again."
+            )
+    except (
+        WorkspaceRootError,
+        ClassroomAdministrationPreviewError,
+        OSError,
+        StandardsValidationError,
+        UnicodeError,
+        RecursionError,
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+    ):
         raise StandardsReviewError(
             "invalid_library", "Canonical Standards library cannot be inspected safely."
         ) from None
     return StandardsSnapshot(status.root, library, present, token)
 
 
-def _candidate_token(snapshot: StandardsSnapshot, change: ProfileMembershipChange,
-                     candidate: StandardsLibrary) -> str:
+def _candidate_token(
+    snapshot: StandardsSnapshot,
+    change: ProfileMembershipChange,
+    candidate: StandardsLibrary,
+) -> str:
     data = {
         "domain": "core242-profile-membership-v1",
         "root": str(snapshot.workspace_root),
@@ -178,14 +200,22 @@ def plan_profile_membership(
     snapshot = inspect_standards_snapshot(root)
     previous = find_standards_profile(snapshot.library, change.profile_id)
     if previous is None:
-        raise StandardsReviewError("invalid_profile", "Selected profile does not exist.")
+        raise StandardsReviewError(
+            "invalid_profile", "Selected profile does not exist."
+        )
     try:
         if change.action == "add":
-            candidate = add_standards_to_profile(snapshot.library, change.profile_id, change.standard_ids)
+            candidate = add_standards_to_profile(
+                snapshot.library, change.profile_id, change.standard_ids
+            )
         elif change.action == "remove":
-            candidate = remove_standards_from_profile(snapshot.library, change.profile_id, change.standard_ids)
+            candidate = remove_standards_from_profile(
+                snapshot.library, change.profile_id, change.standard_ids
+            )
         else:
-            candidate = set_profile_standards(snapshot.library, change.profile_id, change.standard_ids)
+            candidate = set_profile_standards(
+                snapshot.library, change.profile_id, change.standard_ids
+            )
         updated = find_standards_profile(candidate, change.profile_id)
         assert updated is not None
         token = _candidate_token(snapshot, change, candidate)
@@ -193,14 +223,20 @@ def plan_profile_membership(
         raise StandardsReviewError(
             "invalid_membership", "Requested profile membership is invalid."
         ) from None
-    return ProfileMembershipReview(snapshot, change, previous.standards, updated.standards, candidate, token)
+    return ProfileMembershipReview(
+        snapshot, change, previous.standards, updated.standards, candidate, token
+    )
 
 
 def _check(review: ProfileMembershipReview, current: str, candidate: str) -> None:
     if review.snapshot.state_token != current:
-        raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
+        raise StandardsReviewConflict(
+            "state_changed", "Standards library changed; review again."
+        )
     if review.candidate_state_token != candidate:
-        raise StandardsReviewConflict("candidate_changed", "Profile proposal differs from review.")
+        raise StandardsReviewConflict(
+            "candidate_changed", "Profile proposal differs from review."
+        )
 
 
 def commit_profile_membership(
@@ -213,44 +249,74 @@ def commit_profile_membership(
 ) -> ProfileMembershipResult:
     """Commit a reviewed membership change; no definition or profile deletion."""
     if confirmed is not True:
-        raise StandardsReviewError("not_confirmed", "Explicit confirmation is required.")
+        raise StandardsReviewError(
+            "not_confirmed", "Explicit confirmation is required."
+        )
     for token in (expected_current_state_token, expected_candidate_state_token):
         if type(token) is not str or _TOKEN.fullmatch(token) is None:
             raise StandardsReviewError("invalid_token", "Reviewed token is invalid.")
     if inspect_standards_snapshot(root).state_token != expected_current_state_token:
-        raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
+        raise StandardsReviewConflict(
+            "state_changed", "Standards library changed; review again."
+        )
     first = plan_profile_membership(root, change)
     _check(first, expected_current_state_token, expected_candidate_state_token)
     canonical = first.snapshot.workspace_root
     try:
         with _local_year_lock(canonical):
-            if inspect_standards_snapshot(root).state_token != expected_current_state_token:
-                raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
+            if (
+                inspect_standards_snapshot(root).state_token
+                != expected_current_state_token
+            ):
+                raise StandardsReviewConflict(
+                    "state_changed", "Standards library changed; review again."
+                )
             fresh = plan_profile_membership(root, change)
             _check(fresh, expected_current_state_token, expected_candidate_state_token)
             if fresh.candidate == fresh.snapshot.library:
                 return ProfileMembershipResult(
-                    "no_change", canonical, change.profile_id, fresh.before, fresh.after,
+                    "no_change",
+                    canonical,
+                    change.profile_id,
+                    fresh.before,
+                    fresh.after,
                     fresh.snapshot.state_token,
                 )
             path = standards_library_path(canonical)
             try:
                 fingerprint = _fingerprint(path)
             except (OSError, ClassroomAdministrationPreviewError):
-                raise StandardsReviewError("invalid_library", "Standards library cannot be inspected safely.") from None
+                raise StandardsReviewError(
+                    "invalid_library", "Standards library cannot be inspected safely."
+                ) from None
             if fingerprint != (True, expected_current_state_token):
-                raise StandardsReviewConflict("state_changed", "Standards library changed; review again.")
+                raise StandardsReviewConflict(
+                    "state_changed", "Standards library changed; review again."
+                )
             try:
                 write_standards_library(path, fresh.candidate, overwrite=True)
                 saved = inspect_standards_snapshot(canonical)
                 if saved.library != fresh.candidate:
-                    raise StandardsReviewWriteError("write_uncertain", "Standards write outcome is uncertain.")
+                    raise StandardsReviewWriteError(
+                        "write_uncertain", "Standards write outcome is uncertain."
+                    )
             except (OSError, StandardsReviewError, ClassroomAdministrationPreviewError):
-                raise StandardsReviewWriteError("write_uncertain", "Inspect Standards before retry.") from None
+                raise StandardsReviewWriteError(
+                    "write_uncertain", "Inspect Standards before retry."
+                ) from None
             return ProfileMembershipResult(
-                "committed", canonical, change.profile_id, fresh.before, fresh.after, saved.state_token
+                "committed",
+                canonical,
+                change.profile_id,
+                fresh.before,
+                fresh.after,
+                saved.state_token,
             )
     except SchoolYearCommitError as error:
-        raise StandardsReviewConflict(error.reason, "Local administrative writer is unavailable.") from None
+        raise StandardsReviewConflict(
+            error.reason, "Local administrative writer is unavailable."
+        ) from None
     except ClassroomAdministrationPreviewError:
-        raise StandardsReviewError("unsafe_path", "Administrative writer path is unsafe.") from None
+        raise StandardsReviewError(
+            "unsafe_path", "Administrative writer path is unsafe."
+        ) from None
