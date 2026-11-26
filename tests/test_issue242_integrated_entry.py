@@ -109,14 +109,15 @@ def test_core_navigation(root: Path, qualified: None, choice: str) -> None:
 def test_cli_noninteractive_never_resolves_workspace(
     tmp_path: Path, qualified: None, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class NoRead(io.StringIO):
-        def readline(self, size: int | None = -1) -> str:
-            raise AssertionError("Redirected menu must not read input")
+    def no_read(*args: object, **kwargs: object) -> str:
+        raise AssertionError("Redirected menu must not read input")
 
     def no_access(*args: object, **kwargs: object) -> None:
         raise AssertionError("Redirected menu must not resolve workspace")
 
-    monkeypatch.setattr("sys.stdin", NoRead())
+    redirected = io.StringIO()
+    monkeypatch.setattr(redirected, "readline", no_read)
+    monkeypatch.setattr("sys.stdin", redirected)
     monkeypatch.setattr("pds_core.cli.resolve_workspace_root", no_access)
     monkeypatch.setattr("pds_core.classroom_menu_readonly.inspect_classroom_overview", no_access)
     missing = tmp_path / "missing"
