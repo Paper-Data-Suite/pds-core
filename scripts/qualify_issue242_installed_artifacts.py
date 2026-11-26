@@ -35,7 +35,9 @@ def main() -> None:
     root = Path(_git(Path.cwd(), "rev-parse", "--show-toplevel")).resolve()
     expected: str = args.expected_head
     assert len(expected) == 40 and _git(root, "rev-parse", "HEAD") == expected
-    assert not _git(root, "status", "--porcelain", "--untracked-files=all"), "Requires clean checkout"
+    assert not _git(root, "status", "--porcelain", "--untracked-files=all"), (
+        "Requires clean checkout"
+    )
     print(f"EXACT SOURCE HEAD: {expected}", flush=True)
     with tempfile.TemporaryDirectory(prefix="core242-artifacts-") as directory:
         temp = Path(directory)
@@ -50,9 +52,20 @@ def main() -> None:
         wheels = tuple(dist.glob("*.whl"))
         sdists = tuple(dist.glob("*.tar.gz"))
         assert len(wheels) == len(sdists) == 1
-        _run(sys.executable, "-m", "twine", "check", str(wheels[0]), str(sdists[0]), cwd=temp)
+        _run(
+            sys.executable,
+            "-m",
+            "twine",
+            "check",
+            str(wheels[0]),
+            str(sdists[0]),
+            cwd=temp,
+        )
         for kind, artifact in (("wheel", wheels[0]), ("sdist", sdists[0])):
-            print(f"{kind.upper()} SHA256: {_digest(artifact)} {artifact.name}", flush=True)
+            print(
+                f"{kind.upper()} SHA256: {_digest(artifact)} {artifact.name}",
+                flush=True,
+            )
             environment = temp / f"{kind}-venv"
             _run(sys.executable, "-m", "venv", str(environment), cwd=temp)
             python = str(_python(environment))
@@ -60,7 +73,12 @@ def main() -> None:
             _run(python, "-I", "-m", "pip", "check", cwd=temp)
             smoke = temp / f"{kind}-smoke"
             smoke.mkdir()
-            _run(python, "-I", str(source / "scripts/issue242_installed_acceptance.py"), cwd=smoke)
+            _run(
+                python,
+                "-I",
+                str(source / "scripts/issue242_installed_acceptance.py"),
+                cwd=smoke,
+            )
             assert not tuple(smoke.iterdir()), "Installed probe left unexpected residue"
     assert _git(root, "rev-parse", "HEAD") == expected
     assert not _git(root, "status", "--porcelain", "--untracked-files=all")

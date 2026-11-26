@@ -101,9 +101,7 @@ def test_source_contract_and_installed_capabilities_are_separate() -> None:
         "classroom.roster_edits.v1",
         "classroom.menu.v1",
     }.issubset(capabilities)
-    for not_implemented in (
-        "notes.portability.v1",
-    ):
+    for not_implemented in ("notes.portability.v1",):
         assert not_implemented not in get_teacher_experience_capabilities()
 
 

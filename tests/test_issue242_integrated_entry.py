@@ -170,17 +170,31 @@ def test_cli_noninteractive_never_resolves_workspace(
 
 
 def test_cli_interactive_gate_and_route(
-    root: Path, monkeypatch: pytest.MonkeyPatch, qualified: None,
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    qualified: None,
 ) -> None:
     monkeypatch.setattr("sys.stdin", Terminal("2\n1\nB\nB\nB\n"))
     with monkeypatch.context() as disabled:
         caps = teacher_experience.get_teacher_experience_capabilities()
-        disabled.setattr(teacher_experience, "_IMPLEMENTED_CAPABILITIES", caps - {"classroom.menu.v1"})
+        disabled.setattr(
+            teacher_experience,
+            "_IMPLEMENTED_CAPABILITIES",
+            caps - {"classroom.menu.v1"},
+        )
         out, err = Terminal(), io.StringIO()
-        assert run_cli(["--workspace", str(root), "workspace", "menu"], stdout=out, stderr=err) == 5
+        assert (
+            run_cli(
+                ["--workspace", str(root), "workspace", "menu"], stdout=out, stderr=err
+            )
+            == 5
+        )
         assert out.getvalue() == "" and "not qualified" in err.getvalue()
     out, err = Terminal(), io.StringIO()
-    assert run_cli(["--workspace", str(root), "workspace", "menu"], stdout=out, stderr=err) == 0
+    assert (
+        run_cli(["--workspace", str(root), "workspace", "menu"], stdout=out, stderr=err)
+        == 0
+    )
     assert "Ari Rivera (ID: 0007)" in out.getvalue()
     assert "Revalidate workspace" in out.getvalue()
     assert err.getvalue() == ""
