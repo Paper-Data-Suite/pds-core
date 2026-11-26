@@ -87,6 +87,7 @@ from pds_core.cli_support.starter_standards import (
     handle_starter_standards_validate,
 )
 from pds_core.cli_support.class_commands import handle_class_creation
+from pds_core.cli_support.classroom_standards_commands import handle_guarded_standards
 from pds_core.cli_support.school_year_commands import (
     handle_year_commit,
     handle_year_preview,
@@ -667,6 +668,21 @@ def _add_workspace_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
             handler=handle_class_creation,
             load_workspace_library=False,
         )
+
+    for operation in ("standards-inspect", "standards-preview", "standards-commit"):
+        command = workspace_subparsers.add_parser(
+            operation, help="Inspect or review an exact Standards membership change."
+        )
+        if operation != "standards-inspect":
+            command.add_argument("action", choices=("add", "remove", "set"))
+            command.add_argument("profile_id")
+            command.add_argument("standard_ids", nargs="*")
+        if operation == "standards-commit":
+            command.add_argument("--expected-current-state-token", required=True)
+            command.add_argument("--expected-candidate-state-token", required=True)
+            command.add_argument("--confirm", action="store_true")
+        _format(command)
+        command.set_defaults(handler=handle_guarded_standards, load_workspace_library=False)
 
 
 def _add_validate_parser(

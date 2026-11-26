@@ -72,6 +72,9 @@ def _run(
         "class-preview",
         "class-commit",
         "class-recovery",
+        "standards-inspect",
+        "standards-preview",
+        "standards-commit",
     }:
         return handler(
             args,

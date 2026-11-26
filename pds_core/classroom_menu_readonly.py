@@ -69,10 +69,12 @@ class _ReadOnlyController:
         workspace_changes_enabled: bool = False,
         school_year_changes_enabled: bool = False,
         class_changes_enabled: bool = False,
+        standards_changes_enabled: bool = False,
     ) -> None:
         self.workspace_changes_enabled = workspace_changes_enabled
         self.school_year_changes_enabled = school_year_changes_enabled
         self.class_changes_enabled = class_changes_enabled
+        self.standards_changes_enabled = standards_changes_enabled
         self.request = request
         self.read_line = read_line
         self.output = output
@@ -147,7 +149,11 @@ class _ReadOnlyController:
             self._header(title)
             print("1. Workspace and school year", file=self.output)
             print("2. Classes and rosters", file=self.output)
-            print("3. Standards (not available in this preview)", file=self.output)
+            print(
+                "3. Standards management" if self.standards_changes_enabled
+                else "3. Standards (not available in this preview)",
+                file=self.output,
+            )
             if self.workspace_changes_enabled:
                 print("4. Manage saved workspace preference", file=self.output)
             if self.school_year_changes_enabled:
@@ -383,6 +389,19 @@ class _ReadOnlyController:
                 if receipt is not None:
                     return receipt
                 continue
+            if self.standards_changes_enabled and self.page == "home" and choice == "3":
+                from pds_core.classroom_menu_standards import run_standards_review
+
+                receipt = run_standards_review(
+                    self.request,
+                    workspace_root=overview.workspace.root,
+                    read_line=self.read_line,
+                    output=self.output,
+                    error_output=self.errors,
+                )
+                if receipt is not None:
+                    return receipt
+                continue
             self._select(choice, choices)
 
 
@@ -453,4 +472,20 @@ def run_classroom_class_preview(
         workspace_changes_enabled=True,
         school_year_changes_enabled=True,
         class_changes_enabled=True,
+    ).run()
+
+
+def run_classroom_standards_preview(
+    request: SharedTeacherMenuRequest,
+    *,
+    read_line: Callable[[], str],
+    output: TextIO,
+    error_output: TextIO | None = None,
+) -> SharedTeacherMenuResult:
+    """Private C4B Standards composition gate."""
+    return _ReadOnlyController(
+        request=request, read_line=read_line, output=output,
+        error_output=output if error_output is None else error_output,
+        workspace_changes_enabled=True, school_year_changes_enabled=True,
+        class_changes_enabled=True, standards_changes_enabled=True,
     ).run()
