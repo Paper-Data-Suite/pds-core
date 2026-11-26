@@ -11,6 +11,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_workspace_commit import (
     GuardedWorkspacePreferencePreview,
     WorkspacePreferenceCommitError,
@@ -149,18 +151,18 @@ def _refusal(
 ) -> SharedTeacherMenuResult:
     if isinstance(error, WorkspacePreferenceWriteError):
         if error.reason == "write_outcome_uncertain":
-            print("Write outcome uncertain; inspect before retrying.", file=stderr)
+            _outcome_notice("Write outcome uncertain; inspect before retrying.", file=stderr)
             return _receipt(
                 request,
                 TeacherMenuExit.FAILED,
                 TeacherDurability.INDETERMINATE,
                 "Saved workspace preference write outcome uncertain.",
             )
-        print("Workspace preference write could not proceed.", file=stderr)
+        _outcome_notice("Workspace preference write could not proceed.", file=stderr)
     elif isinstance(error, WorkspacePreferenceConflictError):
-        print("Workspace preference changed; review it again.", file=stderr)
+        _outcome_notice("Workspace preference changed; review it again.", file=stderr)
     else:
-        print("Workspace preference request failed safely.", file=stderr)
+        _outcome_notice("Workspace preference request failed safely.", file=stderr)
     return _receipt(
         request,
         TeacherMenuExit.FAILED,
@@ -234,14 +236,14 @@ def run_workspace_preference_review(
         except WorkspacePreferenceCommitError as error:
             return _refusal(request, error, error_output)
         if result.outcome == "committed":
-            print("Saved workspace preference changed.", file=output)
+            _outcome_notice("Saved workspace preference changed.", file=output)
             return _receipt(
                 request,
                 TeacherMenuExit.BACK,
                 TeacherDurability.COMMITTED,
                 "Saved workspace preference committed.",
             )
-        print("Saved workspace preference already matches.", file=output)
+        _outcome_notice("Saved workspace preference already matches.", file=output)
         return _receipt(
             request,
             TeacherMenuExit.BACK,

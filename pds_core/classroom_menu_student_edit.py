@@ -7,6 +7,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_admin_preview import ClassroomAdministrationPreviewError
 from pds_core.classroom_discovery import ClassroomDiscoveryError
 from pds_core.classroom_menu_roster_import import (
@@ -187,7 +189,7 @@ class _StudentFlow(_ImportFlow):
                 return self.receipt(
                     TeacherMenuExit.BACK, "Enrollment already matched; no write."
                 )
-            print("Enrollment change committed.", file=self.output)
+            _outcome_notice("Enrollment change committed.", file=self.output)
             return self.receipt(
                 TeacherMenuExit.BACK,
                 "Enrollment change committed.",
@@ -199,7 +201,7 @@ class _StudentFlow(_ImportFlow):
             return self.receipt(nav.outcome, "Enrollment review returned.")
         except StudentRosterEditWriteError as error:
             if error.reason == "write_outcome_uncertain":
-                print(
+                _outcome_notice(
                     "Roster write uncertain; inspect canonical state before retry.",
                     file=self.errors,
                 )
@@ -208,23 +210,23 @@ class _StudentFlow(_ImportFlow):
                     "Roster write outcome uncertain.",
                     TeacherDurability.INDETERMINATE,
                 )
-            print(
+            _outcome_notice(
                 "Enrollment write refused; inspect canonical state before retry.",
                 file=self.errors,
             )
         except StudentRosterEditError as error:
             if error.reason == "empty_roster":
-                print(
+                _outcome_notice(
                     "Removing the final student is not supported by the current roster contract.",
                     file=self.errors,
                 )
             else:
-                print(
+                _outcome_notice(
                     "Enrollment change refused; inspect current roster and review again.",
                     file=self.errors,
                 )
         except _Refusal as error:
-            print(str(error), file=self.errors)
+            _outcome_notice(str(error), file=self.errors)
         except (
             RosterError,
             ClassroomDiscoveryError,
@@ -234,7 +236,7 @@ class _StudentFlow(_ImportFlow):
             RuntimeError,
             ValueError,
         ):
-            print(
+            _outcome_notice(
                 "Enrollment change refused; inspect the class and review again.",
                 file=self.errors,
             )

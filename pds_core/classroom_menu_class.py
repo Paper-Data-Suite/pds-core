@@ -7,6 +7,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_admin_preview import ClassCreationChange
 from pds_core.classroom_class_commit import (
     ClassCreationError,
@@ -149,11 +151,11 @@ def run_class_creation_review(
         observed = inspect_class_creation_recovery(
             workspace_root, change, created_at=at
         )
-        print(
+        _outcome_notice(
             f"Class creation incomplete. Recovery observation: {observed}.",
             file=error_output,
         )
-        print(
+        _outcome_notice(
             "Inspect canonical state before retry. Do not delete or adopt an incomplete class automatically.",
             file=error_output,
         )
@@ -161,11 +163,11 @@ def run_class_creation_review(
             request, TeacherMenuExit.FAILED, "Class creation incomplete.", durability
         )
     except ClassCreationError:
-        print(
+        _outcome_notice(
             "Class creation refused; review current classroom state.", file=error_output
         )
         return _receipt(request, TeacherMenuExit.FAILED, "Class creation refused.")
-    print("Class creation committed.", file=output)
+    _outcome_notice("Class creation committed.", file=output)
     return _receipt(
         request,
         TeacherMenuExit.BACK,

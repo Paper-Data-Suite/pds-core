@@ -8,6 +8,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_admin_preview import (
     ClassroomAdministrationPreviewError,
     _guard,
@@ -294,7 +296,7 @@ class _ImportFlow:
                         expected_candidate_state_token=preview.candidate_state_token,
                     )
                 except (RosterWriteError, RosterImportWriteError):
-                    print(
+                    _outcome_notice(
                         "Roster write uncertain; inspect canonical state before retry.",
                         file=self.errors,
                     )
@@ -303,7 +305,7 @@ class _ImportFlow:
                         "Roster write outcome uncertain.",
                         TeacherDurability.INDETERMINATE,
                     )
-            print("Roster import committed.", file=self.output)
+            _outcome_notice("Roster import committed.", file=self.output)
             return self.receipt(
                 TeacherMenuExit.BACK,
                 "Roster import committed.",
@@ -314,7 +316,7 @@ class _ImportFlow:
         except _Return as nav:
             return self.receipt(nav.outcome, "Roster review returned.")
         except _Refusal as error:
-            print(str(error), file=self.errors)
+            _outcome_notice(str(error), file=self.errors)
         except (
             RosterError,
             ClassroomDiscoveryError,
@@ -324,7 +326,7 @@ class _ImportFlow:
             RuntimeError,
             ValueError,
         ):
-            print(
+            _outcome_notice(
                 "Roster import refused; inspect the class and candidate and review again.",
                 file=self.errors,
             )

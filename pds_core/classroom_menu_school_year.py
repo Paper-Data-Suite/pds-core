@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_admin_preview import SchoolYearChange
 from pds_core.classroom_school_year_commit import (
     GuardedSchoolYearReview,
@@ -108,18 +110,18 @@ def _failure(
 ) -> SharedTeacherMenuResult:
     if isinstance(error, SchoolYearWriteError):
         if error.reason == "write_outcome_uncertain":
-            print("Write outcome uncertain; inspect before retrying.", file=stderr)
+            _outcome_notice("Write outcome uncertain; inspect before retrying.", file=stderr)
             return _receipt(
                 request,
                 TeacherMenuExit.FAILED,
                 durability=TeacherDurability.INDETERMINATE,
                 detail="School-year write outcome is uncertain.",
             )
-        print("School-year writer refused the change.", file=stderr)
+        _outcome_notice("School-year writer refused the change.", file=stderr)
     elif isinstance(error, SchoolYearConflictError):
-        print("School-year state changed; review again.", file=stderr)
+        _outcome_notice("School-year state changed; review again.", file=stderr)
     else:
-        print("School-year operation refused safely.", file=stderr)
+        _outcome_notice("School-year operation refused safely.", file=stderr)
     return _receipt(
         request, TeacherMenuExit.FAILED, detail="School-year operation was refused."
     )
@@ -243,12 +245,12 @@ def run_school_year_review(
         except SchoolYearCommitError as error:
             return _failure(request, error, error_output)
         if result.outcome == "committed":
-            print("School-year transition committed.", file=output)
+            _outcome_notice("School-year transition committed.", file=output)
             return _receipt(
                 request,
                 TeacherMenuExit.BACK,
                 durability=TeacherDurability.COMMITTED,
                 detail="School-year record committed.",
             )
-        print("School-year state already matched.", file=output)
+        _outcome_notice("School-year state already matched.", file=output)
         return _receipt(request, TeacherMenuExit.BACK, detail="No year record changed.")

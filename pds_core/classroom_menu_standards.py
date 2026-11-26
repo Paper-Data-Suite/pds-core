@@ -7,6 +7,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
 
+from pds_core.classroom_menu_outcome import _outcome_notice
+
 from pds_core.classroom_menu_school_year import _header
 from pds_core.classroom_standards_commit import (
     MembershipAction,
@@ -200,9 +202,9 @@ class _StandardsFlow:
             confirmed=True,
         )
         if result.outcome == "no_change":
-            print("Membership already matched; no write.", file=self.output)
+            _outcome_notice("Membership already matched; no write.", file=self.output)
             return self.receipt(TeacherMenuExit.BACK, "Profile membership unchanged.")
-        print("Profile membership committed.", file=self.output)
+        _outcome_notice("Profile membership committed.", file=self.output)
         return self.receipt(
             TeacherMenuExit.BACK,
             "Profile membership committed.",
@@ -236,7 +238,7 @@ class _StandardsFlow:
         except _Return as nav:
             return self.receipt(nav.outcome, "Standards management returned.")
         except StandardsReviewWriteError:
-            print(
+            _outcome_notice(
                 "Standards write uncertain; inspect canonical state before retry.",
                 file=self.errors,
             )
@@ -246,7 +248,7 @@ class _StandardsFlow:
                 TeacherDurability.INDETERMINATE,
             )
         except StandardsReviewError:
-            print(
+            _outcome_notice(
                 "Standards operation refused; inspect current library.",
                 file=self.errors,
             )
