@@ -176,14 +176,21 @@ class CoreMenu:
                 continue
             if choice == "6":
                 receipt = run_classroom_entry(
-                    self.args.workspace, stdin=self.stdin, stdout=self.stdout,
-                    stderr=self.stderr, interactive=True,
+                    self.args.workspace,
+                    stdin=self.stdin,
+                    stdout=self.stdout,
+                    stderr=self.stderr,
+                    interactive=True,
                 )
                 # Core holds no subordinate selection or cached workspace/library
                 # at this boundary. Next entry resolves canonical state afresh.
                 if receipt.exit is TeacherMenuExit.QUIT:
                     return 0
-                if receipt.exit in (TeacherMenuExit.FAILED, TeacherMenuExit.UNAVAILABLE) or receipt.change_scopes:
+                if (
+                    receipt.exit
+                    in (TeacherMenuExit.FAILED, TeacherMenuExit.UNAVAILABLE)
+                    or receipt.change_scopes
+                ):
                     print(receipt.message, file=self.stdout)
                     self._pause("Main Menu")
                 continue

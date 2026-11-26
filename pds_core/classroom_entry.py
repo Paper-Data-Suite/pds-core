@@ -21,7 +21,11 @@ from pds_core.teacher_menus import run_workspace_classroom_menu
 
 def run_classroom_entry(
     workspace: str | None,
-    *, stdin: TextIO, stdout: TextIO, stderr: TextIO, interactive: bool,
+    *,
+    stdin: TextIO,
+    stdout: TextIO,
+    stderr: TextIO,
+    interactive: bool,
 ) -> SharedTeacherMenuResult:
     """Invoke the public callable with only an ephemeral standalone hint."""
     token = uuid4().hex
@@ -62,13 +66,18 @@ def handle_classroom_menu(
     stdin = sys.stdin
     receipt = run_classroom_entry(
         args.workspace,
-        stdin=stdin, stdout=stdout, stderr=stderr,
+        stdin=stdin,
+        stdout=stdout,
+        stderr=stderr,
         interactive=_interactive(stdin, stdout),
     )
     if receipt.exit is TeacherMenuExit.UNAVAILABLE:
         print(receipt.message, file=stderr)
         return 5
-    if receipt.durability in (TeacherDurability.PARTIAL, TeacherDurability.INDETERMINATE):
+    if receipt.durability in (
+        TeacherDurability.PARTIAL,
+        TeacherDurability.INDETERMINATE,
+    ):
         print(receipt.message, file=stderr)
         return 7
     if receipt.exit is TeacherMenuExit.FAILED:
