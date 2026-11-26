@@ -66,7 +66,7 @@ class _StudentFlow(_ImportFlow):
             if operation in {"add", "update"}:
                 # Explicit field/value pairs avoid interpreting blank input as
                 # permission to clear an existing value.
-                allowed = ("first_name", "last_name", "period")
+                allowed: tuple[str, ...] = ("first_name", "last_name", "period")
                 if roster is not None:
                     allowed += tuple(column for column in roster.columns if column not in ROSTER_REQUIRED_COLUMNS)
                 print(f"Editable fields: {json.dumps(allowed, ensure_ascii=True)}", file=self.output)

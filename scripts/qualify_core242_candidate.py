@@ -172,9 +172,9 @@ def main() -> None:
     for name in scoped:
         path = Path(name)
         original = capture("git", "show", f"HEAD:{name}")
-        _, _, final = ruff_states(name, original)
-        if _normalized(path.read_bytes()) != _normalized(final):
-            path.write_bytes(final)
+        _, _, final_source = ruff_states(name, original)
+        if _normalized(path.read_bytes()) != _normalized(final_source):
+            path.write_bytes(final_source)
     run(sys.executable, "-m", "ruff", "format", "--check", *scoped)
     run(sys.executable, "-m", "ruff", "check", *static)
     run(sys.executable, "-m", "mypy", *static)
