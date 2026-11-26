@@ -27,6 +27,8 @@ from pds_core.teacher_context import (
 from pds_core.teacher_experience import get_teacher_experience_capabilities
 from pds_core.teacher_menus import run_workspace_classroom_menu
 
+pytestmark = pytest.mark.usefixtures("classroom_capability_disabled")
+
 
 @pytest.fixture
 def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:

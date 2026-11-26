@@ -26,6 +26,8 @@ from pds_core.teacher_context import (
 from pds_core.teacher_experience import get_teacher_experience_capabilities
 from pds_core.teacher_menus import run_workspace_classroom_menu
 
+pytestmark = pytest.mark.usefixtures("classroom_capability_disabled")
+
 YEAR = "2026-2027"
 CLASS = "english10_p2"
 START = "2026-09-01T08:00:00-04:00"

@@ -29,6 +29,8 @@ from pds_core.teacher_context import (
 from pds_core.teacher_experience import get_teacher_experience_capabilities
 from pds_core.teacher_menus import run_workspace_classroom_menu
 
+pytestmark = pytest.mark.usefixtures("classroom_capability_disabled")
+
 
 @pytest.fixture(autouse=True)
 def _keep_public_menu_gated(monkeypatch: pytest.MonkeyPatch) -> None:
